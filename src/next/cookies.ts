@@ -55,10 +55,12 @@ export function removeAuthCookies(headers: Headers, options: RemoveAuthCookiesOp
     { status: 200, headers: { 'content-type': 'application/json' } }
   );
 
+  const { maxAge, expires, ...cookieOptions } = options.cookieSerializeOptions
+
   response.headers.append(
     'Set-Cookie',
     serialize(options.cookieName, '', {
-      ...options.cookieSerializeOptions,
+      ...cookieOptions,
       expires: new Date(0),
     })
   );
@@ -66,7 +68,7 @@ export function removeAuthCookies(headers: Headers, options: RemoveAuthCookiesOp
   response.headers.append(
     'Set-Cookie',
     serialize(getSignatureCookieName(options.cookieName), '', {
-      ...options.cookieSerializeOptions,
+      ...cookieOptions,
       expires: new Date(0),
     })
   );
