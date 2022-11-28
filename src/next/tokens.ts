@@ -3,6 +3,7 @@ import { ServiceAccount } from '../auth/credential';
 import { getSignatureCookieName } from '../auth/cookies';
 import { getFirebaseAuth, IdAndRefreshTokens, Tokens } from '../auth';
 import { get } from '../auth/cookies/get';
+import { ReadonlyRequestCookies } from 'next/dist/server/app-render';
 
 export interface GetTokensOptions {
   cookieName: string;
@@ -17,7 +18,7 @@ function validateOptions(options: GetTokensOptions) {
   }
 }
 
-export async function getTokens(cookies: RequestCookies, options: GetTokensOptions): Promise<Tokens|null> {
+export async function getTokens(cookies: RequestCookies | ReadonlyRequestCookies, options: GetTokensOptions): Promise<Tokens|null> {
   validateOptions(options);
 
   const { verifyAndRefreshExpiredIdToken } = getFirebaseAuth(options.serviceAccount, options.apiKey);
