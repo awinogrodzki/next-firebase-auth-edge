@@ -1,5 +1,5 @@
-import * as jwebt from '.';
-import { decode, isExpired, sign } from '.';
+import * as jwebt from './index';
+import { decode, isExpired, sign } from './index';
 
 describe('jwebt', () => {
   it('should export decode function', () => {

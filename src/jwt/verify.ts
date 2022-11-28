@@ -2,7 +2,7 @@ import { JwtError, JwtErrorCode } from './error';
 import { decode } from './decode';
 import { base64StringToArrayBuffer, stringToArrayBuffer } from './utils';
 import { ALGORITHMS } from './consts';
-import { pemToPublicKey } from '../../pem-to-public-key';
+import { pemToPublicKey } from '../pem-to-public-key';
 
 interface VerifyOptions {
   complete?: boolean;

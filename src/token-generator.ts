@@ -3,8 +3,8 @@ import {
   CryptoSignerError,
   CryptoSignerErrorCode,
   ServiceAccountSigner
-} from './jwt-utils/jwt/crypto-signer';
-import { objectToBase64, stringToBase64 } from './jwt-utils/jwt/utils';
+} from './jwt/crypto-signer';
+import { objectToBase64, stringToBase64 } from './jwt/utils';
 import { isNonEmptyString, isNonNullObject } from './validator';
 import { AuthClientErrorCode, ErrorInfo, FirebaseAuthError } from './error';
 import { useEmulator } from './firebase';

@@ -1,4 +1,4 @@
-import { base64StringToByteArray } from './jwt-utils/jwt/utils';
+import { base64StringToByteArray } from './jwt/utils';
 
 function berToJavaScript(byteArray: Uint8Array): ASN1 {
   const result: Partial<ASN1> = {};

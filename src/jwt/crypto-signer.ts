@@ -1,5 +1,5 @@
-import { ServiceAccountCredential } from '../../credential';
-import { ErrorInfo } from '../../error';
+import { ServiceAccountCredential } from '../credential';
+import { ErrorInfo } from '../error';
 import { ALGORITHMS } from './consts';
 import { arrayBufferToBase64, pemToArrayBuffer, stringToArrayBuffer } from './utils';
 

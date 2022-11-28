@@ -1,4 +1,4 @@
-import { arrayBufferToBase64, stringToArrayBuffer, } from './jwt-utils/jwt/utils';
+import { arrayBufferToBase64, stringToArrayBuffer, } from './jwt/utils';
 
 
 export class Keygrip {

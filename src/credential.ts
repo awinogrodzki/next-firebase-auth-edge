@@ -1,6 +1,6 @@
 import { isNonNullObject } from './validator';
-import { sign } from './jwt-utils/jwt';
-import { DecodedJWTPayload } from './jwt-utils/jwt/types';
+import { sign } from './jwt';
+import { DecodedJWTPayload } from './jwt/types';
 
 export interface GoogleOAuthAccessToken {
   access_token: string;
