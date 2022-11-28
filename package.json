@@ -1,7 +1,7 @@
 {
-  "name": "next-firebase-auth-middleware",
+  "name": "next-firebase-auth-edge",
   "version": "0.1.0",
-  "description": "",
+  "description": "Next.js server firebase authentication for Edge Runtime. Dedicated for Next 13 server components. Compatible with Next.js middleware.",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
@@ -22,7 +22,7 @@
     "ts-jest": "^29.0.3",
     "typescript": "^4.9.3"
   },
-  "keywords": [],
+  "keywords": ["firebase", "authentication", "firebase auth", "next", "next.js", "edge runtime", "edge", "middleware"],
   "author": "",
   "license": "ISC",
   "engines": {
