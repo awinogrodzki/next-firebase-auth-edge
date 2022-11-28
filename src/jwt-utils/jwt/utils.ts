@@ -6,11 +6,11 @@ export function arrayBufferToBase64( buffer: ArrayBuffer ) {
   for (var i = 0; i < len; i++) {
     binary += String.fromCharCode( bytes[ i ] );
   }
-  return btoa( binary );
+  return btoa(binary).replace(/\//g, '_').replace(/\+/g, '-').replace(/=+$/g, '');
 }
 
 export function stringToBase64(string: string): string {
-  return btoa(string).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  return btoa(string).replace(/\//g, '_').replace(/\+/g, '-').replace(/=+$/g, '');
 }
 
 export function objectToBase64(object: object): string {
@@ -23,13 +23,21 @@ export function base64StringToObject(base64: string): ParsedObject {
 }
 
 export function stringToArrayBuffer(value: string): ArrayBuffer {
-  return new Uint8Array(
-    value.split('').map((character) => character.charCodeAt(0))
-  ).buffer;
+  return stringToByteArray(value).buffer;
 }
 
 export function base64StringToArrayBuffer(base64: string): ArrayBuffer {
-  return stringToArrayBuffer(atob(base64));
+  return stringToArrayBuffer(atob(base64.replace(/-/g, '+').replace(/_/g, '/')));
+}
+
+export function stringToByteArray(value: string): Uint8Array {
+  return new Uint8Array(
+    value.split('').map((character) => character.charCodeAt(0))
+  );
+}
+
+export function base64StringToByteArray(base64: string): Uint8Array {
+  return stringToByteArray(atob(base64.replace(/-/g, '+').replace(/_/g, '/')));
 }
 
 export function pemToArrayBuffer(pem: string): ArrayBuffer {

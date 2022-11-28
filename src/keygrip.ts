@@ -2,7 +2,7 @@ import { arrayBufferToBase64, stringToArrayBuffer, } from './jwt-utils/jwt/utils
 
 
 export class Keygrip {
-  private digestAlgorithm = 'SHA-256';
+  private digestAlgorithm = 'SHA-1';
 
   constructor(private keys: string[]) {
   }
@@ -11,7 +11,7 @@ export class Keygrip {
     return {
       name: 'HMAC',
       hash: {
-        name: 'SHA-256'
+        name: 'SHA-1'
       },
       length
     };
@@ -24,7 +24,7 @@ export class Keygrip {
     const key = await crypto.subtle.importKey('raw', keyBuffer, this.getSignAlgorithm(digest.byteLength), false, ['sign']);
     const signed = await crypto.subtle.sign(this.getSignAlgorithm(digest.byteLength), key, digest);
 
-    return arrayBufferToBase64(signed)
+    return arrayBufferToBase64(signed);
   }
 
   public async sign(data: string) {

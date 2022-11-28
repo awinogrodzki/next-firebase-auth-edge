@@ -5,7 +5,7 @@ describe('keygrip', () => {
     const keys = new Keygrip(['key1', 'key2']);
     const key = await keys.sign('some string');
 
-    expect(key).toEqual('Ingfa3f0diEOHz20c91k6jdToLNg2bwnhGacPx86oYA=');
+    expect(key).toEqual('pRUtdYSFwPukug4oJuql5qtl9Vc');
     expect(await keys.verify('some string', key)).toBe(true);
     expect(await keys.verify('some string', 'wat')).toBe(false);
     expect(await keys.verify('some', key)).toBe(false);

@@ -2,9 +2,10 @@ import { useEmulator } from './firebase';
 import { createIdTokenVerifier, DecodedIdToken } from './token-verifier';
 import { AuthClientErrorCode, ErrorInfo, FirebaseAuthError } from './error';
 import { AuthRequestHandler } from './auth-request-handler';
-import { ServiceAccount } from './credential';
+import { ServiceAccount, ServiceAccountCredential } from './credential';
 import { UserRecord } from './user-record';
 import { createTenant } from './tenant';
+import { createFirebaseTokenGenerator } from './token-generator';
 
 const refreshExpiredIdToken = async (refreshToken: string, apiKey: string): Promise<string> => {
   // https://firebase.google.com/docs/reference/rest/auth/#section-refresh-token
@@ -13,6 +14,7 @@ const refreshExpiredIdToken = async (refreshToken: string, apiKey: string): Prom
   const response = await fetch(
     endpoint,
     {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -33,6 +35,8 @@ const refreshExpiredIdToken = async (refreshToken: string, apiKey: string): Prom
 
 export function getFirebaseAuth(serviceAccount: ServiceAccount, apiKey: string) {
   const authRequestHandler = new AuthRequestHandler(serviceAccount);
+  const credential = new ServiceAccountCredential(serviceAccount);
+  const tokenGenerator = createFirebaseTokenGenerator(credential);
 
   const createTenantFromRefreshToken = async (
     refreshToken: string,
@@ -124,5 +128,37 @@ export function getFirebaseAuth(serviceAccount: ServiceAccount, apiKey: string) 
     }
   }
 
-  return { verifyAndRefreshExpiredIdToken, verifyIdToken }
+  function createCustomToken(uid: string, developerClaims?: object): Promise<string> {
+    return tokenGenerator.createCustomToken(uid, developerClaims);
+  }
+
+  async function getCustomIdAndRefreshTokens(
+    token: string,
+    firebaseApiKey: string
+  ) {
+    const tenant = await verifyIdToken(token);
+    const customToken = await createCustomToken(tenant.uid);
+    const endpoint = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${firebaseApiKey}`;
+    const refreshTokenResponse = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token: customToken,
+        returnSecureToken: true,
+      }),
+    });
+    const refreshTokenJSON = (await refreshTokenResponse.json()) as DecodedIdToken;
+    if (!refreshTokenResponse.ok) {
+      throw new Error(`Problem getting a refresh token: ${JSON.stringify(refreshTokenJSON)}`);
+    }
+
+    return {
+      idToken: refreshTokenJSON.idToken,
+      refreshToken: refreshTokenJSON.refreshToken,
+    };
+  };
+
+  return { verifyAndRefreshExpiredIdToken, verifyIdToken, createCustomToken, getCustomIdAndRefreshTokens }
 }

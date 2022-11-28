@@ -1,9 +1,9 @@
 import { AuthClientErrorCode, FirebaseAuthError } from './error';
 import { addReadonlyGetter, deepCopy } from './utils';
 import { isNonNullObject } from './validator';
+import { stringToBase64 } from './jwt-utils/jwt/utils';
 
-const B64_REDACTED = Buffer.from('REDACTED').toString('base64');
-
+const B64_REDACTED = stringToBase64('REDACTED');
 
 function parseDate(time: any): string | null {
   try {

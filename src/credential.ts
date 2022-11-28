@@ -1,4 +1,6 @@
 import { isNonNullObject } from './validator';
+import { sign } from './jwt-utils/jwt';
+import { DecodedJWTPayload } from './jwt-utils/types';
 
 export interface GoogleOAuthAccessToken {
   access_token: string;
@@ -62,9 +64,11 @@ export class ServiceAccountCredential implements Credential {
     return requestAccessToken(res);
   }
 
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  private createAuthJwt_(): string {
-    const claims = {
+  private async createAuthJwt_(): Promise<string> {
+    const payload = {
+      aud: GOOGLE_TOKEN_AUDIENCE,
+      exp: ONE_HOUR_IN_SECONDS,
+      iss: this.clientEmail,
       scope: [
         'https://www.googleapis.com/auth/cloud-platform',
         'https://www.googleapis.com/auth/firebase.database',
@@ -72,15 +76,11 @@ export class ServiceAccountCredential implements Credential {
         'https://www.googleapis.com/auth/identitytoolkit',
         'https://www.googleapis.com/auth/userinfo.email',
       ].join(' '),
-    };
+    } as DecodedJWTPayload;
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const jwt = require('jsonwebtoken');
-    // This method is actually synchronous so we can capture and return the buffer.
-    return jwt.sign(claims, this.privateKey, {
-      audience: GOOGLE_TOKEN_AUDIENCE,
-      expiresIn: ONE_HOUR_IN_SECONDS,
-      issuer: this.clientEmail,
+    return sign({
+      payload,
+      privateKey: this.privateKey,
       algorithm: JWT_ALGORITHM,
     });
   }

@@ -109,7 +109,7 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
     }
 
     const decoded = decode(token, {complete: true});
-    const publicKey = await getKey(this.keyFetcher, decoded.header)
+    const publicKey = await getKey(this.keyFetcher, decoded.header);
 
     return verifyJwtSignature(token, publicKey)
       .catch((error: JwtError) => {
