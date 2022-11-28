@@ -11,7 +11,7 @@ import {
   EmulatorSignatureVerifier,
   PublicKeySignatureVerifier,
   SignatureVerifier
-} from './jwt';
+} from './signature-verifier';
 import { isNonEmptyString, isNonNullObject, isString, isURL } from './validator';
 import { AuthClientErrorCode, FirebaseAuthError } from './error';
 import { JwtError, JwtErrorCode } from './jwt-utils/jwt/error';

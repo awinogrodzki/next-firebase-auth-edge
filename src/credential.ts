@@ -49,7 +49,7 @@ export class ServiceAccountCredential implements Credential {
   }
 
   public async getAccessToken(): Promise<GoogleOAuthAccessToken> {
-    const token = this.createAuthJwt_();
+    const token = await this.createAuthJwt_();
     const postData = 'grant_type=urn%3Aietf%3Aparams%3Aoauth%3A' +
       'grant-type%3Ajwt-bearer&assertion=' + token;
 
@@ -57,6 +57,8 @@ export class ServiceAccountCredential implements Credential {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json'
       },
       body: postData,
     });
@@ -65,10 +67,14 @@ export class ServiceAccountCredential implements Credential {
   }
 
   private async createAuthJwt_(): Promise<string> {
+    const iat = Math.floor(Date.now() / 1000);
+
     const payload = {
       aud: GOOGLE_TOKEN_AUDIENCE,
-      exp: ONE_HOUR_IN_SECONDS,
+      iat,
+      exp: iat + ONE_HOUR_IN_SECONDS,
       iss: this.clientEmail,
+      sub: this.clientEmail,
       scope: [
         'https://www.googleapis.com/auth/cloud-platform',
         'https://www.googleapis.com/auth/firebase.database',
@@ -98,6 +104,7 @@ async function requestAccessToken(res: Response): Promise<GoogleOAuthAccessToken
       `Unexpected response while fetching access token: ${ JSON.stringify(data) }`,
     );
   }
+
   return data;
 }
 

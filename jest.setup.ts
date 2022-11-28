@@ -1,3 +1,4 @@
 import { Crypto } from "@peculiar/webcrypto"
+import 'isomorphic-fetch';
 
-global.crypto = new Crypto()
+(global as any).crypto = new Crypto()

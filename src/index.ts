@@ -7,6 +7,31 @@ import { UserRecord } from './user-record';
 import { createTenant } from './tenant';
 import { createFirebaseTokenGenerator } from './token-generator';
 
+export async function customTokenToIdAndRefreshTokens(customToken: string, firebaseApiKey: string): Promise<IdAndRefreshTokens> {
+  const endpoint = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${firebaseApiKey}`;
+  const refreshTokenResponse = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      token: customToken,
+      returnSecureToken: true,
+    }),
+  });
+
+  const refreshTokenJSON = (await refreshTokenResponse.json()) as DecodedIdToken;
+
+  if (!refreshTokenResponse.ok) {
+    throw new Error(`Problem getting a refresh token: ${JSON.stringify(refreshTokenJSON)}`);
+  }
+
+  return {
+    idToken: refreshTokenJSON.idToken,
+    refreshToken: refreshTokenJSON.refreshToken,
+  };
+}
+
 const refreshExpiredIdToken = async (refreshToken: string, apiKey: string): Promise<string> => {
   // https://firebase.google.com/docs/reference/rest/auth/#section-refresh-token
   const endpoint = `https://securetoken.googleapis.com/v1/token?key=${apiKey}`;
@@ -32,6 +57,10 @@ const refreshExpiredIdToken = async (refreshToken: string, apiKey: string): Prom
   return data.id_token;
 };
 
+export interface IdAndRefreshTokens {
+  idToken: string,
+  refreshToken: string,
+}
 
 export function getFirebaseAuth(serviceAccount: ServiceAccount, apiKey: string) {
   const authRequestHandler = new AuthRequestHandler(serviceAccount);
@@ -89,7 +118,7 @@ export function getFirebaseAuth(serviceAccount: ServiceAccount, apiKey: string) 
     const isEmulator = useEmulator();
     const idTokenVerifier = createIdTokenVerifier(serviceAccount.projectId);
 
-    const decodedIdToken = await idTokenVerifier.verifyJWT(idToken, isEmulator)
+    const decodedIdToken = await idTokenVerifier.verifyJWT(idToken, isEmulator);
 
     if (checkRevoked || isEmulator) {
       return verifyDecodedJWTNotRevokedOrDisabled(
@@ -138,27 +167,15 @@ export function getFirebaseAuth(serviceAccount: ServiceAccount, apiKey: string) 
   ) {
     const tenant = await verifyIdToken(token);
     const customToken = await createCustomToken(tenant.uid);
-    const endpoint = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${firebaseApiKey}`;
-    const refreshTokenResponse = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        token: customToken,
-        returnSecureToken: true,
-      }),
-    });
-    const refreshTokenJSON = (await refreshTokenResponse.json()) as DecodedIdToken;
-    if (!refreshTokenResponse.ok) {
-      throw new Error(`Problem getting a refresh token: ${JSON.stringify(refreshTokenJSON)}`);
-    }
 
-    return {
-      idToken: refreshTokenJSON.idToken,
-      refreshToken: refreshTokenJSON.refreshToken,
-    };
+    return customTokenToIdAndRefreshTokens(customToken, firebaseApiKey);
   };
 
-  return { verifyAndRefreshExpiredIdToken, verifyIdToken, createCustomToken, getCustomIdAndRefreshTokens }
+  return {
+    verifyAndRefreshExpiredIdToken,
+    verifyIdToken,
+    createCustomToken,
+    getCustomIdAndRefreshTokens,
+    createTenantFromRefreshToken
+  };
 }

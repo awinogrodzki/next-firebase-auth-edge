@@ -1,8 +1,8 @@
 import { isNonNullObject, isString, isURL } from './validator';
-import { DecodedJWTHeader } from './jwt-utils/types';
 import { JwtError, JwtErrorCode } from './jwt-utils/jwt/error';
 import { decode } from './jwt-utils/jwt';
 import { verify } from './jwt-utils/jwt/verify';
+import { DecodedJWTHeader } from './jwt-utils/jwt/types';
 
 export const ALGORITHM_RS256 = 'RS256' as const;
 const NO_MATCHING_KID_ERROR_MESSAGE = 'no-matching-kid-error';

@@ -8,5 +8,7 @@ module.exports = {
     ],
     '^.+\\.jsx?$': 'babel-jest',
   },
+  setupFiles: ['dotenv/config'],
+  testEnvironment: 'node',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 };
