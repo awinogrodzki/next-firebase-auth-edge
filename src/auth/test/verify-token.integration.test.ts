@@ -10,8 +10,9 @@ const {
 
 describe('verify token integration test', () => {
   const {
-    createTenantFromRefreshToken,
+    getTokens,
     createCustomToken,
+    verifyAndRefreshExpiredIdToken,
     verifyIdToken,
   } = getFirebaseAuth(
     {
@@ -35,6 +36,19 @@ describe('verify token integration test', () => {
     expect(tenant.customClaim).toEqual('customClaimValue');
   });
 
+  it('should verify and refresh token', async () => {
+    const userId = v4();
+    const customToken = await createCustomToken(userId, {
+      customClaim: 'customClaimValue'
+    })
+
+    const {idToken, refreshToken} = await customTokenToIdAndRefreshTokens(customToken, FIREBASE_API_KEY!);
+    const tokens = await verifyAndRefreshExpiredIdToken(idToken, refreshToken);
+
+    expect(tokens?.decodedToken.uid).toEqual(userId);
+    expect(tokens?.decodedToken.customClaim).toEqual('customClaimValue');
+  });
+
   it('should checked revoked token', async () => {
     const userId = v4();
     const customToken = await createCustomToken(userId, {
@@ -55,10 +69,10 @@ describe('verify token integration test', () => {
     })
 
     const {idToken,refreshToken} = await customTokenToIdAndRefreshTokens(customToken, FIREBASE_API_KEY!);
-    const refreshedTenant = await createTenantFromRefreshToken(refreshToken, FIREBASE_API_KEY!);
+    const {decodedToken} = await getTokens(refreshToken, FIREBASE_API_KEY!);
 
-    expect(refreshedTenant.uid).toEqual(userId);
-    expect(refreshedTenant.customClaims.customClaim).toEqual('customClaimValue');
-    expect(refreshedTenant.token).not.toEqual(idToken)
+    expect(decodedToken.uid).toEqual(userId);
+    expect(decodedToken.customClaim).toEqual('customClaimValue');
+    expect(decodedToken.token).not.toEqual(idToken)
   });
 });

@@ -4,7 +4,6 @@ import { AuthClientErrorCode, ErrorInfo, FirebaseAuthError } from './error';
 import { AuthRequestHandler } from './auth-request-handler';
 import { ServiceAccount, ServiceAccountCredential } from './credential';
 import { UserRecord } from './user-record';
-import { createTenant } from './tenant';
 import { createFirebaseTokenGenerator } from './token-generator';
 
 export async function customTokenToIdAndRefreshTokens(customToken: string, firebaseApiKey: string): Promise<IdAndRefreshTokens> {
@@ -62,22 +61,27 @@ export interface IdAndRefreshTokens {
   refreshToken: string,
 }
 
+export interface Tokens {
+  decodedToken: DecodedIdToken;
+  token: string;
+}
+
 export function getFirebaseAuth(serviceAccount: ServiceAccount, apiKey: string) {
   const authRequestHandler = new AuthRequestHandler(serviceAccount);
   const credential = new ServiceAccountCredential(serviceAccount);
   const tokenGenerator = createFirebaseTokenGenerator(credential);
 
-  const createTenantFromRefreshToken = async (
+  const getTokens = async (
     refreshToken: string,
     firebaseApiKey: string
-  ) => {
+  ): Promise<Tokens> => {
     const newToken = await refreshExpiredIdToken(refreshToken, firebaseApiKey);
     const decodedToken = await verifyIdToken(newToken);
 
-    return createTenant({
+    return {
       decodedToken: decodedToken,
       token: newToken,
-    });
+    }
   };
 
   async function getUser(uid: string): Promise<UserRecord> {
@@ -128,31 +132,31 @@ export function getFirebaseAuth(serviceAccount: ServiceAccount, apiKey: string) 
     return decodedIdToken;
   }
 
-  async function verifyAndRefreshExpiredIdToken(token: string, refreshToken: string) {
+  async function verifyAndRefreshExpiredIdToken(token: string, refreshToken: string): Promise<Tokens|null> {
     try {
       const decodedToken = await verifyIdToken(token);
 
-      return createTenant({
+      return {
         decodedToken,
         token,
-      });
+      };
     } catch (e) {
       // https://firebase.google.com/docs/reference/node/firebase.auth.Error
       switch (e.code) {
         case 'auth/invalid-user-token':
         case 'auth/user-token-expired':
         case 'auth/user-disabled':
-          return createTenant();
+          return null;
 
         case 'auth/id-token-expired':
         case 'auth/argument-error':
           if (refreshToken) {
-            return createTenantFromRefreshToken(refreshToken, apiKey);
+            return getTokens(refreshToken, apiKey);
           }
 
-          return createTenant();
+          return null;
         default:
-          return createTenant();
+          return null;
       }
     }
   }
@@ -176,6 +180,6 @@ export function getFirebaseAuth(serviceAccount: ServiceAccount, apiKey: string) 
     verifyIdToken,
     createCustomToken,
     getCustomIdAndRefreshTokens,
-    createTenantFromRefreshToken
+    getTokens,
   };
 }
