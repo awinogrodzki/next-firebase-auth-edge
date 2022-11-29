@@ -62,7 +62,7 @@ export class FirebaseAuthError extends PrefixedFirebaseError {
     }
     // If not found, default to internal error.
     const clientCodeKey = AUTH_SERVER_TO_CLIENT_CODE[serverErrorCode] || 'INTERNAL_ERROR';
-    const error: ErrorInfo = JSON.parse(JSON.stringify(AuthClientErrorCode[clientCodeKey]));
+    const error: ErrorInfo = JSON.parse(JSON.stringify(AuthClientErrorCode[clientCodeKey as keyof AuthClientErrorCode]));
     // Server detailed message should have highest priority.
     error.message = customMessage || message || error.message;
 

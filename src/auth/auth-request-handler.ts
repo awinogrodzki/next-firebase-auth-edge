@@ -8,8 +8,8 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD';
 export type ApiCallbackFunction = (data: object) => void;
 
 export class ApiSettings {
-  private requestValidator: ApiCallbackFunction;
-  private responseValidator: ApiCallbackFunction;
+  private requestValidator: ApiCallbackFunction | undefined;
+  private responseValidator: ApiCallbackFunction | undefined;
 
   constructor(private endpoint: string, private httpMethod: HttpMethod = 'POST') {
     this.setRequestValidator(null)
@@ -31,7 +31,7 @@ export class ApiSettings {
   }
 
   public getRequestValidator(): ApiCallbackFunction {
-    return this.requestValidator;
+    return this.requestValidator!;
   }
 
   public setResponseValidator(responseValidator: ApiCallbackFunction | null): ApiSettings {
@@ -41,7 +41,7 @@ export class ApiSettings {
   }
 
   public getResponseValidator(): ApiCallbackFunction {
-    return this.responseValidator;
+    return this.responseValidator!;
   }
 }
 
@@ -126,7 +126,7 @@ export const FIREBASE_AUTH_GET_ACCOUNTS_INFO = new ApiSettings('/accounts:lookup
   });
 
 export abstract class AbstractAuthRequestHandler {
-  private authUrlBuilder: AuthResourceUrlBuilder;
+  private authUrlBuilder: AuthResourceUrlBuilder | undefined;
   private getToken: (forceRefresh?: boolean) => Promise<FirebaseAccessToken>;
 
   private static getErrorCode(response: any): string | null {

@@ -25,7 +25,7 @@ interface KeyFetcher {
 
 
 export class UrlKeyFetcher implements KeyFetcher {
-  private publicKeys: { [key: string]: string };
+  private publicKeys: { [key: string]: string } = {};
   private publicKeysExpireAt = 0;
 
   constructor(private clientCertUrl: string) {

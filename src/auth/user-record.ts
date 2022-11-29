@@ -62,9 +62,9 @@ enum MultiFactorId {
 
 export abstract class MultiFactorInfo {
 
-  public readonly uid: string;
+  public readonly uid!: string;
   public readonly displayName?: string;
-  public readonly factorId: string;
+  public readonly factorId!: string;
   public readonly enrollmentTime?: string;
   public static initMultiFactorInfo(response: MultiFactorInfoResponse): MultiFactorInfo | null {
     let multiFactorInfo: MultiFactorInfo | null = null;
@@ -117,7 +117,7 @@ export class PhoneMultiFactorInfo extends MultiFactorInfo {
   /**
    * The phone number associated with a phone second factor.
    */
-  public readonly phoneNumber: string;
+  public readonly phoneNumber!: string;
 
   /**
    * Initializes the PhoneMultiFactorInfo object using the server side response.
@@ -157,7 +157,7 @@ export class PhoneMultiFactorInfo extends MultiFactorInfo {
 }
 
 export class MultiFactorSettings {
-  public enrolledFactors: MultiFactorInfo[];
+  public enrolledFactors!: MultiFactorInfo[];
 
   constructor(response: GetAccountInfoUserResponse) {
     const parsedEnrolledFactors: MultiFactorInfo[] = [];
@@ -187,8 +187,8 @@ export class MultiFactorSettings {
 
 export class UserMetadata {
 
-  public readonly creationTime: string;
-  public readonly lastSignInTime: string;
+  public readonly creationTime!: string;
+  public readonly lastSignInTime!: string;
   public readonly lastRefreshTime?: string | null;
 
   constructor(response: GetAccountInfoUserResponse) {
@@ -209,12 +209,12 @@ export class UserMetadata {
 
 export class UserInfo {
 
-  public readonly uid: string;
-  public readonly displayName: string;
-  public readonly email: string;
-  public readonly photoURL: string;
-  public readonly providerId: string;
-  public readonly phoneNumber: string;
+  public readonly uid!: string;
+  public readonly displayName!: string;
+  public readonly email!: string;
+  public readonly photoURL!: string;
+  public readonly providerId!: string;
+  public readonly phoneNumber!: string;
 
   constructor(response: ProviderUserInfoResponse) {
     if (!response.rawId || !response.providerId) {
@@ -244,15 +244,15 @@ export class UserInfo {
 }
 
 export class UserRecord {
-  public readonly uid: string;
+  public readonly uid!: string;
   public readonly email?: string;
-  public readonly emailVerified: boolean;
+  public readonly emailVerified!: boolean;
   public readonly displayName?: string;
   public readonly photoURL?: string;
   public readonly phoneNumber?: string;
-  public readonly disabled: boolean;
-  public readonly metadata: UserMetadata;
-  public readonly providerData: UserInfo[];
+  public readonly disabled!: boolean;
+  public readonly metadata!: UserMetadata;
+  public readonly providerData!: UserInfo[];
   public readonly passwordHash?: string;
   public readonly passwordSalt?: string;
   public readonly customClaims?: {[key: string]: any};

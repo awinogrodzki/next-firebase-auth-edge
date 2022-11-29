@@ -145,9 +145,9 @@ export function getFirebaseAuth(serviceAccount: ServiceAccount, apiKey: string) 
         decodedToken,
         token,
       };
-    } catch (e) {
+    } catch (e: any) {
       // https://firebase.google.com/docs/reference/node/firebase.auth.Error
-      switch (e.code) {
+      switch ((e as FirebaseAuthError).code) {
         case 'auth/invalid-user-token':
         case 'auth/user-token-expired':
         case 'auth/user-disabled':

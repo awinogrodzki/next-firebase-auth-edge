@@ -176,7 +176,7 @@ export function createFirebaseTokenGenerator(
   try {
     const signer = useEmulator() ? new EmulatedSigner() : new ServiceAccountSigner(credential);
     return new FirebaseTokenGenerator(signer, tenantId);
-  } catch (err) {
+  } catch (err: any) {
     throw handleCryptoSignerError(err);
   }
 }

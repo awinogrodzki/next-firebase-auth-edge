@@ -25,11 +25,11 @@
     "allowSyntheticDefaultImports": true,
     "preserveSymlinks": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "esModuleInterop": true,
     "module": "commonjs",
     "resolveJsonModule": true,
-    "isolatedModules": false
+    "isolatedModules": true
   },
   "include": [
     "./src/**/*.ts",
