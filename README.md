@@ -176,7 +176,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
 
 `next-firebase-auth-edge` is designed to work with [React Server Components](https://nextjs.org/docs/advanced-features/react-18/server-components) along with Next.js 13.
 
-Below is an example of root `app/layout.tsx` server components using `getTokens` function to fetch user tokens based on request cookies
+Below is an example of root `app/layout.tsx` server component using `getTokens` function to fetch user tokens based on request cookies
 
 ```tsx
 import { getTokens } from 'next-firebase-auth-edge/lib/next/tokens';
