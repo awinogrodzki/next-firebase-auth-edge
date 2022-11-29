@@ -45,7 +45,7 @@ module.exports = {
 
 ### Authentication endpoints
 
-In order to set encrypted authentication cookies we need a server endpoint to log in and log out users.
+In order to set encrypted authentication cookies we need server endpoints to handle log in and log out of users.
 
 This can be achieved pretty easily using `createAuthMiddlewareResponse`:
 
@@ -85,21 +85,22 @@ export async function middleware(request: NextRequest) {
     });
   }
 
+  // Optionally do something with tokens
   const tokens = await getTokens(request.cookies, commonOptions);
 
   console.log(tokens); // { decodedIdToken: DecodedIdToken, token: string } or null if unauthenticated
 }
 ```
 
-In this code example we define Next.js middleware that checks for `/api/login` and `/api/logout` requests to return `AuthMiddlewareResponse`, which is `NextResponse` object decorated with authentication headers.
+In this code example we define Next.js middleware that checks for `/api/login` and `/api/logout` requests to and returns `AuthMiddlewareResponse`. The latter is instance of `NextResponse` object, updated with authentication headers.
 
 
 ### Example AuthProvider
-Below is an example implementation of custom AuthProvider component that handles calling authentication endpoints.
+Below is example implementation of custom AuthProvider component that handles the calling of authentication endpoints.
 
-Log in endpoints can be called on `IdTokenChanged` event with Firebase user token.
+`GET /api/login` endpoint can be called on `onIdTokenChanged` Firebase Authentication browser client event
 
-Log out endpoint can be called any time to remove authentication cookies. Make sure to sign out the user from firebase before calling log out endpoint.
+`GET /api/logout` endpoint can be called any time. Make sure to sign out the user from firebase before clearing the cookies.
 
 ```tsx
 export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
