@@ -45,7 +45,7 @@ module.exports = {
 
 ### Authentication endpoints
 
-In order to set encrypted authentication cookies we need server endpoints to handle log in and log out of users.
+In order to set encrypted authentication cookies we need server endpoints to handle log in and log out of the users.
 
 This can be achieved pretty easily using `createAuthMiddlewareResponse`:
 
