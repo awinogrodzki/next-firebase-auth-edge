@@ -91,7 +91,7 @@ export async function middleware(request: NextRequest) {
 }
 ```
 
-In previous code example we define Next.js middleware that checks for `/api/login` and `/api/logout` requests to return `AuthMiddlewareResponse`, which is `NextResponse` object decorated with authentication headers.
+In this code example we define Next.js middleware that checks for `/api/login` and `/api/logout` requests to return `AuthMiddlewareResponse`, which is `NextResponse` object decorated with authentication headers.
 
 
 ### Example AuthProvider
