@@ -104,49 +104,51 @@ Below is example implementation of custom AuthProvider component that handles th
 
 ```tsx
 export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
-  defaultUser,
+  defaultTenant,
   children,
 }) => {
-  const [user, setUser] = React.useState(defaultUser);
-  const handleLogout = async () => {
-    const app = await getFirebaseApp(firebaseOptions);
-    const { getAuth, signOut } = await import('firebase/auth');
-    await signOut(getAuth(app));
-    await fetch('/api/logout', {
-      method: 'GET',
-    });
-  };
+  const { getFirebaseAuth } = useFirebaseAuth(clientConfig)
+  const firstLoadRef = React.useRef(true);
+  const [tenant, setTenant] = React.useState(defaultTenant);
 
   const handleIdTokenChanged = async (firebaseUser: FirebaseUser | null) => {
-    if (firebaseUser && user && firebaseUser.uid === user.id) {
+    if (firebaseUser && tenant && firebaseUser.uid === tenant.id) {
+      firstLoadRef.current = false;
       return;
     }
 
-    const app = await getFirebaseApp(firebaseOptions);
-    const { getAuth } = await import('firebase/auth');
-    
-    if (!firebaseUser) {
-      return startTransition(() => {
-        setUser(null);
-      });
+    const auth = await getFirebaseAuth();
+
+    if (!firebaseUser && firstLoadRef.current) {
+      const { signInAnonymously } = await import('firebase/auth');
+      firstLoadRef.current = false;
+      await signInAnonymously(auth);
+      return;
     }
-    
-    const {token} = await firebaseUser.getIdTokenResult();
+
+    if (!firebaseUser) {
+      firstLoadRef.current = false;
+      startTransition(() => {
+        setTenant(null);
+      });
+      return;
+    }
+
+    firstLoadRef.current = false;
+    const tokenResult = await firebaseUser.getIdTokenResult();
     await fetch('/api/login', {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${tokenResult.token}`,
       },
     });
-    
     startTransition(() => {
-      setUser(mapFirebaseResponseToUser(firebaseUser));
+      setTenant(mapFirebaseResponseToTenant(tokenResult, firebaseUser));
     });
   };
 
   const registerChangeListener = async () => {
-    const app = await getFirebaseApp(firebaseOptions);
-    const { getAuth } = await import('firebase/auth');
+    const auth = await getFirebaseAuth();
     const { onIdTokenChanged } = await import('firebase/auth');
     return onIdTokenChanged(auth, handleIdTokenChanged);
   };
@@ -162,8 +164,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   return (
     <AuthContext.Provider
       value={{
-        user,
-        handleLogout
+        tenant,
       }}
     >
       {children}
@@ -179,39 +180,48 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
 Below is an example of root `app/layout.tsx` server component using `getTokens` function to fetch user tokens based on request cookies
 
 ```tsx
+import './globals.css';
 import { getTokens } from 'next-firebase-auth-edge/lib/next/tokens';
 import { cookies } from 'next/headers';
-import { createTenant } from 'next-firebase-auth-edge/lib/auth/tenant';
-import { ServerAuthProvider } from './server-auth-provider';
+import { AuthProvider } from './auth-provider';
+import { serverConfig } from './server-config';
+import { Tokens } from 'next-firebase-auth-edge/lib/auth';
+import { Tenant } from '../auth/types';
 
-interface RootLayoutProps {
-  children: React.ReactNode;
-}
+//...
 
-export default async function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   const tokens = await getTokens(cookies(), {
     apiKey: 'firebase-api-key',
-    cookieName: 'AuthToken',
-    cookieSignatureKeys: ['secret1', 'secret2'],
     serviceAccount: {
       projectId: 'firebase-project-id',
       privateKey: 'firebase service account private key',
       clientEmail: 'firebase service account client email',
     },
+    cookieName: 'AuthToken',
+    cookieSignatureKeys: ['secret1', 'secret2'],
   });
 
+  // Make sure to remove vulnerable data from Tokens using custom mapping function
+  const tenant = tokens ? mapTokensToTenant(tokens) : null;
+  
   return (
     <html lang="en">
-      <head />
-      <body>
-        {/*
-          Make sure to remove all vulnerable data from `Tokens` in custom `mapTokensToUser` function
-        */}
-        <ServerAuthProvider user={tokens ? mapTokensToUser(tokens) : null}>
-          {children}
-        </ServerAuthProvider>
-      </body>
+        <head />
+        <body>
+            <AuthProvider defaultTenant={tenant}>
+              {children}
+            </AuthProvider>
+        </body>
     </html>
-  );
+  )
 }
 ```
+
+### Examples
+
+Working Next.js 13 app example can be found in [/examples](https://github.com/ensite-in/next-firebase-auth-edge/blob/d9817f62113e0520c0082a28607ec1e0a585af13/examples/next13-typescript-simple) directory
