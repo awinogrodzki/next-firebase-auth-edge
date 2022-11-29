@@ -49,6 +49,9 @@ In order to set encrypted authentication cookies we need server endpoints to han
 
 This can be achieved pretty easily using `createAuthMiddlewareResponse`:
 
+All below examples are based on working Next.js 13 app example found in [/examples](https://github.com/ensite-in/next-firebase-auth-edge/blob/d9817f62113e0520c0082a28607ec1e0a585af13/examples/next13-typescript-simple) directory
+
+
 ```typescript
 // middleware.ts
 import type { NextRequest } from 'next/server';
@@ -231,7 +234,3 @@ export default async function RootLayout({
   )
 }
 ```
-
-### Examples
-
-Working Next.js 13 app example can be found in [/examples](https://github.com/ensite-in/next-firebase-auth-edge/blob/d9817f62113e0520c0082a28607ec1e0a585af13/examples/next13-typescript-simple) directory
