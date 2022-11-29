@@ -6,6 +6,11 @@ import { ServiceAccount, ServiceAccountCredential } from './credential';
 import { UserRecord } from './user-record';
 import { createFirebaseTokenGenerator } from './token-generator';
 
+if (typeof crypto === 'undefined' || typeof global.crypto === 'undefined') {
+  const { Crypto } = require("@peculiar/webcrypto");
+  (global as any).crypto = new Crypto()
+}
+
 export async function customTokenToIdAndRefreshTokens(customToken: string, firebaseApiKey: string): Promise<IdAndRefreshTokens> {
   const endpoint = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${firebaseApiKey}`;
   const refreshTokenResponse = await fetch(endpoint, {

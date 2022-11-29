@@ -1,7 +1,7 @@
 {
   "name": "next-firebase-auth-edge",
   "version": "0.2.2",
-  "description": "Next.js server Firebase Authentication integration for Edge Runtime. Dedicated for Next 13 server components. Compatible with Next.js middleware.",
+  "description": "Next.js 13 Firebase Authentication for Edge and server runtimes. Dedicated for Next 13 server components. Compatible with Next.js middleware.",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
@@ -11,10 +11,13 @@
     "next": "13.0.5"
   },
   "dependencies": {
+    "@peculiar/webcrypto": "^1.4.1",
     "cookie": "^0.5.0"
   },
+  "browser": {
+    "@peculiar/webcrypto": false
+  },
   "devDependencies": {
-    "@peculiar/webcrypto": "^1.4.1",
     "@types/cookie": "^0.5.1",
     "@types/jest": "^29.2.0",
     "@types/keygrip": "^1.0.2",
