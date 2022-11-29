@@ -111,6 +111,16 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   const firstLoadRef = React.useRef(true);
   const [tenant, setTenant] = React.useState(defaultTenant);
 
+  // Call logout anytime
+  const handleLogout = async () => {
+    const auth = await getFirebaseAuth();
+    const { signOut } = await import('firebase/auth');
+    await signOut(auth);
+    await fetch('/api/logout', {
+      method: 'GET',
+    });
+  };
+
   const handleIdTokenChanged = async (firebaseUser: FirebaseUser | null) => {
     if (firebaseUser && tenant && firebaseUser.uid === tenant.id) {
       firstLoadRef.current = false;
