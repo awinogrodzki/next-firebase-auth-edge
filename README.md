@@ -111,7 +111,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   const firstLoadRef = React.useRef(true);
   const [tenant, setTenant] = React.useState(defaultTenant);
 
-  // Call logout anytime
+  // Call logout any time
   const handleLogout = async () => {
     const auth = await getFirebaseAuth();
     const { signOut } = await import('firebase/auth');
