@@ -5,7 +5,7 @@ Next.js 13 Firebase Authentication for Edge and server runtimes. Dedicated for N
 ## Why
 Official `firebase-admin` library relies heavily on Node.js internal `crypto` library and primitives that are unavailable inside [Next.js Edge Runtime](https://nextjs.org/docs/api-reference/edge-runtime).
 
-This library aims to solve the problem of creating and verifying custom JWT tokens provided by **Firebase Authentication**
+This library aims to solve the problem of creating and verifying custom JWT tokens provided by **Firebase Authentication** using Web Crypto API available inside Edge runtimes
 
 ## Built on top of Web Crypto API
 
