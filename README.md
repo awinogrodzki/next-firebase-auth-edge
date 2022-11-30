@@ -11,7 +11,7 @@ This library aims to solve the problem of creating and verifying custom JWT toke
 
 `next-firebase-auth-edge` is built entirely upon [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API) and has exactly `0` external dependencies. Although it seems fine at first, please remember that it is still in experimental and untested stage. Contributions are welcome.
 
-Node.js polyfill for Web Crypto is provided by [@peculiar/webcrypto](https://github.com/PeculiarVentures/webcrypto), which fully supports `RSASSA-PKCS1-v1_5` algorithm used by Firebase
+Node.js polyfill for Web Crypto is provided by [@peculiar/webcrypto](https://github.com/PeculiarVentures/webcrypto)
 
 ## Installation
 
