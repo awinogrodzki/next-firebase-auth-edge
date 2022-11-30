@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  // Optionally do something with tokens
+  // Optionally do something with tokens (eg. redirect to login page using NextRequest.redirect when there are no credentials)
   const tokens = await getTokens(request.cookies, commonOptions);
 
   console.log("TOKENS IN MIDDLEWARE", { tokens });
