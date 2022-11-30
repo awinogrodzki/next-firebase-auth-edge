@@ -61,25 +61,25 @@ import { getTokens } from 'next-firebase-auth-edge/lib/next/tokens';
 const LOGIN_PATH = '/api/login';
 const LOGOUT_PATH = '/api/logout';
 
-export async function middleware(request: NextRequest) {
-  const commonOptions = {
-    apiKey: 'firebase-api-key',
-    cookieName: 'AuthToken',
-    cookieSignatureKeys: ['secret1', 'secret2'],
-    cookieSerializeOptions: {
-      path: '/',
-      httpOnly: true,
-      secure: false, // Set this to true on HTTPS environments
-      sameSite: 'strict' as const,
-      maxAge:  12 * 60 * 60 * 24 * 1000, // twelve days
-    },
-    serviceAccount: {
-      projectId: 'firebase-project-id',
-      privateKey: 'firebase service account private key',
-      clientEmail: 'firebase service account client email',
-    },
-  };
+const commonOptions = {
+  apiKey: 'firebase-api-key',
+  cookieName: 'AuthToken',
+  cookieSignatureKeys: ['secret1', 'secret2'],
+  cookieSerializeOptions: {
+    path: '/',
+    httpOnly: true,
+    secure: false, // Set this to true on HTTPS environments
+    sameSite: 'strict' as const,
+    maxAge:  12 * 60 * 60 * 24 * 1000, // twelve days
+  },
+  serviceAccount: {
+    projectId: 'firebase-project-id',
+    privateKey: 'firebase service account private key',
+    clientEmail: 'firebase service account client email',
+  },
+};
 
+export async function middleware(request: NextRequest) {
   if ([LOGIN_PATH, LOGOUT_PATH].includes(request.nextUrl.pathname)) {
     return createAuthMiddlewareResponse(request, {
       loginPath: LOGIN_PATH,
