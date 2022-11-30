@@ -88,10 +88,16 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  // Optionally do something with tokens
   const tokens = await getTokens(request.cookies, commonOptions);
 
   console.log(tokens); // { decodedIdToken: DecodedIdToken, token: string } or null if unauthenticated
+  
+  // Optionally redirect unauthenticated users to custom /login page
+  if (!tokens?.decodedToken.email_verified && request.nextUrl.pathname !== '/login') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
+  }
 }
 ```
 
