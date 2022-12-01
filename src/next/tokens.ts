@@ -39,3 +39,38 @@ export async function getTokens(cookies: RequestCookies | ReadonlyRequestCookies
 
   return verifyAndRefreshExpiredIdToken(idToken, refreshToken);
 }
+
+export async function getTokensFromObject(
+  cookies: Partial<{ [K in string]: string }>,
+  options: GetTokensOptions
+): Promise<Tokens | null> {
+  const { verifyAndRefreshExpiredIdToken } = getFirebaseAuth(
+    options.serviceAccount,
+    options.apiKey
+  );
+  const signedCookie = cookies[options.cookieName];
+  const signatureCookie = cookies[getSignatureCookieName(options.cookieName)];
+
+  if (!signedCookie || !signatureCookie) {
+    return null;
+  }
+
+  const cookie = await get(options.cookieSignatureKeys)({
+    signedCookie: {
+      name: options.cookieName,
+      value: signedCookie,
+    },
+    signatureCookie: {
+      name: getSignatureCookieName(options.cookieName),
+      value: signatureCookie,
+    },
+  });
+
+  if (!cookie?.value) {
+    return null;
+  }
+
+  const { idToken, refreshToken } = JSON.parse(cookie.value) as IdAndRefreshTokens;
+
+  return verifyAndRefreshExpiredIdToken(idToken, refreshToken);
+}
