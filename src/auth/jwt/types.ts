@@ -1,11 +1,10 @@
-/* eslint-disable functional/prefer-readonly-type */
 type ImmutablePrimitive =
   | undefined
   | null
   | boolean
   | string
   | number
-  | Function; // eslint-disable-line @typescript-eslint/ban-types
+  | Function;
 
 type ImmutableArray<T> = ReadonlyArray<Immutable<T>>;
 type ImmutableMap<K, V> = ReadonlyMap<Immutable<K>, Immutable<V>>;
@@ -39,4 +38,3 @@ export type DecodedJWTPayload = Partial<{
   iat: number;
   jti: string;
 }>;
-/* eslint-enable functional/prefer-readonly-type */

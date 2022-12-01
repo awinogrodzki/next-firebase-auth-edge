@@ -1,12 +1,12 @@
-import { Keygrip } from '../keygrip';
+import { RotatingCredential } from '../rotating-credential';
 import { Cookie, getSignatureCookieName, SignCookieResult, toBase64 } from './index';
 
 export const sign = (keys: string[]) => {
-  const keygrip = new Keygrip(keys);
+  const credential = new RotatingCredential(keys);
 
   return async (cookie: Cookie): Promise<SignCookieResult> => {
     const value = toBase64(cookie.value);
-    const hash = await keygrip.sign(value);
+    const hash = await credential.sign(value);
 
     return {
       signedCookie: { name: cookie.name, value },

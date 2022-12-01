@@ -5,14 +5,11 @@ export type DecodeOptions = {
   readonly complete?: boolean;
 };
 
-// Allow mutations of data returned by library
-/* eslint-disable functional/prefer-readonly-type */
 export type DecodedJWT = {
   header: DecodedJWTHeader;
   payload: DecodedJWTPayload;
   signature: string;
 };
-/* eslint-enable functional/prefer-readonly-type */
 
 export function decode(
   jwt: string,

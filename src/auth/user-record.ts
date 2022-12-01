@@ -61,26 +61,22 @@ enum MultiFactorId {
 
 
 export abstract class MultiFactorInfo {
-
   public readonly uid!: string;
   public readonly displayName?: string;
   public readonly factorId!: string;
   public readonly enrollmentTime?: string;
   public static initMultiFactorInfo(response: MultiFactorInfoResponse): MultiFactorInfo | null {
     let multiFactorInfo: MultiFactorInfo | null = null;
-    // Only PhoneMultiFactorInfo currently available.
     try {
       multiFactorInfo = new PhoneMultiFactorInfo(response);
-    } catch (e) {
-      // Ignore error.
-    }
+    } catch (e) {}
+
     return multiFactorInfo;
   }
 
   constructor(response: MultiFactorInfoResponse) {
     this.initFromServerResponse(response);
   }
-
 
   public toJSON(): object {
     return {
@@ -113,27 +109,13 @@ export abstract class MultiFactorInfo {
 }
 
 export class PhoneMultiFactorInfo extends MultiFactorInfo {
-
-  /**
-   * The phone number associated with a phone second factor.
-   */
   public readonly phoneNumber!: string;
 
-  /**
-   * Initializes the PhoneMultiFactorInfo object using the server side response.
-   *
-   * @param response - The server side response.
-   * @constructor
-   * @internal
-   */
   constructor(response: MultiFactorInfoResponse) {
     super(response);
     addReadonlyGetter(this, 'phoneNumber', response.phoneInfo);
   }
 
-  /**
-   * {@inheritdoc MultiFactorInfo.toJSON}
-   */
   public toJSON(): object {
     return Object.assign(
       super.toJSON(),
@@ -142,15 +124,6 @@ export class PhoneMultiFactorInfo extends MultiFactorInfo {
       });
   }
 
-  /**
-   * Returns the factor ID based on the response provided.
-   *
-   * @param response - The server side response.
-   * @returns The multi-factor ID associated with the provided response. If the response is
-   *     not associated with any known multi-factor ID, null is returned.
-   *
-   * @internal
-   */
   protected getFactorId(response: MultiFactorInfoResponse): string | null {
     return (response && response.phoneInfo) ? MultiFactorId.Phone : null;
   }
@@ -186,7 +159,6 @@ export class MultiFactorSettings {
 }
 
 export class UserMetadata {
-
   public readonly creationTime!: string;
   public readonly lastSignInTime!: string;
   public readonly lastRefreshTime?: string | null;

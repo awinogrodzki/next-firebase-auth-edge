@@ -1,11 +1,11 @@
-import { Keygrip } from '../keygrip';
+import { RotatingCredential } from '../rotating-credential';
 import { base64ToString, Cookie, SignCookieResult } from './index';
 
 export const get = (keys: string[]) => {
-  const keygrip = new Keygrip(keys);
+  const credential = new RotatingCredential(keys);
 
   return async ({ signatureCookie, signedCookie }: SignCookieResult): Promise<Cookie | null> => {
-    if (!await keygrip.verify(signedCookie.value, signatureCookie.value)) {
+    if (!await credential.verify(signedCookie.value, signatureCookie.value)) {
       return null;
     }
 

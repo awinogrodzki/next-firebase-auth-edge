@@ -116,15 +116,6 @@ export const FIREBASE_AUTH_GET_ACCOUNT_INFO = new ApiSettings('/accounts:lookup'
     }
   });
 
-export const FIREBASE_AUTH_GET_ACCOUNTS_INFO = new ApiSettings('/accounts:lookup', 'POST')
-  .setRequestValidator((request: GetAccountInfoRequest) => {
-    if (!request.localId && !request.email && !request.phoneNumber && !request.federatedUserId) {
-      throw new FirebaseAuthError(
-        AuthClientErrorCode.INTERNAL_ERROR,
-        'INTERNAL ASSERT FAILED: Server request is missing user identifier');
-    }
-  });
-
 export abstract class AbstractAuthRequestHandler {
   private authUrlBuilder: AuthResourceUrlBuilder | undefined;
   private getToken: (forceRefresh?: boolean) => Promise<FirebaseAccessToken>;
@@ -186,21 +177,13 @@ export abstract class AbstractAuthRequestHandler {
 
     const data = await res.json();
 
-    // Validate response.
     const responseValidator = apiSettings.getResponseValidator();
     responseValidator(data);
-    // Return entire response.
     return data;
   }
 
-  /**
-   * @returns A new Auth user management resource URL builder instance.
-   */
   protected abstract newAuthUrlBuilder(): AuthResourceUrlBuilder;
 
-  /**
-   * @returns The current Auth user management resource URL builder.
-   */
   private getAuthUrlBuilder(): AuthResourceUrlBuilder {
     if (!this.authUrlBuilder) {
       this.authUrlBuilder = this.newAuthUrlBuilder();
@@ -211,7 +194,6 @@ export abstract class AbstractAuthRequestHandler {
 
 
 export class AuthRequestHandler extends AbstractAuthRequestHandler {
-
   protected readonly authResourceUrlBuilder: AuthResourceUrlBuilder;
 
   constructor(private serviceAccount: ServiceAccount) {
@@ -219,9 +201,6 @@ export class AuthRequestHandler extends AbstractAuthRequestHandler {
     this.authResourceUrlBuilder =  new AuthResourceUrlBuilder('v2', serviceAccount.projectId);
   }
 
-  /**
-   * @returns A new Auth user management resource URL builder instance.
-   */
   protected newAuthUrlBuilder(): AuthResourceUrlBuilder {
     return new AuthResourceUrlBuilder('v1', this.serviceAccount.projectId);
   }

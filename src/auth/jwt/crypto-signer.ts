@@ -9,7 +9,6 @@ export interface CryptoSigner {
   readonly algorithm: 'RS256' | 'none';
 
   sign(token: string): Promise<string>;
-
   getAccountId(): Promise<string>;
 }
 

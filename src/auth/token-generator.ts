@@ -50,7 +50,6 @@ export class EmulatedSigner implements CryptoSigner {
 }
 
 export class FirebaseTokenGenerator {
-
   private readonly signer: CryptoSigner;
 
   constructor(signer: CryptoSigner, public readonly tenantId?: string) {
@@ -85,7 +84,6 @@ export class FirebaseTokenGenerator {
     const claims: {[key: string]: any} = {};
     if (typeof developerClaims !== 'undefined') {
       for (const key in developerClaims) {
-        /* istanbul ignore else */
         if (Object.prototype.hasOwnProperty.call(developerClaims, key)) {
           if (BLACKLISTED_CLAIMS.indexOf(key) !== -1) {
             throw new FirebaseAuthError(

@@ -1,7 +1,7 @@
 import { arrayBufferToBase64, stringToArrayBuffer, } from './jwt/utils';
 
 
-export class Keygrip {
+export class RotatingCredential {
   private digestAlgorithm = 'SHA-1';
 
   constructor(private keys: string[]) {
