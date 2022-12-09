@@ -740,18 +740,6 @@
     expect "^29.0.0"
     pretty-format "^29.0.0"
 
-"@types/keygrip@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@types/keygrip/-/keygrip-1.0.2.tgz#513abfd256d7ad0bf1ee1873606317b33b1b2a72"
-  integrity sha512-GJhpTepz2udxGexqos8wgaBx4I/zWIDPh/KOGEwAqtuGDkOUJu5eFvwmdBX4AmB8Odsr+9pHCQqiAqDL/yKMKw==
-
-"@types/node-forge@^1.3.1":
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/@types/node-forge/-/node-forge-1.3.1.tgz#49e44432c306970b4e900c3b214157c480af19fa"
-  integrity sha512-hvQ7Wav8I0j9amPXJtGqI/Yx70zeF62UKlAYq8JPm0nHzjKKzZvo9iR3YI2MiOghZRlOI+tQ2f6D+G6vVf4V2Q==
-  dependencies:
-    "@types/node" "*"
-
 "@types/node@*":
   version "18.11.9"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.9.tgz#02d013de7058cea16d36168ef2fc653464cfbad4"
@@ -766,11 +754,6 @@
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.1.tgz#20f18294f797f2209b5f65c8e3b5c8e8261d127c"
   integrity sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==
-
-"@types/tsscmp@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@types/tsscmp/-/tsscmp-1.0.0.tgz#761c885a530f9673ae6fda0cae38253ffd46cba6"
-  integrity sha512-rj18XR6c4Ohds86Lq8MI1NMRrXes4eLo4H06e5bJyKucE1rXGsfBBbFGD2oDC+DSufQCpnU3TTW7QAiwLx+7Yw==
 
 "@types/uuid@^8.3.4":
   version "8.3.4"
