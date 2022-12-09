@@ -19,7 +19,7 @@ export function objectToBase64(object: object): string {
 
 type ParsedObject = { readonly [key: string]: any };
 export function base64StringToObject(base64: string): ParsedObject {
-  return JSON.parse(atob(base64)) as ParsedObject;
+  return JSON.parse(atob(prepareBase64String(base64))) as ParsedObject;
 }
 
 export function stringToArrayBuffer(value: string): ArrayBuffer {
@@ -27,7 +27,7 @@ export function stringToArrayBuffer(value: string): ArrayBuffer {
 }
 
 export function base64StringToArrayBuffer(base64: string): ArrayBuffer {
-  return stringToArrayBuffer(atob(base64.replace(/-/g, '+').replace(/_/g, '/')));
+  return stringToArrayBuffer(atob(prepareBase64String(base64)));
 }
 
 export function stringToByteArray(value: string): Uint8Array {
@@ -37,7 +37,11 @@ export function stringToByteArray(value: string): Uint8Array {
 }
 
 export function base64StringToByteArray(base64: string): Uint8Array {
-  return stringToByteArray(atob(base64.replace(/-/g, '+').replace(/_/g, '/')));
+  return stringToByteArray(atob(prepareBase64String(base64)));
+}
+
+function prepareBase64String(base64: string) {
+  return base64.replace(/-/g, '+').replace(/_/g, '/');
 }
 
 export function pemToArrayBuffer(pem: string): ArrayBuffer {
