@@ -1,4 +1,4 @@
-import { base64StringToByteArray } from './jwt/utils';
+import { base64StringToByteArray } from "./jwt/utils";
 
 function berToJavaScript(byteArray: Uint8Array): ASN1 {
   const result: Partial<ASN1> = {};
@@ -11,7 +11,10 @@ function berToJavaScript(byteArray: Uint8Array): ASN1 {
 
   if (length === 0x80) {
     length = 0;
-    while (byteArray[position + length] !== 0 || byteArray[position + length + 1] !== 0) {
+    while (
+      byteArray[position + length] !== 0 ||
+      byteArray[position + length + 1] !== 0
+    ) {
       length += 1;
     }
     result.byteLength = position + length + 2;
@@ -30,7 +33,7 @@ function berToJavaScript(byteArray: Uint8Array): ASN1 {
 
   function getStructured() {
     // Consumes no bytes
-    return ((byteArray[0] & 0x20) === 0x20);
+    return (byteArray[0] & 0x20) === 0x20;
   }
 
   function getTag() {
@@ -100,12 +103,14 @@ interface TBSCertificate {
 
 function parseTBSCertificate(asn1: ASN1): TBSCertificate {
   if (asn1.cls !== 0 || asn1.tag !== 16 || !asn1.structured) {
-    throw new Error('This can\'t be a TBSCertificate. Wrong data type.');
+    throw new Error("This can't be a TBSCertificate. Wrong data type.");
   }
   const pieces = berListToJavaScript(asn1.contents);
 
   if (pieces.length < 7) {
-    throw new Error('Bad TBS Certificate. There are fewer than the seven required children.');
+    throw new Error(
+      "Bad TBS Certificate. There are fewer than the seven required children."
+    );
   }
 
   return {
@@ -116,7 +121,7 @@ function parseTBSCertificate(asn1: ASN1): TBSCertificate {
     issuer: pieces[3],
     validity: pieces[4],
     subject: pieces[5],
-    subjectPublicKeyInfo: parseSubjectPublicKeyInfo(pieces[6])
+    subjectPublicKeyInfo: parseSubjectPublicKeyInfo(pieces[6]),
   };
 }
 
@@ -128,18 +133,26 @@ interface AlgorithmIdentifier {
 
 function parseAlgorithmIdentifier(asn1: ASN1): AlgorithmIdentifier {
   if (asn1.cls !== 0 || asn1.tag !== 16 || !asn1.structured) {
-    throw new Error('Bad algorithm identifier. Not a SEQUENCE.');
+    throw new Error("Bad algorithm identifier. Not a SEQUENCE.");
   }
 
   const pieces = berListToJavaScript(asn1.contents);
 
   if (pieces.length > 2) {
-    throw new Error('Bad algorithm identifier. Contains too many child objects.');
+    throw new Error(
+      "Bad algorithm identifier. Contains too many child objects."
+    );
   }
 
   const encodedAlgorithm = pieces[0];
-  if (encodedAlgorithm.cls !== 0 || encodedAlgorithm.tag !== 6 || encodedAlgorithm.structured) {
-    throw new Error('Bad algorithm identifier. Does not begin with an OBJECT IDENTIFIER.');
+  if (
+    encodedAlgorithm.cls !== 0 ||
+    encodedAlgorithm.tag !== 6 ||
+    encodedAlgorithm.structured
+  ) {
+    throw new Error(
+      "Bad algorithm identifier. Does not begin with an OBJECT IDENTIFIER."
+    );
   }
 
   return {
@@ -150,7 +163,7 @@ function parseAlgorithmIdentifier(asn1: ASN1): AlgorithmIdentifier {
 }
 
 function berObjectIdentifierValue(byteArray: Uint8Array): string {
-  let oid = Math.floor(byteArray[0] / 40) + '.' + byteArray[0] % 40;
+  let oid = Math.floor(byteArray[0] / 40) + "." + (byteArray[0] % 40);
   let position = 1;
   while (position < byteArray.length) {
     let nextInteger = 0;
@@ -160,7 +173,7 @@ function berObjectIdentifierValue(byteArray: Uint8Array): string {
     }
     nextInteger = nextInteger * 0x80 + byteArray[position];
     position += 1;
-    oid += '.' + nextInteger;
+    oid += "." + nextInteger;
   }
   return oid;
 }
@@ -173,19 +186,19 @@ interface SPKI {
 
 function parseSubjectPublicKeyInfo(asn1: ASN1): SPKI {
   if (asn1.cls !== 0 || asn1.tag !== 16 || !asn1.structured) {
-    throw new Error('Bad SPKI. Not a SEQUENCE.');
+    throw new Error("Bad SPKI. Not a SEQUENCE.");
   }
 
   const pieces = berListToJavaScript(asn1.contents);
 
   if (pieces.length !== 2) {
-    throw new Error('Bad SubjectPublicKeyInfo. Wrong number of child objects.');
+    throw new Error("Bad SubjectPublicKeyInfo. Wrong number of child objects.");
   }
 
   return {
     asn1,
     algorithm: parseAlgorithmIdentifier(pieces[0]),
-    bits: berBitStringValue(pieces[1].contents)
+    bits: berBitStringValue(pieces[1].contents),
   };
 }
 
@@ -197,20 +210,20 @@ interface Bits {
 function berBitStringValue(byteArray: Uint8Array): Bits {
   return {
     unusedBits: byteArray[0],
-    bytes: byteArray.subarray(1)
+    bytes: byteArray.subarray(1),
   };
 }
 
 const parseSignatureAlgorithm = parseAlgorithmIdentifier;
 
 interface Sig {
-  asn1: ASN1,
-  bits: Bits,
+  asn1: ASN1;
+  bits: Bits;
 }
 
 function parseSignatureValue(asn1: ASN1): Sig {
   if (asn1.cls !== 0 || asn1.tag !== 3 || asn1.structured) {
-    throw new Error('Bad signature value. Not a BIT STRING.');
+    throw new Error("Bad signature value. Not a BIT STRING.");
   }
 
   return {
@@ -229,19 +242,21 @@ interface Cert {
 function parseCertificate(byteArray: Uint8Array): Cert {
   const asn1 = berToJavaScript(byteArray);
   if (asn1.cls !== 0 || asn1.tag !== 16 || !asn1.structured) {
-    throw new Error('This can\'t be an X.509 certificate. Wrong data type.');
+    throw new Error("This can't be an X.509 certificate. Wrong data type.");
   }
 
   const pieces = berListToJavaScript(asn1.contents);
   if (pieces.length !== 3) {
-    throw new Error('Certificate contains more than the three specified children.');
+    throw new Error(
+      "Certificate contains more than the three specified children."
+    );
   }
 
   return {
     asn1,
     tbsCertificate: parseTBSCertificate(pieces[0]),
     signatureAlgorithm: parseSignatureAlgorithm(pieces[1]),
-    signatureValue: parseSignatureValue(pieces[2])
+    signatureValue: parseSignatureValue(pieces[2]),
   };
 }
 
@@ -250,10 +265,10 @@ export function pemToPublicKey(pem: string): Promise<CryptoKey> {
   const certificate = parseCertificate(der);
 
   return crypto.subtle.importKey(
-    'spki',
+    "spki",
     certificate.tbsCertificate.subjectPublicKeyInfo.asn1.raw,
-    { name: 'RSASSA-PKCS1-v1_5', hash: { name: 'SHA-256' } },
+    { name: "RSASSA-PKCS1-v1_5", hash: { name: "SHA-256" } },
     true,
-    ['verify']
+    ["verify"]
   );
 }

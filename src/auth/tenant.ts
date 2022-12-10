@@ -1,4 +1,4 @@
-import { DecodedIdToken } from './token-verifier';
+import { DecodedIdToken } from "./token-verifier";
 
 export type Claims = { [key: string]: any };
 
@@ -19,25 +19,25 @@ type CreateTenantOptions = {
 };
 
 export const STANDARD_CLAIMS = [
-  'aud',
-  'auth_time',
-  'email',
-  'email_verified',
-  'exp',
-  'firebase',
-  'iat',
-  'iss',
-  'name',
-  'phone_number',
-  'picture',
-  'sub',
-  'uid',
-  'user_id',
+  "aud",
+  "auth_time",
+  "email",
+  "email_verified",
+  "exp",
+  "firebase",
+  "iat",
+  "iss",
+  "name",
+  "phone_number",
+  "picture",
+  "sub",
+  "uid",
+  "user_id",
 ];
 
 export const filterStandardClaims = (obj: Claims = {}) => {
   const claims: Claims = {};
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     if (!STANDARD_CLAIMS.includes(key)) {
       claims[key] = obj[key];
     }
@@ -51,7 +51,9 @@ export const createTenant = ({
 }: CreateTenantOptions = {}): Tenant => {
   // The token value should only be provided with the decoded admin value.
   if (token && !decodedToken) {
-    throw new Error('The "token" value can only be set if the "decodedToken" property is defined.');
+    throw new Error(
+      'The "token" value can only be set if the "decodedToken" property is defined.'
+    );
   }
 
   if (decodedToken) {
@@ -79,7 +81,7 @@ export const createTenant = ({
   }
 
   return {
-    uid: '',
+    uid: "",
     email: undefined,
     customClaims: {},
     emailVerified: false,

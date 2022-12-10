@@ -1,9 +1,9 @@
-import { getFirebaseAuth } from '../auth';
-import { ServiceAccount } from '../auth/credential';
-import { sign } from '../auth/cookies/sign';
-import { CookieSerializeOptions, serialize } from 'cookie';
-import { NextResponse } from 'next/server';
-import { getSignatureCookieName } from '../auth/cookies';
+import { getFirebaseAuth } from "../auth";
+import { ServiceAccount } from "../auth/credential";
+import { sign } from "../auth/cookies/sign";
+import { CookieSerializeOptions, serialize } from "cookie";
+import { NextResponse } from "next/server";
+import { getSignatureCookieName } from "../auth/cookies";
 
 export interface SetAuthCookiesOptions {
   cookieName: string;
@@ -13,32 +13,48 @@ export interface SetAuthCookiesOptions {
   apiKey: string;
 }
 
-export async function setAuthCookies(headers: Headers, options: SetAuthCookiesOptions): Promise<NextResponse> {
-  const {getCustomIdAndRefreshTokens} = getFirebaseAuth(options.serviceAccount, options.apiKey)
-  const token = headers.get('Authorization')?.split(' ')[1] ?? '';
+export async function setAuthCookies(
+  headers: Headers,
+  options: SetAuthCookiesOptions
+): Promise<NextResponse> {
+  const { getCustomIdAndRefreshTokens } = getFirebaseAuth(
+    options.serviceAccount,
+    options.apiKey
+  );
+  const token = headers.get("Authorization")?.split(" ")[1] ?? "";
   const { idToken, refreshToken } = await getCustomIdAndRefreshTokens(
     token,
     options.apiKey
   );
   const value = JSON.stringify({ idToken, refreshToken });
-  const { signatureCookie, signedCookie } = await sign(options.cookieSignatureKeys)({
+  const { signatureCookie, signedCookie } = await sign(
+    options.cookieSignatureKeys
+  )({
     name: options.cookieName,
     value,
   });
 
-  const response = new NextResponse(
-    JSON.stringify({ success: true }),
-    { status: 200, headers: { 'content-type': 'application/json' } }
-  )
+  const response = new NextResponse(JSON.stringify({ success: true }), {
+    status: 200,
+    headers: { "content-type": "application/json" },
+  });
 
   response.headers.append(
-    'Set-Cookie',
-    serialize(signatureCookie.name, signatureCookie.value, options.cookieSerializeOptions)
+    "Set-Cookie",
+    serialize(
+      signatureCookie.name,
+      signatureCookie.value,
+      options.cookieSerializeOptions
+    )
   );
 
   response.headers.append(
-    'Set-Cookie',
-    serialize(signedCookie.name, signedCookie.value, options.cookieSerializeOptions)
+    "Set-Cookie",
+    serialize(
+      signedCookie.name,
+      signedCookie.value,
+      options.cookieSerializeOptions
+    )
   );
 
   return response;
@@ -49,25 +65,28 @@ export interface RemoveAuthCookiesOptions {
   cookieSerializeOptions: CookieSerializeOptions;
 }
 
-export function removeAuthCookies(headers: Headers, options: RemoveAuthCookiesOptions): NextResponse {
-  const response = new NextResponse(
-    JSON.stringify({ success: true }),
-    { status: 200, headers: { 'content-type': 'application/json' } }
-  );
+export function removeAuthCookies(
+  headers: Headers,
+  options: RemoveAuthCookiesOptions
+): NextResponse {
+  const response = new NextResponse(JSON.stringify({ success: true }), {
+    status: 200,
+    headers: { "content-type": "application/json" },
+  });
 
-  const { maxAge, expires, ...cookieOptions } = options.cookieSerializeOptions
+  const { maxAge, expires, ...cookieOptions } = options.cookieSerializeOptions;
 
   response.headers.append(
-    'Set-Cookie',
-    serialize(options.cookieName, '', {
+    "Set-Cookie",
+    serialize(options.cookieName, "", {
       ...cookieOptions,
       expires: new Date(0),
     })
   );
 
   response.headers.append(
-    'Set-Cookie',
-    serialize(getSignatureCookieName(options.cookieName), '', {
+    "Set-Cookie",
+    serialize(getSignatureCookieName(options.cookieName), "", {
       ...cookieOptions,
       expires: new Date(0),
     })

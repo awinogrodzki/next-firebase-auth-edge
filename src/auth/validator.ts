@@ -1,13 +1,13 @@
 export function isString(value: any): value is string {
-  return typeof value === 'string';
+  return typeof value === "string";
 }
 
 export function isNonEmptyString(value: any): value is string {
-  return isString(value) && value !== '';
+  return isString(value) && value !== "";
 }
 
 export function isObject(value: any): boolean {
-  return typeof value === 'object' && !isArray(value);
+  return typeof value === "object" && !isArray(value);
 }
 
 export function isArray<T>(value: any): value is T[] {
@@ -19,11 +19,11 @@ export function isNonNullObject<T>(value: T | null | undefined): value is T {
 }
 
 export function isUid(uid: any): boolean {
-  return typeof uid === 'string' && uid.length > 0 && uid.length <= 128;
+  return typeof uid === "string" && uid.length > 0 && uid.length <= 128;
 }
 
 export function isURL(urlStr: any): boolean {
-  if (typeof urlStr !== 'string') {
+  if (typeof urlStr !== "string") {
     return false;
   }
 
@@ -36,18 +36,19 @@ export function isURL(urlStr: any): boolean {
     const scheme = uri.protocol;
     const hostname = uri.hostname;
     const pathname = uri.pathname;
-    if ((scheme !== 'http:' && scheme !== 'https:')) {
+    if (scheme !== "http:" && scheme !== "https:") {
       return false;
     }
 
-    if (!hostname || !/^[a-zA-Z0-9]+[\w-]*([.]?[a-zA-Z0-9]+[\w-]*)*$/.test(hostname)) {
+    if (
+      !hostname ||
+      !/^[a-zA-Z0-9]+[\w-]*([.]?[a-zA-Z0-9]+[\w-]*)*$/.test(hostname)
+    ) {
       return false;
     }
 
     const pathnameRe = /^(\/[\w\-.~!$'()*+,;=:@%]+)*\/?$/;
-    if (pathname &&
-      pathname !== '/' &&
-      !pathnameRe.test(pathname)) {
+    if (pathname && pathname !== "/" && !pathnameRe.test(pathname)) {
       return false;
     }
   } catch (e) {

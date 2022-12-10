@@ -1,5 +1,5 @@
 export const toBase64 = (value: string) => {
-  return btoa(value).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  return btoa(value).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
 };
 
 export const base64ToString = (value: string) => {

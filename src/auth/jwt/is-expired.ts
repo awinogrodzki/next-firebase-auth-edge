@@ -1,5 +1,5 @@
-import { decode } from './decode';
-import { DecodedJWTPayload } from './types';
+import { decode } from "./decode";
+import { DecodedJWTPayload } from "./types";
 
 export type IsExpiredOptions = {
   readonly expiredWithinSeconds?: number;
@@ -11,7 +11,7 @@ export function isExpired(
 ): boolean {
   const { exp } = decode(jwt) as DecodedJWTPayload;
   return (
-    typeof exp === 'number' &&
+    typeof exp === "number" &&
     exp < Math.floor(new Date().getTime() / 1000) + expiredWithinSeconds
   );
 }

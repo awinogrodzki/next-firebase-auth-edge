@@ -23,8 +23,8 @@ export type Immutable<T> = T extends ImmutablePrimitive
   : ImmutableObject<T>;
 
 export type DecodedJWTHeader = {
-  typ: 'JWT';
-  alg: 'RS256';
+  typ: "JWT";
+  alg: "RS256";
   kid?: string;
 };
 
