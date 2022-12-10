@@ -1,10 +1,10 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
-import { CookieSerializeOptions } from 'cookie';
-import { ServiceAccount } from '../auth/credential';
-import { removeAuthCookies, setAuthCookies } from './cookies';
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { CookieSerializeOptions } from "cookie";
+import { ServiceAccount } from "../auth/credential";
+import { removeAuthCookies, setAuthCookies } from "./cookies";
 
-export interface CreateAuthMiddlewareOptions{
+export interface CreateAuthMiddlewareOptions {
   loginPath: string;
   logoutPath: string;
   cookieName: string;
@@ -14,7 +14,10 @@ export interface CreateAuthMiddlewareOptions{
   apiKey: string;
 }
 
-export async function createAuthMiddlewareResponse(request: NextRequest, options: CreateAuthMiddlewareOptions): Promise<NextResponse | void> {
+export async function createAuthMiddlewareResponse(
+  request: NextRequest,
+  options: CreateAuthMiddlewareOptions
+): Promise<NextResponse | void> {
   if (request.nextUrl.pathname === options.loginPath) {
     return setAuthCookies(request.headers, {
       cookieName: options.cookieName,

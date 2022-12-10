@@ -1,19 +1,19 @@
-import { isNonNullObject, isString, isURL } from './validator';
-import { JwtError, JwtErrorCode } from './jwt/error';
-import { decode } from './jwt';
-import { verify } from './jwt/verify';
-import { DecodedJWTHeader } from './jwt/types';
+import { isNonNullObject, isString, isURL } from "./validator";
+import { JwtError, JwtErrorCode } from "./jwt/error";
+import { decode } from "./jwt";
+import { verify } from "./jwt/verify";
+import { DecodedJWTHeader } from "./jwt/types";
 
-export const ALGORITHM_RS256 = 'RS256' as const;
-const NO_MATCHING_KID_ERROR_MESSAGE = 'no-matching-kid-error';
-const NO_KID_IN_HEADER_ERROR_MESSAGE = 'no-kid-in-header-error';
+export const ALGORITHM_RS256 = "RS256" as const;
+const NO_MATCHING_KID_ERROR_MESSAGE = "no-matching-kid-error";
+const NO_KID_IN_HEADER_ERROR_MESSAGE = "no-kid-in-header-error";
 
-export type Dictionary = { [key: string]: any }
+export type Dictionary = { [key: string]: any };
 
 export type DecodedToken = {
   header: Dictionary;
   payload: Dictionary;
-}
+};
 
 export interface SignatureVerifier {
   verify(token: string): Promise<void>;
@@ -23,7 +23,6 @@ interface KeyFetcher {
   fetchPublicKeys(): Promise<{ [key: string]: string }>;
 }
 
-
 export class UrlKeyFetcher implements KeyFetcher {
   private publicKeys: { [key: string]: string } = {};
   private publicKeysExpireAt = 0;
@@ -31,7 +30,7 @@ export class UrlKeyFetcher implements KeyFetcher {
   constructor(private clientCertUrl: string) {
     if (!isURL(clientCertUrl)) {
       throw new Error(
-        'The provided public client certificate URL is not a valid URL.',
+        "The provided public client certificate URL is not a valid URL."
       );
     }
   }
@@ -49,16 +48,16 @@ export class UrlKeyFetcher implements KeyFetcher {
 
   private async refresh(): Promise<{ [key: string]: string }> {
     const res = await fetch(this.clientCertUrl, {
-      method: 'GET'
-    })
+      method: "GET",
+    });
 
     if (!res.ok) {
-      let errorMessage = 'Error fetching public keys for Google certs: ';
+      let errorMessage = "Error fetching public keys for Google certs: ";
       const data = await res.json();
       if (data.error) {
         errorMessage += `${data.error}`;
         if (data.error_description) {
-          errorMessage += ' (' + data.error_description + ')';
+          errorMessage += " (" + data.error_description + ")";
         }
       } else {
         errorMessage += `${await res.text()}`;
@@ -74,14 +73,14 @@ export class UrlKeyFetcher implements KeyFetcher {
 
     this.publicKeysExpireAt = 0;
 
-    if (res.headers.has('cache-control')) {
-      const cacheControlHeader: string = res.headers.get('cache-control')!;
-      const parts = cacheControlHeader.split(',');
+    if (res.headers.has("cache-control")) {
+      const cacheControlHeader: string = res.headers.get("cache-control")!;
+      const parts = cacheControlHeader.split(",");
       parts.forEach((part) => {
-        const subParts = part.trim().split('=');
-        if (subParts[0] === 'max-age') {
+        const subParts = part.trim().split("=");
+        if (subParts[0] === "max-age") {
           const maxAge: number = +subParts[1];
-          this.publicKeysExpireAt = Date.now() + (maxAge * 1000);
+          this.publicKeysExpireAt = Date.now() + maxAge * 1000;
         }
       });
     }
@@ -94,38 +93,47 @@ export class UrlKeyFetcher implements KeyFetcher {
 export class PublicKeySignatureVerifier implements SignatureVerifier {
   constructor(private keyFetcher: KeyFetcher) {
     if (!isNonNullObject(keyFetcher)) {
-      throw new Error('The provided key fetcher is not an object or null.');
+      throw new Error("The provided key fetcher is not an object or null.");
     }
   }
 
-  public static withCertificateUrl(clientCertUrl: string): PublicKeySignatureVerifier {
+  public static withCertificateUrl(
+    clientCertUrl: string
+  ): PublicKeySignatureVerifier {
     return new PublicKeySignatureVerifier(new UrlKeyFetcher(clientCertUrl));
   }
 
   public async verify(token: string): Promise<void> {
     if (!isString(token)) {
-      return Promise.reject(new JwtError(JwtErrorCode.INVALID_ARGUMENT,
-        'The provided token must be a string.'));
+      return Promise.reject(
+        new JwtError(
+          JwtErrorCode.INVALID_ARGUMENT,
+          "The provided token must be a string."
+        )
+      );
     }
 
-    const decoded = decode(token, {complete: true});
+    const decoded = decode(token, { complete: true });
     const publicKey = await getKey(this.keyFetcher, decoded.header);
 
-    return verifyJwtSignature(token, publicKey)
-      .catch((error: JwtError) => {
-        if (error.code === JwtErrorCode.NO_KID_IN_HEADER) {
-          return this.verifyWithoutKid(token);
-        }
-        throw error;
-      });
+    return verifyJwtSignature(token, publicKey).catch((error: JwtError) => {
+      if (error.code === JwtErrorCode.NO_KID_IN_HEADER) {
+        return this.verifyWithoutKid(token);
+      }
+      throw error;
+    });
   }
 
   private verifyWithoutKid(token: string): Promise<void> {
-    return this.keyFetcher.fetchPublicKeys()
-      .then(publicKeys => this.verifyWithAllKeys(token, publicKeys));
+    return this.keyFetcher
+      .fetchPublicKeys()
+      .then((publicKeys) => this.verifyWithAllKeys(token, publicKeys));
   }
 
-  private verifyWithAllKeys(token: string, keys: { [key: string]: string }): Promise<void> {
+  private verifyWithAllKeys(
+    token: string,
+    keys: { [key: string]: string }
+  ): Promise<void> {
     const promises: Promise<boolean>[] = [];
     Object.values(keys).forEach((key) => {
       const result = verifyJwtSignature(token, key)
@@ -135,43 +143,54 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
             throw error;
           }
           return false;
-        })
+        });
       promises.push(result);
     });
 
-    return Promise.all(promises)
-      .then((result) => {
-        if (result.every((r) => r === false)) {
-          throw new JwtError(JwtErrorCode.INVALID_SIGNATURE, 'Invalid token signature.');
-        }
-      });
+    return Promise.all(promises).then((result) => {
+      if (result.every((r) => r === false)) {
+        throw new JwtError(
+          JwtErrorCode.INVALID_SIGNATURE,
+          "Invalid token signature."
+        );
+      }
+    });
   }
 }
 
 export class EmulatorSignatureVerifier implements SignatureVerifier {
   public verify(token: string): Promise<void> {
-    return verifyJwtSignature(token, '');
+    return verifyJwtSignature(token, "");
   }
 }
 
-async function getKey(fetcher: KeyFetcher, header: DecodedJWTHeader): Promise<string> {
+async function getKey(
+  fetcher: KeyFetcher,
+  header: DecodedJWTHeader
+): Promise<string> {
   if (!header.kid) {
     throw new Error(NO_KID_IN_HEADER_ERROR_MESSAGE);
   }
 
-  const kid = header.kid || '';
+  const kid = header.kid || "";
   const publicKeys = await fetcher.fetchPublicKeys();
 
   if (!Object.prototype.hasOwnProperty.call(publicKeys, kid)) {
-    throw new Error(NO_MATCHING_KID_ERROR_MESSAGE)
+    throw new Error(NO_MATCHING_KID_ERROR_MESSAGE);
   }
 
   return publicKeys[kid];
 }
 
-export async function verifyJwtSignature(token: string, secretOrPublicKey: string): Promise<void> {
+export async function verifyJwtSignature(
+  token: string,
+  secretOrPublicKey: string
+): Promise<void> {
   if (!token) {
-    throw new JwtError(JwtErrorCode.INVALID_ARGUMENT,'The provided token must be a string.')
+    throw new JwtError(
+      JwtErrorCode.INVALID_ARGUMENT,
+      "The provided token must be a string."
+    );
   }
 
   await verify(token, secretOrPublicKey);
@@ -179,8 +198,12 @@ export async function verifyJwtSignature(token: string, secretOrPublicKey: strin
 
 export function decodeJwt(jwtToken: string): Promise<DecodedToken> {
   if (!isString(jwtToken)) {
-    return Promise.reject(new JwtError(JwtErrorCode.INVALID_ARGUMENT,
-      'The provided token must be a string.'));
+    return Promise.reject(
+      new JwtError(
+        JwtErrorCode.INVALID_ARGUMENT,
+        "The provided token must be a string."
+      )
+    );
   }
 
   const fullDecodedToken: any = decode(jwtToken, {
@@ -188,8 +211,9 @@ export function decodeJwt(jwtToken: string): Promise<DecodedToken> {
   });
 
   if (!fullDecodedToken) {
-    return Promise.reject(new JwtError(JwtErrorCode.INVALID_ARGUMENT,
-      'Decoding token failed.'));
+    return Promise.reject(
+      new JwtError(JwtErrorCode.INVALID_ARGUMENT, "Decoding token failed.")
+    );
   }
 
   const header = fullDecodedToken?.header;

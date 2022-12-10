@@ -2,8 +2,9 @@ export function formatString(str: string, params?: object): string {
   let formatted = str;
   Object.keys(params || {}).forEach((key) => {
     formatted = formatted.replace(
-      new RegExp('{' + key + '}', 'g'),
-      (params as {[key: string]: string})[key]);
+      new RegExp("{" + key + "}", "g"),
+      (params as { [key: string]: string })[key]
+    );
   });
   return formatted;
 }
@@ -16,7 +17,6 @@ export function addReadonlyGetter(obj: object, prop: string, value: any): void {
   });
 }
 
-
 export function deepCopy<T>(value: T): T {
   return deepExtend(undefined, value);
 }
@@ -28,7 +28,7 @@ export function deepExtend(target: any, source: any): any {
 
   switch (source.constructor) {
     case Date: {
-      const dateValue = (source as any) as Date;
+      const dateValue = source as any as Date;
       return new Date(dateValue.getTime());
     }
 

@@ -1,12 +1,16 @@
-import { ServiceAccountCredential } from '../credential';
-import { ErrorInfo } from '../error';
-import { ALGORITHMS } from './consts';
-import { arrayBufferToBase64, pemToArrayBuffer, stringToArrayBuffer } from './utils';
+import { ServiceAccountCredential } from "../credential";
+import { ErrorInfo } from "../error";
+import { ALGORITHMS } from "./consts";
+import {
+  arrayBufferToBase64,
+  pemToArrayBuffer,
+  stringToArrayBuffer,
+} from "./utils";
 
-const ALGORITHM_RS256 = 'RS256' as const;
+const ALGORITHM_RS256 = "RS256" as const;
 
 export interface CryptoSigner {
-  readonly algorithm: 'RS256' | 'none';
+  readonly algorithm: "RS256" | "none";
 
   sign(token: string): Promise<string>;
   getAccountId(): Promise<string>;
@@ -19,24 +23,28 @@ export class ServiceAccountSigner implements CryptoSigner {
     if (!credential) {
       throw new CryptoSignerError({
         code: CryptoSignerErrorCode.INVALID_CREDENTIAL,
-        message: 'INTERNAL ASSERT: Must provide a service account credential to initialize ServiceAccountSigner.',
+        message:
+          "INTERNAL ASSERT: Must provide a service account credential to initialize ServiceAccountSigner.",
       });
     }
   }
-
 
   public async sign(token: string): Promise<string> {
     const tokenBuffer = stringToArrayBuffer(token);
     const keyData = pemToArrayBuffer(this.credential.privateKey);
     const key = await crypto.subtle.importKey(
-      'pkcs8',
+      "pkcs8",
       keyData,
       ALGORITHMS[ALGORITHM_RS256],
       false,
-      ['sign']
+      ["sign"]
     );
 
-    const signed = await crypto.subtle.sign(ALGORITHMS[ALGORITHM_RS256], key, tokenBuffer);
+    const signed = await crypto.subtle.sign(
+      ALGORITHMS[ALGORITHM_RS256],
+      key,
+      tokenBuffer
+    );
     return arrayBufferToBase64(signed);
   }
 
@@ -73,8 +81,8 @@ export class CryptoSignerError extends Error {
 }
 
 export class CryptoSignerErrorCode {
-  public static INVALID_ARGUMENT = 'invalid-argument';
-  public static INTERNAL_ERROR = 'internal-error';
-  public static INVALID_CREDENTIAL = 'invalid-credential';
-  public static SERVER_ERROR = 'server-error';
+  public static INVALID_ARGUMENT = "invalid-argument";
+  public static INTERNAL_ERROR = "internal-error";
+  public static INVALID_CREDENTIAL = "invalid-credential";
+  public static SERVER_ERROR = "server-error";
 }

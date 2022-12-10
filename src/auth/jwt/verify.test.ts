@@ -1,8 +1,8 @@
-import { sign } from './sign';
-import { verify } from './verify';
+import { sign } from "./sign";
+import { verify } from "./verify";
 
-describe('verify', () => {
-  it('verifies jwt', async () => {
+describe("verify", () => {
+  it("verifies jwt", async () => {
     const payload = { exp: 9123812123123 };
     const privateKey = `-----BEGIN PRIVATE KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDHDTErwJZxwJQH
@@ -31,7 +31,7 @@ Wn7KaHQpvkPifB5qT48pMIQjraqJQoQ7+hbhkR9tAoGBAKrNCHGq3edhgnVjHJbj
 j3rJk3aIe7UffHoNDkq/xE32W1P4ra3t81ItdLRXEJU/XU6ZmbvEpjJUMfXiIZHt
 wmK2NLjp4+wipPmSidEwyabBAk4Epb0qIG+MM2RvMUOC8kkV2p5lNFkZYR346wtI
 AIqW5jTJYZYfCnGuCyV0F0C0
------END PRIVATE KEY-----`
+-----END PRIVATE KEY-----`;
 
     const publicKey = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxw0xK8CWccCUB6vmereq
@@ -42,9 +42,13 @@ Zj/8Ei4WJsxaBgUszsQuDdJh9KeO7001h6GY8r20w845+J+aegzFe4IKbKOftblA
 gLvHOblVImo+TJwQ7Vxvgr0YG5E+0QlTLh3R2cdQ2MyDrT76dCTMMNtNUCZ4WbNe
 aQIDAQAB
 -----END PUBLIC KEY-----
-`
+`;
 
-    const jwt = await sign({ payload, privateKey, keyUsages: ['sign', 'verify'] });
+    const jwt = await sign({
+      payload,
+      privateKey,
+      keyUsages: ["sign", "verify"],
+    });
 
     await verify(jwt, publicKey);
   });

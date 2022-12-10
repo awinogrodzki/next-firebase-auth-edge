@@ -4,22 +4,24 @@ import {
   objectToBase64,
   pemToArrayBuffer,
   base64StringToArrayBuffer,
-} from './utils';
-import { DecodedJWTHeader, DecodedJWTPayload, Immutable } from './types';
-import { ALGORITHMS } from './consts';
+} from "./utils";
+import { DecodedJWTHeader, DecodedJWTPayload, Immutable } from "./types";
+import { ALGORITHMS } from "./consts";
 
 export type SignOptions = {
   readonly payload: DecodedJWTPayload;
   readonly privateKey?: string;
   readonly secret?: string;
   readonly keyId?: string;
-  readonly format?: 'pkcs8';
-  readonly algorithm?: 'RS256';
+  readonly format?: "pkcs8";
+  readonly algorithm?: "RS256";
   readonly extractable?: boolean;
   readonly keyUsages?: readonly string[];
 };
 
-function getKeyData(options: Immutable<Pick<SignOptions, 'secret' | 'privateKey'>>) {
+function getKeyData(
+  options: Immutable<Pick<SignOptions, "secret" | "privateKey">>
+) {
   if (options.secret) {
     return base64StringToArrayBuffer(options.secret);
   }
@@ -28,7 +30,7 @@ function getKeyData(options: Immutable<Pick<SignOptions, 'secret' | 'privateKey'
     return pemToArrayBuffer(options.privateKey);
   }
 
-  return base64StringToArrayBuffer('');
+  return base64StringToArrayBuffer("");
 }
 
 export async function sign({
@@ -36,10 +38,10 @@ export async function sign({
   privateKey,
   secret,
   keyId,
-  format = 'pkcs8',
-  algorithm = 'RS256',
+  format = "pkcs8",
+  algorithm = "RS256",
   extractable = false,
-  keyUsages = ['sign'],
+  keyUsages = ["sign"],
 }: Immutable<SignOptions>): Promise<string> {
   const keyData = getKeyData({ privateKey, secret });
   const key = await crypto.subtle.importKey(
@@ -47,13 +49,11 @@ export async function sign({
     keyData,
     ALGORITHMS[algorithm],
     extractable,
-    // Needed for importKey compatibility
-    // eslint-disable-next-line functional/prefer-readonly-type
     keyUsages as KeyUsage[]
   );
 
   const header: DecodedJWTHeader = {
-    typ: 'JWT',
+    typ: "JWT",
     alg: algorithm,
   };
   const encodedHeader = objectToBase64(

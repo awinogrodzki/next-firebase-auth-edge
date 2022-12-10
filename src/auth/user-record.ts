@@ -1,9 +1,9 @@
-import { AuthClientErrorCode, FirebaseAuthError } from './error';
-import { addReadonlyGetter, deepCopy } from './utils';
-import { isNonNullObject } from './validator';
-import { stringToBase64 } from './jwt/utils';
+import { AuthClientErrorCode, FirebaseAuthError } from "./error";
+import { addReadonlyGetter, deepCopy } from "./utils";
+import { isNonNullObject } from "./validator";
+import { stringToBase64 } from "./jwt/utils";
 
-const B64_REDACTED = stringToBase64('REDACTED');
+const B64_REDACTED = stringToBase64("REDACTED");
 
 function parseDate(time: any): string | null {
   try {
@@ -11,8 +11,7 @@ function parseDate(time: any): string | null {
     if (!isNaN(date.getTime())) {
       return date.toUTCString();
     }
-  } catch (e) {
-  }
+  } catch (e) {}
   return null;
 }
 
@@ -56,16 +55,17 @@ export interface GetAccountInfoUserResponse {
 }
 
 enum MultiFactorId {
-  Phone = 'phone',
+  Phone = "phone",
 }
-
 
 export abstract class MultiFactorInfo {
   public readonly uid!: string;
   public readonly displayName?: string;
   public readonly factorId!: string;
   public readonly enrollmentTime?: string;
-  public static initMultiFactorInfo(response: MultiFactorInfoResponse): MultiFactorInfo | null {
+  public static initMultiFactorInfo(
+    response: MultiFactorInfoResponse
+  ): MultiFactorInfo | null {
     let multiFactorInfo: MultiFactorInfo | null = null;
     try {
       multiFactorInfo = new PhoneMultiFactorInfo(response);
@@ -87,23 +87,29 @@ export abstract class MultiFactorInfo {
     };
   }
 
-  protected abstract getFactorId(response: MultiFactorInfoResponse): string | null;
+  protected abstract getFactorId(
+    response: MultiFactorInfoResponse
+  ): string | null;
 
   private initFromServerResponse(response: MultiFactorInfoResponse): void {
     const factorId = response && this.getFactorId(response);
     if (!factorId || !response || !response.mfaEnrollmentId) {
       throw new FirebaseAuthError(
         AuthClientErrorCode.INTERNAL_ERROR,
-        'INTERNAL ASSERT FAILED: Invalid multi-factor info response');
+        "INTERNAL ASSERT FAILED: Invalid multi-factor info response"
+      );
     }
-    addReadonlyGetter(this, 'uid', response.mfaEnrollmentId);
-    addReadonlyGetter(this, 'factorId', factorId);
-    addReadonlyGetter(this, 'displayName', response.displayName);
+    addReadonlyGetter(this, "uid", response.mfaEnrollmentId);
+    addReadonlyGetter(this, "factorId", factorId);
+    addReadonlyGetter(this, "displayName", response.displayName);
     if (response.enrolledAt) {
       addReadonlyGetter(
-        this, 'enrollmentTime', new Date(response.enrolledAt).toUTCString());
+        this,
+        "enrollmentTime",
+        new Date(response.enrolledAt).toUTCString()
+      );
     } else {
-      addReadonlyGetter(this, 'enrollmentTime', null);
+      addReadonlyGetter(this, "enrollmentTime", null);
     }
   }
 }
@@ -113,19 +119,17 @@ export class PhoneMultiFactorInfo extends MultiFactorInfo {
 
   constructor(response: MultiFactorInfoResponse) {
     super(response);
-    addReadonlyGetter(this, 'phoneNumber', response.phoneInfo);
+    addReadonlyGetter(this, "phoneNumber", response.phoneInfo);
   }
 
   public toJSON(): object {
-    return Object.assign(
-      super.toJSON(),
-      {
-        phoneNumber: this.phoneNumber,
-      });
+    return Object.assign(super.toJSON(), {
+      phoneNumber: this.phoneNumber,
+    });
   }
 
   protected getFactorId(response: MultiFactorInfoResponse): string | null {
-    return (response && response.phoneInfo) ? MultiFactorId.Phone : null;
+    return response && response.phoneInfo ? MultiFactorId.Phone : null;
   }
 }
 
@@ -137,10 +141,12 @@ export class MultiFactorSettings {
     if (!isNonNullObject(response)) {
       throw new FirebaseAuthError(
         AuthClientErrorCode.INTERNAL_ERROR,
-        'INTERNAL ASSERT FAILED: Invalid multi-factor response');
+        "INTERNAL ASSERT FAILED: Invalid multi-factor response"
+      );
     } else if (response.mfaInfo) {
       response.mfaInfo.forEach((factorResponse) => {
-        const multiFactorInfo = MultiFactorInfo.initMultiFactorInfo(factorResponse);
+        const multiFactorInfo =
+          MultiFactorInfo.initMultiFactorInfo(factorResponse);
         if (multiFactorInfo) {
           parsedEnrolledFactors.push(multiFactorInfo);
         }
@@ -148,7 +154,10 @@ export class MultiFactorSettings {
     }
 
     addReadonlyGetter(
-      this, 'enrolledFactors', Object.freeze(parsedEnrolledFactors));
+      this,
+      "enrolledFactors",
+      Object.freeze(parsedEnrolledFactors)
+    );
   }
 
   public toJSON(): object {
@@ -164,10 +173,12 @@ export class UserMetadata {
   public readonly lastRefreshTime?: string | null;
 
   constructor(response: GetAccountInfoUserResponse) {
-    addReadonlyGetter(this, 'creationTime', parseDate(response.createdAt));
-    addReadonlyGetter(this, 'lastSignInTime', parseDate(response.lastLoginAt));
-    const lastRefreshAt = response.lastRefreshAt ? new Date(response.lastRefreshAt).toUTCString() : null;
-    addReadonlyGetter(this, 'lastRefreshTime', lastRefreshAt);
+    addReadonlyGetter(this, "creationTime", parseDate(response.createdAt));
+    addReadonlyGetter(this, "lastSignInTime", parseDate(response.lastLoginAt));
+    const lastRefreshAt = response.lastRefreshAt
+      ? new Date(response.lastRefreshAt).toUTCString()
+      : null;
+    addReadonlyGetter(this, "lastRefreshTime", lastRefreshAt);
   }
 
   public toJSON(): object {
@@ -180,7 +191,6 @@ export class UserMetadata {
 }
 
 export class UserInfo {
-
   public readonly uid!: string;
   public readonly displayName!: string;
   public readonly email!: string;
@@ -192,15 +202,16 @@ export class UserInfo {
     if (!response.rawId || !response.providerId) {
       throw new FirebaseAuthError(
         AuthClientErrorCode.INTERNAL_ERROR,
-        'INTERNAL ASSERT FAILED: Invalid user info response');
+        "INTERNAL ASSERT FAILED: Invalid user info response"
+      );
     }
 
-    addReadonlyGetter(this, 'uid', response.rawId);
-    addReadonlyGetter(this, 'displayName', response.displayName);
-    addReadonlyGetter(this, 'email', response.email);
-    addReadonlyGetter(this, 'photoURL', response.photoUrl);
-    addReadonlyGetter(this, 'providerId', response.providerId);
-    addReadonlyGetter(this, 'phoneNumber', response.phoneNumber);
+    addReadonlyGetter(this, "uid", response.rawId);
+    addReadonlyGetter(this, "displayName", response.displayName);
+    addReadonlyGetter(this, "email", response.email);
+    addReadonlyGetter(this, "photoURL", response.photoUrl);
+    addReadonlyGetter(this, "providerId", response.providerId);
+    addReadonlyGetter(this, "phoneNumber", response.phoneNumber);
   }
 
   public toJSON(): object {
@@ -227,7 +238,7 @@ export class UserRecord {
   public readonly providerData!: UserInfo[];
   public readonly passwordHash?: string;
   public readonly passwordSalt?: string;
-  public readonly customClaims?: {[key: string]: any};
+  public readonly customClaims?: { [key: string]: any };
   public readonly tenantId?: string | null;
   public readonly tokensValidAfterTime?: string;
   public readonly multiFactor?: MultiFactorSettings;
@@ -236,44 +247,52 @@ export class UserRecord {
     if (!response.localId) {
       throw new FirebaseAuthError(
         AuthClientErrorCode.INTERNAL_ERROR,
-        'INTERNAL ASSERT FAILED: Invalid user response');
+        "INTERNAL ASSERT FAILED: Invalid user response"
+      );
     }
 
-    addReadonlyGetter(this, 'uid', response.localId);
-    addReadonlyGetter(this, 'email', response.email);
-    addReadonlyGetter(this, 'emailVerified', !!response.emailVerified);
-    addReadonlyGetter(this, 'displayName', response.displayName);
-    addReadonlyGetter(this, 'photoURL', response.photoUrl);
-    addReadonlyGetter(this, 'phoneNumber', response.phoneNumber);
-    addReadonlyGetter(this, 'disabled', response.disabled || false);
-    addReadonlyGetter(this, 'metadata', new UserMetadata(response));
+    addReadonlyGetter(this, "uid", response.localId);
+    addReadonlyGetter(this, "email", response.email);
+    addReadonlyGetter(this, "emailVerified", !!response.emailVerified);
+    addReadonlyGetter(this, "displayName", response.displayName);
+    addReadonlyGetter(this, "photoURL", response.photoUrl);
+    addReadonlyGetter(this, "phoneNumber", response.phoneNumber);
+    addReadonlyGetter(this, "disabled", response.disabled || false);
+    addReadonlyGetter(this, "metadata", new UserMetadata(response));
     const providerData: UserInfo[] = [];
-    for (const entry of (response.providerUserInfo || [])) {
+    for (const entry of response.providerUserInfo || []) {
       providerData.push(new UserInfo(entry));
     }
-    addReadonlyGetter(this, 'providerData', providerData);
+    addReadonlyGetter(this, "providerData", providerData);
 
     if (response.passwordHash === B64_REDACTED) {
-      addReadonlyGetter(this, 'passwordHash', undefined);
+      addReadonlyGetter(this, "passwordHash", undefined);
     } else {
-      addReadonlyGetter(this, 'passwordHash', response.passwordHash);
+      addReadonlyGetter(this, "passwordHash", response.passwordHash);
     }
 
-    addReadonlyGetter(this, 'passwordSalt', response.salt);
+    addReadonlyGetter(this, "passwordSalt", response.salt);
     if (response.customAttributes) {
       addReadonlyGetter(
-        this, 'customClaims', JSON.parse(response.customAttributes));
+        this,
+        "customClaims",
+        JSON.parse(response.customAttributes)
+      );
     }
 
     let validAfterTime: string | null = null;
-    if (typeof response.validSince !== 'undefined') {
+    if (typeof response.validSince !== "undefined") {
       validAfterTime = parseDate(parseInt(response.validSince, 10) * 1000);
     }
-    addReadonlyGetter(this, 'tokensValidAfterTime', validAfterTime || undefined);
-    addReadonlyGetter(this, 'tenantId', response.tenantId);
+    addReadonlyGetter(
+      this,
+      "tokensValidAfterTime",
+      validAfterTime || undefined
+    );
+    addReadonlyGetter(this, "tenantId", response.tenantId);
     const multiFactor = new MultiFactorSettings(response);
     if (multiFactor.enrolledFactors.length > 0) {
-      addReadonlyGetter(this, 'multiFactor', multiFactor);
+      addReadonlyGetter(this, "multiFactor", multiFactor);
     }
   }
 
@@ -294,7 +313,7 @@ export class UserRecord {
       tenantId: this.tenantId,
     };
     if (this.multiFactor) {
-      json.multiFactor =  this.multiFactor.toJSON();
+      json.multiFactor = this.multiFactor.toJSON();
     }
     json.providerData = [];
     for (const entry of this.providerData) {
