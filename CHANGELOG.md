@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.2.9
+
+### Patch Changes
+
+- Update Next.js peerDependency version to ^13.0.5 to allow future minor/patch versions
+
 ## 0.2.8
 
 ### Patch Changes
