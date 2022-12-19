@@ -1,6 +1,6 @@
 {
   "name": "next-firebase-auth-edge",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "Next.js 13 Firebase Authentication for Edge and server runtimes. Dedicated for Next 13 server components. Compatible with Next.js middleware.",
   "main": "lib/index.js",
   "scripts": {
@@ -52,7 +52,7 @@
   "author": "",
   "license": "ISC",
   "engines": {
-    "node": ">=16.0.0 <17.0.0",
+    "node": ">=16.0.0 <19.0.0",
     "npm": ">=8.0.0 <9.0.0",
     "yarn": ">=1.22.0 <2.0.0"
   },

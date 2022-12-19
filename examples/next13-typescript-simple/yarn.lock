@@ -1935,10 +1935,10 @@ nanoid@^3.3.4:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.4.tgz#730b67e3cd09e2deacf03c027c81c9d9dbc5e8ab"
   integrity sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==
 
-next-firebase-auth-edge@^0.2.9:
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-0.2.9.tgz#585463d174c1cfcb6aa17906e8480791b6d17940"
-  integrity sha512-A0MlcPXju8gPO8YI/h6rzUusgU85M0GZizuHX/+HSNVP8ZN8fX577/3DivX0IqO/6uf0czuyfhyj5F8A4Jnd1g==
+next-firebase-auth-edge@^0.2.10:
+  version "0.2.10"
+  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-0.2.10.tgz#94d48cb121baf057149c1af91a51b7750b0e7b89"
+  integrity sha512-1tq1Bf9iz8GYDrtiBUvMi5PxvR1LvVP8sb9QGs892WCO9H/wM3AiuGRBHVTAIb7xUFGkMRjPDTs+GBVXR83P0g==
   dependencies:
     "@changesets/cli" "^2.25.2"
     "@peculiar/webcrypto" "^1.4.1"

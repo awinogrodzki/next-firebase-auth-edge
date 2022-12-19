@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.2.10
+
+### Patch Changes
+
+- Support Next.js 18 LTS
+
 ## 0.2.9
 
 ### Patch Changes
