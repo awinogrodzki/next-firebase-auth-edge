@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.2.11
+
+### Patch Changes
+
+- Update rotating credential HMAC key algorithm to SHA-256
+
 ## 0.2.10
 
 ### Patch Changes
