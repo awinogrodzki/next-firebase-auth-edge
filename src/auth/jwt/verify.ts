@@ -3,6 +3,7 @@ import { decode } from "./decode";
 import { base64StringToArrayBuffer, stringToArrayBuffer } from "./utils";
 import { ALGORITHMS } from "./consts";
 import { pemToPublicKey } from "../pem-to-public-key";
+import { useEmulator } from "../firebase";
 
 interface VerifyOptions {
   complete?: boolean;
@@ -85,6 +86,10 @@ export async function verify(
   }
 
   const decodedToken = decode(jwtString, { complete: true });
+
+  if (useEmulator()) {
+    return decodedToken;
+  }
 
   if (!decodedToken) {
     throw new JwtError(JwtErrorCode.INVALID_ARGUMENT, "invalid token");

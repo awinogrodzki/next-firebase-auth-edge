@@ -11,21 +11,41 @@ if (typeof crypto === "undefined" || typeof global.crypto === "undefined") {
   (global as any).crypto = new Crypto();
 }
 
+const getCustomTokenEndpoint = (apiKey: string) => {
+  if (useEmulator()) {
+    return `http://${process.env
+      .FIREBASE_AUTH_EMULATOR_HOST!}/identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${apiKey}`;
+  }
+
+  return `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${apiKey}`;
+};
+
+const getRefreshTokenEndpoint = (apiKey: string) => {
+  if (useEmulator()) {
+    return `http://${process.env
+      .FIREBASE_AUTH_EMULATOR_HOST!}/securetoken.googleapis.com/v1/token?key=${apiKey}`;
+  }
+
+  return `https://securetoken.googleapis.com/v1/token?key=${apiKey}`;
+};
+
 export async function customTokenToIdAndRefreshTokens(
   customToken: string,
   firebaseApiKey: string
 ): Promise<IdAndRefreshTokens> {
-  const endpoint = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${firebaseApiKey}`;
-  const refreshTokenResponse = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      token: customToken,
-      returnSecureToken: true,
-    }),
-  });
+  const refreshTokenResponse = await fetch(
+    getCustomTokenEndpoint(firebaseApiKey),
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token: customToken,
+        returnSecureToken: true,
+      }),
+    }
+  );
 
   const refreshTokenJSON =
     (await refreshTokenResponse.json()) as DecodedIdToken;
@@ -47,9 +67,7 @@ const refreshExpiredIdToken = async (
   apiKey: string
 ): Promise<string> => {
   // https://firebase.google.com/docs/reference/rest/auth/#section-refresh-token
-  const endpoint = `https://securetoken.googleapis.com/v1/token?key=${apiKey}`;
-
-  const response = await fetch(endpoint, {
+  const response = await fetch(getRefreshTokenEndpoint(apiKey), {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
