@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.2.13
+
+### Patch Changes
+
+- Fix incorrect HMAC algorithm key buffer size
+
 ## 0.2.12
 
 ### Patch Changes
