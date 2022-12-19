@@ -1,7 +1,7 @@
 import { arrayBufferToBase64, stringToArrayBuffer } from "./jwt/utils";
 
 export class RotatingCredential {
-  private digestAlgorithm = "SHA-512";
+  private digestAlgorithm = "SHA-1";
 
   constructor(private keys: string[]) {}
 
@@ -9,7 +9,7 @@ export class RotatingCredential {
     return {
       name: "HMAC",
       hash: {
-        name: "SHA-512",
+        name: "SHA-1",
       },
       length,
     };
@@ -18,16 +18,18 @@ export class RotatingCredential {
   private async signKey(data: string, keyValue: string) {
     const keyBuffer = stringToArrayBuffer(keyValue);
     const dataBuffer = stringToArrayBuffer(data);
+    const keyBitLength = keyBuffer.byteLength * 8;
     const digest = await crypto.subtle.digest(this.digestAlgorithm, dataBuffer);
     const key = await crypto.subtle.importKey(
       "raw",
       keyBuffer,
-      this.getSignAlgorithm(digest.byteLength),
+      this.getSignAlgorithm(keyBitLength),
       false,
       ["sign"]
     );
+
     const signed = await crypto.subtle.sign(
-      this.getSignAlgorithm(digest.byteLength),
+      this.getSignAlgorithm(keyBitLength),
       key,
       digest
     );
