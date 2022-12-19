@@ -1,5 +1,5 @@
 import './globals.css';
-import { getTokens } from '../../../lib/next/tokens';
+import { getTokens } from 'next-firebase-auth-edge/lib/next/tokens';
 import { cookies } from 'next/headers';
 import { AuthProvider } from './auth-provider';
 import { serverConfig } from './server-config';
