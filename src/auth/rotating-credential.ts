@@ -1,7 +1,7 @@
 import { arrayBufferToBase64, stringToArrayBuffer } from "./jwt/utils";
 
 export class RotatingCredential {
-  private digestAlgorithm = "SHA-256";
+  private digestAlgorithm = "SHA-512";
 
   constructor(private keys: string[]) {}
 
@@ -9,7 +9,7 @@ export class RotatingCredential {
     return {
       name: "HMAC",
       hash: {
-        name: "SHA-256",
+        name: "SHA-512",
       },
       length,
     };
