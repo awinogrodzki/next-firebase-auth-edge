@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.2.14
+
+### Patch Changes
+
+- Added Firebase Authentication Emulator support
+
 ## 0.2.13
 
 ### Patch Changes

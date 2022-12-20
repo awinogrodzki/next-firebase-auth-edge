@@ -14,7 +14,7 @@
     "@types/react-dom": "18.0.9",
     "firebase": "^9.12.1",
     "next": "^13.0.6",
-    "next-firebase-auth-edge": "^0.2.14-1",
+    "next-firebase-auth-edge": "^0.2.14",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "typescript": "4.9.3"
