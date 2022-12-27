@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.2.15
+
+### Patch Changes
+
+- Handle "USER_NOT_FOUND" error during token refresh
+
 ## 0.2.14
 
 ### Patch Changes
