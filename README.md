@@ -61,9 +61,6 @@ import type { NextRequest } from "next/server";
 import { createAuthMiddlewareResponse } from "next-firebase-auth-edge/lib/next/middleware";
 import { getTokens } from "next-firebase-auth-edge/lib/next/tokens";
 
-const LOGIN_PATH = "/api/login";
-const LOGOUT_PATH = "/api/logout";
-
 const commonOptions = {
   apiKey: "firebase-api-key",
   cookieName: "AuthToken",
@@ -81,6 +78,9 @@ const commonOptions = {
     clientEmail: "firebase service account client email",
   },
 };
+
+const LOGIN_PATH = "/api/login";
+const LOGOUT_PATH = "/api/logout";
 
 export async function middleware(request: NextRequest) {
   if ([LOGIN_PATH, LOGOUT_PATH].includes(request.nextUrl.pathname)) {
