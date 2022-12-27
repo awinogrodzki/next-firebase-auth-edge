@@ -1,5 +1,10 @@
-import { customTokenToIdAndRefreshTokens, getFirebaseAuth } from "../index";
+import {
+  customTokenToIdAndRefreshTokens,
+  getFirebaseAuth,
+  isUserNotFoundError,
+} from "../index";
 import { v4 } from "uuid";
+import { AuthClientErrorCode, FirebaseAuthError } from "../error";
 
 const {
   FIREBASE_API_KEY,
@@ -14,6 +19,7 @@ describe("verify token integration test", () => {
     createCustomToken,
     verifyAndRefreshExpiredIdToken,
     verifyIdToken,
+    deleteUser,
   } = getFirebaseAuth(
     {
       clientEmail: FIREBASE_ADMIN_CLIENT_EMAIL!,
@@ -86,5 +92,53 @@ describe("verify token integration test", () => {
     expect(decodedToken.uid).toEqual(userId);
     expect(decodedToken.customClaim).toEqual("customClaimValue");
     expect(decodedToken.token).not.toEqual(idToken);
+  });
+
+  it("should throw firebase auth error when user is not found during token refresh", async () => {
+    const userId = v4();
+    const customToken = await createCustomToken(userId, {
+      customClaim: "customClaimValue",
+    });
+
+    const { refreshToken } = await customTokenToIdAndRefreshTokens(
+      customToken,
+      FIREBASE_API_KEY!
+    );
+
+    await deleteUser(userId);
+
+    return expect(() =>
+      getTokens(refreshToken, FIREBASE_API_KEY!)
+    ).rejects.toEqual(
+      new FirebaseAuthError(AuthClientErrorCode.USER_NOT_FOUND)
+    );
+  });
+
+  it('should be able to catch "user not found" error and return null', async () => {
+    const userId = v4();
+    const customToken = await createCustomToken(userId, {
+      customClaim: "customClaimValue",
+    });
+
+    async function customGetToken() {
+      try {
+        return await getTokens(refreshToken, FIREBASE_API_KEY!);
+      } catch (e: unknown) {
+        if (isUserNotFoundError(e)) {
+          return null;
+        }
+
+        throw e;
+      }
+    }
+
+    const { refreshToken } = await customTokenToIdAndRefreshTokens(
+      customToken,
+      FIREBASE_API_KEY!
+    );
+
+    await deleteUser(userId);
+
+    expect(await customGetToken()).toEqual(null);
   });
 });

@@ -62,6 +62,23 @@ export async function customTokenToIdAndRefreshTokens(
   };
 }
 
+interface UserNotFoundResponse {
+  error: {
+    code: 400;
+    message: "USER_NOT_FOUND";
+    status: "INVALID_ARGUMENT";
+  };
+}
+
+const isUserNotFoundResponse = (
+  data: unknown
+): data is UserNotFoundResponse => {
+  return (
+    (data as UserNotFoundResponse)?.error?.code === 400 &&
+    (data as UserNotFoundResponse)?.error?.message === "USER_NOT_FOUND"
+  );
+};
+
 const refreshExpiredIdToken = async (
   refreshToken: string,
   apiKey: string
@@ -77,6 +94,11 @@ const refreshExpiredIdToken = async (
 
   if (!response.ok) {
     const data = await response.json();
+
+    if (isUserNotFoundResponse(data)) {
+      throw new FirebaseAuthError(AuthClientErrorCode.USER_NOT_FOUND);
+    }
+
     throw new Error(
       "Error during refreshing expired token: " + JSON.stringify(data)
     );
@@ -86,6 +108,15 @@ const refreshExpiredIdToken = async (
 
   return data.id_token;
 };
+
+export function isUserNotFoundError(
+  error: unknown
+): error is FirebaseAuthError {
+  return (
+    (error as FirebaseAuthError)?.code ===
+    `auth/${AuthClientErrorCode.USER_NOT_FOUND.code}`
+  );
+}
 
 export interface IdAndRefreshTokens {
   idToken: string;
@@ -220,11 +251,16 @@ export function getFirebaseAuth(
     return customTokenToIdAndRefreshTokens(customToken, firebaseApiKey);
   }
 
+  async function deleteUser(uid: string): Promise<void> {
+    await authRequestHandler.deleteAccount(uid);
+  }
+
   return {
     verifyAndRefreshExpiredIdToken,
     verifyIdToken,
     createCustomToken,
     getCustomIdAndRefreshTokens,
     getTokens,
+    deleteUser,
   };
 }
