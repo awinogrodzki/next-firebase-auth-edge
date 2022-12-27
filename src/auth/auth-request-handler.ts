@@ -131,6 +131,18 @@ export const FIREBASE_AUTH_GET_ACCOUNT_INFO = new ApiSettings(
     }
   });
 
+export const FIREBASE_AUTH_DELETE_ACCOUNT = new ApiSettings(
+  "/accounts:delete",
+  "POST"
+).setRequestValidator((request: any) => {
+  if (!request.localId) {
+    throw new FirebaseAuthError(
+      AuthClientErrorCode.INTERNAL_ERROR,
+      "INTERNAL ASSERT FAILED: Server request is missing user identifier"
+    );
+  }
+});
+
 export abstract class AbstractAuthRequestHandler {
   private authUrlBuilder: AuthResourceUrlBuilder | undefined;
   private getToken: (forceRefresh?: boolean) => Promise<FirebaseAccessToken>;
@@ -160,6 +172,22 @@ export abstract class AbstractAuthRequestHandler {
       this.getAuthUrlBuilder(),
       FIREBASE_AUTH_GET_ACCOUNT_INFO,
       request
+    );
+  }
+
+  public deleteAccount(uid: string): Promise<object> {
+    if (!isUid(uid)) {
+      return Promise.reject(
+        new FirebaseAuthError(AuthClientErrorCode.INVALID_UID)
+      );
+    }
+
+    return this.invokeRequestHandler(
+      this.getAuthUrlBuilder(),
+      FIREBASE_AUTH_DELETE_ACCOUNT,
+      {
+        localId: uid,
+      }
     );
   }
 
