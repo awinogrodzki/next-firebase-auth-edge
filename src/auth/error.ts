@@ -1,3 +1,6 @@
+import { JwtError, JwtErrorCode } from "./jwt/error";
+import { FirebaseTokenInfo } from "./firebase";
+
 export class FirebaseError extends Error {
   constructor(private errorInfo: ErrorInfo) {
     super(errorInfo.message);
@@ -86,6 +89,67 @@ export class FirebaseAuthError extends PrefixedFirebaseError {
     super("auth", info.code, message || info.message);
 
     Object.setPrototypeOf(this, FirebaseAuthError.prototype);
+  }
+
+  public static toAuthErrorWithStack(
+    code: ErrorInfo,
+    message: string,
+    jwtError: JwtError
+  ) {
+    const error = new FirebaseAuthError(code, message);
+
+    error.stack = jwtError.stack;
+    return error;
+  }
+
+  public static fromJwtError(
+    error: JwtError,
+    tokenInfo: FirebaseTokenInfo,
+    shortNameArticle: string
+  ): FirebaseAuthError {
+    const verifyJwtTokenDocsMessage =
+      ` See ${tokenInfo.url} ` +
+      `for details on how to retrieve ${shortNameArticle} ${tokenInfo.shortName}.`;
+
+    if (error.code === JwtErrorCode.TOKEN_EXPIRED) {
+      const errorMessage =
+        `${tokenInfo.jwtName} has expired. Get a fresh ${tokenInfo.shortName}` +
+        ` from your client app and try again (auth/${tokenInfo.expiredErrorCode.code}).` +
+        verifyJwtTokenDocsMessage;
+
+      return FirebaseAuthError.toAuthErrorWithStack(
+        tokenInfo.expiredErrorCode,
+        errorMessage,
+        error
+      );
+    } else if (error.code === JwtErrorCode.INVALID_SIGNATURE) {
+      const errorMessage =
+        `${tokenInfo.jwtName} has invalid signature.` +
+        verifyJwtTokenDocsMessage;
+
+      return FirebaseAuthError.toAuthErrorWithStack(
+        AuthClientErrorCode.INVALID_ARGUMENT,
+        errorMessage,
+        error
+      );
+    } else if (error.code === JwtErrorCode.NO_MATCHING_KID) {
+      const errorMessage =
+        `${tokenInfo.jwtName} has "kid" claim which does not ` +
+        `correspond to a known public key. Most likely the ${tokenInfo.shortName} ` +
+        "is expired, so get a fresh token from your client app and try again.";
+
+      return FirebaseAuthError.toAuthErrorWithStack(
+        AuthClientErrorCode.INVALID_ARGUMENT,
+        errorMessage,
+        error
+      );
+    }
+
+    return FirebaseAuthError.toAuthErrorWithStack(
+      AuthClientErrorCode.INVALID_ARGUMENT,
+      error.message,
+      error
+    );
   }
 }
 
