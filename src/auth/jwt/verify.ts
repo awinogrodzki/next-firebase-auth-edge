@@ -51,7 +51,7 @@ export async function getPublicCryptoKey(
   return crypto.subtle.importKey(
     options.format,
     buffer,
-    ALGORITHMS[options.algorithm],
+    ALGORITHMS.RS256,
     false,
     ["verify"]
   );
@@ -87,10 +87,6 @@ export async function verify(
 
   const decodedToken = decode(jwtString, { complete: true });
 
-  if (useEmulator()) {
-    return decodedToken;
-  }
-
   if (!decodedToken) {
     throw new JwtError(JwtErrorCode.INVALID_ARGUMENT, "invalid token");
   }
@@ -99,42 +95,43 @@ export async function verify(
   const signature = parts[2].trim();
   const hasSignature = signature !== "";
 
-  if (!hasSignature && secretOrPublicKey) {
+  if (!useEmulator() && !hasSignature && secretOrPublicKey) {
     throw new JwtError(
       JwtErrorCode.INVALID_SIGNATURE,
       "jwt signature is required"
     );
   }
 
-  if (hasSignature && !secretOrPublicKey) {
+  if (!useEmulator() && hasSignature && !secretOrPublicKey) {
     throw new JwtError(
       JwtErrorCode.INVALID_CREDENTIAL,
       "secret or public key must be provided"
     );
   }
 
-  if (decodedToken.header.alg !== options.algorithm) {
+  if (!useEmulator() && decodedToken.header.alg !== options.algorithm) {
     throw new JwtError(
       JwtErrorCode.INVALID_ARGUMENT,
       "unsupported algorithm: " + decodedToken.header.alg
     );
   }
 
-  const data = parts.slice(0, 2).join(".");
+  if (!useEmulator()) {
+    const data = parts.slice(0, 2).join(".");
 
-  const key = await getPublicCryptoKey(secretOrPublicKey, options);
-  const jwtBuffer = stringToArrayBuffer(data);
-  const sigBuffer = base64StringToArrayBuffer(signature);
+    const key = await getPublicCryptoKey(secretOrPublicKey, options);
+    const jwtBuffer = stringToArrayBuffer(data);
+    const sigBuffer = base64StringToArrayBuffer(signature);
+    const result = await crypto.subtle.verify(
+      ALGORITHMS[options.algorithm],
+      key,
+      sigBuffer,
+      jwtBuffer
+    );
 
-  const result = await crypto.subtle.verify(
-    ALGORITHMS[options.algorithm],
-    key,
-    sigBuffer,
-    jwtBuffer
-  );
-
-  if (!result) {
-    throw new JwtError(JwtErrorCode.INVALID_SIGNATURE, "invalid signature");
+    if (!result) {
+      throw new JwtError(JwtErrorCode.INVALID_SIGNATURE, "invalid signature");
+    }
   }
 
   const payload = decodedToken.payload;

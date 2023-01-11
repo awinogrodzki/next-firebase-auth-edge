@@ -155,14 +155,16 @@ export class FirebaseTokenVerifier {
           `the entire string JWT which represents ${this.shortNameArticle} ` +
           `${this.tokenInfo.shortName}.` +
           verifyJwtTokenDocsMessage;
-        throw new FirebaseAuthError(
+        throw FirebaseAuthError.toAuthErrorWithStack(
           AuthClientErrorCode.INVALID_ARGUMENT,
-          errorMessage
+          errorMessage,
+          err
         );
       }
-      throw new FirebaseAuthError(
+      throw FirebaseAuthError.toAuthErrorWithStack(
         AuthClientErrorCode.INTERNAL_ERROR,
-        err.message
+        err.message,
+        err
       );
     });
   }
@@ -275,46 +277,11 @@ export class FirebaseTokenVerifier {
     });
   }
 
-  /**
-   * Maps JwtError to FirebaseAuthError
-   *
-   * @param error - JwtError to be mapped.
-   * @returns FirebaseAuthError or Error instance.
-   */
   private mapJwtErrorToAuthError(error: JwtError): Error {
-    const verifyJwtTokenDocsMessage =
-      ` See ${this.tokenInfo.url} ` +
-      `for details on how to retrieve ${this.shortNameArticle} ${this.tokenInfo.shortName}.`;
-    if (error.code === JwtErrorCode.TOKEN_EXPIRED) {
-      const errorMessage =
-        `${this.tokenInfo.jwtName} has expired. Get a fresh ${this.tokenInfo.shortName}` +
-        ` from your client app and try again (auth/${this.tokenInfo.expiredErrorCode.code}).` +
-        verifyJwtTokenDocsMessage;
-      return new FirebaseAuthError(
-        this.tokenInfo.expiredErrorCode,
-        errorMessage
-      );
-    } else if (error.code === JwtErrorCode.INVALID_SIGNATURE) {
-      const errorMessage =
-        `${this.tokenInfo.jwtName} has invalid signature.` +
-        verifyJwtTokenDocsMessage;
-      return new FirebaseAuthError(
-        AuthClientErrorCode.INVALID_ARGUMENT,
-        errorMessage
-      );
-    } else if (error.code === JwtErrorCode.NO_MATCHING_KID) {
-      const errorMessage =
-        `${this.tokenInfo.jwtName} has "kid" claim which does not ` +
-        `correspond to a known public key. Most likely the ${this.tokenInfo.shortName} ` +
-        "is expired, so get a fresh token from your client app and try again.";
-      return new FirebaseAuthError(
-        AuthClientErrorCode.INVALID_ARGUMENT,
-        errorMessage
-      );
-    }
-    return new FirebaseAuthError(
-      AuthClientErrorCode.INVALID_ARGUMENT,
-      error.message
+    return FirebaseAuthError.fromJwtError(
+      error,
+      this.tokenInfo,
+      this.shortNameArticle
     );
   }
 }
