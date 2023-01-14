@@ -36,13 +36,12 @@ pnpm add next-firebase-auth-edge
 
 ## Usage
 
-Before using this module make sure you have enabled `appDir` and `allowMiddlewareResponseBody` experimental options in `next.config.js`:
+Before using this module make sure you have enabled `appDir` experimental options in `next.config.js`:
 
 ```javascript
 module.exports = {
   experimental: {
-    appDir: true,
-    allowMiddlewareResponseBody: true,
+    appDir: true
   },
 };
 ```
