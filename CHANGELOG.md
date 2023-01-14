@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.3.0
+
+### Minor Changes
+
+- Updated peer next peer dependency to ^13.1.1 and removed allowMiddlewareResponseBody flag'
+
 ## 0.2.15
 
 ### Patch Changes
