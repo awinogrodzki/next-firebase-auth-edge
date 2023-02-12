@@ -41,7 +41,7 @@ Before using this module make sure you have enabled `appDir` experimental option
 ```javascript
 module.exports = {
   experimental: {
-    appDir: true
+    appDir: true,
   },
 };
 ```
@@ -230,7 +230,6 @@ export default async function RootLayout({
     cookieSignatureKeys: ["secret1", "secret2"],
   });
 
-  // Make sure to remove vulnerable data from Tokens using custom mapping function
   const tenant = tokens ? mapTokensToTenant(tokens) : null;
 
   return (
