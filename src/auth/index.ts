@@ -62,7 +62,16 @@ export async function customTokenToIdAndRefreshTokens(
   };
 }
 
-interface UserNotFoundResponse {
+interface ErrorResponse {
+  error: {
+    code: number;
+    message: "USER_NOT_FOUND" | "TOKEN_EXPIRED";
+    status: "INVALID_ARGUMENT";
+  };
+  error_description?: string;
+}
+
+interface UserNotFoundResponse extends ErrorResponse {
   error: {
     code: 400;
     message: "USER_NOT_FOUND";
@@ -94,13 +103,20 @@ const refreshExpiredIdToken = async (
 
   if (!response.ok) {
     const data = await response.json();
+    const errorMessage = `Error fetching access token: ${JSON.stringify(
+      data
+    )} ${data.error_description ? `(${data.error_description})` : ""}`;
 
     if (isUserNotFoundResponse(data)) {
-      throw new FirebaseAuthError(AuthClientErrorCode.USER_NOT_FOUND);
+      throw new FirebaseAuthError(
+        AuthClientErrorCode.USER_NOT_FOUND,
+        errorMessage
+      );
     }
 
-    throw new Error(
-      "Error during refreshing expired token: " + JSON.stringify(data)
+    throw new FirebaseAuthError(
+      AuthClientErrorCode.INVALID_CREDENTIAL,
+      errorMessage
     );
   }
 
@@ -115,6 +131,15 @@ export function isUserNotFoundError(
   return (
     (error as FirebaseAuthError)?.code ===
     `auth/${AuthClientErrorCode.USER_NOT_FOUND.code}`
+  );
+}
+
+export function isInvalidCredentialError(
+  error: unknown
+): error is FirebaseAuthError {
+  return (
+    (error as FirebaseAuthError)?.code ===
+    `auth/${AuthClientErrorCode.INVALID_CREDENTIAL.code}`
   );
 }
 

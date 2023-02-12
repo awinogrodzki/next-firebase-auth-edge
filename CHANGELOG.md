@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.3.1
+
+### Patch Changes
+
+- Re-throw INVALID_CREDENTIALS FirebaseAuthError with error details on token refresh error
+
 ## 0.3.0
 
 ### Minor Changes
