@@ -104,7 +104,7 @@ const refreshExpiredIdToken = async (
   if (!response.ok) {
     const data = await response.json();
     const errorMessage = `Error fetching access token: ${JSON.stringify(
-      data
+      data.error
     )} ${data.error_description ? `(${data.error_description})` : ""}`;
 
     if (isUserNotFoundResponse(data)) {
