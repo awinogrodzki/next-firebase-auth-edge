@@ -34,6 +34,12 @@ With **pnpm**
 pnpm add next-firebase-auth-edge
 ```
 
+## Example
+
+The demo is available at [next-firebase-auth-edge-static-demo.vercel.app](https://next-firebase-auth-edge-static-demo.vercel.app/)
+
+The source code for example can be found in [examples/next13-typescript-static-pages](https://github.com/awinogrodzki/next-firebase-auth-edge-static-demo/tree/d56e57613fbe9fef12c2d6e3b2fd7871000d6929)
+
 ## Usage
 
 Before using this module make sure you have enabled `appDir` experimental option in `next.config.js`:
@@ -41,7 +47,7 @@ Before using this module make sure you have enabled `appDir` experimental option
 ```javascript
 module.exports = {
   experimental: {
-    appDir: true
+    appDir: true,
   },
 };
 ```
@@ -230,7 +236,6 @@ export default async function RootLayout({
     cookieSignatureKeys: ["secret1", "secret2"],
   });
 
-  // Make sure to remove vulnerable data from Tokens using custom mapping function
   const tenant = tokens ? mapTokensToTenant(tokens) : null;
 
   return (
