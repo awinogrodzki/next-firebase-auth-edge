@@ -54,7 +54,8 @@ export const getGoogleProvider = async (auth: Auth) => {
   );
 
   const provider = new GoogleAuthProvider();
-
+  provider.addScope("profile");
+  provider.addScope("email");
   useDeviceLanguage(auth);
   provider.setCustomParameters({
     display: "popup",
