@@ -8,13 +8,18 @@ import { useLoadingCallback } from "react-loading-hook";
 import { getGoogleProvider, loginWithProvider } from "./firebase";
 import { useAuth } from "../../auth/hooks";
 import styles from "./login.module.css";
+import { Button } from "../../ui/button";
+import { LoadingIcon } from "../../ui/icons";
 
 export function LoginPage() {
   const router = useRouter();
   const params = useSearchParams();
+  const [showAnonymousInfo, setShowAnonymousInfo] = React.useState(true);
+  const [hasLogged, setHasLogged] = React.useState(false);
   const { tenant } = useAuth();
   const { getFirebaseAuth } = useFirebaseAuth(clientConfig);
   const [handleLoginWithGoogle, isLoading] = useLoadingCallback(async () => {
+    setHasLogged(false);
     const { GoogleAuthProvider } = await import("firebase/auth");
     const auth = await getFirebaseAuth();
     await loginWithProvider(
@@ -22,6 +27,7 @@ export function LoginPage() {
       await getGoogleProvider(auth),
       GoogleAuthProvider.credentialFromError
     );
+    setHasLogged(true);
   });
 
   React.useEffect(() => {
@@ -29,19 +35,40 @@ export function LoginPage() {
 
     if (tenant && !tenant.isAnonymous) {
       router.push(redirect ?? "/");
+      return;
+    }
+
+    if (tenant && showAnonymousInfo) {
+      setShowAnonymousInfo(false);
     }
   }, [tenant?.isAnonymous]);
 
   return (
     <div className={styles.page}>
       <h2>next-firebase-auth-edge example login page</h2>
-      <button
-        className={styles.button}
-        disabled={isLoading}
-        onClick={handleLoginWithGoogle}
-      >
-        Log in with Google
-      </button>
+      {!tenant && showAnonymousInfo && (
+        <div className={styles.info}>
+          <p>
+            No user found. Singing in as anonymous... <LoadingIcon />
+          </p>
+        </div>
+      )}
+      {!hasLogged && (
+        <Button
+          loading={isLoading}
+          disabled={isLoading || !tenant}
+          onClick={handleLoginWithGoogle}
+        >
+          Log in with Google
+        </Button>
+      )}
+      {hasLogged && (
+        <div className={styles.info}>
+          <p>
+            Redirecting to <strong>{params.get("redirect") || "/"}</strong> <LoadingIcon />
+          </p>
+        </div>
+      )}
     </div>
   );
 }

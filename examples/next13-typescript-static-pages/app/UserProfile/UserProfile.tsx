@@ -7,26 +7,35 @@ import { useFirebaseAuth } from "../../auth/firebase";
 import { useLoadingCallback } from "react-loading-hook";
 import { clientConfig } from "../../config/client-config";
 import { Button } from "../../ui/button";
+import { LoadingIcon } from "../../ui/icons";
 
 export function UserProfile() {
   const { tenant } = useAuth();
   const { getFirebaseAuth } = useFirebaseAuth(clientConfig);
+  const [hasLoggedOut, setHasLoggedOut] = React.useState(false);
   const [handleLogout, isLoading] = useLoadingCallback(async () => {
     const auth = await getFirebaseAuth();
     const { signOut } = await import("firebase/auth");
     await signOut(auth);
+    setHasLoggedOut(true);
     await fetch("/api/logout", {
       method: "GET",
     });
     window.location.reload();
   });
 
-  if (!tenant) {
+  if (!tenant && hasLoggedOut) {
     return (
       <div className={styles.container}>
-        <h3 className={styles.title}>You are being logged out...</h3>
+        <h3 className={styles.title}>
+          You are being logged out... <LoadingIcon />
+        </h3>
       </div>
     );
+  }
+
+  if (!tenant) {
+    return null;
   }
 
   return (
