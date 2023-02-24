@@ -1,4 +1,4 @@
-import { getFirebaseAuth } from "../auth";
+import { getFirebaseAuth, IdAndRefreshTokens } from "../auth";
 import { ServiceAccount } from "../auth/credential";
 import { sign } from "../auth/cookies/sign";
 import { CookieSerializeOptions, serialize } from "cookie";
@@ -13,30 +13,17 @@ export interface SetAuthCookiesOptions {
   apiKey: string;
 }
 
-export async function setAuthCookies(
-  headers: Headers,
+export async function appendAuthCookies(
+  response: NextResponse,
+  tokens: IdAndRefreshTokens,
   options: SetAuthCookiesOptions
-): Promise<NextResponse> {
-  const { getCustomIdAndRefreshTokens } = getFirebaseAuth(
-    options.serviceAccount,
-    options.apiKey
-  );
-  const token = headers.get("Authorization")?.split(" ")[1] ?? "";
-  const { idToken, refreshToken } = await getCustomIdAndRefreshTokens(
-    token,
-    options.apiKey
-  );
-  const value = JSON.stringify({ idToken, refreshToken });
+) {
+  const value = JSON.stringify(tokens);
   const { signatureCookie, signedCookie } = await sign(
     options.cookieSignatureKeys
   )({
     name: options.cookieName,
     value,
-  });
-
-  const response = new NextResponse(JSON.stringify({ success: true }), {
-    status: 200,
-    headers: { "content-type": "application/json" },
   });
 
   response.headers.append(
@@ -58,6 +45,28 @@ export async function setAuthCookies(
   );
 
   return response;
+}
+
+export async function setAuthCookies(
+  headers: Headers,
+  options: SetAuthCookiesOptions
+): Promise<NextResponse> {
+  const { getCustomIdAndRefreshTokens } = getFirebaseAuth(
+    options.serviceAccount,
+    options.apiKey
+  );
+  const token = headers.get("Authorization")?.split(" ")[1] ?? "";
+  const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
+    token,
+    options.apiKey
+  );
+
+  const response = new NextResponse(JSON.stringify({ success: true }), {
+    status: 200,
+    headers: { "content-type": "application/json" },
+  });
+
+  return appendAuthCookies(response, idAndRefreshTokens, options);
 }
 
 export interface RemoveAuthCookiesOptions {

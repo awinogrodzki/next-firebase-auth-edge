@@ -1,36 +1,45 @@
-import type { NextRequest } from 'next/server';
-import { createAuthMiddlewareResponse } from 'next-firebase-auth-edge/lib/next/middleware';
-import { getTokens } from 'next-firebase-auth-edge/lib/next/tokens';
-import { serverConfig } from './app/server-config';
-
-const LOGIN_PATH = '/api/login';
-const LOGOUT_PATH = '/api/logout';
-
-const commonOptions = {
-  apiKey: serverConfig.firebaseApiKey,
-  cookieName: 'AuthToken',
-  cookieSignatureKeys: ['secret1', 'secret2'],
-  cookieSerializeOptions: {
-    path: '/',
-    httpOnly: true,
-    secure: false, // Set this to true on HTTPS environments
-    sameSite: 'strict' as const,
-    maxAge:  12 * 60 * 60 * 24 * 1000, // twelve days
-  },
-  serviceAccount: serverConfig.serviceAccount,
-};
+import type { NextRequest } from "next/server";
+import {
+  authentication,
+  redirectToLogin,
+  RedirectToLoginOptions,
+} from "next-firebase-auth-edge/lib/next/middleware";
+import { serverConfig } from "./app/server-config";
+import { NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  if ([LOGIN_PATH, LOGOUT_PATH].includes(request.nextUrl.pathname)) {
-    return createAuthMiddlewareResponse(request, {
-      loginPath: LOGIN_PATH,
-      logoutPath: LOGOUT_PATH,
-      ...commonOptions,
-    });
-  }
+  const redirectOptions: RedirectToLoginOptions = {
+    path: "/login",
+    paramName: "redirect",
+  };
 
-  // Optionally do something with tokens (eg. redirect to login page using NextRequest.redirect when there are no credentials)
-  const tokens = await getTokens(request.cookies, commonOptions);
-
-  console.log("TOKENS IN MIDDLEWARE", { tokens });
+  return authentication(request, {
+    loginPath: "/api/login",
+    logoutPath: "/api/logout",
+    apiKey: serverConfig.firebaseApiKey,
+    cookieName: "AuthToken",
+    cookieSignatureKeys: ["secret1", "secret2"],
+    redirectOptions,
+    cookieSerializeOptions: {
+      path: "/",
+      httpOnly: true,
+      secure: false, // Set this to true on HTTPS environments
+      sameSite: "strict" as const,
+      maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
+    },
+    serviceAccount: serverConfig.serviceAccount,
+    isTokenValid: (token) => Boolean(token),
+    getAuthenticatedResponse: (tokens) => {
+      console.log("Successfully authenticated", { tokens });
+      return NextResponse.next();
+    },
+    getErrorResponse: (error) => {
+      console.error("Oops, this should not have happened.", { error });
+      return redirectToLogin(request, redirectOptions);
+    },
+  });
 }
+
+export const config = {
+  matcher: ["/((?!_next/static|favicon.ico|logo.svg).*)"],
+};
