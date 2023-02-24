@@ -99,6 +99,7 @@ const refreshExpiredIdToken = async (
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
+    cache: 'no-store'
   });
 
   if (!response.ok) {

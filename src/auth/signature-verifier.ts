@@ -49,6 +49,7 @@ export class UrlKeyFetcher implements KeyFetcher {
   private async refresh(): Promise<{ [key: string]: string }> {
     const res = await fetch(this.clientCertUrl, {
       method: "GET",
+      cache: 'no-store'
     });
 
     if (!res.ok) {
