@@ -8,7 +8,7 @@ Official `firebase-admin` library relies heavily on Node.js internal `crypto` li
 
 This library aims to solve the problem of creating and verifying custom JWT tokens provided by **Firebase Authentication** using Web Crypto API available inside Edge runtimes
 
-## What's new in v0.4.0
+## What's new in v0.4.x
 
 In recent release, there has been some important optimisations in terms of the number of network round-trips and response times.
 
