@@ -12,7 +12,7 @@ This library aims to solve the problem of creating and verifying custom JWT toke
 
 In recent release, there has been some important optimisations in terms of the number of network round-trips and response times.
 
-Thereby, using `getTokens` in `middleware.ts` is no longer recommended. Please see [Authentication middleware](https://github.com/awinogrodzki/next-firebase-auth-edge#authentication-middleware) section to migrate to version 0.4.0
+Thereby, using `getTokens` in `middleware.ts` is no longer recommended. Please see [Authentication middleware](https://github.com/awinogrodzki/next-firebase-auth-edge#authentication-middleware) section to migrate to version 0.4.x
 
 You can still use `getTokens` in server components. `getTokens` works in tandem with `authentication` middleware function providing further improvements to response times.
 
