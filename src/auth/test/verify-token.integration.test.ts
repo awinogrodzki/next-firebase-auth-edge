@@ -15,7 +15,7 @@ const {
 
 describe("verify token integration test", () => {
   const {
-    getTokens,
+    handleTokenRefresh,
     createCustomToken,
     verifyAndRefreshExpiredIdToken,
     verifyIdToken,
@@ -87,7 +87,10 @@ describe("verify token integration test", () => {
       customToken,
       FIREBASE_API_KEY!
     );
-    const { decodedToken } = await getTokens(refreshToken, FIREBASE_API_KEY!);
+    const { decodedToken } = await handleTokenRefresh(
+      refreshToken,
+      FIREBASE_API_KEY!
+    );
 
     expect(decodedToken.uid).toEqual(userId);
     expect(decodedToken.customClaim).toEqual("customClaimValue");
@@ -108,7 +111,7 @@ describe("verify token integration test", () => {
     await deleteUser(userId);
 
     return expect(() =>
-      getTokens(refreshToken, FIREBASE_API_KEY!)
+      handleTokenRefresh(refreshToken, FIREBASE_API_KEY!)
     ).rejects.toEqual(
       new FirebaseAuthError(AuthClientErrorCode.USER_NOT_FOUND)
     );
@@ -122,7 +125,7 @@ describe("verify token integration test", () => {
 
     async function customGetToken() {
       try {
-        return await getTokens(refreshToken, FIREBASE_API_KEY!);
+        return await handleTokenRefresh(refreshToken, FIREBASE_API_KEY!);
       } catch (e: unknown) {
         if (isUserNotFoundError(e)) {
           return null;

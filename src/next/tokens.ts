@@ -5,14 +5,12 @@ import { getFirebaseAuth, IdAndRefreshTokens, Tokens } from "../auth";
 import { get } from "../auth/cookies/get";
 import { ReadonlyRequestCookies } from "next/dist/server/app-render";
 
-export interface GetTokensOptions {
-  cookieName: string;
-  cookieSignatureKeys: string[];
+export interface GetTokensOptions extends GetCookiesTokensOptions {
   serviceAccount: ServiceAccount;
   apiKey: string;
 }
 
-function validateOptions(options: GetTokensOptions) {
+export function validateOptions(options: GetTokensOptions) {
   if (!options.cookieSignatureKeys.length) {
     throw new Error(
       "You should provide at least one cookie signature encryption key"
@@ -20,16 +18,15 @@ function validateOptions(options: GetTokensOptions) {
   }
 }
 
-export async function getTokens(
-  cookies: RequestCookies | ReadonlyRequestCookies,
-  options: GetTokensOptions
-): Promise<Tokens | null> {
-  validateOptions(options);
+export interface GetCookiesTokensOptions {
+  cookieName: string;
+  cookieSignatureKeys: string[];
+}
 
-  const { verifyAndRefreshExpiredIdToken } = getFirebaseAuth(
-    options.serviceAccount,
-    options.apiKey
-  );
+export async function getRequestCookiesTokens(
+  cookies: RequestCookies | ReadonlyRequestCookies,
+  options: GetCookiesTokensOptions
+): Promise<IdAndRefreshTokens | null> {
   const signedCookie = cookies.get(options.cookieName);
   const signatureCookie = cookies.get(
     getSignatureCookieName(options.cookieName)
@@ -48,21 +45,33 @@ export async function getTokens(
     return null;
   }
 
-  const { idToken, refreshToken } = JSON.parse(
-    cookie.value
-  ) as IdAndRefreshTokens;
-
-  return verifyAndRefreshExpiredIdToken(idToken, refreshToken);
+  return JSON.parse(cookie.value) as IdAndRefreshTokens;
 }
 
-export async function getTokensFromObject(
-  cookies: Partial<{ [K in string]: string }>,
+export async function getTokens(
+  cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetTokensOptions
 ): Promise<Tokens | null> {
+  validateOptions(options);
+
   const { verifyAndRefreshExpiredIdToken } = getFirebaseAuth(
     options.serviceAccount,
     options.apiKey
   );
+
+  const tokens = await getRequestCookiesTokens(cookies, options);
+
+  if (!tokens) {
+    return null;
+  }
+
+  return verifyAndRefreshExpiredIdToken(tokens.idToken, tokens.refreshToken);
+}
+
+async function getCookiesTokens(
+  cookies: Partial<{ [K in string]: string }>,
+  options: GetCookiesTokensOptions
+): Promise<IdAndRefreshTokens | null> {
   const signedCookie = cookies[options.cookieName];
   const signatureCookie = cookies[getSignatureCookieName(options.cookieName)];
 
@@ -85,9 +94,23 @@ export async function getTokensFromObject(
     return null;
   }
 
-  const { idToken, refreshToken } = JSON.parse(
-    cookie.value
-  ) as IdAndRefreshTokens;
+  return JSON.parse(cookie.value) as IdAndRefreshTokens;
+}
 
-  return verifyAndRefreshExpiredIdToken(idToken, refreshToken);
+export async function getTokensFromObject(
+  cookies: Partial<{ [K in string]: string }>,
+  options: GetTokensOptions
+): Promise<Tokens | null> {
+  const { verifyAndRefreshExpiredIdToken } = getFirebaseAuth(
+    options.serviceAccount,
+    options.apiKey
+  );
+
+  const tokens = await getCookiesTokens(cookies, options);
+
+  if (!tokens) {
+    return null;
+  }
+
+  return verifyAndRefreshExpiredIdToken(tokens.idToken, tokens.refreshToken);
 }

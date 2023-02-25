@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.4.0
+
+### Minor Changes
+
+- Added authentication middleware to automatically handle redirection and authentication cookie refresh
+
 ## 0.3.1
 
 ### Patch Changes

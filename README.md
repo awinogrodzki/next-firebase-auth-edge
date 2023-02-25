@@ -52,67 +52,90 @@ module.exports = {
 };
 ```
 
-### Authentication endpoints
+### Authentication middleware
 
 In order to set encrypted authentication cookies we need server endpoints to handle log in and log out of the users.
 
-This can be achieved pretty easily using `createAuthMiddlewareResponse`:
+This can be achieved pretty easily using `authentication` middleware function:
 
-All examples below are based on working Next.js 13 app example found in [/examples](https://github.com/ensite-in/next-firebase-auth-edge/blob/d9817f62113e0520c0082a28607ec1e0a585af13/examples/next13-typescript-simple) directory
+All examples below are based on working Next.js 13 app examples found in [/examples](https://github.com/awinogrodzki/next-firebase-auth-edge/tree/main/examples) directory
 
 ```typescript
 // middleware.ts
 import type { NextRequest } from "next/server";
-import { createAuthMiddlewareResponse } from "next-firebase-auth-edge/lib/next/middleware";
-import { getTokens } from "next-firebase-auth-edge/lib/next/tokens";
-
-const commonOptions = {
-  apiKey: "firebase-api-key",
-  cookieName: "AuthToken",
-  cookieSignatureKeys: ["secret1", "secret2"],
-  cookieSerializeOptions: {
-    path: "/",
-    httpOnly: true,
-    secure: false, // Set this to true on HTTPS environments
-    sameSite: "strict" as const,
-    maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
-  },
-  serviceAccount: {
-    projectId: "firebase-project-id",
-    privateKey: "firebase service account private key",
-    clientEmail: "firebase service account client email",
-  },
-};
-
-const LOGIN_PATH = "/api/login";
-const LOGOUT_PATH = "/api/logout";
+import { authentication } from "next-firebase-auth-edge/lib/next/middleware";
 
 export async function middleware(request: NextRequest) {
-  if ([LOGIN_PATH, LOGOUT_PATH].includes(request.nextUrl.pathname)) {
-    return createAuthMiddlewareResponse(request, {
-      loginPath: LOGIN_PATH,
-      logoutPath: LOGOUT_PATH,
-      ...commonOptions,
-    });
-  }
+  const redirectOptions: RedirectToLoginOptions = {
+    path: "/login",
+    paramName: "redirect",
+  };
 
-  const tokens = await getTokens(request.cookies, commonOptions);
-
-  console.log(tokens); // { decodedIdToken: DecodedIdToken, token: string } or null if unauthenticated
-
-  // Optionally redirect unauthenticated users to custom /login page
-  if (
-    !tokens?.decodedToken.email_verified &&
-    request.nextUrl.pathname !== "/login"
-  ) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
+  return authentication(request, {
+    loginPath: "/api/login",
+    logoutPath: "/api/logout",
+    redirectOptions,
+    apiKey: "firebase-api-key",
+    cookieName: "AuthToken",
+    cookieSignatureKeys: ["secret1", "secret2"],
+    cookieSerializeOptions: {
+      path: "/",
+      httpOnly: true,
+      secure: false, // Set this to true on HTTPS environments
+      sameSite: "strict" as const,
+      maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
+    },
+    serviceAccount: {
+      projectId: "firebase-project-id",
+      privateKey: "firebase service account private key",
+      clientEmail: "firebase service account client email",
+    },
+    // Optional
+    isTokenValid: (token) => token.email_verified ?? false,
+    checkRevoked: false,
+    getAuthenticatedResponse: (tokens) => {
+      console.log("Successfully authenticated", { tokens });
+      return NextResponse.next();
+    },
+    getErrorResponse: (error) => {
+      console.error("Oops, this should not have happened.", { error });
+      return redirectToLogin(request, redirectOptions);
+    },
+  });
 }
+
+export const config = {
+  matcher: ["/", "/((?!_next/static|favicon.ico|logo.svg).*)"],
+};
 ```
 
-In this code example we define Next.js middleware that checks for `/api/login` and `/api/logout` requests and returns `AuthMiddlewareResponse`. The latter is an instance of `NextResponse` object, updated with authentication headers.
+#### Options
+##### Required
+| Name                   | Description                                                                                                                                                                                                                                                             |
+|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| loginPath              | Defines API login endpoint. When called with auth firebase token from the client (see examples below), responds with `Set-Cookie` headers containing signed id and refresh tokens.                                                                                      |
+| logoutPath             | Defines API logout endpoint. When called from the client (see examples below), returns empty `Set-Cookie` headers that remove previously set credentials                                                                                                                |
+| redirectOptions        | Defines redirect `path` and `paramName` for non-authenticated requests. For example, assuming the `path` is `/login` and `paramName` is `redirect`, if unauthorized user tries to access `/ultra-secure` route, they'd be redirected to `/login?redirect=/ultra-secure` |
+| apiKey                 | Firebase project API key used to fetch firebase id and refresh tokens                                                                                                                                                                                                   |
+| cookieName             | The name for cookie set by `loginPath` api route.                                                                                                                                                                                                                       |
+| cookieSignatureKeys    | [Rotating keys](https://developer.okta.com/docs/concepts/key-rotation/#:~:text=Key%20rotation%20is%20when%20a,and%20follows%20cryptographic%20best%20practices.) the cookie is validated against                                                                        |
+| cookieSerializeOptions | Defines additional cookie options sent along `Set-Cookie` headers                                                                                                                                                                                                       |
+| serviceAccount         | Firebase project service account                                                                                                                                                                                                                                        |
+
+
+##### Optional
+| Name                     | Default value                                          | Description                                                                                                                                        |
+|--------------------------|--------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| isTokenValid             | `(token) => token.email_verified ?? false`             | Tells the middleware whether user token is valid for the current route. It can be used to deal with custom permissions.                            |
+| checkRevoked             | `false`                                                | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                    |
+| getAuthenticatedResponse | `(_tokens) => NextResponse.next()`                     | You can use this to do something with tokens or provide custom response to the authenticated user                                                  |
+| getErrorResponse         | `(error) => redirectToLogin(request, redirectOptions)` | By default, in case of unhandled error during authentication, we just redirect user to the login page. This allows you to customize error handling |
+
+#### Troubleshooting
+##### error - Too big integer
+One of the common issues during setup is `error - Too big integer` thrown by `crypto-signer`. If you stumble on it, please make sure to follow resolution mentioned in https://github.com/awinogrodzki/next-firebase-auth-edge/issues/17#issuecomment-1376298292
+
+The error is caused by malformed firebase private key. We are working on providing correct private key validation and more user friendly error message. Until then, please follow the quick fix in aforementioned issue comment.
 
 ### Example AuthProvider
 
@@ -121,6 +144,11 @@ Below is example implementation of custom AuthProvider component that handles th
 `GET /api/login` endpoint can be called on `onIdTokenChanged` Firebase Authentication browser client event
 
 `GET /api/logout` endpoint can be called any time. Make sure to sign out the user from firebase before clearing the cookies.
+
+You can see a working demo at [next-firebase-auth-edge-static-demo.vercel.app](https://next-firebase-auth-edge-static-demo.vercel.app/)
+
+The source code for the demo can be found here [examples/next13-typescript-static-pages](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next13-typescript-static-pages)
+
 
 ```tsx
 export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
@@ -136,6 +164,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
     const auth = await getFirebaseAuth();
     const { signOut } = await import("firebase/auth");
     await signOut(auth);
+    // Removes authentication cookies
     await fetch("/api/logout", {
       method: "GET",
     });
@@ -166,6 +195,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
 
     firstLoadRef.current = false;
     const tokenResult = await firebaseUser.getIdTokenResult();
+    // Sets authentication cookies
     await fetch("/api/login", {
       method: "GET",
       headers: {
@@ -207,7 +237,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
 
 `next-firebase-auth-edge` is designed to work with [React Server Components](https://nextjs.org/docs/advanced-features/react-18/server-components) along with Next.js 13.
 
-Below is an example of root `app/layout.tsx` server component using `getTokens` function to fetch user tokens based on request cookies
+Below is an example of root `app/layout.tsx` server component using `getTokens` function to extract user tokens from request cookies
 
 ```tsx
 import "./globals.css";
@@ -219,8 +249,7 @@ import { Tokens } from "next-firebase-auth-edge/lib/auth";
 import { Tenant } from "../auth/types";
 
 //...
-
-export default async function RootLayout({
+export default async function AuthenticatedLayout({
   children,
 }: {
   children: React.ReactNode;

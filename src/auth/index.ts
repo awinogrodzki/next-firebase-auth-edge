@@ -99,7 +99,7 @@ const refreshExpiredIdToken = async (
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
-    cache: 'no-store'
+    cache: "no-store",
   });
 
   if (!response.ok) {
@@ -109,10 +109,7 @@ const refreshExpiredIdToken = async (
     )} ${data.error_description ? `(${data.error_description})` : ""}`;
 
     if (isUserNotFoundResponse(data)) {
-      throw new FirebaseAuthError(
-        AuthClientErrorCode.USER_NOT_FOUND,
-        errorMessage
-      );
+      throw new FirebaseAuthError(AuthClientErrorCode.USER_NOT_FOUND);
     }
 
     throw new FirebaseAuthError(
@@ -144,6 +141,29 @@ export function isInvalidCredentialError(
   );
 }
 
+export async function handleExpiredToken<T>(
+  verifyIdToken: () => Promise<T>,
+  onExpired: (e: FirebaseAuthError) => Promise<T>,
+  onError: (e: unknown) => Promise<T>
+): Promise<T> {
+  try {
+    return await verifyIdToken();
+  } catch (e: any) {
+    // https://firebase.google.com/docs/reference/node/firebase.auth.Error
+    switch ((e as FirebaseAuthError).code) {
+      case "auth/invalid-user-token":
+      case "auth/user-token-expired":
+      case "auth/user-disabled":
+        return onError(e);
+      case "auth/id-token-expired":
+      case "auth/argument-error":
+        return onExpired(e);
+      default:
+        return onError(e);
+    }
+  }
+}
+
 export interface IdAndRefreshTokens {
   idToken: string;
   refreshToken: string;
@@ -162,7 +182,7 @@ export function getFirebaseAuth(
   const credential = new ServiceAccountCredential(serviceAccount);
   const tokenGenerator = createFirebaseTokenGenerator(credential);
 
-  const getTokens = async (
+  const handleTokenRefresh = async (
     refreshToken: string,
     firebaseApiKey: string
   ): Promise<Tokens> => {
@@ -232,32 +252,22 @@ export function getFirebaseAuth(
     token: string,
     refreshToken: string
   ): Promise<Tokens | null> {
-    try {
-      const decodedToken = await verifyIdToken(token);
+    return await handleExpiredToken(
+      async () => {
+        const decodedToken = await verifyIdToken(token);
+        return { token, decodedToken };
+      },
+      async () => {
+        if (refreshToken) {
+          return handleTokenRefresh(refreshToken, apiKey);
+        }
 
-      return {
-        decodedToken,
-        token,
-      };
-    } catch (e: any) {
-      // https://firebase.google.com/docs/reference/node/firebase.auth.Error
-      switch ((e as FirebaseAuthError).code) {
-        case "auth/invalid-user-token":
-        case "auth/user-token-expired":
-        case "auth/user-disabled":
-          return null;
-
-        case "auth/id-token-expired":
-        case "auth/argument-error":
-          if (refreshToken) {
-            return getTokens(refreshToken, apiKey);
-          }
-
-          return null;
-        default:
-          return null;
+        return null;
+      },
+      async () => {
+        return null;
       }
-    }
+    );
   }
 
   function createCustomToken(
@@ -286,7 +296,7 @@ export function getFirebaseAuth(
     verifyIdToken,
     createCustomToken,
     getCustomIdAndRefreshTokens,
-    getTokens,
+    handleTokenRefresh,
     deleteUser,
   };
 }
