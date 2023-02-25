@@ -54,7 +54,7 @@ module.exports = {
 
 ### Authentication middleware
 
-In order to set encrypted authentication cookies we need server endpoints to handle log in and log out of the users.
+In order to set encrypted authentication cookies we need to define server endpoints to handle log in and log out of the users.
 
 This can be achieved pretty easily using `authentication` middleware function:
 
@@ -235,7 +235,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
 
 ### Server Components
 
-`next-firebase-auth-edge` is designed to work with [React Server Components](https://nextjs.org/docs/advanced-features/react-18/server-components) along with Next.js 13.
+`next-firebase-auth-edge` is designed to work with [React Server Components](https://nextjs.org/docs/advanced-features/react-18/server-components) and Next.js 13.
 
 Below is an example of root `app/layout.tsx` server component using `getTokens` function to extract user tokens from request cookies
 
