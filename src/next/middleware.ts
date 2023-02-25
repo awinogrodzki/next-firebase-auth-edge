@@ -51,7 +51,7 @@ export type GetErrorResponse = (e: unknown) => NextResponse;
 export interface AuthenticateOptions
   extends CreateAuthMiddlewareOptions,
     GetTokensOptions {
-  redirectOptions: RedirectToLoginOptions;
+  redirectOptions?: RedirectToLoginOptions;
   checkRevoked?: boolean;
   isTokenValid?: (token: DecodedIdToken) => boolean;
   getAuthenticatedResponse?: GetAuthenticatedResponse;
@@ -81,9 +81,16 @@ function hasVerifiedEmail(token: DecodedIdToken) {
 const getDefaultAuthenticatedResponse: GetAuthenticatedResponse = () =>
   NextResponse.next();
 const getDefaultErrorResponse =
-  (request: NextRequest, options: RedirectToLoginOptions): GetErrorResponse =>
+  (request: NextRequest, options?: RedirectToLoginOptions): GetErrorResponse =>
   () =>
-    redirectToLogin(request, options);
+    options ? redirectToLogin(request, options) : NextResponse.next();
+
+function redirectToLoginOrReturnEmptyResponse(
+  request: NextRequest,
+  options?: RedirectToLoginOptions
+) {
+  return options ? redirectToLogin(request, options) : NextResponse.next();
+}
 
 export async function authentication(
   request: NextRequest,
@@ -102,7 +109,10 @@ export async function authentication(
     return createAuthMiddlewareResponse(request, options);
   }
 
-  if (request.nextUrl.pathname === options.redirectOptions.path) {
+  if (
+    options.redirectOptions &&
+    request.nextUrl.pathname === options.redirectOptions.path
+  ) {
     return NextResponse.next();
   }
 
@@ -117,7 +127,10 @@ export async function authentication(
   );
 
   if (!idAndRefreshTokens) {
-    return redirectToLogin(request, options.redirectOptions);
+    return redirectToLoginOrReturnEmptyResponse(
+      request,
+      options.redirectOptions
+    );
   }
 
   return handleExpiredToken(
@@ -128,7 +141,10 @@ export async function authentication(
       );
 
       if (!isTokenValid(decodedToken)) {
-        return redirectToLogin(request, options.redirectOptions);
+        return redirectToLoginOrReturnEmptyResponse(
+          request,
+          options.redirectOptions
+        );
       }
 
       return getAuthenticatedResponse({
@@ -143,7 +159,10 @@ export async function authentication(
       );
 
       if (!isTokenValid(decodedToken)) {
-        return redirectToLogin(request, options.redirectOptions);
+        return redirectToLoginOrReturnEmptyResponse(
+          request,
+          options.redirectOptions
+        );
       }
 
       return appendAuthCookies(
