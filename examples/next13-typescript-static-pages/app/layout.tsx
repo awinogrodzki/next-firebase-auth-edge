@@ -14,10 +14,10 @@ export default function RootLayout({
           <main className={styles.main}>{children}</main>
           <footer className={styles.footer}>
             <a
-              href="https://github.com/ensite-in/next-firebase-auth-edge"
+              href="https://github.com/awinogrodzki/next-firebase-auth-edge"
               target="_blank"
             >
-              github.com/ensite-in/next-firebase-auth-edge
+              github.com/awinogrodzki/next-firebase-auth-edge
             </a>
           </footer>
         </div>
