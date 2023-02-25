@@ -1,5 +1,9 @@
 import type { NextRequest } from "next/server";
-import { authentication } from "next-firebase-auth-edge/lib/next/middleware";
+import {
+  authentication,
+  redirectToLogin,
+  RedirectToLoginOptions,
+} from "next-firebase-auth-edge/lib/next/middleware";
 import { serverConfig } from "./config/server-config";
 
 export async function middleware(request: NextRequest) {
