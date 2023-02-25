@@ -46,11 +46,11 @@ pnpm add next-firebase-auth-edge
 
 The demo is available at [next-firebase-auth-edge-static-demo.vercel.app](https://next-firebase-auth-edge-static-demo.vercel.app/)
 
-The source code for the demo can be found in [examples/next13-typescript-static-pages](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next13-typescript-static-pages)
+You can find source code for the demo in [examples/next13-typescript-static-pages](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next13-typescript-static-pages)
 
 ## Usage
 
-Before using this module make sure you have enabled `appDir` experimental option in `next.config.js`:
+Before using this module ensure that you have enabled `appDir` experimental option in your `next.config.js`:
 
 ```javascript
 module.exports = {
@@ -62,9 +62,9 @@ module.exports = {
 
 ### Authentication middleware
 
-In order to set encrypted authentication cookies we need to define server endpoints to handle log in and log out of the users.
+In order to set encrypted authentication cookies, we need to define server endpoints to handle logging in and logging out of users.
 
-This can be achieved pretty easily using `authentication` middleware function:
+This can be achieved quite easily using the authentication middleware function:
 
 All examples below are based on working Next.js 13 app examples found in [/examples](https://github.com/awinogrodzki/next-firebase-auth-edge/tree/main/examples) directory
 
