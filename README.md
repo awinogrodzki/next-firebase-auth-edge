@@ -131,6 +131,12 @@ export const config = {
 | getAuthenticatedResponse | `(_tokens) => NextResponse.next()`                     | You can use this to do something with tokens or provide custom response to the authenticated user                                                  |
 | getErrorResponse         | `(error) => redirectToLogin(request, redirectOptions)` | By default, in case of unhandled error during authentication, we just redirect user to the login page. This allows you to customize error handling |
 
+#### Troubleshooting
+##### error - Too big integer
+One of the common issues during setup is `error - Too big integer` thrown by `crypto-signer`. If you stumble on it, please make sure to follow resolution mentioned in https://github.com/awinogrodzki/next-firebase-auth-edge/issues/17#issuecomment-1376298292
+
+The error is caused by malformed firebase private key. We are working on providing correct private key validation and more user friendly error message. Until then, please follow the quick fix in aforementioned issue comment.
+
 ### Example AuthProvider
 
 Below is example implementation of custom AuthProvider component that handles the calling of authentication endpoints.
