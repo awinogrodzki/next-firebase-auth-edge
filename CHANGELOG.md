@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.4.1
+
+### Patch Changes
+
+- Optional redirectOptions for use-cases where authentication happens in more than one contexts
+
 ## 0.4.0
 
 ### Minor Changes
