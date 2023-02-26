@@ -45,17 +45,19 @@ export async function createAuthMiddlewareResponse(
   return NextResponse.next();
 }
 
-export type GetAuthenticatedResponse = (tokens: Tokens) => NextResponse;
-export type GetErrorResponse = (e: unknown) => NextResponse;
+export type GetAuthenticatedResponse = (
+  tokens: Tokens
+) => Promise<NextResponse>;
+export type GetErrorResponse = (e: unknown) => Promise<NextResponse>;
 
-export interface AuthenticateOptions
+export interface AuthenticationOptions
   extends CreateAuthMiddlewareOptions,
     GetTokensOptions {
   redirectOptions?: RedirectToLoginOptions;
   checkRevoked?: boolean;
   isTokenValid?: (token: DecodedIdToken) => boolean;
   getAuthenticatedResponse?: GetAuthenticatedResponse;
-  getErrorResponse?: (e: unknown) => NextResponse;
+  getErrorResponse?: GetErrorResponse;
 }
 
 export interface RedirectToLoginOptions {
@@ -78,11 +80,11 @@ function hasVerifiedEmail(token: DecodedIdToken) {
   return token.email_verified;
 }
 
-const getDefaultAuthenticatedResponse: GetAuthenticatedResponse = () =>
+const getDefaultAuthenticatedResponse: GetAuthenticatedResponse = async () =>
   NextResponse.next();
 const getDefaultErrorResponse =
   (request: NextRequest, options?: RedirectToLoginOptions): GetErrorResponse =>
-  () =>
+  async () =>
     options ? redirectToLogin(request, options) : NextResponse.next();
 
 function redirectToLoginOrReturnEmptyResponse(
@@ -94,7 +96,7 @@ function redirectToLoginOrReturnEmptyResponse(
 
 export async function authentication(
   request: NextRequest,
-  options: AuthenticateOptions
+  options: AuthenticationOptions
 ): Promise<NextResponse> {
   const isTokenValid = options.isTokenValid ?? hasVerifiedEmail;
   const getAuthenticatedResponse =
@@ -166,7 +168,7 @@ export async function authentication(
       }
 
       return appendAuthCookies(
-        getAuthenticatedResponse({ token, decodedToken }),
+        await getAuthenticatedResponse({ token, decodedToken }),
         {
           idToken: token,
           refreshToken: idAndRefreshTokens.refreshToken,
