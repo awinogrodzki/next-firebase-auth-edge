@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.4.2
+
+### Patch Changes
+
+- getAuthenticatedResponse and getErrorResponse options are now async
+
 ## 0.4.1
 
 ### Patch Changes
