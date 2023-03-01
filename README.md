@@ -95,10 +95,12 @@ export async function middleware(request: NextRequest) {
     // Optional
     isTokenValid: (token) => token.email_verified ?? false,
     checkRevoked: false,
+    // Handle request with tokens
     getAuthenticatedResponse: async (tokens) => {
       console.log("Successfully authenticated", { tokens });
       return NextResponse.next();
     },
+    // Handle unhandled authentication error
     getErrorResponse: async (error) => {
       console.error("Unhandled authentication error", { error });
       
@@ -108,6 +110,7 @@ export async function middleware(request: NextRequest) {
       url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
       return NextResponse.redirect(url);
     },
+    // Handle missing or expired credentials
     getUnauthenticatedResponse: async () => {
       if (request.nextUrl.pathname === "/login") {
         return NextResponse.next();
