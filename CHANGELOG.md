@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.4.3
+
+### Patch Changes
+
+- Introduced getUnauthenticatedResponse middleware option to handle redirects for unauthenticated users
+
 ## 0.4.2
 
 ### Patch Changes
