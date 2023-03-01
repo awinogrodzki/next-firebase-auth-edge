@@ -100,6 +100,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     },
     getErrorResponse: async (error) => {
+      console.error("Unhandled authentication error", { error });
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
