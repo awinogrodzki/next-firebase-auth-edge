@@ -1,17 +1,10 @@
 import type { NextRequest } from "next/server";
-import {
-  authentication,
-  redirectToLogin,
-  RedirectToLoginOptions,
-} from "next-firebase-auth-edge/lib/next/middleware";
+import { NextResponse } from "next/server";
+import { authentication } from "next-firebase-auth-edge/lib/next/middleware";
 import { serverConfig } from "./config/server-config";
 
 export async function middleware(request: NextRequest) {
   return authentication(request, {
-    redirectOptions: {
-      path: "/login",
-      paramName: "redirect",
-    },
     loginPath: "/api/login",
     logoutPath: "/api/logout",
     apiKey: serverConfig.firebaseApiKey,
@@ -26,6 +19,16 @@ export async function middleware(request: NextRequest) {
     },
     serviceAccount: serverConfig.serviceAccount,
     isTokenValid: (token) => token.email_verified ?? false,
+    getUnauthenticatedResponse: async () => {
+      if (request.nextUrl.pathname === "/login") {
+        return NextResponse.next();
+      }
+
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
+      return NextResponse.redirect(url);
+    },
   });
 }
 

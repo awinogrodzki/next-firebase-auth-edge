@@ -74,11 +74,6 @@ import type { NextRequest } from "next/server";
 import { authentication } from "next-firebase-auth-edge/lib/next/middleware";
 
 export async function middleware(request: NextRequest) {
-  const redirectOptions: RedirectToLoginOptions = {
-    path: "/login",
-    paramName: "redirect",
-  };
-
   return authentication(request, {
     loginPath: "/api/login",
     logoutPath: "/api/logout",
@@ -98,7 +93,6 @@ export async function middleware(request: NextRequest) {
       clientEmail: "firebase service account client email",
     },
     // Optional
-    redirectOptions,
     isTokenValid: (token) => token.email_verified ?? false,
     checkRevoked: false,
     getAuthenticatedResponse: async (tokens) => {
@@ -109,6 +103,17 @@ export async function middleware(request: NextRequest) {
       console.error("Oops, this should not have happened.", { error });
       return redirectToLogin(request, redirectOptions);
     },
+    getUnauthenticatedResponse: async () => {
+      if (request.nextUrl.pathname === "/login") {
+        return NextResponse.next();
+      }
+
+      // Redirect to /login?redirect=/prev-path when request is unauthenticated
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
+      return NextResponse.redirect(url);
+    },
   });
 }
 
@@ -118,29 +123,34 @@ export const config = {
 ```
 
 #### Options
-##### Required
-| Name                   | Description                                                                                                                                                                                                                                                             |
-|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| loginPath              | Defines API login endpoint. When called with auth firebase token from the client (see examples below), responds with `Set-Cookie` headers containing signed id and refresh tokens.                                                                                      |
-| logoutPath             | Defines API logout endpoint. When called from the client (see examples below), returns empty `Set-Cookie` headers that remove previously set credentials                                                                                                                |
-| apiKey                 | Firebase project API key used to fetch firebase id and refresh tokens                                                                                                                                                                                                   |
-| cookieName             | The name for cookie set by `loginPath` api route.                                                                                                                                                                                                                       |
-| cookieSignatureKeys    | [Rotating keys](https://developer.okta.com/docs/concepts/key-rotation/#:~:text=Key%20rotation%20is%20when%20a,and%20follows%20cryptographic%20best%20practices.) the cookie is validated against                                                                        |
-| cookieSerializeOptions | Defines additional cookie options sent along `Set-Cookie` headers                                                                                                                                                                                                       |
-| serviceAccount         | Firebase project service account                                                                                                                                                                                                                                        |
 
+##### Required
+
+| Name                   | Description                                                                                                                                                                                      |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| loginPath              | Defines API login endpoint. When called with auth firebase token from the client (see examples below), responds with `Set-Cookie` headers containing signed id and refresh tokens.               |
+| logoutPath             | Defines API logout endpoint. When called from the client (see examples below), returns empty `Set-Cookie` headers that remove previously set credentials                                         |
+| apiKey                 | Firebase project API key used to fetch firebase id and refresh tokens                                                                                                                            |
+| cookieName             | The name for cookie set by `loginPath` api route.                                                                                                                                                |
+| cookieSignatureKeys    | [Rotating keys](https://developer.okta.com/docs/concepts/key-rotation/#:~:text=Key%20rotation%20is%20when%20a,and%20follows%20cryptographic%20best%20practices.) the cookie is validated against |
+| cookieSerializeOptions | Defines additional cookie options sent along `Set-Cookie` headers                                                                                                                                |
+| serviceAccount         | Firebase project service account                                                                                                                                                                 |
 
 ##### Optional
-| Name                     | Default value                                                                                                             | Description                                                                                                                                                                                                                                                                                                                                   |
-|--------------------------|---------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| redirectOptions          | `undefined`                                                                                                               | Pass if you want to enable redirect to dedicated authentication page. Defines redirect `path` and `paramName` for non-authenticated requests. For example, assuming the `path` is `/login` and `paramName` is `redirect`, if unauthorized user tries to access `/ultra-secure` route, they'd be redirected to `/login?redirect=/ultra-secure` |
-| isTokenValid             | `(token) => token.email_verified ?? false`                                                                                | Tells the middleware whether user token is valid for the current route. It can be used to deal with custom permissions.                                                                                                                                                                                                                       |
-| checkRevoked             | `false`                                                                                                                   | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                                                                                                               |
-| getAuthenticatedResponse | `async (_tokens) => NextResponse.next()`                                                                                  | Receives id and decoded tokens and should return a promise that resolves with NextResponse. You can use this to do something with tokens or provide custom response to the authenticated user                                                                                                                                                 |
-| getErrorResponse         | `async (request, options?: RedirectToLoginOptions) => options ? redirectToLogin(request, options) : NextResponse.next();` | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, we just redirect user to the login page. This allows you to customize error handling                                                                                      |
+
+| Name                       | Type                                                                                                                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+|----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| redirectOptions            | `{ path: string, paramName: string }` By default `undefined`                                                                                     | Pass if you want to enable redirect to dedicated authentication page. Defines redirect `path` and `paramName` for non-authenticated requests. For example, assuming the `path` is `/login` and `paramName` is `redirect`, if unauthorized user tries to access `/ultra-secure` route, they'd be redirected to `/login?redirect=/ultra-secure`. **This option is deprecated and with be replaced with `getUnauthenticatedResponse` defined below.** |
+| isTokenValid               | `(token: DecodedIdToken) => boolean` By default returns `true` for tokens with `email_verified: true`                                            | Tells the middleware whether user token is valid for the current route. It can be used to deal with custom permissions.                                                                                                                                                                                                                                                                                                                            |
+| checkRevoked               | `boolean` By default `false`                                                                                                                     | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                                                                                                                                                                                                                    |
+| getAuthenticatedResponse   | `(tokens: { token: string, decodedToken: DecodedIdToken }) => Promise<NextResponse>` By default returns `NextResponse.next()`                    | Receives id and decoded tokens and should return a promise that resolves with NextResponse. You can use this to do something with tokens or provide custom response to the authenticated user                                                                                                                                                                                                                                                      |
+| getErrorResponse           | `(error: unknown) => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, we just redirect user to the login page. This allows you to customize error handling                                                                                                                                                                                           |
+| getUnauthenticatedResponse | `() => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present               | If passed, is called and returned if user has not been authenticated with `isTokenValid` or there are no credentials in request cookies. Can be used to redirect unauthenticated users to specific page or pages. **Cannot be used together with redirectOptions**                                                                                                                                                                                 |
 
 #### Troubleshooting
+
 ##### error - Too big integer
+
 One of the common issues during setup is `error - Too big integer` thrown by `crypto-signer`. If you stumble on it, please make sure to follow resolution mentioned in https://github.com/awinogrodzki/next-firebase-auth-edge/issues/17#issuecomment-1376298292
 
 The error is caused by malformed firebase private key. We are working on providing correct private key validation and more user friendly error message. Until then, please follow the quick fix in aforementioned issue comment.
@@ -156,7 +166,6 @@ Below is example implementation of custom AuthProvider component that handles th
 You can see a working demo at [next-firebase-auth-edge-static-demo.vercel.app](https://next-firebase-auth-edge-static-demo.vercel.app/)
 
 The source code for the demo can be found here [examples/next13-typescript-static-pages](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next13-typescript-static-pages)
-
 
 ```tsx
 export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({

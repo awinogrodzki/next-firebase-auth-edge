@@ -45,6 +45,8 @@ export async function createAuthMiddlewareResponse(
   return NextResponse.next();
 }
 
+export type GetUnauthenticatedResponse = () => Promise<NextResponse>;
+
 export type GetAuthenticatedResponse = (
   tokens: Tokens
 ) => Promise<NextResponse>;
@@ -56,6 +58,7 @@ export interface AuthenticationOptions
   redirectOptions?: RedirectToLoginOptions;
   checkRevoked?: boolean;
   isTokenValid?: (token: DecodedIdToken) => boolean;
+  getUnauthenticatedResponse?: GetUnauthenticatedResponse;
   getAuthenticatedResponse?: GetAuthenticatedResponse;
   getErrorResponse?: GetErrorResponse;
 }
@@ -105,6 +108,17 @@ export async function authentication(
     options.getErrorResponse ??
     getDefaultErrorResponse(request, options.redirectOptions);
 
+  if (options.redirectOptions && options.getUnauthenticatedResponse) {
+    throw new Error(
+      "You cannot provide both redirectOptions and getUnauthenticatedResponse options. If you use both, probably getUnauthenticatedResponse is what you're looking for."
+    );
+  }
+
+  const getUnauthenticatedResponse =
+    options.getUnauthenticatedResponse ??
+    (() =>
+      redirectToLoginOrReturnEmptyResponse(request, options.redirectOptions));
+
   if (
     [options.loginPath, options.logoutPath].includes(request.nextUrl.pathname)
   ) {
@@ -129,10 +143,7 @@ export async function authentication(
   );
 
   if (!idAndRefreshTokens) {
-    return redirectToLoginOrReturnEmptyResponse(
-      request,
-      options.redirectOptions
-    );
+    return getUnauthenticatedResponse();
   }
 
   return handleExpiredToken(
@@ -143,10 +154,7 @@ export async function authentication(
       );
 
       if (!isTokenValid(decodedToken)) {
-        return redirectToLoginOrReturnEmptyResponse(
-          request,
-          options.redirectOptions
-        );
+        return getUnauthenticatedResponse();
       }
 
       return getAuthenticatedResponse({
@@ -161,10 +169,7 @@ export async function authentication(
       );
 
       if (!isTokenValid(decodedToken)) {
-        return redirectToLoginOrReturnEmptyResponse(
-          request,
-          options.redirectOptions
-        );
+        return getUnauthenticatedResponse();
       }
 
       return appendAuthCookies(
