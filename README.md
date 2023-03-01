@@ -95,7 +95,7 @@ export async function middleware(request: NextRequest) {
     // Optional
     isTokenValid: (token) => token.email_verified ?? false,
     checkRevoked: false,
-    // Handle request with tokens
+    // Handle request with valid tokens
     getAuthenticatedResponse: async (tokens) => {
       console.log("Successfully authenticated", { tokens });
       return NextResponse.next();
