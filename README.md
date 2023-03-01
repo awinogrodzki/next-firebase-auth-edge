@@ -100,8 +100,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     },
     getErrorResponse: async (error) => {
-      console.error("Oops, this should not have happened.", { error });
-      return redirectToLogin(request, redirectOptions);
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
+      return NextResponse.redirect(url);
     },
     getUnauthenticatedResponse: async () => {
       if (request.nextUrl.pathname === "/login") {
