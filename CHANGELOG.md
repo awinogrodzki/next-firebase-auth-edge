@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.4.4
+
+### Patch Changes
+
+- Added refreshAuthCookies method to refresh cookie headers in api middleware
+
 ## 0.4.3
 
 ### Patch Changes
