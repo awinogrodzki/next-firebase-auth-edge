@@ -167,9 +167,9 @@ The error is caused by malformed firebase private key. We are working on providi
 
 Below is example implementation of custom AuthProvider component that handles the calling of authentication endpoints.
 
-`GET /api/login` endpoint can be called on `onIdTokenChanged` Firebase Authentication browser client event
+`GET /api/login` endpoint should be called with firebase token (see examples below). It responds with `Set-Cookie` header containing encrypted cookies.
 
-`GET /api/logout` endpoint can be called any time. Make sure to sign out the user from firebase before clearing the cookies.
+`GET /api/logout` removes authentication cookies. Make sure to sign out the user from firebase before clearing the cookies.
 
 You can see a working demo at [next-firebase-auth-edge-static-demo.vercel.app](https://next-firebase-auth-edge-static-demo.vercel.app/)
 
