@@ -29,6 +29,7 @@ export const mapFirebaseResponseToTenant = async (
       emailVerified: user.emailVerified,
       customClaims: filterStandardClaims(tokenResult.claims),
       photoUrl: providerData.photoURL || user.photoURL || null,
+      idToken: tokenResult.token,
     };
   }
 
@@ -40,6 +41,7 @@ export const mapFirebaseResponseToTenant = async (
     emailVerified: user.emailVerified,
     photoUrl: user.photoURL || providerData?.photoURL || null,
     customClaims: filterStandardClaims(tokenResult.claims),
+    idToken: tokenResult.token,
   };
 };
 
