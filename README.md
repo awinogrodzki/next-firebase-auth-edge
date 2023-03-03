@@ -307,8 +307,6 @@ export default async function AuthenticatedLayout({
 
 Authentication middleware might not fully support every use-case. To help you with more complex authentication flows, `next-firebase-auth-edge` provides a set of low-level building blocks.
 
-More detailed documentation is
-
 #### getFirebaseAuth
 
 ```typescript
