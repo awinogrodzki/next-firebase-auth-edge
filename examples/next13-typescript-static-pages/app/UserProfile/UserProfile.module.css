@@ -2,7 +2,7 @@
   border-radius: 10px;
   color: #0070f3;
   border: 1px solid #0070f3;
-  padding: 0.75rem;
+  padding: 1.5rem;
   text-align: center;
 }
 
@@ -14,7 +14,7 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .avatar {
@@ -32,3 +32,8 @@
   object-position: 50% 50%;
 }
 
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}

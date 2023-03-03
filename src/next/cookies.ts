@@ -4,6 +4,7 @@ import { sign } from "../auth/cookies/sign";
 import { CookieSerializeOptions, serialize } from "cookie";
 import { NextResponse } from "next/server";
 import { getSignatureCookieName } from "../auth/cookies";
+import { NextApiResponse } from "next";
 
 export interface SetAuthCookiesOptions {
   cookieName: string;
@@ -11,6 +12,33 @@ export interface SetAuthCookiesOptions {
   cookieSerializeOptions: CookieSerializeOptions;
   serviceAccount: ServiceAccount;
   apiKey: string;
+}
+
+export async function appendAuthCookiesApi(
+  response: NextApiResponse,
+  tokens: IdAndRefreshTokens,
+  options: SetAuthCookiesOptions
+) {
+  const value = JSON.stringify(tokens);
+  const { signatureCookie, signedCookie } = await sign(
+    options.cookieSignatureKeys
+  )({
+    name: options.cookieName,
+    value,
+  });
+
+  response.setHeader("Set-Cookie", [
+    serialize(
+      signatureCookie.name,
+      signatureCookie.value,
+      options.cookieSerializeOptions
+    ),
+    serialize(
+      signedCookie.name,
+      signedCookie.value,
+      options.cookieSerializeOptions
+    ),
+  ]);
 }
 
 export async function appendAuthCookies(
@@ -45,6 +73,25 @@ export async function appendAuthCookies(
   );
 
   return response;
+}
+
+export async function refreshAuthCookies(
+  idToken: string,
+  response: NextApiResponse,
+  options: SetAuthCookiesOptions
+): Promise<IdAndRefreshTokens> {
+  const { getCustomIdAndRefreshTokens } = getFirebaseAuth(
+    options.serviceAccount,
+    options.apiKey
+  );
+  const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
+    idToken,
+    options.apiKey
+  );
+
+  await appendAuthCookiesApi(response, idAndRefreshTokens, options);
+
+  return idAndRefreshTokens;
 }
 
 export async function setAuthCookies(

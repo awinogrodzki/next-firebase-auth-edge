@@ -6,6 +6,7 @@ export interface Tenant {
   emailVerified: boolean;
   isAnonymous: boolean;
   customClaims: CustomClaims;
+  idToken: string;
 }
 
 export type CustomClaims = { [key: string]: any };
