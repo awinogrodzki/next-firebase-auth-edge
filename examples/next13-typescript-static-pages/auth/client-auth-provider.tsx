@@ -24,6 +24,7 @@ const mapFirebaseResponseToTenant = (
       photoUrl: providerData.photoURL || null,
       customClaims: {},
       isAnonymous: user.isAnonymous,
+      idToken: result.token,
     };
   }
 
@@ -35,6 +36,7 @@ const mapFirebaseResponseToTenant = (
     photoUrl: user.photoURL || null,
     customClaims: {},
     isAnonymous: user.isAnonymous,
+    idToken: result.token,
   };
 };
 

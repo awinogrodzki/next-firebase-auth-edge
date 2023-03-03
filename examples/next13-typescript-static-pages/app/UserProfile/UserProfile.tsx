@@ -13,7 +13,7 @@ export function UserProfile() {
   const { tenant } = useAuth();
   const { getFirebaseAuth } = useFirebaseAuth(clientConfig);
   const [hasLoggedOut, setHasLoggedOut] = React.useState(false);
-  const [handleLogout, isLoading] = useLoadingCallback(async () => {
+  const [handleLogout, isLogoutLoading] = useLoadingCallback(async () => {
     const auth = await getFirebaseAuth();
     const { signOut } = await import("firebase/auth");
     await signOut(auth);
@@ -22,6 +22,19 @@ export function UserProfile() {
       method: "GET",
     });
     window.location.reload();
+  });
+
+  const [handleRefresh, isRefreshLoading] = useLoadingCallback(async () => {
+    if (!tenant) {
+      return;
+    }
+
+    await fetch("/api/refresh-tokens", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${tenant.idToken}`,
+      },
+    });
   });
 
   if (!tenant && hasLoggedOut) {
@@ -47,9 +60,22 @@ export function UserProfile() {
         </div>
         <span>{tenant.email}</span>
       </div>
-      <Button disabled={isLoading} onClick={handleLogout}>
-        Log out
-      </Button>
+      <div className={styles.buttonGroup}>
+        <Button
+          loading={isRefreshLoading}
+          disabled={isRefreshLoading}
+          onClick={handleRefresh}
+        >
+          Refresh tokens
+        </Button>
+        <Button
+          loading={isLogoutLoading}
+          disabled={isLogoutLoading}
+          onClick={handleLogout}
+        >
+          Log out
+        </Button>
+      </div>
     </div>
   );
 }

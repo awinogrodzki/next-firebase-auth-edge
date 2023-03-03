@@ -7,11 +7,15 @@
   border: 1px solid #0070f3;
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
-  max-width: 300px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   margin-bottom: 1rem;
+  justify-content: center;
+}
+
+.button:last-of-type {
+  margin-bottom: 0;
 }
 
 .button[disabled] {

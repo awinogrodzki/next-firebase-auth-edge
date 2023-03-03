@@ -6,7 +6,7 @@ import { Tokens } from "next-firebase-auth-edge/lib/auth";
 import { Tenant } from "./types";
 import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/tenant";
 
-const mapTokensToTenant = ({ decodedToken }: Tokens): Tenant => {
+const mapTokensToTenant = ({ token, decodedToken }: Tokens): Tenant => {
   const customClaims = filterStandardClaims(decodedToken);
 
   const {
@@ -25,6 +25,7 @@ const mapTokensToTenant = ({ decodedToken }: Tokens): Tenant => {
     emailVerified: emailVerified ?? false,
     name: displayName ?? null,
     photoUrl: photoURL ?? null,
+    idToken: token,
   };
 };
 
