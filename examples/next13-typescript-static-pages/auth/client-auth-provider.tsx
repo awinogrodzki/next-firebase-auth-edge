@@ -78,7 +78,6 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
 
     firstLoadRef.current = false;
     const tokenResult = await firebaseUser.getIdTokenResult();
-    console.log("BEFORE /api/login");
     await fetch("/api/login", {
       method: "GET",
       headers: {
