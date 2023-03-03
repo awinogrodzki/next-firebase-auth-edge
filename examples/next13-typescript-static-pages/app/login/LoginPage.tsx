@@ -33,9 +33,9 @@ export function LoginPage() {
         Authorization: `Bearer ${tenant.idToken}`,
       },
     });
+    setHasLogged(true);
     const redirect = params.get("redirect");
     router.push(redirect ?? "/");
-    setHasLogged(true);
   });
 
   return (
