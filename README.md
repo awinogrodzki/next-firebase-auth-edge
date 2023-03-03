@@ -344,7 +344,7 @@ Can be used inside API middleware to refresh user's authentication cookies. Usef
 
 Usage in [static pages example](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next13-typescript-static-pages/pages/api/refresh-tokens.ts)
 
-`refreshAuthCookies` updates api response with refreshed authentication cookie headers. It also returns new `idToken` and `refreshToken` in case you need them.
+Using refreshAuthCookies automatically sets Set-Cookie headers with updated cookies in api response. Additionally, it returns a set of updated idToken and refreshToken, in case you want to do something with it
 
 ```typescript
 // pages/api/refresh-tokens.ts
