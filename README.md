@@ -169,7 +169,7 @@ Below is example implementation of custom AuthProvider component that handles th
 
 `GET /api/login` endpoint should be called with firebase token (see examples below). It responds with `Set-Cookie` header containing encrypted cookies.
 
-`GET /api/logout` removes authentication cookies. Make sure to sign out the user from firebase before clearing the cookies.
+`GET /api/logout` removes authentication cookies. Make sure to sign out the user from firebase before calling the endpoint.
 
 You can see a working demo at [next-firebase-auth-edge-static-demo.vercel.app](https://next-firebase-auth-edge-static-demo.vercel.app/)
 
