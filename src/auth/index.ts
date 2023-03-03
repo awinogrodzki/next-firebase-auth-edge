@@ -278,10 +278,10 @@ export function getFirebaseAuth(
   }
 
   async function getCustomIdAndRefreshTokens(
-    token: string,
+    idToken: string,
     firebaseApiKey: string
   ) {
-    const tenant = await verifyIdToken(token);
+    const tenant = await verifyIdToken(idToken);
     const customToken = await createCustomToken(tenant.uid);
 
     return customTokenToIdAndRefreshTokens(customToken, firebaseApiKey);

@@ -103,7 +103,7 @@ export async function middleware(request: NextRequest) {
     // Handle unhandled authentication error
     getErrorResponse: async (error) => {
       console.error("Unhandled authentication error", { error });
-      
+
       // Redirect to /login?redirect=/prev-path on unhandled authentication error
       const url = request.nextUrl.clone();
       url.pathname = "/login";
@@ -147,7 +147,7 @@ export const config = {
 ##### Optional
 
 | Name                       | Type                                                                                                                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | redirectOptions            | `{ path: string, paramName: string }` By default `undefined`                                                                                     | Pass if you want to enable redirect to dedicated authentication page. Defines redirect `path` and `paramName` for non-authenticated requests. For example, assuming the `path` is `/login` and `paramName` is `redirect`, if unauthorized user tries to access `/ultra-secure` route, they'd be redirected to `/login?redirect=/ultra-secure`. **This option is deprecated and will be replaced with `getUnauthenticatedResponse` defined below.** |
 | isTokenValid               | `(token: DecodedIdToken) => boolean` By default returns `true` for tokens with `email_verified: true`                                            | Tells the middleware whether user token is valid for the current route. It can be used to deal with custom permissions.                                                                                                                                                                                                                                                                                                                            |
 | checkRevoked               | `boolean` By default `false`                                                                                                                     | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                                                                                                                                                                                                                    |
@@ -301,6 +301,102 @@ export default async function AuthenticatedLayout({
     </html>
   );
 }
+```
+
+### Advanced usage
+
+Authentication middleware might not fully support every use-case. To help you with more complex authentication flows, `next-firebase-auth-edge` provides a set of low-level building blocks.
+
+More detailed documentation is
+
+#### getFirebaseAuth
+
+```typescript
+const {
+  getCustomIdAndRefreshTokens,
+  verifyIdToken,
+  createCustomToken,
+  handleTokenRefresh,
+  deleteUser,
+  verifyAndRefreshExpiredIdToken,
+} = getFirebaseAuth(
+  {
+    projectId: "firebase-project-id",
+    privateKey: "firebase service account private key",
+    clientEmail: "firebase service account client email",
+  },
+  "firebase-api-key"
+);
+```
+
+##### Methods
+
+| Name                           | Type                                                                       | Description                                                                                                                                                                                                                                              |
+| ------------------------------ | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| getCustomIdAndRefreshTokens    | `(idToken: string, firebaseApiKey: string) => Promise<IdAndRefreshTokens>` | Generates a new set of id and refresh tokens for user identified by provided `idToken`                                                                                                                                                                   |
+| verifyIdToken                  | `(idToken: string, checkRevoked?: boolean) => Promise<DecodedIdToken>`     | Verifies provided `idToken`. Throws `FirebaseAuthError`. See source code for types of error.                                                                                                                                                             |
+| createCustomToken              | `(uid: string, developerClaims?: object) => Promise<string>`               | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                          |
+| handleTokenRefresh             | `(refreshToken: string, firebaseApiKey: string) => Promise<Tokens>`        | Receives id and decoded tokens and should return a promise that resolves with NextResponse. You can use this to do something with tokens or provide custom response to the authenticated user                                                            |
+| deleteUser                     | `(uid: string) => Promise<void>`                                           | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, we just redirect user to the login page. This allows you to customize error handling |
+| verifyAndRefreshExpiredIdToken | `(token: string, refreshToken: string) => Promise<Tokens &#124; null>`     | Verifies provided `idToken`. If token is expired, uses `refreshToken` to validate it. Returns `null` if token is not valid.                                                                                                                              |
+
+#### refreshAuthCookies
+
+Can be used inside API middleware to refresh user's authentication cookies. Useful when we want to refresh credentials after updating [custom claims](https://firebase.google.com/docs/auth/admin/custom-claims)
+
+Usage in [static pages example](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next13-typescript-static-pages/pages/api/refresh-tokens.ts)
+
+`refreshAuthCookies` updates api response with refreshed authentication cookie headers. It also returns new `idToken` and `refreshToken` in case you need them.
+
+```typescript
+// pages/api/refresh-tokens.ts
+// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import type { NextApiRequest, NextApiResponse } from "next";
+import { serverConfig } from "../../config/server-config";
+import { refreshAuthCookies } from "next-firebase-auth-edge/lib/next/cookies";
+import { getFirebaseAuth } from "next-firebase-auth-edge/lib/auth";
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const bearerToken = req.headers["authorization"]?.split(" ")[1] ?? "";
+
+  // ...use bearer token to update custom claims using "firebase-admin" library and then:
+
+  const { idToken, refreshToken } = await refreshAuthCookies(bearerToken, res, {
+    serviceAccount: {
+      projectId: "firebase-project-id",
+      privateKey: "firebase service account private key",
+      clientEmail: "firebase service account client email",
+    },
+    apiKey: "firebase-api-key",
+    cookieName: "AuthToken",
+    cookieSignatureKeys: ["secret1", "secret2"],
+    cookieSerializeOptions: {
+      path: "/",
+      httpOnly: true,
+      secure: false, // Set this to true on HTTPS environments
+      sameSite: "strict" as const,
+      maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
+    },
+  });
+
+  // Optionally do something with new `idToken` and `refreshToken`
+
+  res.status(200).json({ example: true });
+}
+```
+
+Make sure to call the endpoint with correct `Authorization` headers:
+
+```typescript
+await fetch("/api/refresh-tokens", {
+  method: "GET",
+  headers: {
+    Authorization: `Bearer ${idToken}`,
+  },
+});
 ```
 
 ### Emulator support
