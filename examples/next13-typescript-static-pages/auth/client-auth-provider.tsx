@@ -64,7 +64,17 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
     if (!firebaseUser && firstLoadRef.current) {
       const { signInAnonymously } = await import("firebase/auth");
       firstLoadRef.current = false;
-      await signInAnonymously(auth);
+      const credential = await signInAnonymously(auth);
+      await fetch("/api/login", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${
+            (
+              await credential.user.getIdTokenResult()
+            ).token
+          }`,
+        },
+      });
       return;
     }
 
@@ -78,12 +88,6 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
 
     firstLoadRef.current = false;
     const tokenResult = await firebaseUser.getIdTokenResult();
-    await fetch("/api/login", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${tokenResult.token}`,
-      },
-    });
     startTransition(() => {
       setTenant(mapFirebaseResponseToTenant(tokenResult, firebaseUser));
     });

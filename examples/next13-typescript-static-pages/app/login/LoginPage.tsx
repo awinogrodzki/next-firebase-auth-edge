@@ -22,11 +22,17 @@ export function LoginPage() {
     setHasLogged(false);
     const { GoogleAuthProvider } = await import("firebase/auth");
     const auth = await getFirebaseAuth();
-    await loginWithProvider(
+    const tenant = await loginWithProvider(
       auth,
       await getGoogleProvider(auth),
       GoogleAuthProvider.credentialFromError
     );
+    await fetch("/api/login", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${tenant.idToken}`,
+      },
+    });
     setHasLogged(true);
   });
 
@@ -65,7 +71,8 @@ export function LoginPage() {
       {hasLogged && (
         <div className={styles.info}>
           <p>
-            Redirecting to <strong>{params.get("redirect") || "/"}</strong> <LoadingIcon />
+            Redirecting to <strong>{params.get("redirect") || "/"}</strong>{" "}
+            <LoadingIcon />
           </p>
         </div>
       )}
