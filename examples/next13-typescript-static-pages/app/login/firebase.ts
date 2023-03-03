@@ -108,7 +108,7 @@ export const loginWithProvider = async (
         const result = await signInWithCredential(auth, credential!);
 
         if (!result.user.photoURL) {
-          await updateProfile(user, {
+          await updateProfile(result.user, {
             photoURL: result.user.providerData
               .map((data) => data.photoURL)
               .filter(Boolean)[0],
