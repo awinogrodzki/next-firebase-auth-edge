@@ -33,21 +33,10 @@ export function LoginPage() {
         Authorization: `Bearer ${tenant.idToken}`,
       },
     });
+    const redirect = params.get("redirect");
+    router.push(redirect ?? "/");
     setHasLogged(true);
   });
-
-  React.useEffect(() => {
-    const redirect = params.get("redirect");
-
-    if (tenant && !tenant.isAnonymous) {
-      router.push(redirect ?? "/");
-      return;
-    }
-
-    if (tenant && showAnonymousInfo) {
-      setShowAnonymousInfo(false);
-    }
-  }, [tenant?.isAnonymous]);
 
   return (
     <div className={styles.page}>
