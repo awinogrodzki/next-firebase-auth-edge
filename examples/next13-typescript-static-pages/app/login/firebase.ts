@@ -76,14 +76,22 @@ export const loginWithProvider = async (
   if (user?.isAnonymous) {
     try {
       // Link anonymous user with given provider
-      const { linkWithPopup, browserPopupRedirectResolver } = await import(
-        "firebase/auth"
-      );
+      const { linkWithPopup, browserPopupRedirectResolver, updateProfile } =
+        await import("firebase/auth");
       const result = await linkWithPopup(
         user,
         provider,
         browserPopupRedirectResolver
       );
+
+      if (!result.user.photoURL) {
+        await updateProfile(user, {
+          photoURL: result.user.providerData
+            .map((data) => data.photoURL)
+            .filter(Boolean)[0],
+        });
+      }
+
       const idTokenResult = await result.user.getIdTokenResult();
       return mapFirebaseResponseToTenant(idTokenResult, result.user!);
     } catch (error: any) {
@@ -94,8 +102,19 @@ export const loginWithProvider = async (
 
         await user.delete();
 
-        const { signInWithCredential } = await import("firebase/auth");
+        const { signInWithCredential, updateProfile } = await import(
+          "firebase/auth"
+        );
         const result = await signInWithCredential(auth, credential!);
+
+        if (!result.user.photoURL) {
+          await updateProfile(user, {
+            photoURL: result.user.providerData
+              .map((data) => data.photoURL)
+              .filter(Boolean)[0],
+          });
+        }
+
         const idTokenResult = await result.user.getIdTokenResult();
         return mapFirebaseResponseToTenant(idTokenResult, result.user!);
       }
