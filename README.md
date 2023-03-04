@@ -340,7 +340,7 @@ const {
 
 #### refreshAuthCookies
 
-Can be used inside API middleware to refresh user's authentication cookies. Useful when we want to refresh credentials after updating [custom claims](https://firebase.google.com/docs/auth/admin/custom-claims)
+Can be used inside API middleware to refresh user's authentication cookies. Useful when we want to refresh credentials after updating [custom claims](https://firebase.google.com/docs/auth/admin/custom-claims) or user profile data
 
 Usage in [static pages example](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next13-typescript-static-pages/pages/api/refresh-tokens.ts)
 
