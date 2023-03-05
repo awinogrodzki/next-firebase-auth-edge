@@ -3,6 +3,17 @@ import { NextResponse } from "next/server";
 import { authentication } from "next-firebase-auth-edge/lib/next/middleware";
 import { serverConfig } from "./config/server-config";
 
+function redirectToLogin(request: NextRequest) {
+  if (request.nextUrl.pathname === "/login") {
+    return NextResponse.next();
+  }
+
+  const url = request.nextUrl.clone();
+  url.pathname = "/login";
+  url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
+  return NextResponse.redirect(url);
+}
+
 export async function middleware(request: NextRequest) {
   return authentication(request, {
     loginPath: "/api/login",
@@ -20,23 +31,11 @@ export async function middleware(request: NextRequest) {
     serviceAccount: serverConfig.serviceAccount,
     isTokenValid: (token) => token.email_verified ?? false,
     handleInvalidToken: async () => {
-      if (request.nextUrl.pathname === "/login") {
-        return NextResponse.next();
-      }
-
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
-      return NextResponse.redirect(url);
+      return redirectToLogin(request);
     },
     handleError: async (error) => {
       console.error("Unhandled authentication error", { error });
-
-      // Redirect to /login?redirect=/prev-path on unhandled authentication error
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
-      return NextResponse.redirect(url);
+      return redirectToLogin(request);
     },
   });
 }
