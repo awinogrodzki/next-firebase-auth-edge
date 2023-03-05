@@ -19,11 +19,11 @@ export async function middleware(request: NextRequest) {
     },
     serviceAccount: serverConfig.serviceAccount,
     isTokenValid: (token) => Boolean(token),
-    getAuthenticatedResponse: async (tokens) => {
-      console.log("Successfully authenticated", { tokens });
+    handleValidToken: async ({ token, decodedToken }) => {
+      console.log("Successfully authenticated", { token, decodedToken });
       return NextResponse.next();
     },
-    getErrorResponse: async (error) => {
+    handleError: async (error) => {
       console.error("Oops, this should not have happened.", { error });
       return NextResponse.next();
     },

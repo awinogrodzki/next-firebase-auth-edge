@@ -45,21 +45,31 @@ export async function createAuthMiddlewareResponse(
   return NextResponse.next();
 }
 
-export type GetUnauthenticatedResponse = () => Promise<NextResponse>;
+export type HandleInvalidToken = () => Promise<NextResponse>;
+export type GetUnauthenticatedResponse = HandleInvalidToken;
 
-export type GetAuthenticatedResponse = (
-  tokens: Tokens
-) => Promise<NextResponse>;
-export type GetErrorResponse = (e: unknown) => Promise<NextResponse>;
+export type HandleValidToken = (tokens: Tokens) => Promise<NextResponse>;
+export type GetAuthenticatedResponse = HandleValidToken;
+
+export type HandleError = (e: unknown) => Promise<NextResponse>;
+export type GetErrorResponse = HandleError;
 
 export interface AuthenticationOptions
   extends CreateAuthMiddlewareOptions,
     GetTokensOptions {
-  redirectOptions?: RedirectToLoginOptions;
   checkRevoked?: boolean;
   isTokenValid?: (token: DecodedIdToken) => boolean;
+  handleInvalidToken?: HandleInvalidToken;
+  handleValidToken?: HandleValidToken;
+  handleError?: HandleError;
+
+  /** @deprecated Will be replaced by handleInvalidToken in v1.x.x **/
+  redirectOptions?: RedirectToLoginOptions;
+  /** @deprecated Will be replaced by handleInvalidToken in v1.x.x **/
   getUnauthenticatedResponse?: GetUnauthenticatedResponse;
+  /** @deprecated Will be replaced by handleValidToken in v1.x.x **/
   getAuthenticatedResponse?: GetAuthenticatedResponse;
+  /** @deprecated Will be replaced by handleError in v1.x.x **/
   getErrorResponse?: GetErrorResponse;
 }
 
@@ -83,10 +93,10 @@ function hasVerifiedEmail(token: DecodedIdToken) {
   return token.email_verified;
 }
 
-const getDefaultAuthenticatedResponse: GetAuthenticatedResponse = async () =>
+const defaultValidTokenHandler: HandleValidToken = async () =>
   NextResponse.next();
-const getDefaultErrorResponse =
-  (request: NextRequest, options?: RedirectToLoginOptions): GetErrorResponse =>
+const getDefaultErrorHandler =
+  (request: NextRequest, options?: RedirectToLoginOptions): HandleError =>
   async () =>
     options ? redirectToLogin(request, options) : NextResponse.next();
 
@@ -101,20 +111,30 @@ export async function authentication(
   request: NextRequest,
   options: AuthenticationOptions
 ): Promise<NextResponse> {
-  const isTokenValid = options.isTokenValid ?? hasVerifiedEmail;
-  const getAuthenticatedResponse =
-    options.getAuthenticatedResponse ?? getDefaultAuthenticatedResponse;
-  const getErrorResponse =
-    options.getErrorResponse ??
-    getDefaultErrorResponse(request, options.redirectOptions);
-
   if (options.redirectOptions && options.getUnauthenticatedResponse) {
     throw new Error(
-      "You cannot provide both redirectOptions and getUnauthenticatedResponse options. If you use both, probably getUnauthenticatedResponse is what you're looking for."
+      "You cannot use redirectOptions together with getUnauthenticatedResponse"
     );
   }
 
-  const getUnauthenticatedResponse =
+  if (options.redirectOptions && options.handleInvalidToken) {
+    throw new Error(
+      "You cannot use redirectOptions together with handleInvalidToken"
+    );
+  }
+
+  const isTokenValid = options.isTokenValid ?? hasVerifiedEmail;
+  const handleValidToken =
+    options.handleValidToken ??
+    options.getAuthenticatedResponse ??
+    defaultValidTokenHandler;
+  const handleError =
+    options.handleError ??
+    options.getErrorResponse ??
+    getDefaultErrorHandler(request, options.redirectOptions);
+
+  const handleInvalidToken =
+    options.handleInvalidToken ??
     options.getUnauthenticatedResponse ??
     (() =>
       redirectToLoginOrReturnEmptyResponse(request, options.redirectOptions));
@@ -143,7 +163,7 @@ export async function authentication(
   );
 
   if (!idAndRefreshTokens) {
-    return getUnauthenticatedResponse();
+    return handleInvalidToken();
   }
 
   return handleExpiredToken(
@@ -154,10 +174,10 @@ export async function authentication(
       );
 
       if (!isTokenValid(decodedToken)) {
-        return getUnauthenticatedResponse();
+        return handleInvalidToken();
       }
 
-      return getAuthenticatedResponse({
+      return handleValidToken({
         token: idAndRefreshTokens.idToken,
         decodedToken,
       });
@@ -169,11 +189,11 @@ export async function authentication(
       );
 
       if (!isTokenValid(decodedToken)) {
-        return getUnauthenticatedResponse();
+        return handleInvalidToken();
       }
 
       return appendAuthCookies(
-        await getAuthenticatedResponse({ token, decodedToken }),
+        await handleValidToken({ token, decodedToken }),
         {
           idToken: token,
           refreshToken: idAndRefreshTokens.refreshToken,
@@ -182,7 +202,7 @@ export async function authentication(
       );
     },
     async (e) => {
-      return getErrorResponse(e);
+      return handleError(e);
     }
   );
 }

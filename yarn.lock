@@ -3172,6 +3172,15 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
+next-firebase-auth-edge@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-0.5.0.tgz#260ed81d76d3743df734e0f826a0b351a50bc93f"
+  integrity sha512-eu718S7gBKsOvmTlky6roykYBHjQ0OlZ8TsZXoPelQYhP0igkS7+MbMgNKlnsHg8iturA8znCb13fr9h+ZAqeA==
+  dependencies:
+    "@changesets/cli" "^2.25.2"
+    "@peculiar/webcrypto" "^1.4.1"
+    cookie "^0.5.0"
+
 next@^13.1.1:
   version "13.1.2"
   resolved "https://registry.yarnpkg.com/next/-/next-13.1.2.tgz#4105b0cf238bb2f58d5e12dbded8cabb9785f2d9"

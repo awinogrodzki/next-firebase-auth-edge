@@ -95,28 +95,30 @@ export async function middleware(request: NextRequest) {
     // Optional
     isTokenValid: (token) => token.email_verified ?? false,
     checkRevoked: false,
-    // Handle request with valid tokens
-    getAuthenticatedResponse: async (tokens) => {
-      console.log("Successfully authenticated", { tokens });
+    handleValidToken: async ({ token, decodedToken }) => {
+      console.log("Successfully authenticated", { token, decodedToken });
       return NextResponse.next();
     },
-    // Handle unhandled authentication error
-    getErrorResponse: async (error) => {
-      console.error("Unhandled authentication error", { error });
-
-      // Redirect to /login?redirect=/prev-path on unhandled authentication error
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
-      return NextResponse.redirect(url);
-    },
-    // Handle missing or expired credentials
-    getUnauthenticatedResponse: async () => {
+    handleInvalidToken: async () => {
+      // Avoid redirect loop
       if (request.nextUrl.pathname === "/login") {
         return NextResponse.next();
       }
 
       // Redirect to /login?redirect=/prev-path when request is unauthenticated
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
+      return NextResponse.redirect(url);
+    },
+    handleError: async (error) => {
+      console.error("Unhandled authentication error", { error });
+      // Avoid redirect loop
+      if (request.nextUrl.pathname === "/login") {
+        return NextResponse.next();
+      }
+
+      // Redirect to /login?redirect=/prev-path on unhandled authentication error
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
@@ -146,14 +148,14 @@ export const config = {
 
 ##### Optional
 
-| Name                       | Type                                                                                                                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| redirectOptions            | `{ path: string, paramName: string }` By default `undefined`                                                                                     | Pass if you want to enable redirect to dedicated authentication page. Defines redirect `path` and `paramName` for non-authenticated requests. For example, assuming the `path` is `/login` and `paramName` is `redirect`, if unauthorized user tries to access `/ultra-secure` route, they'd be redirected to `/login?redirect=/ultra-secure`. **This option is deprecated and will be replaced with `getUnauthenticatedResponse` defined below.** |
-| isTokenValid               | `(token: DecodedIdToken) => boolean` By default returns `true` for tokens with `email_verified: true`                                            | Tells the middleware whether user token is valid for the current route. It can be used to deal with custom permissions.                                                                                                                                                                                                                                                                                                                            |
-| checkRevoked               | `boolean` By default `false`                                                                                                                     | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                                                                                                                                                                                                                    |
-| getAuthenticatedResponse   | `(tokens: { token: string, decodedToken: DecodedIdToken }) => Promise<NextResponse>` By default returns `NextResponse.next()`                    | Receives id and decoded tokens and should return a promise that resolves with NextResponse. You can use this to do something with tokens or provide custom response to the authenticated user                                                                                                                                                                                                                                                      |
-| getErrorResponse           | `(error: unknown) => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, we just redirect user to the login page. This allows you to customize error handling                                                                                                                                                                                           |
-| getUnauthenticatedResponse | `() => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present               | If passed, is called and returned if user has not been authenticated with `isTokenValid` or there are no credentials in request cookies. Can be used to redirect unauthenticated users to specific page or pages. **Cannot be used together with redirectOptions**                                                                                                                                                                                 |
+| Name               | Type                                                                                                                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| redirectOptions    | `{ path: string, paramName: string }` By default `undefined`                                                                                     | Pass if you want to enable redirect to dedicated authentication page. Defines redirect `path` and `paramName` for non-authenticated requests. For example, assuming the `path` is `/login` and `paramName` is `redirect`, if unauthorized user tries to access `/ultra-secure` route, they'd be redirected to `/login?redirect=/ultra-secure`. **This option is deprecated and will be replaced with `handleInvalidToken` defined below.** |
+| isTokenValid       | `(token: DecodedIdToken) => boolean` By default returns `true` for tokens with `email_verified: true`                                            | Tells the middleware whether user token is valid for the current route. It can be used to deal with custom permissions.                                                                                                                                                                                                                                                                                                                   |
+| checkRevoked       | `boolean` By default `false`                                                                                                                     | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                                                                                                                                                                                                           |
+| handleValidToken   | `(tokens: { token: string, decodedToken: DecodedIdToken }) => Promise<NextResponse>` By default returns `NextResponse.next()`                    | Receives id and decoded tokens and should return a promise that resolves with NextResponse.                                                                                                                                                                                                                                         |
+| handleInvalidToken | `() => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present               | If passed, is called and returned if user has not been authenticated with `isTokenValid` or there are no credentials in request cookies. Can be used to redirect unauthenticated users to specific page or pages. **Cannot be used together with redirectOptions**                                                                                                                                                                        |
+| handleError        | `(error: unknown) => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, we just redirect user to the login page. This allows you to customize error handling                                                                                                                                                                                  |
 
 #### Troubleshooting
 
@@ -329,14 +331,14 @@ const {
 
 ##### Methods
 
-| Name                            | Type                                                                       | Description                                                                                                                  |
-|---------------------------------|----------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| getCustomIdAndRefreshTokens     | `(idToken: string, firebaseApiKey: string) => Promise<IdAndRefreshTokens>` | Generates a new set of id and refresh tokens for user identified by provided `idToken`                                       |
-| verifyIdToken                   | `(idToken: string, checkRevoked?: boolean) => Promise<DecodedIdToken>`     | Verifies provided `idToken`. Throws `FirebaseAuthError`. See source code for possible error types.                           |
-| createCustomToken               | `(uid: string, developerClaims?: object) => Promise<string>`               | Creates a custom token for given firebase user. Optionally, it's possible to attach additional `developerClaims`             |
-| handleTokenRefresh              | `(refreshToken: string, firebaseApiKey: string) => Promise<Tokens>`        | Returns id `token` and `decodedToken` for given `refreshToken`                                                               |
-| deleteUser                      | `(uid: string) => Promise<void>`                                           | Deletes user                                                                                                                 |
-| verifyAndRefreshExpiredIdToken  | `(token: string, refreshToken: string) => Promise<Tokens &#124; null>`     | Verifies provided `idToken`. If token is expired, uses `refreshToken` to validate it. Returns `null` if token is not valid.  |
+| Name                           | Type                                                                       | Description                                                                                                                 |
+| ------------------------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| getCustomIdAndRefreshTokens    | `(idToken: string, firebaseApiKey: string) => Promise<IdAndRefreshTokens>` | Generates a new set of id and refresh tokens for user identified by provided `idToken`                                      |
+| verifyIdToken                  | `(idToken: string, checkRevoked?: boolean) => Promise<DecodedIdToken>`     | Verifies provided `idToken`. Throws `FirebaseAuthError`. See source code for possible error types.                          |
+| createCustomToken              | `(uid: string, developerClaims?: object) => Promise<string>`               | Creates a custom token for given firebase user. Optionally, it's possible to attach additional `developerClaims`            |
+| handleTokenRefresh             | `(refreshToken: string, firebaseApiKey: string) => Promise<Tokens>`        | Returns id `token` and `decodedToken` for given `refreshToken`                                                              |
+| deleteUser                     | `(uid: string) => Promise<void>`                                           | Deletes user                                                                                                                |
+| verifyAndRefreshExpiredIdToken | `(token: string, refreshToken: string) => Promise<Tokens &#124; null>`     | Verifies provided `idToken`. If token is expired, uses `refreshToken` to validate it. Returns `null` if token is not valid. |
 
 #### refreshAuthCookies
 
