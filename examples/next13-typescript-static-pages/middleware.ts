@@ -19,20 +19,20 @@ export async function middleware(request: NextRequest) {
     },
     serviceAccount: serverConfig.serviceAccount,
     isTokenValid: (token) => token.email_verified ?? false,
-    getErrorResponse: async (error) => {
-      console.error("Unhandled authentication error", { error });
+    handleInvalidToken: async () => {
+      if (request.nextUrl.pathname === "/login") {
+        return NextResponse.next();
+      }
 
-      // Redirect to /login?redirect=/prev-path on unhandled authentication error
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
       return NextResponse.redirect(url);
     },
-    getUnauthenticatedResponse: async () => {
-      if (request.nextUrl.pathname === "/login") {
-        return NextResponse.next();
-      }
+    handleError: async (error) => {
+      console.error("Unhandled authentication error", { error });
 
+      // Redirect to /login?redirect=/prev-path on unhandled authentication error
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.search = `redirect=${request.nextUrl.pathname}${url.search}`;

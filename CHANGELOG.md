@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.5.0
+
+### Minor Changes
+
+- Rename methods from getAuthenticatedResponse, getUnauthenticatedResponse and getErrorResponse to more readable handleValidToken, handleInvalidToken and handleError functions
+
 ## 0.4.4
 
 ### Patch Changes
