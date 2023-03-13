@@ -157,7 +157,11 @@ export async function handleExpiredToken<T>(
         return onError(e);
       case "auth/id-token-expired":
       case "auth/argument-error":
-        return onExpired(e);
+        try {
+          return await onExpired(e);
+        } catch (e) {
+          return onError(e);
+        }
       default:
         return onError(e);
     }
