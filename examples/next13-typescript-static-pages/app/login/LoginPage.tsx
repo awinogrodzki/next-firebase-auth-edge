@@ -33,8 +33,9 @@ export function LoginPage() {
         Authorization: `Bearer ${tenant.idToken}`,
       },
     });
+    setShowAnonymousInfo(false);
     setHasLogged(true);
-    const redirect = params.get("redirect");
+    const redirect = params?.get("redirect");
     router.push(redirect ?? "/");
   });
 
@@ -60,7 +61,7 @@ export function LoginPage() {
       {hasLogged && (
         <div className={styles.info}>
           <p>
-            Redirecting to <strong>{params.get("redirect") || "/"}</strong>{" "}
+            Redirecting to <strong>{params?.get("redirect") || "/"}</strong>{" "}
             <LoadingIcon />
           </p>
         </div>
