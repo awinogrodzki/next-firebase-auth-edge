@@ -14,7 +14,6 @@ import { LoadingIcon } from "../../ui/icons";
 export function LoginPage() {
   const router = useRouter();
   const params = useSearchParams();
-  const [showAnonymousInfo, setShowAnonymousInfo] = React.useState(true);
   const [hasLogged, setHasLogged] = React.useState(false);
   const { tenant } = useAuth();
   const { getFirebaseAuth } = useFirebaseAuth(clientConfig);
@@ -33,7 +32,6 @@ export function LoginPage() {
         Authorization: `Bearer ${tenant.idToken}`,
       },
     });
-    setShowAnonymousInfo(false);
     setHasLogged(true);
     const redirect = params?.get("redirect");
     router.push(redirect ?? "/");
@@ -42,7 +40,7 @@ export function LoginPage() {
   return (
     <div className={styles.page}>
       <h2>next-firebase-auth-edge example login page</h2>
-      {!tenant && showAnonymousInfo && (
+      {!tenant && !isLoading && !hasLogged && (
         <div className={styles.info}>
           <p>
             No user found. Singing in as anonymous... <LoadingIcon />
