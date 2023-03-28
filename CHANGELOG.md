@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.6.0
+
+### Minor Changes
+
+- Added setCustomUserClaims, getUser and refreshAuthCookies Edge-runtime compatible methods
+
 ## 0.5.1
 
 ### Patch Changes
