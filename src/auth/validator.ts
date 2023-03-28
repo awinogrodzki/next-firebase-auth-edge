@@ -22,6 +22,21 @@ export function isUid(uid: any): boolean {
   return typeof uid === "string" && uid.length > 0 && uid.length <= 128;
 }
 
+export function isNumber(value: any): boolean {
+  return typeof value === "number" && !isNaN(value);
+}
+
+export function isISODateString(dateString: any): boolean {
+  try {
+    return (
+      isNonEmptyString(dateString) &&
+      new Date(dateString).toISOString() === dateString
+    );
+  } catch (e) {
+    return false;
+  }
+}
+
 export function isURL(urlStr: any): boolean {
   if (typeof urlStr !== "string") {
     return false;
@@ -55,4 +70,27 @@ export function isURL(urlStr: any): boolean {
     return false;
   }
   return true;
+}
+
+export function isEmail(email: any): boolean {
+  if (typeof email !== "string") {
+    return false;
+  }
+
+  const re = /^[^@]+@[^@]+$/;
+  return re.test(email);
+}
+
+export function isPhoneNumber(phoneNumber: any): boolean {
+  if (typeof phoneNumber !== "string") {
+    return false;
+  }
+
+  const re1 = /^\+/;
+  const re2 = /[\da-zA-Z]+/;
+  return re1.test(phoneNumber) && re2.test(phoneNumber);
+}
+
+export function isPassword(password: any): boolean {
+  return typeof password === "string" && password.length >= 6;
 }

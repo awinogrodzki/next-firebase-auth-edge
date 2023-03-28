@@ -148,14 +148,14 @@ export const config = {
 
 ##### Optional
 
-| Name               | Type                                                                                                                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Name               | Type                                                                                                                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | redirectOptions    | `{ path: string, paramName: string }` By default `undefined`                                                                                     | Pass if you want to enable redirect to dedicated authentication page. Defines redirect `path` and `paramName` for non-authenticated requests. For example, assuming the `path` is `/login` and `paramName` is `redirect`, if unauthorized user tries to access `/ultra-secure` route, they'd be redirected to `/login?redirect=/ultra-secure`. **This option is deprecated and will be replaced with `handleInvalidToken` defined below.** |
-| isTokenValid       | `(token: DecodedIdToken) => boolean` By default returns `true` for tokens with `email_verified: true`                                            | Tells the middleware whether user token is valid for the current route. It can be used to deal with custom permissions.                                                                                                                                                                                                                                                                                                                   |
-| checkRevoked       | `boolean` By default `false`                                                                                                                     | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                                                                                                                                                                                                           |
-| handleValidToken   | `(tokens: { token: string, decodedToken: DecodedIdToken }) => Promise<NextResponse>` By default returns `NextResponse.next()`                    | Receives id and decoded tokens and should return a promise that resolves with NextResponse.                                                                                                                                                                                                                                         |
-| handleInvalidToken | `() => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present               | If passed, is called and returned if user has not been authenticated with `isTokenValid` or there are no credentials in request cookies. Can be used to redirect unauthenticated users to specific page or pages. **Cannot be used together with redirectOptions**                                                                                                                                                                        |
-| handleError        | `(error: unknown) => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, we just redirect user to the login page. This allows you to customize error handling                                                                                                                                                                                  |
+| isTokenValid       | `(token: DecodedIdToken) => boolean` By default returns `true` for tokens with `email_verified: true`                                            | Tells the middleware whether user token is valid for the current route. It can be used to deal with custom permissions.                                                                                                                                                                                                                                                                                                                    |
+| checkRevoked       | `boolean` By default `false`                                                                                                                     | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                                                                                                                                                                                                            |
+| handleValidToken   | `(tokens: { token: string, decodedToken: DecodedIdToken }) => Promise<NextResponse>` By default returns `NextResponse.next()`                    | Receives id and decoded tokens and should return a promise that resolves with NextResponse.                                                                                                                                                                                                                                                                                                                                                |
+| handleInvalidToken | `() => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present               | If passed, is called and returned if user has not been authenticated with `isTokenValid` or there are no credentials in request cookies. Can be used to redirect unauthenticated users to specific page or pages. **Cannot be used together with redirectOptions**                                                                                                                                                                         |
+| handleError        | `(error: unknown) => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, we just redirect user to the login page. This allows you to customize error handling                                                                                                                                                                                   |
 
 #### Troubleshooting
 
@@ -317,8 +317,10 @@ const {
   verifyIdToken,
   createCustomToken,
   handleTokenRefresh,
+  getUser,
   deleteUser,
   verifyAndRefreshExpiredIdToken,
+  setCustomUserClaims,
 } = getFirebaseAuth(
   {
     projectId: "firebase-project-id",
@@ -337,10 +339,83 @@ const {
 | verifyIdToken                  | `(idToken: string, checkRevoked?: boolean) => Promise<DecodedIdToken>`     | Verifies provided `idToken`. Throws `FirebaseAuthError`. See source code for possible error types.                          |
 | createCustomToken              | `(uid: string, developerClaims?: object) => Promise<string>`               | Creates a custom token for given firebase user. Optionally, it's possible to attach additional `developerClaims`            |
 | handleTokenRefresh             | `(refreshToken: string, firebaseApiKey: string) => Promise<Tokens>`        | Returns id `token` and `decodedToken` for given `refreshToken`                                                              |
+| getUser                        | `(uid: string) => Promise<UserRecord>`                                     | Returns Firebase UserRecord by uid                                                                                          |
 | deleteUser                     | `(uid: string) => Promise<void>`                                           | Deletes user                                                                                                                |
-| verifyAndRefreshExpiredIdToken | `(token: string, refreshToken: string) => Promise<Tokens &#124; null>`     | Verifies provided `idToken`. If token is expired, uses `refreshToken` to validate it. Returns `null` if token is not valid. |
+| setCustomUserClaims            | `(uid: string, customClaims: object ∣ null) => Promise<void>`              | Sets custom claims for given user. Overwrites existing values. Use `getUser` to fetch current claims                        |
+| verifyAndRefreshExpiredIdToken | `(token: string, refreshToken: string) => Promise<Tokens ∣ null>`          | Verifies provided `idToken`. If token is expired, uses `refreshToken` to validate it. Returns `null` if token is not valid. |
 
-#### refreshAuthCookies
+#### refreshAuthCookies in middleware
+
+Can be used inside Next.js Edge runtime to refresh user's authentication cookies. Useful when we want to refresh credentials after updating [custom claims](https://firebase.google.com/docs/auth/admin/custom-claims) with `setCustomUserClaims` function
+
+Usage in [static pages example](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next13-typescript-static-pages/middleware.ts)
+
+Using refreshAuthCookies automatically sets Set-Cookie headers with updated cookies in response. Additionally, it returns a set of updated idToken and refreshToken, in case you want to do something with it
+
+```typescript
+// middleware.ts
+import type { NextRequest } from "next/server";
+import {
+  authentication,
+  refreshAuthCookies,
+} from "next-firebase-auth-edge/lib/next/middleware";
+import { getFirebaseAuth } from "next-firebase-auth-edge/lib/auth";
+
+const commonOptions = {
+  apiKey: "firebase-api-key",
+  cookieName: "AuthToken",
+  cookieSignatureKeys: ["secret1", "secret2"],
+  cookieSerializeOptions: {
+    path: "/",
+    httpOnly: true,
+    secure: false, // Set this to true on HTTPS environments
+    sameSite: "strict" as const,
+    maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
+  },
+  serviceAccount: {
+    projectId: "firebase-project-id",
+    privateKey: "firebase service account private key",
+    clientEmail: "firebase service account client email",
+  },
+};
+
+const { setCustomUserClaims, getUser } = getFirebaseAuth(
+  commonOptions.serviceAccount,
+  commonOptions.apiKey
+);
+
+export async function middleware(request: NextRequest) {
+  return authentication(request, {
+    loginPath: "/api/login",
+    logoutPath: "/api/logout",
+    handleValidToken: async ({ token, decodedToken }) => {
+      if (request.nextUrl.pathname === "/api/custom-claims") {
+        await setCustomUserClaims(decodedToken.uid, {
+          someClaims: ["someValue"],
+        });
+
+        const user = await getUser(decodedToken.uid);
+        const response = new NextResponse(JSON.stringify(user.customClaims), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+
+        await refreshAuthCookies(token, response, commonOptions);
+        return response;
+      }
+
+      return NextResponse.next();
+    },
+    ...commonOptions,
+  });
+}
+
+export const config = {
+  matcher: ["/", "/((?!_next/static|favicon.ico|logo.svg).*)"],
+};
+```
+
+#### refreshAuthCookies in API handler
 
 Can be used inside API middleware to refresh user's authentication cookies. Useful when we want to refresh credentials after updating [custom claims](https://firebase.google.com/docs/auth/admin/custom-claims) or user profile data
 
