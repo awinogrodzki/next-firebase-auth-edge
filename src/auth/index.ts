@@ -295,6 +295,13 @@ export function getFirebaseAuth(
     await authRequestHandler.deleteAccount(uid);
   }
 
+  async function setCustomUserClaims(
+    uid: string,
+    customUserClaims: object | null
+  ) {
+    await authRequestHandler.setCustomUserClaims(uid, customUserClaims);
+  }
+
   return {
     verifyAndRefreshExpiredIdToken,
     verifyIdToken,
@@ -302,5 +309,7 @@ export function getFirebaseAuth(
     getCustomIdAndRefreshTokens,
     handleTokenRefresh,
     deleteUser,
+    setCustomUserClaims,
+    getUser,
   };
 }

@@ -6,9 +6,15 @@ import {
   appendAuthCookies,
   removeAuthCookies,
   setAuthCookies,
+  SetAuthCookiesOptions,
 } from "./cookies";
 import { getRequestCookiesTokens, GetTokensOptions } from "./tokens";
-import { getFirebaseAuth, handleExpiredToken, Tokens } from "../auth";
+import {
+  getFirebaseAuth,
+  handleExpiredToken,
+  IdAndRefreshTokens,
+  Tokens,
+} from "../auth";
 import { DecodedIdToken } from "../auth/token-verifier";
 
 export interface CreateAuthMiddlewareOptions {
@@ -76,6 +82,25 @@ export interface AuthenticationOptions
 export interface RedirectToLoginOptions {
   paramName: string;
   path: string;
+}
+
+export async function refreshAuthCookies(
+  idToken: string,
+  response: NextResponse,
+  options: SetAuthCookiesOptions
+): Promise<IdAndRefreshTokens> {
+  const { getCustomIdAndRefreshTokens } = getFirebaseAuth(
+    options.serviceAccount,
+    options.apiKey
+  );
+  const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
+    idToken,
+    options.apiKey
+  );
+
+  await appendAuthCookies(response, idAndRefreshTokens, options);
+
+  return idAndRefreshTokens;
 }
 
 export function redirectToLogin(
