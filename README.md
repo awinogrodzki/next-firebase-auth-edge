@@ -488,4 +488,6 @@ FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
 `FIREBASE_AUTH_EMULATOR_HOST` is used internally by the library
 `NEXT_PUBLIC_EMULATOR_HOST` is used only by provided example
 
+Please note that even in emulator mode, library needs actual service account credentials to sign tokens with x509 certificate fetched from Google, a step that does not currently support emulation. Make sure to provide valid service account credentials even if using emulator.
+
 Also, don't forget to put correct Firebase Project ID in `.firebaserc` file.
