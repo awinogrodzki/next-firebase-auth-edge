@@ -305,6 +305,38 @@ export default async function AuthenticatedLayout({
 }
 ```
 
+### API Routes
+
+```typescript
+import { NextApiRequest, NextApiResponse } from "next";
+import { getTokensFromObject } from "next-firebase-auth-edge/lib/next/tokens";
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const tokens = await getTokensFromObject(req.cookies, {
+    apiKey: "firebase-api-key",
+    cookieName: "AuthToken",
+    cookieSignatureKeys: ["secret1", "secret2"],
+    cookieSerializeOptions: {
+      path: "/",
+      httpOnly: true,
+      secure: false, // Set this to true on HTTPS environments
+      sameSite: "strict" as const,
+      maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
+    },
+    serviceAccount: {
+      projectId: "firebase-project-id",
+      privateKey: "firebase service account private key",
+      clientEmail: "firebase service account client email",
+    },
+  });
+
+  return res.status(200).json({ tokens });
+}
+```
+
 ### Advanced usage
 
 Authentication middleware might not fully support every use-case. To help you with more complex authentication flows, `next-firebase-auth-edge` provides a set of low-level building blocks.
