@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.6.1
+
+### Patch Changes
+
+- Fix ReadonlyRequestCookies imports after update to Next.js 13.3.0
+
 ## 0.6.0
 
 ### Minor Changes
