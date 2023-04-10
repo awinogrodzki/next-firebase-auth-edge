@@ -307,6 +307,8 @@ export default async function AuthenticatedLayout({
 
 ### API Routes
 
+Library provides `getTokensFromObject` function that allows us to authenticate users inside API routes.
+
 ```typescript
 import { NextApiRequest, NextApiResponse } from "next";
 import { getTokensFromObject } from "next-firebase-auth-edge/lib/next/tokens";
