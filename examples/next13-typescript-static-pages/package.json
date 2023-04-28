@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "local-https-proxy": "local-ssl-proxy --source 8080 --target 3000 --cert localhost.pem --key localhost-key.pem",
     "dev": "next dev",
     "dev-turbo": "next dev --turbo",
     "build": "next build",

@@ -1,0 +1,21 @@
+{
+  "name": "next13-typescript-redirect",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "local-https-proxy": "local-ssl-proxy --source 3002 --target 3001 --cert node.local.pem --key node.local-key.pem",
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@types/node": "18.11.9",
+    "@types/react": "18.0.25",
+    "@types/react-dom": "18.0.9",
+    "next": "^13.2.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "4.9.3"
+  }
+}

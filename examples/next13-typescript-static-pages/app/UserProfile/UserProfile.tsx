@@ -8,8 +8,10 @@ import { useLoadingCallback } from "react-loading-hook";
 import { clientConfig } from "../../config/client-config";
 import { Button } from "../../ui/button";
 import { LoadingIcon } from "../../ui/icons";
+import { useRouter } from "next/navigation";
 
 export function UserProfile() {
+  const router = useRouter();
   const { tenant } = useAuth();
   const { getFirebaseAuth } = useFirebaseAuth(clientConfig);
   const [hasLoggedOut, setHasLoggedOut] = React.useState(false);
@@ -49,6 +51,12 @@ export function UserProfile() {
       },
     });
   });
+
+  function handleRedirect() {
+    router.push(
+      `${clientConfig.redirectUrl}?redirect_url=${window.location.href}`
+    );
+  }
 
   if (!tenant && hasLoggedOut) {
     return (
@@ -95,6 +103,7 @@ export function UserProfile() {
         >
           Log out
         </Button>
+        <Button onClick={handleRedirect}>Redirect</Button>
       </div>
     </div>
   );
