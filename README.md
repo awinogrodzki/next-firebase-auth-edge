@@ -339,11 +339,12 @@ export default async function handler(
   return res.status(200).json({ tokens });
 }
 ```
-import { GetServerSidePropsContext } from 'next';
-import { getTokensFromObject } from 'next-firebase-auth-edge/lib/next/tokens';
 
 GetServerSideProps example
 ```typescript
+import { GetServerSidePropsContext } from 'next';
+import { getTokensFromObject } from 'next-firebase-auth-edge/lib/next/tokens';
+
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const tokens = await getTokensFromObject(context.req.cookies, {
     serviceAccount: {
