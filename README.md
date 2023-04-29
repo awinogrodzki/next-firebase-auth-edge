@@ -322,13 +322,6 @@ export default async function handler(
     apiKey: "firebase-api-key",
     cookieName: "AuthToken",
     cookieSignatureKeys: ["secret1", "secret2"],
-    cookieSerializeOptions: {
-      path: "/",
-      httpOnly: true,
-      secure: false, // Set this to true on HTTPS environments
-      sameSite: "strict" as const,
-      maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
-    },
     serviceAccount: {
       projectId: "firebase-project-id",
       privateKey: "firebase service account private key",
@@ -347,12 +340,14 @@ import { getTokensFromObject } from 'next-firebase-auth-edge/lib/next/tokens';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const tokens = await getTokensFromObject(context.req.cookies, {
+    apiKey: "firebase-api-key",
+    cookieName: "AuthToken",
+    cookieSignatureKeys: ["secret1", "secret2"],
     serviceAccount: {
       projectId: "firebase-project-id",
       privateKey: "firebase service account private key",
       clientEmail: "firebase service account client email",
     },
-    apiKey: "firebase-api-key",
   });
   
   return { props: {} };
