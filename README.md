@@ -309,7 +309,7 @@ export default async function AuthenticatedLayout({
 
 Library provides `getTokensFromObject` function that allows us to authenticate users inside API routes or getServerSideProps.
 
-API Route example
+#### API Route example
 ```typescript
 import { NextApiRequest, NextApiResponse } from "next";
 import { getTokensFromObject } from "next-firebase-auth-edge/lib/next/tokens";
@@ -340,7 +340,7 @@ export default async function handler(
 }
 ```
 
-GetServerSideProps example
+#### GetServerSideProps example
 ```typescript
 import { GetServerSidePropsContext } from 'next';
 import { getTokensFromObject } from 'next-firebase-auth-edge/lib/next/tokens';
@@ -355,7 +355,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     apiKey: "firebase-api-key",
   });
   
-  return { props: {} }
+  return { props: {} };
 }
 ```
 
