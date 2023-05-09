@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.6.2
+
+### Patch Changes
+
+- Update engines to support Node 19
+
 ## 0.6.1
 
 ### Patch Changes
