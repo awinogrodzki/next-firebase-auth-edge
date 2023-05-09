@@ -2,7 +2,7 @@
 
 Next.js 13 Firebase Authentication for Edge and server runtimes. Dedicated for Next 13 server components. Compatible with Next.js middleware.
 
-<a href="https://www.npmjs.com/package/next-firebase-auth-edge" target="_blank">![npm](https://nodei.co/npm/next-firebase-auth-edge.png)</a>
+<a href="https://www.npmjs.com/package/next-firebase-auth-edge">![npm](https://nodei.co/npm/next-firebase-auth-edge.png)</a>
 
 ## Example
 
