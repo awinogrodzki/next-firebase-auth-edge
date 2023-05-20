@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.7.1
+
+### Patch Changes
+
+- Added @edge-runtime/primitives to dependencies
+
 ## 0.7.0
 
 ### Minor Changes
