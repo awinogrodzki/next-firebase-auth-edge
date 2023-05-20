@@ -1,4 +1,5 @@
-import { Crypto } from "@peculiar/webcrypto"
-import 'isomorphic-fetch';
+import * as runtime from "@edge-runtime/ponyfill";
+import "isomorphic-fetch";
 
-(global as any).crypto = new Crypto()
+(global as any).crypto = runtime.crypto;
+(global as any).caches = runtime.caches;

@@ -3,12 +3,20 @@ import { JwtError, JwtErrorCode } from "./jwt/error";
 import { decode } from "./jwt";
 import { verify } from "./jwt/verify";
 import { DecodedJWTHeader } from "./jwt/types";
+import { getResponseCache } from "./response-cache";
 
 export const ALGORITHM_RS256 = "RS256" as const;
 const NO_MATCHING_KID_ERROR_MESSAGE = "no-matching-kid-error";
 const NO_KID_IN_HEADER_ERROR_MESSAGE = "no-kid-in-header-error";
 
 export type Dictionary = { [key: string]: any };
+
+type PublicKeys = { [key: string]: string };
+
+interface PublicKeysResponse {
+  publicKeys: PublicKeys;
+  publicKeysExpireAt: number;
+}
 
 export type DecodedToken = {
   header: Dictionary;
@@ -20,12 +28,30 @@ export interface SignatureVerifier {
 }
 
 interface KeyFetcher {
-  fetchPublicKeys(): Promise<{ [key: string]: string }>;
+  fetchPublicKeys(): Promise<PublicKeys>;
 }
 
-export class UrlKeyFetcher implements KeyFetcher {
-  private publicKeys: { [key: string]: string } = {};
-  private publicKeysExpireAt = 0;
+function getExpiresAt(res: Response) {
+  if (!res.headers.has("cache-control")) {
+    return 0;
+  }
+
+  const cacheControlHeader: string = res.headers.get("cache-control")!;
+  const parts = cacheControlHeader.split(",");
+  const maxAge = parts.reduce((acc, part) => {
+    const subParts = part.trim().split("=");
+    if (subParts[0] === "max-age") {
+      return +subParts[1];
+    }
+
+    return acc;
+  }, 0);
+
+  return Date.now() + maxAge * 1000;
+}
+
+export class NextCachedUrlKeyFetcher implements KeyFetcher {
+  private cache = getResponseCache();
 
   constructor(private clientCertUrl: string) {
     if (!isURL(clientCertUrl)) {
@@ -35,22 +61,8 @@ export class UrlKeyFetcher implements KeyFetcher {
     }
   }
 
-  public fetchPublicKeys(): Promise<{ [key: string]: string }> {
-    if (this.shouldRefresh()) {
-      return this.refresh();
-    }
-    return Promise.resolve(this.publicKeys);
-  }
-
-  private shouldRefresh(): boolean {
-    return !this.publicKeys || this.publicKeysExpireAt <= Date.now();
-  }
-
-  private async refresh(): Promise<{ [key: string]: string }> {
-    const res = await fetch(this.clientCertUrl, {
-      method: "GET",
-      cache: "no-store",
-    });
+  private async fetchPublicKeysResponse(url: URL) {
+    const res = await fetch(url);
 
     if (!res.ok) {
       let errorMessage = "Error fetching public keys for Google certs: ";
@@ -72,22 +84,39 @@ export class UrlKeyFetcher implements KeyFetcher {
       throw new JwtError(JwtErrorCode.KEY_FETCH_ERROR, data.error);
     }
 
-    this.publicKeysExpireAt = 0;
+    const publicKeys = data as PublicKeys;
 
-    if (res.headers.has("cache-control")) {
-      const cacheControlHeader: string = res.headers.get("cache-control")!;
-      const parts = cacheControlHeader.split(",");
-      parts.forEach((part) => {
-        const subParts = part.trim().split("=");
-        if (subParts[0] === "max-age") {
-          const maxAge: number = +subParts[1];
-          this.publicKeysExpireAt = Date.now() + maxAge * 1000;
-        }
-      });
+    const body = JSON.stringify({
+      publicKeys,
+      publicKeysExpireAt: getExpiresAt(res),
+    } as PublicKeysResponse);
+
+    return new Response(body, res);
+  }
+
+  private async fetchAndCachePublicKeys(url: URL) {
+    const res = await this.fetchPublicKeysResponse(url);
+    await this.cache.put(url, res.clone());
+
+    return ((await res.json()) as PublicKeysResponse).publicKeys;
+  }
+
+  public async fetchPublicKeys(): Promise<PublicKeys> {
+    const url = new URL(this.clientCertUrl);
+    const cachedResponse = await this.cache.get(url);
+
+    if (!cachedResponse) {
+      return this.fetchAndCachePublicKeys(url);
     }
 
-    this.publicKeys = data;
-    return data;
+    const { publicKeys, publicKeysExpireAt }: PublicKeysResponse =
+      await cachedResponse.json();
+
+    if (publicKeysExpireAt <= Date.now()) {
+      return this.fetchAndCachePublicKeys(url);
+    }
+
+    return publicKeys;
   }
 }
 
@@ -101,7 +130,9 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
   public static withCertificateUrl(
     clientCertUrl: string
   ): PublicKeySignatureVerifier {
-    return new PublicKeySignatureVerifier(new UrlKeyFetcher(clientCertUrl));
+    return new PublicKeySignatureVerifier(
+      new NextCachedUrlKeyFetcher(clientCertUrl)
+    );
   }
 
   public async verify(token: string): Promise<void> {

@@ -1,15 +1,18 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { startTransition } from 'react';
-import type { User as FirebaseUser } from 'firebase/auth';
-import { IdTokenResult } from 'firebase/auth';
-import { useFirebaseAuth } from './firebase-auth';
-import { clientConfig } from './client-config';
-import { Tenant } from '../auth/types';
-import { AuthContext } from '../auth/context';
+import * as React from "react";
+import { startTransition } from "react";
+import type { User as FirebaseUser } from "firebase/auth";
+import { IdTokenResult } from "firebase/auth";
+import { useFirebaseAuth } from "./firebase-auth";
+import { clientConfig } from "./client-config";
+import { Tenant } from "../auth/types";
+import { AuthContext } from "../auth/context";
 
-const mapFirebaseResponseToTenant = (result: IdTokenResult, user: FirebaseUser): Tenant => {
+const mapFirebaseResponseToTenant = (
+  result: IdTokenResult,
+  user: FirebaseUser
+): Tenant => {
   const providerData = user.providerData && user.providerData[0];
 
   if (!user.isAnonymous && providerData) {
@@ -19,7 +22,7 @@ const mapFirebaseResponseToTenant = (result: IdTokenResult, user: FirebaseUser):
       email: providerData.email || null,
       emailVerified: user.emailVerified || false,
       photoUrl: providerData.photoURL || null,
-      customClaims: {}
+      customClaims: {},
     };
   }
 
@@ -29,10 +32,9 @@ const mapFirebaseResponseToTenant = (result: IdTokenResult, user: FirebaseUser):
     email: user.email || null,
     emailVerified: user.emailVerified || false,
     photoUrl: user.photoURL || null,
-    customClaims: {}
+    customClaims: {},
   };
 };
-
 
 export interface AuthProviderProps {
   defaultTenant: Tenant | null;
@@ -43,7 +45,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   defaultTenant,
   children,
 }) => {
-  const { getFirebaseAuth } = useFirebaseAuth(clientConfig)
+  const { getFirebaseAuth } = useFirebaseAuth(clientConfig);
   const firstLoadRef = React.useRef(true);
   const [tenant, setTenant] = React.useState(defaultTenant);
 
@@ -56,7 +58,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
     const auth = await getFirebaseAuth();
 
     if (!firebaseUser && firstLoadRef.current) {
-      const { signInAnonymously } = await import('firebase/auth');
+      const { signInAnonymously } = await import("firebase/auth");
       firstLoadRef.current = false;
       await signInAnonymously(auth);
       return;
@@ -72,8 +74,8 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
 
     firstLoadRef.current = false;
     const tokenResult = await firebaseUser.getIdTokenResult();
-    await fetch('/api/login', {
-      method: 'GET',
+    await fetch("/api/login", {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${tokenResult.token}`,
       },
@@ -85,7 +87,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
 
   const registerChangeListener = async () => {
     const auth = await getFirebaseAuth();
-    const { onIdTokenChanged } = await import('firebase/auth');
+    const { onIdTokenChanged } = await import("firebase/auth");
     return onIdTokenChanged(auth, handleIdTokenChanged);
   };
 
@@ -93,7 +95,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
     const unsubscribePromise = registerChangeListener();
 
     return () => {
-      unsubscribePromise.then(unsubscribe => unsubscribe());
+      unsubscribePromise.then((unsubscribe) => unsubscribe());
     };
   }, []);
 

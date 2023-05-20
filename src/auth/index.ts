@@ -5,10 +5,14 @@ import { AuthRequestHandler } from "./auth-request-handler";
 import { ServiceAccount, ServiceAccountCredential } from "./credential";
 import { UserRecord } from "./user-record";
 import { createFirebaseTokenGenerator } from "./token-generator";
+import * as runtime from "@edge-runtime/ponyfill";
 
 if (typeof crypto === "undefined" || typeof global.crypto === "undefined") {
-  const { Crypto } = require("@peculiar/webcrypto");
-  (global as any).crypto = new Crypto();
+  (global as any).crypto = runtime.crypto;
+}
+
+if (typeof caches === "undefined" || typeof global.caches === "undefined") {
+  (global as any).caches = runtime.caches;
 }
 
 const getCustomTokenEndpoint = (apiKey: string) => {
@@ -243,12 +247,13 @@ export function getFirebaseAuth(
 
     const decodedIdToken = await idTokenVerifier.verifyJWT(idToken, isEmulator);
 
-    if (checkRevoked || isEmulator) {
+    if (checkRevoked) {
       return verifyDecodedJWTNotRevokedOrDisabled(
         decodedIdToken,
         AuthClientErrorCode.ID_TOKEN_REVOKED
       );
     }
+
     return decodedIdToken;
   }
 
