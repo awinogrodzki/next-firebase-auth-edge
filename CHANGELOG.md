@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.7.2
+
+### Patch Changes
+
+- Fix "body already used" error by cloning response upon rewriting
+
 ## 0.7.1
 
 ### Patch Changes
