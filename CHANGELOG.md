@@ -1,5 +1,23 @@
 # next-firebase-auth-edge
 
+## 0.7.5
+
+### Patch Changes
+
+- Make caches optional due to Vercel Edge middleware error https://github.com/vercel/next.js/issues/50102
+
+## 0.7.4
+
+### Patch Changes
+
+- Set global cache before using ResponseCache
+
+## 0.7.3
+
+### Patch Changes
+
+- Use polyfill only if runtime is defined
+
 ## 0.7.2
 
 ### Patch Changes

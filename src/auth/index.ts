@@ -7,11 +7,17 @@ import { UserRecord } from "./user-record";
 import { createFirebaseTokenGenerator } from "./token-generator";
 import * as runtime from "@edge-runtime/ponyfill";
 
-if (typeof crypto === "undefined" || typeof global.crypto === "undefined") {
+if (
+  (typeof crypto === "undefined" || typeof global.crypto === "undefined") &&
+  Boolean(runtime?.crypto?.subtle)
+) {
   (global as any).crypto = runtime.crypto;
 }
 
-if (typeof caches === "undefined" || typeof global.caches === "undefined") {
+if (
+  (typeof caches === "undefined" || typeof global.caches === "undefined") &&
+  Boolean(runtime?.caches?.open)
+) {
   (global as any).caches = runtime.caches;
 }
 
