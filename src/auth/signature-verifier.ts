@@ -78,6 +78,7 @@ export class NextCachedUrlKeyFetcher implements KeyFetcher {
       throw new Error(errorMessage);
     }
 
+    const clone = res.clone();
     const data = await res.json();
 
     if (data.error) {
@@ -91,7 +92,7 @@ export class NextCachedUrlKeyFetcher implements KeyFetcher {
       publicKeysExpireAt: getExpiresAt(res),
     } as PublicKeysResponse);
 
-    return new Response(body, res);
+    return new Response(body, clone);
   }
 
   private async fetchAndCachePublicKeys(url: URL) {

@@ -54,6 +54,7 @@ export class ServiceAccountCredential implements Credential {
       body: postData,
     });
 
+    const clone = response.clone();
     const data: GoogleOAuthAccessToken = await response.json();
 
     if (!data.access_token || !data.expires_in) {
@@ -69,7 +70,7 @@ export class ServiceAccountCredential implements Credential {
       expirationTime: Date.now() + data.expires_in * 1000,
     } as FirebaseAccessToken);
 
-    return new Response(body, response);
+    return new Response(body, clone);
   }
 
   private async fetchAndCacheAccessToken(url: URL) {

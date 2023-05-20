@@ -9,10 +9,7 @@ let responseCache: ResponseCache;
 
 export function getResponseCache() {
   if (!responseCache) {
-    return (responseCache =
-      typeof caches === "undefined"
-        ? new GlobalInMemoryResponseCache()
-        : new WebApiResponseCache());
+    return (responseCache = new WebApiResponseCache());
   }
 
   return responseCache;
@@ -36,17 +33,5 @@ export class WebApiResponseCache implements ResponseCache {
     const cache = await this.getCache();
 
     return cache.match(url);
-  }
-}
-
-const globalInMemoryResponseMap: Map<string, Response> = new Map();
-
-export class GlobalInMemoryResponseCache implements ResponseCache {
-  async put(url: URL, response: Response): Promise<void> {
-    globalInMemoryResponseMap.set(url.toString(), response);
-  }
-
-  async get(url: URL): Promise<Response | undefined> {
-    return globalInMemoryResponseMap.get(url.toString());
   }
 }
