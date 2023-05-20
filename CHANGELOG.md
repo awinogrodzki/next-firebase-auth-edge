@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.7.0
+
+### Minor Changes
+
+- Updated Next.js to 13.4 with stable app directory. Integrated edge-runtime and removed direct dependency to @peculiar/web-crypto. Integrated ServiceAccountCredential and PublicKeySignatureVerifier with Web APIs CacheStorage.
+
 ## 0.6.2
 
 ### Patch Changes
