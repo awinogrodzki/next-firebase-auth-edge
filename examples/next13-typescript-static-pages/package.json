@@ -16,7 +16,7 @@
     "@types/react-dom": "18.0.9",
     "firebase": "^9.18.0",
     "next": "^13.4.2",
-    "next-firebase-auth-edge": "^0.7.0",
+    "next-firebase-auth-edge": "^0.7.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-loading-hook": "^1.0.0",
