@@ -1,4 +1,8 @@
-![next-firebase-auth-edge](logo.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="logo-white.svg">
+  <source media="(prefers-color-scheme: light)" srcset="logo.svg">
+  <img alt="next-firebase-auth-edge" src="logo.svg">
+</picture>
 
 # next-firebase-auth-edge
 
