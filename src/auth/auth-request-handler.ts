@@ -568,6 +568,7 @@ export abstract class AbstractAuthRequestHandler {
     const request = {
       localId: [uid],
     };
+
     return this.invokeRequestHandler(
       this.getAuthUrlBuilder(),
       FIREBASE_AUTH_GET_ACCOUNT_INFO,

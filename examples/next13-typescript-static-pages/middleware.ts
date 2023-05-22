@@ -60,7 +60,6 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.next();
     },
-    isTokenValid: (token) => token.email_verified ?? false,
     handleInvalidToken: async () => {
       return redirectToLogin(request);
     },

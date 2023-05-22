@@ -1,3 +1,9 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="logo-white.svg">
+  <source media="(prefers-color-scheme: light)" srcset="logo.svg">
+  <img alt="next-firebase-auth-edge" src="logo.svg">
+</picture>
+
 # next-firebase-auth-edge
 
 Next.js 13 Firebase Authentication for Edge and server runtimes. Dedicated for Next 13 server components. Compatible with Next.js middleware.
@@ -16,19 +22,58 @@ Official `firebase-admin` library relies heavily on Node.js internal `crypto` li
 
 This library aims to solve the problem of creating and verifying custom JWT tokens provided by **Firebase Authentication** using Web Crypto API available inside Edge runtimes
 
-## What's new in v0.4.x
+## What's new in version 0.7
 
-In recent release, there has been some important optimisations in terms of the number of network round-trips and response times.
+In the [latest release of Next.js](https://nextjs.org/blog/next-13-4), the app router has reached a stable state and is no longer considered experimental.
 
-Thereby, using `getTokens` in `middleware.ts` is no longer recommended. Please see [Authentication middleware](https://github.com/awinogrodzki/next-firebase-auth-edge#authentication-middleware) section to migrate to version 0.4.x
+This significant update allows us to leverage various features, such as the [Web APIs Cache](https://developer.mozilla.org/en-US/docs/Web/API/Cache) provided by Vercel's [edge-runtime](https://github.com/vercel/edge-runtime).
 
-You can still use `getTokens` in server components. `getTokens` works in tandem with `authentication` middleware function providing further improvements to response times.
+In versions prior to 0.7, the Google system certificates had to be fetched with each request in the Edge Runtime. This process could result in middleware cold starts.
+
+Thanks to [Web APIs Cache](https://developer.mozilla.org/en-US/docs/Web/API/Cache), the certificates are now cached between requests in both the Edge and Node.js runtimes. This enhancement leads to improved response times of up to 100 ms for each request.
+
+### Migration to version 0.7
+
+With the introduction of version 0.7, several deprecated APIs have been removed, including the `isTokenValid` option.
+
+To successfully migrate to version 0.7, make sure to eliminate all deprecated options from your codebase. If you had any validation logic previously implemented in the `isTokenValid` option, you should now transition it to the `handleValidToken` option. Here's an example:
+
+```typescript
+    // Before
+    isTokenValid: (token) => token.email_verified ?? false, 
+    handleValidToken: async ({ token, decodedToken }) => {
+      return NextResponse.next();
+    }
+```
+
+```typescript
+    // After
+    handleValidToken: async ({ token, decodedToken }) => {
+      if (!token.email_verified) {
+        // Handle this in handleError
+        throw new Error("User email not verified");
+      }
+      
+      return NextResponse.next();
+    }, 
+    handleError: async (error) => {
+      // Avoid redirect loop
+      if (request.nextUrl.pathname === "/login") {
+        return NextResponse.next();
+      }
+    
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
+      return NextResponse.redirect(url);
+    },
+```
 
 ## Built on top of Web Crypto API
 
 `next-firebase-auth-edge` is built entirely upon [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API). Although it seems fine at first, please remember that it is still in an experimental stage. Any feedback or contribution is welcome.
 
-Node.js polyfill for Web Crypto is provided by [@peculiar/webcrypto](https://github.com/PeculiarVentures/webcrypto)
+Node.js Edge runtime polyfill is provided by Vercel's [edge-runtime](https://github.com/vercel/edge-runtime) library
 
 ## Installation
 
@@ -48,18 +93,6 @@ With **pnpm**
 
 ```shell
 pnpm add next-firebase-auth-edge
-```
-
-## Usage
-
-Before using this module ensure that you have enabled `appDir` experimental option in your `next.config.js`:
-
-```javascript
-module.exports = {
-  experimental: {
-    appDir: true,
-  },
-};
 ```
 
 ### Authentication middleware
@@ -95,7 +128,6 @@ export async function middleware(request: NextRequest) {
       clientEmail: "firebase service account client email",
     },
     // Optional
-    isTokenValid: (token) => token.email_verified ?? false,
     checkRevoked: false,
     handleValidToken: async ({ token, decodedToken }) => {
       console.log("Successfully authenticated", { token, decodedToken });
@@ -150,14 +182,12 @@ export const config = {
 
 ##### Optional
 
-| Name               | Type                                                                                                                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| redirectOptions    | `{ path: string, paramName: string }` By default `undefined`                                                                                     | Pass if you want to enable redirect to dedicated authentication page. Defines redirect `path` and `paramName` for non-authenticated requests. For example, assuming the `path` is `/login` and `paramName` is `redirect`, if unauthorized user tries to access `/ultra-secure` route, they'd be redirected to `/login?redirect=/ultra-secure`. **This option is deprecated and will be replaced with `handleInvalidToken` defined below.** |
-| isTokenValid       | `(token: DecodedIdToken) => boolean` By default returns `true` for tokens with `email_verified: true`                                            | Tells the middleware whether user token is valid for the current route. It can be used to deal with custom permissions.                                                                                                                                                                                                                                                                                                                    |
-| checkRevoked       | `boolean` By default `false`                                                                                                                     | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                                                                                                                                                                                                            |
-| handleValidToken   | `(tokens: { token: string, decodedToken: DecodedIdToken }) => Promise<NextResponse>` By default returns `NextResponse.next()`                    | Receives id and decoded tokens and should return a promise that resolves with NextResponse.                                                                                                                                                                                                                                                                                                                                                |
-| handleInvalidToken | `() => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present               | If passed, is called and returned if user has not been authenticated with `isTokenValid` or there are no credentials in request cookies. Can be used to redirect unauthenticated users to specific page or pages. **Cannot be used together with redirectOptions**                                                                                                                                                                         |
-| handleError        | `(error: unknown) => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, we just redirect user to the login page. This allows you to customize error handling                                                                                                                                                                                   |
+| Name               | Type                                                                                                                                             | Description                                                                                                                                                                                                                                              |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| checkRevoked       | `boolean` By default `false`                                                                                                                     | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                          |
+| handleValidToken   | `(tokens: { token: string, decodedToken: DecodedIdToken }) => Promise<NextResponse>` By default returns `NextResponse.next()`                    | Receives id and decoded tokens and should return a promise that resolves with NextResponse.                                                                                                                                                              |
+| handleInvalidToken | `() => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present               | If passed, is called and returned if request has not been authenticated (either does not have credentials attached or credentials have expired). Can be used to redirect unauthenticated users to specific page or pages.                                |
+| handleError        | `(error: unknown) => Promise<NextResponse>` By default returns `NextResponse.next()` or redirects to login page if `redirectOptions` are present | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, we just redirect user to the login page. This allows you to customize error handling |
 
 #### Troubleshooting
 

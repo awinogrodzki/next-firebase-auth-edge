@@ -18,7 +18,6 @@ export async function middleware(request: NextRequest) {
       maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
     },
     serviceAccount: serverConfig.serviceAccount,
-    isTokenValid: (token) => Boolean(token),
     handleValidToken: async ({ token, decodedToken }) => {
       console.log("Successfully authenticated", { token, decodedToken });
       return NextResponse.next();

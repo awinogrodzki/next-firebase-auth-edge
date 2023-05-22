@@ -1,6 +1,6 @@
-import { isNonNullObject } from "./validator";
 import { sign } from "./jwt";
 import { DecodedJWTPayload } from "./jwt/types";
+import { getResponseCache, ResponseCache } from "./response-cache";
 
 export interface GoogleOAuthAccessToken {
   access_token: string;
@@ -8,7 +8,7 @@ export interface GoogleOAuthAccessToken {
 }
 
 export interface Credential {
-  getAccessToken(): Promise<GoogleOAuthAccessToken>;
+  getAccessToken(forceRefresh: boolean): Promise<FirebaseAccessToken>;
 }
 
 const TOKEN_EXPIRY_THRESHOLD_MILLIS = 5 * 60 * 1000;
@@ -28,34 +28,80 @@ export class ServiceAccountCredential implements Credential {
   public readonly projectId: string;
   public readonly privateKey: string;
   public readonly clientEmail: string;
+  private readonly cache: ResponseCache;
 
   constructor(serviceAccount: ServiceAccount) {
     this.projectId = serviceAccount.projectId;
     this.privateKey = serviceAccount.privateKey;
     this.clientEmail = serviceAccount.clientEmail;
+    this.cache = getResponseCache();
   }
 
-  public async getAccessToken(): Promise<GoogleOAuthAccessToken> {
+  private async fetchAccessToken(url: URL) {
     const token = await this.createJwt();
     const postData =
       "grant_type=urn%3Aietf%3Aparams%3Aoauth%3A" +
       "grant-type%3Ajwt-bearer&assertion=" +
       token;
 
-    const res = await fetch(
-      `https://${GOOGLE_AUTH_TOKEN_HOST}${GOOGLE_AUTH_TOKEN_PATH}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-        body: postData,
-      }
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      body: postData,
+    });
+
+    const clone = response.clone();
+    const data: GoogleOAuthAccessToken = await response.json();
+
+    if (!data.access_token || !data.expires_in) {
+      throw new Error(
+        `Unexpected response while fetching access token: ${JSON.stringify(
+          data
+        )}`
+      );
+    }
+
+    const body = JSON.stringify({
+      accessToken: data.access_token,
+      expirationTime: Date.now() + data.expires_in * 1000,
+    } as FirebaseAccessToken);
+
+    return new Response(body, clone);
+  }
+
+  private async fetchAndCacheAccessToken(url: URL) {
+    const response = await this.fetchAccessToken(url);
+    await this.cache.put(url, response.clone());
+    return response;
+  }
+  public async getAccessToken(
+    forceRefresh: boolean
+  ): Promise<FirebaseAccessToken> {
+    const url = new URL(
+      `https://${GOOGLE_AUTH_TOKEN_HOST}${GOOGLE_AUTH_TOKEN_PATH}`
     );
 
-    return requestAccessToken(res);
+    if (forceRefresh) {
+      return requestAccessToken(await this.fetchAndCacheAccessToken(url));
+    }
+
+    const cachedResponse = await this.cache.get(url);
+
+    if (!cachedResponse) {
+      return requestAccessToken(await this.fetchAndCacheAccessToken(url));
+    }
+
+    const response = await requestAccessToken(cachedResponse);
+
+    if (response.expirationTime - Date.now() <= TOKEN_EXPIRY_THRESHOLD_MILLIS) {
+      return requestAccessToken(await this.fetchAndCacheAccessToken(url));
+    }
+
+    return response;
   }
 
   private async createJwt(): Promise<string> {
@@ -84,16 +130,14 @@ export class ServiceAccountCredential implements Credential {
   }
 }
 
-async function requestAccessToken(
-  res: Response
-): Promise<GoogleOAuthAccessToken> {
+async function requestAccessToken(res: Response): Promise<FirebaseAccessToken> {
   if (!res.ok) {
     const data = await res.json();
     throw new Error(getErrorMessage(data));
   }
-  const data = await res.json();
+  const data: FirebaseAccessToken = await res.json();
 
-  if (!data.access_token || !data.expires_in) {
+  if (!data.accessToken || !data.expirationTime) {
     throw new Error(
       `Unexpected response while fetching access token: ${JSON.stringify(data)}`
     );
@@ -127,49 +171,8 @@ export interface FirebaseAccessToken {
 export const getFirebaseAdminTokenProvider = (account: ServiceAccount) => {
   const credential = new ServiceAccountCredential(account);
 
-  let cachedToken: FirebaseAccessToken | undefined;
-
-  function shouldRefresh(): boolean {
-    return (
-      !cachedToken ||
-      cachedToken.expirationTime - Date.now() <= TOKEN_EXPIRY_THRESHOLD_MILLIS
-    );
-  }
-
   async function getToken(forceRefresh = false): Promise<FirebaseAccessToken> {
-    if (forceRefresh || shouldRefresh()) {
-      return refreshToken();
-    }
-
-    return Promise.resolve(cachedToken!);
-  }
-
-  async function refreshToken(): Promise<FirebaseAccessToken> {
-    const result = await credential.getAccessToken();
-
-    if (!isNonNullObject(result)) {
-      throw new Error(
-        `Invalid access token generated: "${JSON.stringify(
-          result
-        )}". Valid access ` +
-          'tokens must be an object with the "expires_in" (number) and "access_token" ' +
-          "(string) properties."
-      );
-    }
-
-    const token = {
-      accessToken: result.access_token,
-      expirationTime: Date.now() + result.expires_in * 1000,
-    };
-    if (
-      !cachedToken ||
-      cachedToken.accessToken !== token.accessToken ||
-      cachedToken.expirationTime !== token.expirationTime
-    ) {
-      cachedToken = token;
-    }
-
-    return token;
+    return credential.getAccessToken(forceRefresh);
   }
 
   return {

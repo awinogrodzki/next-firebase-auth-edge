@@ -1,15 +1,13 @@
-import './globals.css';
-import { getTokens } from 'next-firebase-auth-edge/lib/next/tokens';
-import { cookies } from 'next/headers';
-import { AuthProvider } from './auth-provider';
-import { serverConfig } from './server-config';
-import { Tokens } from 'next-firebase-auth-edge/lib/auth';
-import { Tenant } from '../auth/types';
-import { filterStandardClaims } from 'next-firebase-auth-edge/lib/auth/tenant';
+import "./globals.css";
+import { getTokens } from "next-firebase-auth-edge/lib/next/tokens";
+import { cookies } from "next/headers";
+import { AuthProvider } from "./auth-provider";
+import { serverConfig } from "./server-config";
+import { Tokens } from "next-firebase-auth-edge/lib/auth";
+import { Tenant } from "../auth/types";
+import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/tenant";
 
-const mapTokensToTenant = ({
-  decodedToken,
-}: Tokens): Tenant => {
+const mapTokensToTenant = ({ decodedToken }: Tokens): Tenant => {
   const customClaims = filterStandardClaims(decodedToken);
 
   const {
@@ -28,18 +26,18 @@ const mapTokensToTenant = ({
     name: displayName ?? null,
     photoUrl: photoURL ?? null,
   };
-}
+};
 
 export default async function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   const tokens = await getTokens(cookies(), {
     serviceAccount: serverConfig.serviceAccount,
     apiKey: serverConfig.firebaseApiKey,
-    cookieName: 'AuthToken',
-    cookieSignatureKeys: ['secret1', 'secret2'],
+    cookieName: "AuthToken",
+    cookieSignatureKeys: ["secret1", "secret2"],
   });
 
   const tenant = tokens ? mapTokensToTenant(tokens) : null;
@@ -50,10 +48,8 @@ export default async function RootLayout({
     <html lang="en">
       <head />
       <body>
-        <AuthProvider defaultTenant={tenant}>
-          {children}
-        </AuthProvider>
+        <AuthProvider defaultTenant={tenant}>{children}</AuthProvider>
       </body>
     </html>
-  )
+  );
 }

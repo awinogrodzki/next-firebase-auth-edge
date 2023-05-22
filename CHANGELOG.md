@@ -1,5 +1,41 @@
 # next-firebase-auth-edge
 
+## 0.7.5
+
+### Patch Changes
+
+- Make caches optional due to Vercel Edge middleware error https://github.com/vercel/next.js/issues/50102
+
+## 0.7.4
+
+### Patch Changes
+
+- Set global cache before using ResponseCache
+
+## 0.7.3
+
+### Patch Changes
+
+- Use polyfill only if runtime is defined
+
+## 0.7.2
+
+### Patch Changes
+
+- Fix "body already used" error by cloning response upon rewriting
+
+## 0.7.1
+
+### Patch Changes
+
+- Added @edge-runtime/primitives to dependencies
+
+## 0.7.0
+
+### Minor Changes
+
+- Updated Next.js to 13.4 with stable app directory. Integrated edge-runtime and removed direct dependency to @peculiar/web-crypto. Integrated ServiceAccountCredential and PublicKeySignatureVerifier with Web APIs CacheStorage.
+
 ## 0.6.2
 
 ### Patch Changes
