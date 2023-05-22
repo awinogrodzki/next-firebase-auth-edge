@@ -26,14 +26,6 @@ This library aims to solve the problem of creating and verifying custom JWT toke
 
 In the [latest release of Next.js](https://nextjs.org/blog/next-13-4), the app router has reached a stable state and is no longer considered experimental.
 
-This significant update allows us to leverage various features, such as the [Web APIs Cache](https://developer.mozilla.org/en-US/docs/Web/API/Cache) provided by Vercel's [edge-runtime](https://github.com/vercel/edge-runtime).
-
-In versions prior to 0.7, the Google system certificates had to be fetched with each request in the Edge Runtime. This process could result in middleware cold starts.
-
-Thanks to [Web APIs Cache](https://developer.mozilla.org/en-US/docs/Web/API/Cache), the certificates are now cached between requests in both the Edge and Node.js runtimes. This enhancement leads to improved response times of up to 100 ms for each request.
-
-### Migration to version 0.7
-
 With the introduction of version 0.7, several deprecated APIs have been removed, including the `isTokenValid` option.
 
 To successfully migrate to version 0.7, make sure to eliminate all deprecated options from your codebase. If you had any validation logic previously implemented in the `isTokenValid` option, you should now transition it to the `handleValidToken` option. Here's an example:
