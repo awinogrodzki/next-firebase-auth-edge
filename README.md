@@ -24,7 +24,7 @@ This library aims to solve the problem of creating and verifying custom JWT toke
 
 ## What's new in version 0.7
 
-In the [latest release of Next.js](https://nextjs.org/blog/next-13-4), the app router has reached a stable state and is no longer considered experimental.
+Compatibility with Next.js 13.4. In the [latest release of Next.js](https://nextjs.org/blog/next-13-4), the app router has reached a stable state and is no longer considered experimental.
 
 With the introduction of version 0.7, several deprecated APIs have been removed, including the `isTokenValid` option.
 
