@@ -1,5 +1,5 @@
-import { RequestCookies } from "next/dist/server/web/spec-extension/cookies";
-import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import type { RequestCookies } from "next/dist/server/web/spec-extension/cookies";
+import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { ServiceAccount } from "../auth/credential";
 import { getSignatureCookieName } from "../auth/cookies";
 import { getFirebaseAuth, IdAndRefreshTokens, Tokens } from "../auth";
