@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.7.6
+
+### Patch Changes
+
+- Import Next.js request cookie interfaces as type
+
 ## 0.7.5
 
 ### Patch Changes
