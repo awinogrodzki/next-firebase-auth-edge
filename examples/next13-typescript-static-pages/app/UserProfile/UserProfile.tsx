@@ -52,6 +52,18 @@ export function UserProfile() {
     });
   });
 
+  const [handleUserCounter, isUserCounterLoading] = useLoadingCallback(
+    async () => {
+      if (!tenant) {
+        return;
+      }
+
+      await fetch("/api/user-counters", {
+        method: "POST",
+      });
+    }
+  );
+
   function handleRedirect() {
     router.push(
       `${clientConfig.redirectUrl}?redirect_url=${window.location.href}`
@@ -95,6 +107,13 @@ export function UserProfile() {
           onClick={handleRefresh}
         >
           Refresh tokens
+        </Button>
+        <Button
+          loading={isUserCounterLoading}
+          disabled={isUserCounterLoading}
+          onClick={handleUserCounter}
+        >
+          Update user counter in database
         </Button>
         <Button
           loading={isLogoutLoading}

@@ -4,7 +4,7 @@ import {
   authentication,
   refreshAuthCookies,
 } from "next-firebase-auth-edge/lib/next/middleware";
-import { serverConfig } from "./config/server-config";
+import { authConfig } from "./config/server-config";
 import { getFirebaseAuth } from "next-firebase-auth-edge/lib/auth";
 
 function redirectToLogin(request: NextRequest) {
@@ -18,30 +18,16 @@ function redirectToLogin(request: NextRequest) {
   return NextResponse.redirect(url);
 }
 
-const commonOptions = {
-  apiKey: serverConfig.firebaseApiKey,
-  cookieName: "AuthToken",
-  cookieSignatureKeys: ["secret1", "secret2"],
-  cookieSerializeOptions: {
-    path: "/",
-    httpOnly: true,
-    secure: serverConfig.useSecureCookies, // Set this to true on HTTPS environments
-    sameSite: "lax" as const,
-    maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
-  },
-  serviceAccount: serverConfig.serviceAccount,
-};
-
 const { setCustomUserClaims, getUser } = getFirebaseAuth(
-  commonOptions.serviceAccount,
-  commonOptions.apiKey
+  authConfig.serviceAccount,
+  authConfig.apiKey
 );
 
 export async function middleware(request: NextRequest) {
   return authentication(request, {
     loginPath: "/api/login",
     logoutPath: "/api/logout",
-    ...commonOptions,
+    ...authConfig,
     handleValidToken: async ({ token, decodedToken }) => {
       if (request.nextUrl.pathname === "/api/custom-claims") {
         await setCustomUserClaims(decodedToken.uid, {
@@ -54,7 +40,7 @@ export async function middleware(request: NextRequest) {
           headers: { "content-type": "application/json" },
         });
 
-        await refreshAuthCookies(token, response, commonOptions);
+        await refreshAuthCookies(token, response, authConfig);
         return response;
       }
 
