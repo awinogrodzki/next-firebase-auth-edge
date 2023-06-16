@@ -1,6 +1,21 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# next-firebase-auth-edge static pages example
 
-## Getting Started
+This is a [Next.js](https://nextjs.org/) project showcasing `next-firebase-auth-edge` library features.
+
+Demo of this project can be previewed at [next-firebase-auth-edge-static-demo.vercel.app](https://next-firebase-auth-edge-static-demo.vercel.app/) 
+
+## Before Getting Started
+
+To properly run this example, you will need to setup a new Firebase Project.
+
+You will also need to:
+- Create a new web app in your new Firebase Project.
+- Add Auth to your project, and add both the google, and Anonymous Sign-in provider
+- Add a firestore database
+- Get your private keys from "Project settings > Service Accounts > Generate new private keys"
+- Make a copy of `.env.dist` and rename it to `.env.local`
+- Fill in the variables inside the `.env.local`
+
 
 First, run the development server:
 
