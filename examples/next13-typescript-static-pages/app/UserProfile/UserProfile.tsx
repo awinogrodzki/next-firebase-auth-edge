@@ -9,6 +9,7 @@ import { clientConfig } from "../../config/client-config";
 import { Button } from "../../ui/button";
 import { LoadingIcon } from "../../ui/icons";
 import { useRouter } from "next/navigation";
+import { addToCounter } from "../actions/user-counters";
 
 export function UserProfile() {
   const router = useRouter();
@@ -70,6 +71,15 @@ export function UserProfile() {
     );
   }
 
+  let [handleUserCounterAction, startTransition] = React.useTransition();
+
+  const handleTransaction = () => {
+    async function transitionWrapper() {
+      await addToCounter();
+    }
+    transitionWrapper();
+  }
+
   if (!tenant && hasLoggedOut) {
     return (
       <div className={styles.container}>
@@ -114,6 +124,13 @@ export function UserProfile() {
           onClick={handleUserCounter}
         >
           Update user counter in database
+        </Button>
+        <Button
+          loading={handleUserCounterAction}
+          disabled={handleUserCounterAction}
+          onClick={() => startTransition(() => handleTransaction())}
+        >
+          Update user counter w/ server action
         </Button>
         <Button
           loading={isLogoutLoading}
