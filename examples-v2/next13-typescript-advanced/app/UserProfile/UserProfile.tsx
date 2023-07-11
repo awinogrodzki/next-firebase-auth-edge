@@ -27,12 +27,6 @@ export function UserProfile() {
     window.location.reload();
   });
 
-  const [handleRefresh, isRefreshLoading] = useLoadingCallback(async () => {
-    await fetch("/api/refresh-tokens", {
-      method: "GET",
-    });
-  });
-
   const [handleClaims, isClaimsLoading] = useLoadingCallback(async () => {
     await fetch("/api/custom-claims", {
       method: "POST",
@@ -92,13 +86,6 @@ export function UserProfile() {
           onClick={handleClaims}
         >
           Set custom user claims
-        </Button>
-        <Button
-          loading={isRefreshLoading}
-          disabled={isRefreshLoading}
-          onClick={handleRefresh}
-        >
-          Refresh tokens
         </Button>
         <Button
           loading={isUserCounterLoading}
