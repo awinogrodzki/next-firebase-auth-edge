@@ -1,0 +1,17 @@
+node_modules
+.vscode
+yarn-error.log
+.yarn
+.next
+.env
+lib
+cjs
+tmp
+package-lock.json
+coverage
+webpack-stats.json
+.turbo
+.DS_Store
+.idea
+*.log
+dist

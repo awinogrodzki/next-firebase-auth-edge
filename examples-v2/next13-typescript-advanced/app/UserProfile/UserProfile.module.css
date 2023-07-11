@@ -1,0 +1,39 @@
+.container {
+  border-radius: 10px;
+  color: #0070f3;
+  border: 1px solid #0070f3;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.title {
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  background: #7f7f7f;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
