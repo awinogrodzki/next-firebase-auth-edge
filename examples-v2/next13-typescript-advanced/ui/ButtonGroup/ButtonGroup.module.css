@@ -1,0 +1,15 @@
+.group {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  gap: 1rem;
+}
+
+.group a {
+  width: 100%;
+  display: flex;
+}
+
+.group button {
+  width: 100%;
+}

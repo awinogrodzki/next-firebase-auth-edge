@@ -1,0 +1,16 @@
+.badge {
+  margin-left: auto;
+  font-size: 0.675rem;
+  line-height: 1rem;
+  color: #0070f3;
+  border: 1px solid #0070f3;
+  padding: 0.5rem;
+  letter-spacing: 0;
+  border-radius: 1rem;
+}
+
+@media only screen and (max-width: 640px) {
+  .badge {
+    margin-left: 0;
+  }
+}

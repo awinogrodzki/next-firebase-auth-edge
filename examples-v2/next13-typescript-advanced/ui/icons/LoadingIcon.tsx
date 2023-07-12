@@ -1,11 +1,11 @@
 import * as React from "react";
-import styles from "./LoadingIcon.module.css";
+import styles from "./icons.module.css";
 
 export function LoadingIcon(props: JSX.IntrinsicElements["span"]) {
   return (
     <span
       {...props}
-      className={[styles.loader, props.className].filter(Boolean).join(" ")}
+      className={[styles.icon, props.className].filter(Boolean).join(" ")}
     >
       <svg
         version="1.1"

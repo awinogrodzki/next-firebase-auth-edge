@@ -3,8 +3,10 @@ import { NextResponse } from "next/server";
 import { authentication } from "next-firebase-auth-edge/lib/next/middleware";
 import { authConfig } from "./config/server-config";
 
+const PUBLIC_PATHS = ["/register", "/login"];
+
 function redirectToLogin(request: NextRequest) {
-  if (request.nextUrl.pathname === "/login") {
+  if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
     return NextResponse.next();
   }
 
@@ -23,7 +25,11 @@ export async function middleware(request: NextRequest) {
     cookieSerializeOptions: authConfig.cookieSerializeOptions,
     cookieSignatureKeys: authConfig.cookieSignatureKeys,
     serviceAccount: authConfig.serviceAccount,
-    handleValidToken: async () => {
+    handleValidToken: async ({ decodedToken }) => {
+      if (!decodedToken.email_verified) {
+        return redirectToLogin(request);
+      }
+
       return NextResponse.next();
     },
     handleInvalidToken: async () => {

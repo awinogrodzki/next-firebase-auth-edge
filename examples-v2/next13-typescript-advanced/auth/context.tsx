@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext } from "react";
+import { createContext, useContext } from "react";
 import type { UserInfo } from "firebase/auth";
 
 export interface AuthContextValue {
@@ -10,3 +10,5 @@ export interface AuthContextValue {
 export const AuthContext = createContext<AuthContextValue>({
   user: null,
 });
+
+export const useAuth = () => useContext(AuthContext);

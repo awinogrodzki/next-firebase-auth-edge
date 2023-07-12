@@ -10,8 +10,12 @@
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  margin-bottom: 1rem;
   justify-content: center;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 240px;
 }
 
 .button:last-of-type {
@@ -26,7 +30,7 @@
 .button:not([disabled]):hover,
 .button:not([disabled]):focus,
 .button:not([disabled]):active {
-  color: #000;
+  color: #fff;
   background-color: #0070f3;
 }
 

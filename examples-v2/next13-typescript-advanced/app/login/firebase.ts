@@ -15,7 +15,7 @@ export const logout = async (auth: Auth): Promise<void> => {
   return signOut(auth);
 };
 
-export const getGoogleProvider = async (auth: Auth) => {
+export const getGoogleProvider = (auth: Auth) => {
   const provider = new GoogleAuthProvider();
   provider.addScope("profile");
   provider.addScope("email");

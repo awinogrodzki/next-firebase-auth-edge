@@ -1,0 +1,40 @@
+.title {
+  margin: 0 0 1em;
+  line-height: 1.15;
+  font-size: 4rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.title a {
+  text-decoration: none;
+  color: #0070f3;
+}
+
+@media (prefers-color-scheme: dark) {
+  .title {
+    background: linear-gradient(180deg, #ffffff 0%, #aaaaaa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+  }
+  .title a {
+    background: linear-gradient(180deg, #0070f3 0%, #0153af 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+  }
+}
+
+@media only screen and (max-width: 640px) {
+  .title {
+    font-size: 2rem;
+    flex-direction: column;
+  }
+}

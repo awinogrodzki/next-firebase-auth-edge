@@ -21,7 +21,7 @@ const getFirebaseAdminApp = () => {
   return initializeApp();
 };
 
-export async function addToCounter() {
+export async function incrementCounter() {
   const tokens = await getTokens(cookies(), authConfig);
 
   if (!tokens) {

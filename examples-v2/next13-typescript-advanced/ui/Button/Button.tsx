@@ -1,6 +1,7 @@
 import * as React from "react";
-import styles from "./button.module.css";
-import { LoadingIcon } from "./icons";
+import styles from "./Button.module.css";
+import { LoadingIcon } from "../icons";
+import { cx } from "../classNames";
 
 export function Button({
   loading,
@@ -8,7 +9,7 @@ export function Button({
   ...props
 }: JSX.IntrinsicElements["button"] & { loading?: boolean }) {
   return (
-    <button className={styles.button} {...props}>
+    <button {...props} className={cx(styles.button, props.className)}>
       {loading && <LoadingIcon className={styles.icon} />}
       <span>{children}</span>
     </button>
