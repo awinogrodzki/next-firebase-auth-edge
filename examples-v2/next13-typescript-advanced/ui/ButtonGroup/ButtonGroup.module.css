@@ -3,6 +3,8 @@
   flex-direction: column;
   padding: 0;
   gap: 1rem;
+  min-width: 240px;
+  max-width: 100%;
 }
 
 .group a {

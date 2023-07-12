@@ -10,8 +10,8 @@ To properly run this example, you will need to setup a new Firebase Project.
 
 You will also need to:
 - Create a new web app in your new Firebase Project.
-- Add Auth to your project, and add both the google, and Anonymous Sign-in provider
-- Add a firestore database
+- Add Firebase Auth to your project, and add both Google and Anonymous sign-in providers
+- Add a Firestore database
 - Get your private keys from "Project settings > Service Accounts > Generate new private keys"
 - Make a copy of `.env.dist` and rename it to `.env.local`
 - Fill in the variables inside the `.env.local`
