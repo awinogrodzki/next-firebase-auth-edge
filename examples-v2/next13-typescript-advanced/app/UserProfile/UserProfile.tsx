@@ -10,15 +10,15 @@ import { Button } from "../../ui/button";
 import { LoadingIcon } from "../../ui/icons";
 import { useRouter } from "next/navigation";
 import { addToCounter } from "../actions/user-counters";
+import { signOut } from "firebase/auth";
 
 export function UserProfile() {
   const router = useRouter();
   const { user } = useAuth();
-  const { getFirebaseAuth } = useFirebaseAuth(clientConfig);
+  const { getFirebaseAuth } = useFirebaseAuth();
   const [hasLoggedOut, setHasLoggedOut] = React.useState(false);
   const [handleLogout, isLogoutLoading] = useLoadingCallback(async () => {
-    const auth = await getFirebaseAuth();
-    const { signOut } = await import("firebase/auth");
+    const auth = getFirebaseAuth();
     await signOut(auth);
     setHasLoggedOut(true);
     await fetch("/api/logout", {

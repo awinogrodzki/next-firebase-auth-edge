@@ -3,7 +3,6 @@
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useFirebaseAuth } from "../../auth/firebase";
-import { clientConfig } from "../../config/client-config";
 import { useLoadingCallback } from "react-loading-hook";
 import { getGoogleProvider, loginWithProvider } from "./firebase";
 import { useAuth } from "../../auth/hooks";
@@ -16,10 +15,10 @@ export function LoginPage() {
   const params = useSearchParams();
   const [hasLogged, setHasLogged] = React.useState(false);
   const { user } = useAuth();
-  const { getFirebaseAuth } = useFirebaseAuth(clientConfig);
+  const { getFirebaseAuth } = useFirebaseAuth();
   const [handleLoginWithGoogle, isLoading] = useLoadingCallback(async () => {
     setHasLogged(false);
-    const auth = await getFirebaseAuth();
+    const auth = getFirebaseAuth();
     const user = await loginWithProvider(auth, await getGoogleProvider(auth));
     const idTokenResult = await user.getIdTokenResult();
     await fetch("/api/login", {

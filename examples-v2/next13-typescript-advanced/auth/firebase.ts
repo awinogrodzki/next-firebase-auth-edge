@@ -1,20 +1,20 @@
-import { FirebaseApp, FirebaseOptions, getApp } from '@firebase/app';
-const getFirebaseApp = async (options: FirebaseOptions) => {
-  const { getApp, getApps, initializeApp } = await import('firebase/app');
+import {
+  FirebaseApp,
+  FirebaseOptions,
+  getApp,
+  getApps,
+  initializeApp,
+} from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { clientConfig } from "../config/client-config";
 
+const getFirebaseApp = (options: FirebaseOptions) => {
   return (!getApps().length ? initializeApp(options) : getApp()) as FirebaseApp;
 };
 
-const getAuth = async (options: FirebaseOptions) => {
-  const app = await getFirebaseApp(options);
-  const { getAuth } = await import('firebase/auth');
-
-  return getAuth(app);
-};
-
-export const useFirebaseAuth = (options: FirebaseOptions) => {
-  const getFirebaseAuth = async () => {
-    return getAuth(options);
+export const useFirebaseAuth = () => {
+  const getFirebaseAuth = () => {
+    return getAuth(getFirebaseApp(clientConfig));
   };
 
   return { getFirebaseAuth };

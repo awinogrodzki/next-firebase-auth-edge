@@ -2,10 +2,9 @@
 
 import * as React from "react";
 import type { User, UserInfo } from "firebase/auth";
-import { useFirebaseAuth } from "./firebase";
-import { clientConfig } from "../config/client-config";
-import { AuthContext } from "./context";
 import { onIdTokenChanged, signInAnonymously } from "firebase/auth";
+import { useFirebaseAuth } from "./firebase";
+import { AuthContext } from "./context";
 
 export interface AuthProviderProps {
   defaultUser: UserInfo | null;
@@ -16,7 +15,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   defaultUser,
   children,
 }) => {
-  const { getFirebaseAuth } = useFirebaseAuth(clientConfig);
+  const { getFirebaseAuth } = useFirebaseAuth();
   const firstLoadRef = React.useRef(true);
   const [user, setUser] = React.useState(defaultUser);
 
@@ -26,7 +25,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
       return;
     }
 
-    const auth = await getFirebaseAuth();
+    const auth = getFirebaseAuth();
 
     if (!firebaseUser && firstLoadRef.current) {
       firstLoadRef.current = false;
@@ -55,7 +54,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   };
 
   const registerChangeListener = async () => {
-    const auth = await getFirebaseAuth();
+    const auth = getFirebaseAuth();
     return onIdTokenChanged(auth, handleIdTokenChanged);
   };
 
