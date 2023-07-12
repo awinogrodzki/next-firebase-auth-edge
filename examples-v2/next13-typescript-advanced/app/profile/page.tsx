@@ -12,7 +12,7 @@ import { HomeLink } from "../../ui/HomeLink";
 import { MainTitle } from "../../ui/MainTitle";
 
 const db = getFirestore(getFirebaseAdminApp());
-export async function getUserCounter(): Promise<number> {
+async function getUserCounter(): Promise<number> {
   const tokens = await getTokens(cookies(), authConfig);
 
   if (!tokens) {
