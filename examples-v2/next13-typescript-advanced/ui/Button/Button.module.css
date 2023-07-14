@@ -15,7 +15,8 @@
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 240px;
+  width: 280px;
+  min-width: 0;
 }
 
 .button:last-of-type {
@@ -36,4 +37,18 @@
 
 .icon {
   margin-right: 0.5rem;
+}
+
+.outlined {
+}
+.contained {
+  border-color: #0070f3;
+  background-color: #0070f3;
+}
+.contained:not([disabled]):hover,
+.contained:not([disabled]):focus,
+.contained:not([disabled]):active {
+  color: #fff;
+  border-color: #015ac0;
+  background-color: #015ac0;
 }

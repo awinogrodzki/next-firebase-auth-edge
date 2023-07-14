@@ -10,19 +10,16 @@ import { Button } from "../../../ui/Button";
 import { LoadingIcon } from "../../../ui/icons";
 import { useRouter } from "next/navigation";
 import { incrementCounter } from "../../actions/user-counters";
-import { signOut } from "firebase/auth";
+import { signOut, reload } from "firebase/auth";
 import { ButtonGroup } from "../../../ui/ButtonGroup";
 import { Card } from "../../../ui/Card";
+import { Badge } from "../../../ui/Badge";
 
 interface UserProfileProps {
-  serverCount: number;
+  count: number;
 }
 
-export function UserProfile({ serverCount }: UserProfileProps) {
-  const [apiCount, setApiCount] = React.useState(serverCount);
-  // serverCount is updated with Server Actions
-  // apiCount is updated using API endpoint
-  const count = serverCount > apiCount ? serverCount : apiCount;
+export function UserProfile({ count }: UserProfileProps) {
   const router = useRouter();
   const { user } = useAuth();
   const { getFirebaseAuth } = useFirebaseAuth();
@@ -38,9 +35,12 @@ export function UserProfile({ serverCount }: UserProfileProps) {
   });
 
   const [handleClaims, isClaimsLoading] = useLoadingCallback(async () => {
+    const auth = getFirebaseAuth();
     await fetch("/api/custom-claims", {
       method: "POST",
     });
+
+    await auth.currentUser!.getIdTokenResult(true);
   });
 
   const [handleIncrementCounterApi, isIncrementCounterApiLoading] =
@@ -49,8 +49,8 @@ export function UserProfile({ serverCount }: UserProfileProps) {
         method: "POST",
       });
 
-      const { count } = await response.json();
-      setApiCount(count);
+      await response.json();
+      router.refresh();
     });
 
   function handleRedirect() {
@@ -89,14 +89,24 @@ export function UserProfile({ serverCount }: UserProfileProps) {
           </div>
           <span>{user.email}</span>
         </div>
+
+        {!user.emailVerified && (
+          <div className={styles.content}>
+            <Badge>Email not verified.</Badge>
+          </div>
+        )}
+
         <ButtonGroup>
           <Button
             loading={isClaimsLoading}
             disabled={isClaimsLoading}
             onClick={handleClaims}
           >
-            Set custom user claims
+            Refresh custom user claims
           </Button>
+          <pre className={styles.preview}>
+            {JSON.stringify(user.customClaims, undefined, 2)}
+          </pre>
           <Button
             loading={isLogoutLoading}
             disabled={isLogoutLoading}
@@ -120,7 +130,7 @@ export function UserProfile({ serverCount }: UserProfileProps) {
             }
             onClick={handleIncrementCounterApi}
           >
-            Update user counter w/ api endpoint
+            Update counter w/ api endpoint
           </Button>
           <Button
             loading={isIncrementCounterActionPending}
@@ -131,7 +141,7 @@ export function UserProfile({ serverCount }: UserProfileProps) {
               startTransition(() => incrementCounter() as unknown as void)
             }
           >
-            Update user counter w/ server action
+            Update counter w/ server action
           </Button>
         </ButtonGroup>
       </Card>

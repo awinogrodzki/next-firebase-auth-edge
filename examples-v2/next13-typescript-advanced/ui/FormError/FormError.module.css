@@ -1,10 +1,10 @@
-.badge {
+.error {
   font-size: 0.675rem;
   line-height: 1rem;
-  color: #0070f3;
-  border: 1px solid #0070f3;
+  color: #da4e42;
+  border: 1px solid #da4e42;
   padding: 0.5rem;
   letter-spacing: 0;
-  border-radius: 1rem;
+  border-radius: 0.5rem;
 }
 

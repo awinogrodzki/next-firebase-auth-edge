@@ -45,7 +45,7 @@ export default async function Profile() {
       </MainTitle>
       {/* @ts-expect-error https://github.com/vercel/next.js/issues/43537 */}
       <ServerAuthProvider>
-        <UserProfile serverCount={count} />
+        <UserProfile count={count} />
       </ServerAuthProvider>
     </div>
   );

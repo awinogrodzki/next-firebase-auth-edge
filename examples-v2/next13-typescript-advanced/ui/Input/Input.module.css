@@ -1,0 +1,13 @@
+.input {
+  display: flex;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  color: inherit;
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid #0070f3;
+  border-radius: 10px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  max-width: 100%;
+  width: 280px;
+}

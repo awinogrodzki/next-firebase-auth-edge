@@ -25,11 +25,7 @@ export async function middleware(request: NextRequest) {
     cookieSerializeOptions: authConfig.cookieSerializeOptions,
     cookieSignatureKeys: authConfig.cookieSignatureKeys,
     serviceAccount: authConfig.serviceAccount,
-    handleValidToken: async ({ decodedToken }) => {
-      if (!decodedToken.email_verified) {
-        return redirectToLogin(request);
-      }
-
+    handleValidToken: async ({ token, decodedToken }) => {
       return NextResponse.next();
     },
     handleInvalidToken: async () => {

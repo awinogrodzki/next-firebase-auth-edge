@@ -3,17 +3,20 @@ import { cookies } from "next/headers";
 import { AuthProvider } from "./client-auth-provider";
 import { authConfig } from "../config/server-config";
 import { Tokens } from "next-firebase-auth-edge/lib/auth";
-import type { UserInfo } from "firebase/auth";
+import { User } from "./context";
+import { filterStandardClaims } from 'next-firebase-auth-edge/lib/auth/tenant';
 
-const mapTokensToUser = ({ decodedToken }: Tokens): UserInfo => {
+const mapTokensToUser = ({ decodedToken }: Tokens): User => {
   const {
     uid,
     email,
-    email_verified: emailVerified,
     picture: photoURL,
+    email_verified: emailVerified,
     phone_number: phoneNumber,
     name: displayName,
   } = decodedToken;
+
+  const customClaims = filterStandardClaims(decodedToken);
 
   return {
     uid,
@@ -21,7 +24,8 @@ const mapTokensToUser = ({ decodedToken }: Tokens): UserInfo => {
     displayName: displayName ?? null,
     photoURL: photoURL ?? null,
     phoneNumber: phoneNumber ?? null,
-    providerId: "firebase",
+    emailVerified: emailVerified ?? false,
+    customClaims
   };
 };
 

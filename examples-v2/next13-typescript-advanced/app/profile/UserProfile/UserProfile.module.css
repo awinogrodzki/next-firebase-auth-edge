@@ -1,6 +1,7 @@
 .container {
   display: flex;
   gap: 1rem;
+  width: 100%;
 }
 
 .title {
@@ -8,6 +9,13 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
+}
+
+.preview {
+  margin: 0;
+  padding: 0.5rem;
+  font-size: 0.675rem;
+  text-align: left;
 }
 
 .content {
