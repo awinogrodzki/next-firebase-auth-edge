@@ -42,6 +42,7 @@
 .outlined {
 }
 .contained {
+  color: #fff;
   border-color: #0070f3;
   background-color: #0070f3;
 }

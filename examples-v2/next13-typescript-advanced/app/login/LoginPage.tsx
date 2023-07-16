@@ -13,11 +13,7 @@ import { ButtonGroup } from "../../ui/ButtonGroup";
 import { MainTitle } from "../../ui/MainTitle";
 import { PasswordForm } from "../../ui/PasswordForm";
 import { PasswordFormValue } from "../../ui/PasswordForm/PasswordForm";
-import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export function LoginPage() {
   const router = useRouter();
@@ -63,17 +59,17 @@ export function LoginPage() {
     }
   );
 
-  function getRegisterUrl() {
+  function passRedirectParam(url: string) {
     if (redirect) {
-      return `/register?redirect=${redirect}`;
+      return `${url}?redirect=${redirect}`;
     }
 
-    return "/register";
+    return url;
   }
 
   return (
     <div className={styles.page}>
-      <MainTitle>Login page</MainTitle>
+      <MainTitle>Login</MainTitle>
       {hasLogged && (
         <div className={styles.info}>
           <span>
@@ -89,7 +85,13 @@ export function LoginPage() {
           error={error}
         >
           <ButtonGroup>
-            <Link href={getRegisterUrl()}>
+            <Link
+              className={styles.link}
+              href={passRedirectParam("/reset-password")}
+            >
+              Reset password
+            </Link>
+            <Link href={passRedirectParam("/register")}>
               <Button>Register</Button>
             </Link>
             <Button

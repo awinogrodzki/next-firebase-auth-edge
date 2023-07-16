@@ -40,7 +40,7 @@ export default async function Profile() {
     <div className={styles.container}>
       <MainTitle>
         <HomeLink />
-        <span>Profile page</span>
+        <span>Profile</span>
         <Badge>Rendered on server</Badge>
       </MainTitle>
       {/* @ts-expect-error https://github.com/vercel/next.js/issues/43537 */}

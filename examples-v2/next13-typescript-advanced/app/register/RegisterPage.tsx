@@ -55,7 +55,7 @@ export function RegisterPage() {
 
   return (
     <div className={styles.page}>
-      <MainTitle>Register page</MainTitle>
+      <MainTitle>Register</MainTitle>
       {hasLogged && (
         <div className={styles.info}>
           <span>

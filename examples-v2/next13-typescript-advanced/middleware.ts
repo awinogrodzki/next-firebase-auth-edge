@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { authentication } from "next-firebase-auth-edge/lib/next/middleware";
 import { authConfig } from "./config/server-config";
 
-const PUBLIC_PATHS = ["/register", "/login"];
+const PUBLIC_PATHS = ["/register", "/login", "/reset-password"];
 
 function redirectToLogin(request: NextRequest) {
   if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {

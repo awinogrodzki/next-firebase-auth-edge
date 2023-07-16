@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <MainTitle>
-        <span>Home page</span>
+        <span>Home</span>
         <Badge>Static</Badge>
       </MainTitle>
       <Card>

@@ -97,6 +97,12 @@ export function UserProfile({ count }: UserProfileProps) {
         )}
 
         <ButtonGroup>
+          <div className={styles.claims}>
+            <h5>Custom claims</h5>
+            <pre>
+              {JSON.stringify(user.customClaims, undefined, 2)}
+            </pre>
+          </div>
           <Button
             loading={isClaimsLoading}
             disabled={isClaimsLoading}
@@ -104,9 +110,6 @@ export function UserProfile({ count }: UserProfileProps) {
           >
             Refresh custom user claims
           </Button>
-          <pre className={styles.preview}>
-            {JSON.stringify(user.customClaims, undefined, 2)}
-          </pre>
           <Button
             loading={isLogoutLoading}
             disabled={isLogoutLoading}

@@ -1,5 +1,5 @@
 .title {
-  margin: 0 0 1em;
+  margin: 0 0 0.63em;
   line-height: 1.15;
   font-size: 4rem;
   font-style: normal;
@@ -7,6 +7,7 @@
   letter-spacing: -0.025em;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 1.5rem;
 }
 

@@ -11,11 +11,18 @@
   gap: 1rem;
 }
 
-.preview {
+.claims {
+  text-align: left;
+}
+
+.claims h5 {
+  margin: 0 0 0.5rem;
+}
+
+.claims pre {
   margin: 0;
   padding: 0.5rem;
   font-size: 0.675rem;
-  text-align: left;
 }
 
 .content {
