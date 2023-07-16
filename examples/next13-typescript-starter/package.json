@@ -1,9 +1,10 @@
 {
-  "name": "next13-typescript-firebaseui",
+  "name": "next13-typescript-starter",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev-turbo": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -13,11 +14,12 @@
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.9",
     "firebase": "^9.18.0",
-    "next": "^13.4.2",
-    "next-firebase-auth-edge": "^0.7.6",
+    "firebase-admin": "^11.9.0",
+    "next": "13.4.9",
+    "next-firebase-auth-edge": "0.7.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-firebaseui": "^6.0.0",
+    "react-loading-hook": "^1.0.0",
     "typescript": "4.9.3"
   }
 }
