@@ -27,11 +27,25 @@ yarn dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Emulator support
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+Library provides Firebase Authentication Emulator support
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+Use [the official guide](https://firebase.google.com/docs/functions/local-emulator) to run the emulator locally.
+
+In order to connect the example with emulator add two env variables to your `.env.local` file (you can copy them from `.env.dist`).
+
+```shell
+NEXT_PUBLIC_EMULATOR_HOST=http://127.0.0.1:9099
+FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099
+```
+
+`FIREBASE_AUTH_EMULATOR_HOST` is used internally by the library
+`NEXT_PUBLIC_EMULATOR_HOST` is used only by provided example
+
+Please note that even in emulator mode, library needs actual service account credentials to sign tokens with x509 certificate fetched from Google, a step that does not currently support emulation. Make sure to provide valid service account credentials even if using emulator.
+
+Also, don't forget to put correct Firebase Project ID in `.firebaserc` file.
 
 ## Learn More
 

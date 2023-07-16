@@ -5,7 +5,7 @@ import {
   getApps,
   initializeApp,
 } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { connectAuthEmulator, getAuth } from "firebase/auth";
 import { clientConfig } from "../config/client-config";
 
 const getFirebaseApp = (options: FirebaseOptions) => {
@@ -14,7 +14,17 @@ const getFirebaseApp = (options: FirebaseOptions) => {
 
 export const useFirebaseAuth = () => {
   const getFirebaseAuth = () => {
-    return getAuth(getFirebaseApp(clientConfig));
+    const auth = getAuth(getFirebaseApp(clientConfig));
+
+    if (process.env.NEXT_PUBLIC_EMULATOR_HOST) {
+      // https://stackoverflow.com/questions/73605307/firebase-auth-emulator-fails-intermittently-with-auth-emulator-config-failed
+      (auth as unknown as any)._canInitEmulator = true;
+      connectAuthEmulator(auth, process.env.NEXT_PUBLIC_EMULATOR_HOST, {
+        disableWarnings: true,
+      });
+    }
+
+    return auth;
   };
 
   return { getFirebaseAuth };
