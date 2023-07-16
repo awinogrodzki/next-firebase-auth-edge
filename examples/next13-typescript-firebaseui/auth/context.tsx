@@ -1,13 +1,20 @@
-'use client';
+"use client";
 
-import { createContext } from 'react';
-import { Tenant } from './types';
+import { createContext, useContext } from "react";
+import type { UserInfo } from "firebase/auth";
+import { Claims } from "next-firebase-auth-edge/lib/auth/tenant";
+
+export interface User extends Omit<UserInfo, "providerId"> {
+  emailVerified: boolean;
+  customClaims: Claims;
+}
 
 export interface AuthContextValue {
-  tenant: Tenant | null;
+  user: User | null;
 }
 
 export const AuthContext = createContext<AuthContextValue>({
-  tenant: null,
+  user: null,
 });
 
+export const useAuth = () => useContext(AuthContext);

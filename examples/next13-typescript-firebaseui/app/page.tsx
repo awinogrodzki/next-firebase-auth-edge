@@ -2,12 +2,11 @@
 
 import Image from "next/image";
 import styles from "./page.module.css";
-import { useAuth } from "../auth/hooks";
+import { useAuth } from "../auth/context";
+import Link from "next/link";
 
 export default function Home() {
-  const { tenant } = useAuth();
-
-  console.log("HOME PAGE TENANT", { tenant });
+  const { user } = useAuth();
 
   return (
     <div className={styles.container}>
@@ -17,8 +16,8 @@ export default function Home() {
         </h1>
 
         <p className={styles.description}>
-          Get started by editing{" "}
-          <code className={styles.code}>app/page.tsx</code>
+          {!user && <Link href="/sign-in">Sign in</Link>}
+          {user && `Logged in as ${user.email}`}
         </p>
 
         <div className={styles.grid}>

@@ -1,1 +1,0 @@
-export { LoadingIcon } from './LoadingIcon';
