@@ -10,56 +10,40 @@ Next.js 13 Firebase Authentication for Edge and Node.js runtimes. Dedicated for 
 
 <a href="https://www.npmjs.com/package/next-firebase-auth-edge">![npm](https://nodei.co/npm/next-firebase-auth-edge.png)</a>
 
+
+- [Example](#example)
+- [Why](#why)
+- [Built on top of Web Crypto API](#built-on-top-of-web-crypto-api)
+- [Installation](#installation)
+- [Overview](#overview)
+    - [Middleware](#middleware)
+        - [Options](#options)
+            - [Required](#required)
+            - [Optional](#optional)
+    - [AuthProvider](#authprovider)
+    - [Server Components](#server-components)
+    - [API Routes or getServerSideProps](#api-routes-or-getserversideprops)
+        - [API Route example](#api-route-example)
+        - [GetServerSideProps example](#getserversideprops-example)
+    - [Advanced usage](#advanced-usage)
+        - [getFirebaseAuth](#getfirebaseauth)
+            - [Methods](#methods)
+        - [refreshAuthCookies in middleware](#refreshauthcookies-in-middleware)
+        - [refreshAuthCookies in API Route](#refreshauthcookies-in-api-route)
+        - [refreshAuthCookies in API handler](#refreshauthcookies-in-api-handler)
+    - [Emulator support](#emulator-support)
+
 ## Example
 
-The demo is available at [next-firebase-auth-edge-static-demo.vercel.app](https://next-firebase-auth-edge-static-demo.vercel.app/)
+The starter demo is available at [next-firebase-auth-edge-starter.vercel.app](https://next-firebase-auth-edge-starter.vercel.app/)
 
-You can find source code for the demo in [examples/next13-typescript-static-pages](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next13-typescript-static-pages)
+You can find source code for the demo in [examples/next13-typescript-starter](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next13-typescript-starter)
 
 ## Why
 
 Official `firebase-admin` library relies heavily on Node.js internal `crypto` library and primitives that are unavailable inside [Next.js Edge Runtime](https://nextjs.org/docs/api-reference/edge-runtime).
 
 This library aims to solve the problem of creating and verifying custom JWT tokens provided by **Firebase Authentication** using Web Crypto API available inside Edge runtimes
-
-## What's new in version 0.7
-
-Compatibility with Next.js 13.4. In the [latest release of Next.js](https://nextjs.org/blog/next-13-4), the app router has reached a stable state and is no longer considered experimental.
-
-With the introduction of version 0.7, several deprecated APIs have been removed, including the `isTokenValid` option.
-
-To successfully migrate to version 0.7, make sure to eliminate all deprecated options from your codebase. If you had any validation logic previously implemented in the `isTokenValid` option, you should now transition it to the `handleValidToken` option. Here's an example:
-
-```typescript
-    // Before
-    isTokenValid: (token) => token.email_verified ?? false, 
-    handleValidToken: async ({ token, decodedToken }) => {
-      return NextResponse.next();
-    }
-```
-
-```typescript
-    // After
-    handleValidToken: async ({ token, decodedToken }) => {
-      if (!token.email_verified) {
-        // Handle this in handleError
-        throw new Error("User email not verified");
-      }
-      
-      return NextResponse.next();
-    }, 
-    handleError: async (error) => {
-      // Avoid redirect loop
-      if (request.nextUrl.pathname === "/login") {
-        return NextResponse.next();
-      }
-    
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
-      return NextResponse.redirect(url);
-    },
-```
 
 ## Built on top of Web Crypto API
 
@@ -87,74 +71,60 @@ With **pnpm**
 pnpm add next-firebase-auth-edge
 ```
 
-### Authentication middleware
+## Overview
 
 In order to set encrypted authentication cookies, we need to define server endpoints to handle logging in and logging out of users.
 
-This can be achieved quite easily using the authentication middleware function:
+The library uses Next.js middleware to setup authentication endpoints, handle redirects and token revalidation.
 
 All examples below are based on working Next.js 13 app examples found in [/examples](https://github.com/awinogrodzki/next-firebase-auth-edge/tree/main/examples) directory
+
+### Middleware
 
 ```typescript
 // middleware.ts
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { authentication } from "next-firebase-auth-edge/lib/next/middleware";
+import { authConfig } from "./config/server-config";
+
+const PUBLIC_PATHS = ["/register", "/login", "/reset-password"];
+
+function redirectToLogin(request: NextRequest) {
+  if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
+  const url = request.nextUrl.clone();
+  url.pathname = "/login";
+  url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
+  return NextResponse.redirect(url);
+}
 
 export async function middleware(request: NextRequest) {
   return authentication(request, {
     loginPath: "/api/login",
     logoutPath: "/api/logout",
-    apiKey: "firebase-api-key",
-    cookieName: "AuthToken",
-    cookieSignatureKeys: ["secret1", "secret2"],
-    cookieSerializeOptions: {
-      path: "/",
-      httpOnly: true,
-      secure: false, // Set this to true on HTTPS environments
-      sameSite: "strict" as const,
-      maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
-    },
-    serviceAccount: {
-      projectId: "firebase-project-id",
-      privateKey: "firebase service account private key",
-      clientEmail: "firebase service account client email",
-    },
-    // Optional
-    checkRevoked: false,
+    apiKey: authConfig.apiKey,
+    cookieName: authConfig.cookieName,
+    cookieSerializeOptions: authConfig.cookieSerializeOptions,
+    cookieSignatureKeys: authConfig.cookieSignatureKeys,
+    serviceAccount: authConfig.serviceAccount,
     handleValidToken: async ({ token, decodedToken }) => {
-      console.log("Successfully authenticated", { token, decodedToken });
       return NextResponse.next();
     },
     handleInvalidToken: async () => {
-      // Avoid redirect loop
-      if (request.nextUrl.pathname === "/login") {
-        return NextResponse.next();
-      }
-
-      // Redirect to /login?redirect=/prev-path when request is unauthenticated
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
-      return NextResponse.redirect(url);
+      return redirectToLogin(request);
     },
     handleError: async (error) => {
       console.error("Unhandled authentication error", { error });
-      // Avoid redirect loop
-      if (request.nextUrl.pathname === "/login") {
-        return NextResponse.next();
-      }
-
-      // Redirect to /login?redirect=/prev-path on unhandled authentication error
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
-      return NextResponse.redirect(url);
+      return redirectToLogin(request);
     },
   });
 }
 
 export const config = {
-  matcher: ["/", "/((?!_next/static|favicon.ico|logo.svg).*)"],
+  matcher: ["/", "/((?!_next|favicon.ico|api).*)", "/api/login", "/api/logout"],
 };
 ```
 
@@ -174,12 +144,12 @@ export const config = {
 
 ##### Optional
 
-| Name               | Type                                                                                                                                             | Description                                                                                                                                                                                                                                              |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| checkRevoked       | `boolean` By default `false`                                                                                                                     | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                          |
-| handleValidToken   | `(tokens: { token: string, decodedToken: DecodedIdToken }) => Promise<NextResponse>` By default returns `NextResponse.next()`                    | Receives id and decoded tokens and should return a promise that resolves with NextResponse.                                                                                                                                                              |
-| handleInvalidToken | `() => Promise<NextResponse>` By default returns `NextResponse.next()` | If passed, is called and returned if request has not been authenticated (either does not have credentials attached or credentials have expired). Can be used to redirect unauthenticated users to specific page or pages.                                |
-| handleError        | `(error: unknown) => Promise<NextResponse>` By default returns `NextResponse.next()` | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, we just allow application to render. This allows you to customize error handling |
+| Name               | Type                                                                                                                          | Description                                                                                                                                                                                                                                          |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| checkRevoked       | `boolean` By default `false`                                                                                                  | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                      |
+| handleValidToken   | `(tokens: { token: string, decodedToken: DecodedIdToken }) => Promise<NextResponse>` By default returns `NextResponse.next()` | Receives id and decoded tokens and should return a promise that resolves with NextResponse.                                                                                                                                                          |
+| handleInvalidToken | `() => Promise<NextResponse>` By default returns `NextResponse.next()`                                                        | If passed, is called and returned if request has not been authenticated (either does not have credentials attached or credentials have expired). Can be used to redirect unauthenticated users to specific page or pages.                            |
+| handleError        | `(error: unknown) => Promise<NextResponse>` By default returns `NextResponse.next()`                                          | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, we just allow application to render. This allows you to customize error handling |
 
 #### Troubleshooting
 
@@ -189,78 +159,70 @@ One of the common issues during setup is `error - Too big integer` thrown by `cr
 
 The error is caused by malformed firebase private key. We are working on providing correct private key validation and more user friendly error message. Until then, please follow the quick fix in aforementioned issue comment.
 
-### Example AuthProvider
+### AuthProvider
 
-Below is example implementation of custom AuthProvider component that handles the calling of authentication endpoints.
+We need some way to share user details between components and call our `/api/login` endpoint to store user data in cookies
 
-`GET /api/login` endpoint should be called with firebase token (see examples below). It responds with `Set-Cookie` header containing encrypted cookies.
+`GET /api/login` endpoint should be called with firebase token (see examples below). It responds with `Set-Cookie` header containing signed cookies.
 
 `GET /api/logout` removes authentication cookies. Make sure to sign out the user from firebase before calling the endpoint.
 
-You can see a working demo at [next-firebase-auth-edge-static-demo.vercel.app](https://next-firebase-auth-edge-static-demo.vercel.app/)
+You can see a working demo at [next-firebase-auth-edge-starter.vercel.app](https://next-firebase-auth-edge-starter.vercel.app/)
 
-The source code for the demo can be found here [examples/next13-typescript-static-pages](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next13-typescript-static-pages)
+The source code for the demo can be found here [examples/next13-typescript-starter](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next13-typescript-starter)
 
 ```tsx
+// client-auth-provider.tsx
+"use client";
+
+import * as React from "react";
+import {
+  onIdTokenChanged,
+  User as FirebaseUser,
+  UserInfo,
+} from "firebase/auth";
+
+export interface AuthContextValue {
+  user: UserInfo | null;
+}
+
+export const AuthContext = createContext<AuthContextValue>({
+  user: null,
+});
+
+export interface AuthProviderProps {
+  defaultUser: UserInfo | null;
+  children: React.ReactNode;
+}
+
+const getFirebaseApp = (options: FirebaseOptions) => {
+  return (!getApps().length ? initializeApp(options) : getApp()) as FirebaseApp;
+};
+
 export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
-  defaultTenant,
+  defaultUser,
   children,
 }) => {
-  const { getFirebaseAuth } = useFirebaseAuth(clientConfig);
-  const firstLoadRef = React.useRef(true);
-  const [tenant, setTenant] = React.useState(defaultTenant);
-
-  // Call logout any time
-  const handleLogout = async () => {
-    const auth = await getFirebaseAuth();
-    const { signOut } = await import("firebase/auth");
-    await signOut(auth);
-    // Removes authentication cookies
-    await fetch("/api/logout", {
-      method: "GET",
-    });
-  };
+  const [user, setUser] = React.useState(defaultUser);
 
   const handleIdTokenChanged = async (firebaseUser: FirebaseUser | null) => {
-    if (firebaseUser && tenant && firebaseUser.uid === tenant.id) {
-      firstLoadRef.current = false;
-      return;
-    }
-
-    const auth = await getFirebaseAuth();
-
-    if (!firebaseUser && firstLoadRef.current) {
-      const { signInAnonymously } = await import("firebase/auth");
-      firstLoadRef.current = false;
-      await signInAnonymously(auth);
-      return;
-    }
-
     if (!firebaseUser) {
-      firstLoadRef.current = false;
-      startTransition(() => {
-        setTenant(null);
-      });
+      setUser(null);
       return;
     }
 
-    firstLoadRef.current = false;
-    const tokenResult = await firebaseUser.getIdTokenResult();
-    // Sets authentication cookies
+    const idTokenResult = await firebaseUser.getIdTokenResult();
     await fetch("/api/login", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${tokenResult.token}`,
+        Authorization: `Bearer ${idTokenResult.token}`,
       },
     });
-    startTransition(() => {
-      setTenant(mapFirebaseResponseToTenant(tokenResult, firebaseUser));
-    });
+    setUser(firebaseUser);
   };
 
   const registerChangeListener = async () => {
-    const auth = await getFirebaseAuth();
-    const { onIdTokenChanged } = await import("firebase/auth");
+    const auth = getAuth(getFirebaseApp(FIREBASE_CLIENT_CONFIG));
     return onIdTokenChanged(auth, handleIdTokenChanged);
   };
 
@@ -275,7 +237,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   return (
     <AuthContext.Provider
       value={{
-        tenant,
+        user,
       }}
     >
       {children}
@@ -291,13 +253,32 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
 Below is an example of root `app/layout.tsx` server component using `getTokens` function to extract user tokens from request cookies
 
 ```tsx
-import "./globals.css";
 import { getTokens } from "next-firebase-auth-edge/lib/next/tokens";
 import { cookies } from "next/headers";
 import { AuthProvider } from "./auth-provider";
-import { serverConfig } from "./server-config";
 import { Tokens } from "next-firebase-auth-edge/lib/auth";
-import { Tenant } from "../auth/types";
+import { UserInfo } from "firebase/auth";
+
+const mapTokensToUser = ({ decodedToken }: Tokens): UserInfo => {
+  const {
+    uid,
+    email,
+    picture: photoURL,
+    email_verified: emailVerified,
+    phone_number: phoneNumber,
+    name: displayName,
+  } = decodedToken;
+
+  return {
+    uid,
+    email: email ?? null,
+    displayName: displayName ?? null,
+    photoURL: photoURL ?? null,
+    phoneNumber: phoneNumber ?? null,
+    emailVerified: emailVerified ?? false,
+    provider: "firebase",
+  };
+};
 
 //...
 export default async function AuthenticatedLayout({
@@ -316,13 +297,13 @@ export default async function AuthenticatedLayout({
     cookieSignatureKeys: ["secret1", "secret2"],
   });
 
-  const tenant = tokens ? mapTokensToTenant(tokens) : null;
+  const user = tokens ? mapTokensToUser(tokens) : null;
 
   return (
     <html lang="en">
       <head />
       <body>
-        <AuthProvider defaultTenant={tenant}>{children}</AuthProvider>
+        <AuthProvider defaultUser={user}>{children}</AuthProvider>
       </body>
     </html>
   );
@@ -334,6 +315,7 @@ export default async function AuthenticatedLayout({
 Library provides `getTokensFromObject` function that allows us to authenticate users inside API routes or getServerSideProps.
 
 #### API Route example
+
 ```typescript
 import { NextApiRequest, NextApiResponse } from "next";
 import { getTokensFromObject } from "next-firebase-auth-edge/lib/next/tokens";
@@ -358,9 +340,10 @@ export default async function handler(
 ```
 
 #### GetServerSideProps example
+
 ```typescript
-import { GetServerSidePropsContext } from 'next';
-import { getTokensFromObject } from 'next-firebase-auth-edge/lib/next/tokens';
+import { GetServerSidePropsContext } from "next";
+import { getTokensFromObject } from "next-firebase-auth-edge/lib/next/tokens";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const tokens = await getTokensFromObject(context.req.cookies, {
@@ -373,7 +356,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       clientEmail: "firebase service account client email",
     },
   });
-  
+
   return { props: {} };
 }
 ```
@@ -421,7 +404,7 @@ const {
 
 Can be used inside Next.js Edge runtime to refresh user's authentication cookies. Useful when we want to refresh credentials after updating [custom claims](https://firebase.google.com/docs/auth/admin/custom-claims) with `setCustomUserClaims` function
 
-Usage in [static pages example](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next13-typescript-static-pages/middleware.ts)
+Usage in [starter example](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next13-typescript-starter/app/api/custom-claims/route.ts)
 
 Using refreshAuthCookies automatically sets Set-Cookie headers with updated cookies in response. Additionally, it returns a set of updated idToken and refreshToken, in case you want to do something with it
 
@@ -484,15 +467,60 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/((?!_next/static|favicon.ico|logo.svg).*)"],
+  matcher: ["/", "/((?!_next|favicon.ico|api).*)", "/api/login", "/api/logout"],
 };
+```
+
+#### refreshAuthCookies in API Route
+
+Based on `/api/custom-claims` endpoint found in [starter examle](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next13-typescript-starter/app/api/custom-claims/route.ts)
+
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+import { authConfig } from "../../../config/server-config";
+import { getTokens } from "next-firebase-auth-edge/lib/next/tokens";
+import { refreshAuthCookies } from "next-firebase-auth-edge/lib/next/middleware";
+import { getFirebaseAuth } from "next-firebase-auth-edge/lib/auth";
+
+const { setCustomUserClaims, getUser } = getFirebaseAuth(
+  authConfig.serviceAccount,
+  authConfig.apiKey
+);
+
+export async function POST(request: NextRequest) {
+  const tokens = await getTokens(request.cookies, authConfig);
+
+  if (!tokens) {
+    throw new Error("Cannot update custom claims of unauthenticated user");
+  }
+
+  await setCustomUserClaims(tokens.decodedToken.uid, {
+    someCustomClaim: {
+      updatedAt: Date.now(),
+    },
+  });
+
+  const user = await getUser(tokens.decodedToken.uid);
+  const response = new NextResponse(
+    JSON.stringify({
+      customClaims: user.customClaims,
+    }),
+    {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    }
+  );
+
+  // Attach `Set-Cookie` headers with token containing new custom claims
+  await refreshAuthCookies(tokens.token, response, authConfig);
+
+  return response;
+}
 ```
 
 #### refreshAuthCookies in API handler
 
 Can be used inside Next.js API routes to refresh user's authentication cookies. Useful when we want to refresh credentials after updating [custom claims](https://firebase.google.com/docs/auth/admin/custom-claims) or user profile data
-
-Usage in [static pages example](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next13-typescript-static-pages/pages/api/refresh-tokens.ts)
 
 Using refreshAuthCookies automatically sets Set-Cookie headers with updated cookies in api response. Additionally, it returns a set of updated idToken and refreshToken, in case you want to do something with it
 
@@ -549,18 +577,4 @@ await fetch("/api/refresh-tokens", {
 
 ### Emulator support
 
-Library provides Firebase Authentication Emulator support. An example can be found in [examples/next13-typescript-firebase-emulator](examples/next13-typescript-firebase-emulator)
-
-Please remember to copy `.env.dist` file into `.env` and fill all needed credentials, especially:
-
-```shell
-NEXT_PUBLIC_EMULATOR_HOST=http://localhost:9099
-FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
-```
-
-`FIREBASE_AUTH_EMULATOR_HOST` is used internally by the library
-`NEXT_PUBLIC_EMULATOR_HOST` is used only by provided example
-
-Please note that even in emulator mode, library needs actual service account credentials to sign tokens with x509 certificate fetched from Google, a step that does not currently support emulation. Make sure to provide valid service account credentials even if using emulator.
-
-Also, don't forget to put correct Firebase Project ID in `.firebaserc` file.
+Library provides Firebase Authentication Emulator support. Follow starter example readme [examples/next13-typescript-starter](examples/next13-typescript-starter)
