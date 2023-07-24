@@ -86,7 +86,6 @@ All examples below are based on working Next.js 13 app examples found in [/examp
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { authentication } from "next-firebase-auth-edge/lib/next/middleware";
-import { authConfig } from "./config/server-config";
 
 const PUBLIC_PATHS = ["/register", "/login", "/reset-password"];
 
@@ -105,11 +104,21 @@ export async function middleware(request: NextRequest) {
   return authentication(request, {
     loginPath: "/api/login",
     logoutPath: "/api/logout",
-    apiKey: authConfig.apiKey,
-    cookieName: authConfig.cookieName,
-    cookieSerializeOptions: authConfig.cookieSerializeOptions,
-    cookieSignatureKeys: authConfig.cookieSignatureKeys,
-    serviceAccount: authConfig.serviceAccount,
+    apiKey: "YOUR-FIREBASE-API-KEY",
+    cookieName: "AuthToken",
+    cookieSerializeOptions: {
+      path: "/",
+      httpOnly: true,
+      secure: false, // set to 'true' on https environments
+      sameSite: 'lax',
+      maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
+    },
+    cookieSignatureKeys: ["secret1", "secret2"],
+    serviceAccount: {
+      projectId: "YOUR-FIREBASE-PROJECT-ID",
+      clientEmail: "YOUR-FIREBASE-CLIENT-EMAIL",
+      privateKey: "YOUR-FIREBASE-PRIVATE-KEY",
+    },
     handleValidToken: async ({ token, decodedToken }) => {
       return NextResponse.next();
     },
