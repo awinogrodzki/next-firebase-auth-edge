@@ -2,6 +2,7 @@ import { ServiceAccountCredential } from "../credential";
 import { ErrorInfo } from "../error";
 import { ALGORITHMS } from "./consts";
 import {
+  adaptBufferForNodeJS,
   arrayBufferToBase64,
   pemToArrayBuffer,
   stringToArrayBuffer,
@@ -34,7 +35,7 @@ export class ServiceAccountSigner implements CryptoSigner {
     const keyData = pemToArrayBuffer(this.credential.privateKey);
     const key = await crypto.subtle.importKey(
       "pkcs8",
-      keyData,
+      adaptBufferForNodeJS(keyData),
       ALGORITHMS[ALGORITHM_RS256],
       false,
       ["sign"]
@@ -43,7 +44,7 @@ export class ServiceAccountSigner implements CryptoSigner {
     const signed = await crypto.subtle.sign(
       ALGORITHMS[ALGORITHM_RS256],
       key,
-      tokenBuffer
+      adaptBufferForNodeJS(tokenBuffer)
     );
     return arrayBufferToBase64(signed);
   }
