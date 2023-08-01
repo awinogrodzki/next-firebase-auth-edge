@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.7.7
+
+### Patch Changes
+
+- Fix Node.js 18.17 native WebCrypto ArrayBuffer compatibility issue
+
 ## 0.7.6
 
 ### Patch Changes
