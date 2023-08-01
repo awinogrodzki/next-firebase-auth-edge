@@ -1,4 +1,8 @@
-import { arrayBufferToBase64, stringToArrayBuffer } from "./jwt/utils";
+import {
+  adaptBufferForNodeJS,
+  arrayBufferToBase64,
+  stringToArrayBuffer,
+} from "./jwt/utils";
 
 export class RotatingCredential {
   private digestAlgorithm = "SHA-1";
@@ -19,10 +23,13 @@ export class RotatingCredential {
     const keyBuffer = stringToArrayBuffer(keyValue);
     const dataBuffer = stringToArrayBuffer(data);
     const keyBitLength = keyBuffer.byteLength * 8;
-    const digest = await crypto.subtle.digest(this.digestAlgorithm, dataBuffer);
+    const digest = await crypto.subtle.digest(
+      this.digestAlgorithm,
+      adaptBufferForNodeJS(dataBuffer)
+    );
     const key = await crypto.subtle.importKey(
       "raw",
-      keyBuffer,
+      adaptBufferForNodeJS(keyBuffer),
       this.getSignAlgorithm(keyBitLength),
       false,
       ["sign"]

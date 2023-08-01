@@ -1,6 +1,10 @@
 import { JwtError, JwtErrorCode } from "./error";
 import { decode } from "./decode";
-import { base64StringToArrayBuffer, stringToArrayBuffer } from "./utils";
+import {
+  adaptBufferForNodeJS,
+  base64StringToArrayBuffer,
+  stringToArrayBuffer,
+} from "./utils";
 import { ALGORITHMS } from "./consts";
 import { pemToPublicKey } from "../pem-to-public-key";
 import { useEmulator } from "../firebase";
@@ -50,7 +54,7 @@ export async function getPublicCryptoKey(
 
   return crypto.subtle.importKey(
     options.format,
-    buffer,
+    adaptBufferForNodeJS(buffer),
     ALGORITHMS.RS256,
     false,
     ["verify"]
@@ -125,8 +129,8 @@ export async function verify(
     const result = await crypto.subtle.verify(
       ALGORITHMS[options.algorithm],
       key,
-      sigBuffer,
-      jwtBuffer
+      adaptBufferForNodeJS(sigBuffer),
+      adaptBufferForNodeJS(jwtBuffer)
     );
 
     if (!result) {

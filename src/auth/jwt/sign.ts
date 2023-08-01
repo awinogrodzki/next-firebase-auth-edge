@@ -4,6 +4,7 @@ import {
   objectToBase64,
   pemToArrayBuffer,
   base64StringToArrayBuffer,
+  adaptBufferForNodeJS,
 } from "./utils";
 import { DecodedJWTHeader, DecodedJWTPayload, Immutable } from "./types";
 import { ALGORITHMS } from "./consts";
@@ -46,7 +47,7 @@ export async function sign({
   const keyData = getKeyData({ privateKey, secret });
   const key = await crypto.subtle.importKey(
     format,
-    keyData,
+    adaptBufferForNodeJS(keyData),
     ALGORITHMS[algorithm],
     extractable,
     keyUsages as KeyUsage[]
@@ -62,7 +63,11 @@ export async function sign({
   const encodedPayload = objectToBase64(payload);
   const data = stringToArrayBuffer(`${encodedHeader}.${encodedPayload}`);
 
-  const signature = await crypto.subtle.sign(ALGORITHMS[algorithm], key, data);
+  const signature = await crypto.subtle.sign(
+    ALGORITHMS[algorithm],
+    key,
+    adaptBufferForNodeJS(data)
+  );
   const encodedSignature = arrayBufferToBase64(signature);
 
   return `${encodedHeader}.${encodedPayload}.${encodedSignature}`;

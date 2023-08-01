@@ -27,6 +27,19 @@ export function base64StringToObject(base64: string): ParsedObject {
   return JSON.parse(atob(prepareBase64String(base64))) as ParsedObject;
 }
 
+// https://github.com/awinogrodzki/next-firebase-auth-edge/issues/63
+// Node.js 18.17 introduced native (yet experimental) WebCrypto support, which does not recognize native Node.js ArrayBuffer as correct argument
+// We need to work around this issue by returning Buffer instance for WebCrypto operations in Node.js environment
+export function adaptBufferForNodeJS(
+  buffer: ArrayBuffer
+): Buffer | ArrayBuffer {
+  if (typeof Buffer !== "undefined") {
+    return Buffer.from(buffer);
+  }
+
+  return buffer;
+}
+
 export function stringToArrayBuffer(value: string): ArrayBuffer {
   return stringToByteArray(value).buffer;
 }
