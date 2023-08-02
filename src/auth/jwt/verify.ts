@@ -63,7 +63,7 @@ export async function getPublicCryptoKey(
 
 export async function verify(
   jwtString: string,
-  secretOrPublicKey: string,
+  publicKey: string,
   options: VerifyOptions = {
     format: "spki",
     algorithm: "RS256",
@@ -99,17 +99,17 @@ export async function verify(
   const signature = parts[2].trim();
   const hasSignature = signature !== "";
 
-  if (!useEmulator() && !hasSignature && secretOrPublicKey) {
+  if (!useEmulator() && !hasSignature && publicKey) {
     throw new JwtError(
       JwtErrorCode.INVALID_SIGNATURE,
       "jwt signature is required"
     );
   }
 
-  if (!useEmulator() && hasSignature && !secretOrPublicKey) {
+  if (!useEmulator() && hasSignature && !publicKey) {
     throw new JwtError(
       JwtErrorCode.INVALID_CREDENTIAL,
-      "secret or public key must be provided"
+      "public key must be provided"
     );
   }
 
@@ -123,7 +123,7 @@ export async function verify(
   if (!useEmulator()) {
     const data = parts.slice(0, 2).join(".");
 
-    const key = await getPublicCryptoKey(secretOrPublicKey, options);
+    const key = await getPublicCryptoKey(publicKey, options);
     const jwtBuffer = stringToArrayBuffer(data);
     const sigBuffer = base64StringToArrayBuffer(signature);
     const result = await crypto.subtle.verify(

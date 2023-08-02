@@ -14,13 +14,6 @@ if (
   (global as any).crypto = runtime.crypto;
 }
 
-if (
-  (typeof caches === "undefined" || typeof global.caches === "undefined") &&
-  Boolean(runtime?.caches?.open)
-) {
-  (global as any).caches = runtime.caches;
-}
-
 const getCustomTokenEndpoint = (apiKey: string) => {
   if (useEmulator()) {
     return `http://${process.env
