@@ -47,7 +47,6 @@ aQIDAQAB
     const jwt = await sign({
       payload,
       privateKey,
-      keyUsages: ["sign"],
     });
 
     await verify(jwt, publicKey);

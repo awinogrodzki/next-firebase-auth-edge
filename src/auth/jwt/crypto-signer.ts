@@ -1,25 +1,14 @@
 import { ServiceAccountCredential } from "../credential";
 import { ErrorInfo } from "../error";
-import { ALGORITHMS } from "./consts";
-import {
-  adaptBufferForNodeJS,
-  arrayBufferToBase64,
-  pemToArrayBuffer,
-  stringToArrayBuffer,
-} from "./utils";
-
-const ALGORITHM_RS256 = "RS256" as const;
+import { sign } from "./sign";
+import { JWTPayload } from "jose";
 
 export interface CryptoSigner {
-  readonly algorithm: "RS256" | "none";
-
-  sign(token: string): Promise<string>;
+  sign(payload: JWTPayload): Promise<string>;
   getAccountId(): Promise<string>;
 }
 
 export class ServiceAccountSigner implements CryptoSigner {
-  algorithm = ALGORITHM_RS256;
-
   constructor(private readonly credential: ServiceAccountCredential) {
     if (!credential) {
       throw new CryptoSignerError({
@@ -30,23 +19,8 @@ export class ServiceAccountSigner implements CryptoSigner {
     }
   }
 
-  public async sign(token: string): Promise<string> {
-    const tokenBuffer = stringToArrayBuffer(token);
-    const keyData = pemToArrayBuffer(this.credential.privateKey);
-    const key = await crypto.subtle.importKey(
-      "pkcs8",
-      adaptBufferForNodeJS(keyData),
-      ALGORITHMS[ALGORITHM_RS256],
-      false,
-      ["sign"]
-    );
-
-    const signed = await crypto.subtle.sign(
-      ALGORITHMS[ALGORITHM_RS256],
-      key,
-      adaptBufferForNodeJS(tokenBuffer)
-    );
-    return arrayBufferToBase64(signed);
+  public async sign(payload: JWTPayload): Promise<string> {
+    return sign({ payload, privateKey: this.credential.privateKey });
   }
 
   /**

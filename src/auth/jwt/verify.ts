@@ -1,150 +1,75 @@
 import { JwtError, JwtErrorCode } from "./error";
-import { decode } from "./decode";
-import {
-  adaptBufferForNodeJS,
-  base64StringToArrayBuffer,
-  stringToArrayBuffer,
-} from "./utils";
-import { ALGORITHMS } from "./consts";
-import { pemToPublicKey } from "../pem-to-public-key";
 import { useEmulator } from "../firebase";
+import {
+  decodeJwt,
+  errors,
+  importSPKI,
+  importX509,
+  jwtVerify,
+  KeyLike,
+} from "jose";
+import { ALGORITHM_RS256 } from "../signature-verifier";
+import { DecodedIdToken } from "../token-verifier";
 
 interface VerifyOptions {
-  complete?: boolean;
-  clockTimestamp?: number;
-  nonce?: string;
-  readonly format: "spki";
-  readonly algorithm: "RS256";
+  currentDate?: Date;
 }
 
-const keyMap: Record<string, CryptoKey> = {};
+const keyMap: Map<string, KeyLike> = new Map();
 
-async function getCachedPublicKeyFromCertificate(
-  pem: string
-): Promise<CryptoKey> {
-  if (keyMap[pem]) {
-    return keyMap[pem];
-  }
-
-  return (keyMap[pem] = await pemToPublicKey(pem));
-}
-
-function createKeyFromCertificatePEM(pem: string) {
-  return getCachedPublicKeyFromCertificate(pem);
-}
-
-export async function getPublicCryptoKey(
-  publicKey: string,
-  options: VerifyOptions
-): Promise<CryptoKey> {
+async function importPublicCryptoKey(publicKey: string) {
   if (publicKey.startsWith("-----BEGIN CERTIFICATE-----")) {
-    return createKeyFromCertificatePEM(
-      publicKey
-        .replace("-----BEGIN CERTIFICATE-----", "")
-        .replace("-----END CERTIFICATE-----", "")
-        .replace(/\n/g, "")
-    );
+    return importX509(publicKey, ALGORITHM_RS256);
   }
 
-  const base64 = publicKey
-    .replace("-----BEGIN PUBLIC KEY-----", "")
-    .replace("-----END PUBLIC KEY-----", "")
-    .replace(/\n/g, "");
-  const buffer = base64StringToArrayBuffer(base64);
+  return importSPKI(publicKey, ALGORITHM_RS256);
+}
 
-  return crypto.subtle.importKey(
-    options.format,
-    adaptBufferForNodeJS(buffer),
-    ALGORITHMS.RS256,
-    false,
-    ["verify"]
-  );
+export async function getPublicCryptoKey(publicKey: string): Promise<KeyLike> {
+  const cachedKey = keyMap.get(publicKey);
+
+  if (cachedKey) {
+    return cachedKey;
+  }
+
+  const key = await importPublicCryptoKey(publicKey);
+  keyMap.set(publicKey, key);
+  return key;
 }
 
 export async function verify(
   jwtString: string,
   publicKey: string,
-  options: VerifyOptions = {
-    format: "spki",
-    algorithm: "RS256",
-  }
+  options: VerifyOptions = {}
 ) {
-  if (options.nonce !== undefined && !options.nonce.trim()) {
-    throw new JwtError(
-      JwtErrorCode.INVALID_ARGUMENT,
-      "nonce must be a non-empty string"
-    );
-  }
-
-  const clockTimestamp =
-    options.clockTimestamp || Math.floor(Date.now() / 1000);
-
-  if (!jwtString) {
-    throw new JwtError(JwtErrorCode.INVALID_ARGUMENT, "jwt must be valid");
-  }
-
-  const parts = jwtString.split(".");
-
-  if (parts.length !== 3) {
-    throw new JwtError(JwtErrorCode.INVALID_ARGUMENT, "jwt malformed");
-  }
-
-  const decodedToken = decode(jwtString, { complete: true });
-
-  if (!decodedToken) {
-    throw new JwtError(JwtErrorCode.INVALID_ARGUMENT, "invalid token");
-  }
-
-  const header = decodedToken.header;
-  const signature = parts[2].trim();
-  const hasSignature = signature !== "";
-
-  if (!useEmulator() && !hasSignature && publicKey) {
-    throw new JwtError(
-      JwtErrorCode.INVALID_SIGNATURE,
-      "jwt signature is required"
-    );
-  }
-
-  if (!useEmulator() && hasSignature && !publicKey) {
-    throw new JwtError(
-      JwtErrorCode.INVALID_CREDENTIAL,
-      "public key must be provided"
-    );
-  }
-
-  if (!useEmulator() && decodedToken.header.alg !== options.algorithm) {
-    throw new JwtError(
-      JwtErrorCode.INVALID_ARGUMENT,
-      "unsupported algorithm: " + decodedToken.header.alg
-    );
-  }
+  const currentDate = options.currentDate ?? new Date();
+  const currentTimestamp = currentDate.getTime() / 1000;
+  const payload = decodeJwt(jwtString);
 
   if (!useEmulator()) {
-    const data = parts.slice(0, 2).join(".");
+    const key = await getPublicCryptoKey(publicKey);
+    try {
+      const { payload } = await jwtVerify(jwtString, key, { currentDate });
 
-    const key = await getPublicCryptoKey(publicKey, options);
-    const jwtBuffer = stringToArrayBuffer(data);
-    const sigBuffer = base64StringToArrayBuffer(signature);
-    const result = await crypto.subtle.verify(
-      ALGORITHMS[options.algorithm],
-      key,
-      adaptBufferForNodeJS(sigBuffer),
-      adaptBufferForNodeJS(jwtBuffer)
-    );
+      return payload as DecodedIdToken;
+    } catch (e) {
+      // @TODO: Remove FirebaseAuthError and JWTError
+      if (e instanceof errors.JWTExpired) {
+        throw new JwtError(
+          JwtErrorCode.TOKEN_EXPIRED,
+          "token expired: " + new Date((payload?.exp ?? 0) * 1000).toISOString()
+        );
+      }
 
-    if (!result) {
-      throw new JwtError(JwtErrorCode.INVALID_SIGNATURE, "invalid signature");
+      throw e;
     }
   }
-
-  const payload = decodedToken.payload;
 
   if (typeof payload.nbf !== "undefined") {
     if (typeof payload.nbf !== "number") {
       throw new JwtError(JwtErrorCode.INVALID_ARGUMENT, "invalid nbf value");
     }
-    if (payload.nbf > clockTimestamp) {
+    if (payload.nbf > currentTimestamp) {
       throw new JwtError(
         JwtErrorCode.TOKEN_EXPIRED,
         "jwt not active: " + new Date(payload.nbf * 1000).toISOString()
@@ -157,7 +82,7 @@ export async function verify(
       throw new JwtError(JwtErrorCode.INVALID_ARGUMENT, "invalid exp value");
     }
 
-    if (clockTimestamp >= payload.exp) {
+    if (currentTimestamp >= payload.exp) {
       throw new JwtError(
         JwtErrorCode.TOKEN_EXPIRED,
         "token expired: " + new Date(payload.exp * 1000).toISOString()
@@ -165,24 +90,5 @@ export async function verify(
     }
   }
 
-  if (options.nonce) {
-    if (payload.nonce !== options.nonce) {
-      throw new JwtError(
-        JwtErrorCode.INVALID_ARGUMENT,
-        "jwt nonce invalid. expected: " + options.nonce
-      );
-    }
-  }
-
-  if (options.complete === true) {
-    const signature = decodedToken.signature;
-
-    return {
-      header: header,
-      payload: payload,
-      signature: signature,
-    };
-  }
-
-  return payload;
+  return payload as DecodedIdToken;
 }

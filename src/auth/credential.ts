@@ -1,5 +1,5 @@
-import { sign } from "./jwt";
-import { DecodedJWTPayload } from "./jwt/types";
+import { sign } from "./jwt/sign";
+import { JWTPayload } from "jose";
 
 export interface GoogleOAuthAccessToken {
   access_token: string;
@@ -15,7 +15,6 @@ const GOOGLE_TOKEN_AUDIENCE = "https://accounts.google.com/o/oauth2/token";
 const GOOGLE_AUTH_TOKEN_HOST = "accounts.google.com";
 const GOOGLE_AUTH_TOKEN_PATH = "/o/oauth2/token";
 const ONE_HOUR_IN_SECONDS = 60 * 60;
-const JWT_ALGORITHM = "RS256";
 
 export interface ServiceAccount {
   projectId: string;
@@ -114,12 +113,11 @@ export class ServiceAccountCredential implements Credential {
         "https://www.googleapis.com/auth/identitytoolkit",
         "https://www.googleapis.com/auth/userinfo.email",
       ].join(" "),
-    } as DecodedJWTPayload;
+    } as JWTPayload;
 
     return sign({
       payload,
       privateKey: this.privateKey,
-      algorithm: JWT_ALGORITHM,
     });
   }
 }

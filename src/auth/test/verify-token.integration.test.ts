@@ -5,6 +5,11 @@ import {
 } from "../index";
 import { v4 } from "uuid";
 import { AuthClientErrorCode, FirebaseAuthError } from "../error";
+import { fetchPublicKey, UrlKeyFetcher } from "../signature-verifier";
+import { CLIENT_CERT_URL } from "../firebase";
+import { decodeProtectedHeader } from "jose";
+import { verify } from "../jwt/verify";
+import { JwtError } from "../jwt/error";
 
 const {
   FIREBASE_API_KEY,
@@ -13,6 +18,12 @@ const {
   FIREBASE_ADMIN_PRIVATE_KEY,
 } = process.env;
 
+const TEST_SERVICE_ACCOUNT = {
+  clientEmail: FIREBASE_ADMIN_CLIENT_EMAIL!,
+  privateKey: FIREBASE_ADMIN_PRIVATE_KEY!.replace(/\\n/g, "\n"),
+  projectId: FIREBASE_PROJECT_ID!,
+};
+
 describe("verify token integration test", () => {
   const {
     handleTokenRefresh,
@@ -20,14 +31,7 @@ describe("verify token integration test", () => {
     verifyAndRefreshExpiredIdToken,
     verifyIdToken,
     deleteUser,
-  } = getFirebaseAuth(
-    {
-      clientEmail: FIREBASE_ADMIN_CLIENT_EMAIL!,
-      privateKey: FIREBASE_ADMIN_PRIVATE_KEY!.replace(/\\n/g, "\n"),
-      projectId: FIREBASE_PROJECT_ID!,
-    },
-    FIREBASE_API_KEY!
-  );
+  } = getFirebaseAuth(TEST_SERVICE_ACCOUNT, FIREBASE_API_KEY!);
 
   it("should create and verify custom token", async () => {
     const userId = v4();
@@ -43,6 +47,29 @@ describe("verify token integration test", () => {
 
     expect(tenant.uid).toEqual(userId);
     expect(tenant.customClaim).toEqual("customClaimValue");
+  });
+
+  it("should throw JwtError if token is expired", async () => {
+    const userId = v4();
+    const customToken = await createCustomToken(userId, {
+      customClaim: "customClaimValue",
+    });
+
+    const { idToken } = await customTokenToIdAndRefreshTokens(
+      customToken,
+      FIREBASE_API_KEY!
+    );
+    const header = decodeProtectedHeader(idToken);
+    const publicKey = await fetchPublicKey(
+      new UrlKeyFetcher(CLIENT_CERT_URL),
+      header
+    );
+
+    return expect(() =>
+      verify(idToken, publicKey, {
+        currentDate: new Date(Date.now() + 7200 * 1000),
+      })
+    ).rejects.toBeInstanceOf(JwtError);
   });
 
   it("should verify and refresh token", async () => {

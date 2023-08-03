@@ -4,13 +4,11 @@ import {
   CryptoSignerErrorCode,
   ServiceAccountSigner,
 } from "./jwt/crypto-signer";
-import { objectToBase64, stringToBase64 } from "./jwt/utils";
 import { isNonEmptyString, isNonNullObject } from "./validator";
 import { AuthClientErrorCode, ErrorInfo, FirebaseAuthError } from "./error";
-import { useEmulator } from "./firebase";
 import { ServiceAccountCredential } from "./credential";
+import { JWTPayload } from "jose";
 
-const ALGORITHM_NONE = "none" as const;
 const ONE_HOUR_IN_SECONDS = 60 * 60;
 
 export const BLACKLISTED_CLAIMS = [
@@ -32,34 +30,6 @@ export const BLACKLISTED_CLAIMS = [
 
 const FIREBASE_AUDIENCE =
   "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit";
-
-interface JWTHeader {
-  alg: string;
-  typ: string;
-}
-
-interface JWTBody {
-  claims?: object;
-  uid: string;
-  aud: string;
-  iat: number;
-  exp: number;
-  iss: string;
-  sub: string;
-  tenant_id?: string;
-}
-
-export class EmulatedSigner implements CryptoSigner {
-  algorithm = ALGORITHM_NONE;
-
-  public async sign(token: string): Promise<string> {
-    return stringToBase64(token);
-  }
-
-  public getAccountId(): Promise<string> {
-    return Promise.resolve("firebase-auth-emulator@example.com");
-  }
-}
 
 export class FirebaseTokenGenerator {
   private readonly signer: CryptoSigner;
@@ -124,12 +94,8 @@ export class FirebaseTokenGenerator {
     return this.signer
       .getAccountId()
       .then(async (account) => {
-        const header: JWTHeader = {
-          alg: this.signer.algorithm,
-          typ: "JWT",
-        };
         const iat = Math.floor(Date.now() / 1000);
-        const body: JWTBody = {
+        const body: JWTPayload = {
           aud: FIREBASE_AUDIENCE,
           iat,
           exp: iat + ONE_HOUR_IN_SECONDS,
@@ -143,27 +109,12 @@ export class FirebaseTokenGenerator {
         if (Object.keys(claims).length > 0) {
           body.claims = claims;
         }
-        const token = `${FirebaseTokenGenerator.encodeSegment(
-          header
-        )}.${FirebaseTokenGenerator.encodeSegment(body)}`;
-        const signPromise = await this.signer.sign(token);
 
-        return Promise.all([token, signPromise]);
-      })
-      .then(([token, signature]) => {
-        return `${token}.${signature}`;
+        return this.signer.sign(body);
       })
       .catch((err) => {
         throw handleCryptoSignerError(err);
       });
-  }
-
-  private static encodeSegment(segment: object | string): string {
-    if (typeof segment === "object") {
-      return objectToBase64(segment);
-    }
-
-    return stringToBase64(segment);
   }
 
   private static isDeveloperClaimsValid_(developerClaims?: object): boolean {
@@ -210,9 +161,7 @@ export function createFirebaseTokenGenerator(
   tenantId?: string
 ): FirebaseTokenGenerator {
   try {
-    const signer = useEmulator()
-      ? new EmulatedSigner()
-      : new ServiceAccountSigner(credential);
+    const signer = new ServiceAccountSigner(credential);
     return new FirebaseTokenGenerator(signer, tenantId);
   } catch (err: any) {
     throw handleCryptoSignerError(err);

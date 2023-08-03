@@ -1,25 +1,15 @@
-import {
-  CLIENT_CERT_URL,
-  FIREBASE_AUDIENCE,
-  FirebaseTokenInfo,
-  ID_TOKEN_INFO,
-} from "./firebase";
+import { CLIENT_CERT_URL, FIREBASE_AUDIENCE } from "./firebase";
 import {
   ALGORITHM_RS256,
   DecodedToken,
-  decodeJwt,
   EmulatorSignatureVerifier,
   PublicKeySignatureVerifier,
   SignatureVerifier,
 } from "./signature-verifier";
-import {
-  isNonEmptyString,
-  isNonNullObject,
-  isString,
-  isURL,
-} from "./validator";
+import { isURL } from "./validator";
 import { AuthClientErrorCode, FirebaseAuthError } from "./error";
-import { JwtError, JwtErrorCode } from "./jwt/error";
+import { decodeJwt, decodeProtectedHeader } from "jose";
+import { JOSEError } from "jose/dist/types/util/errors";
 
 export interface DecodedIdToken {
   aud: string;
@@ -49,13 +39,11 @@ export interface DecodedIdToken {
 const EMULATOR_VERIFIER = new EmulatorSignatureVerifier();
 
 export class FirebaseTokenVerifier {
-  private readonly shortNameArticle: string;
   private readonly signatureVerifier: SignatureVerifier;
 
   constructor(
     clientCertUrl: string,
     private issuer: string,
-    private tokenInfo: FirebaseTokenInfo,
     private projectId: string
   ) {
     if (!isURL(clientCertUrl)) {
@@ -63,48 +51,7 @@ export class FirebaseTokenVerifier {
         AuthClientErrorCode.INVALID_ARGUMENT,
         "The provided public client certificate URL is an invalid URL."
       );
-    } else if (!isURL(issuer)) {
-      throw new FirebaseAuthError(
-        AuthClientErrorCode.INVALID_ARGUMENT,
-        "The provided JWT issuer is an invalid URL."
-      );
-    } else if (!isNonNullObject(tokenInfo)) {
-      throw new FirebaseAuthError(
-        AuthClientErrorCode.INVALID_ARGUMENT,
-        "The provided JWT information is not an object or null."
-      );
-    } else if (!isURL(tokenInfo.url)) {
-      throw new FirebaseAuthError(
-        AuthClientErrorCode.INVALID_ARGUMENT,
-        "The provided JWT verification documentation URL is invalid."
-      );
-    } else if (!isNonEmptyString(tokenInfo.verifyApiName)) {
-      throw new FirebaseAuthError(
-        AuthClientErrorCode.INVALID_ARGUMENT,
-        "The JWT verify API name must be a non-empty string."
-      );
-    } else if (!isNonEmptyString(tokenInfo.jwtName)) {
-      throw new FirebaseAuthError(
-        AuthClientErrorCode.INVALID_ARGUMENT,
-        "The JWT public full name must be a non-empty string."
-      );
-    } else if (!isNonEmptyString(tokenInfo.shortName)) {
-      throw new FirebaseAuthError(
-        AuthClientErrorCode.INVALID_ARGUMENT,
-        "The JWT public short name must be a non-empty string."
-      );
-    } else if (
-      !isNonNullObject(tokenInfo.expiredErrorCode) ||
-      !("code" in tokenInfo.expiredErrorCode)
-    ) {
-      throw new FirebaseAuthError(
-        AuthClientErrorCode.INVALID_ARGUMENT,
-        "The JWT expiration error code must be a non-null ErrorInfo object."
-      );
     }
-    this.shortNameArticle = tokenInfo.shortName.charAt(0).match(/[aeiou]/i)
-      ? "an"
-      : "a";
 
     this.signatureVerifier =
       PublicKeySignatureVerifier.withCertificateUrl(clientCertUrl);
@@ -114,13 +61,6 @@ export class FirebaseTokenVerifier {
     jwtToken: string,
     isEmulator = false
   ): Promise<DecodedIdToken> {
-    if (!isString(jwtToken)) {
-      throw new FirebaseAuthError(
-        AuthClientErrorCode.INVALID_ARGUMENT,
-        `First argument to ${this.tokenInfo.verifyApiName} must be a ${this.tokenInfo.jwtName} string.`
-      );
-    }
-
     const decoded = await this.decodeAndVerify(
       jwtToken,
       this.projectId,
@@ -132,41 +72,19 @@ export class FirebaseTokenVerifier {
     return decodedIdToken;
   }
 
-  private decodeAndVerify(
+  private async decodeAndVerify(
     token: string,
     projectId: string,
     isEmulator: boolean,
     audience?: string
   ): Promise<DecodedToken> {
-    return this.safeDecode(token).then((decodedToken) => {
-      this.verifyContent(decodedToken, projectId, isEmulator, audience);
-      return this.verifySignature(token, isEmulator).then(() => decodedToken);
-    });
-  }
+    const header = decodeProtectedHeader(token);
+    const payload = decodeJwt(token);
 
-  private safeDecode(jwtToken: string): Promise<DecodedToken> {
-    return decodeJwt(jwtToken).catch((err: JwtError) => {
-      if (err.code == JwtErrorCode.INVALID_ARGUMENT) {
-        const verifyJwtTokenDocsMessage =
-          ` See ${this.tokenInfo.url} ` +
-          `for details on how to retrieve ${this.shortNameArticle} ${this.tokenInfo.shortName}.`;
-        const errorMessage =
-          `Decoding ${this.tokenInfo.jwtName} failed. Make sure you passed ` +
-          `the entire string JWT which represents ${this.shortNameArticle} ` +
-          `${this.tokenInfo.shortName}.` +
-          verifyJwtTokenDocsMessage;
-        throw FirebaseAuthError.toAuthErrorWithStack(
-          AuthClientErrorCode.INVALID_ARGUMENT,
-          errorMessage,
-          err
-        );
-      }
-      throw FirebaseAuthError.toAuthErrorWithStack(
-        AuthClientErrorCode.INTERNAL_ERROR,
-        err.message,
-        err
-      );
-    });
+    this.verifyContent({ header, payload }, projectId, isEmulator, audience);
+    await this.verifySignature(token, isEmulator);
+
+    return { header, payload };
   }
 
   private verifyContent(
@@ -178,87 +96,32 @@ export class FirebaseTokenVerifier {
     const header = fullDecodedToken && fullDecodedToken.header;
     const payload = fullDecodedToken && fullDecodedToken.payload;
 
-    const projectIdMatchMessage =
-      ` Make sure the ${this.tokenInfo.shortName} comes from the same ` +
-      "Firebase project as the service account used to authenticate this SDK.";
-    const verifyJwtTokenDocsMessage =
-      ` See ${this.tokenInfo.url} ` +
-      `for details on how to retrieve ${this.shortNameArticle} ${this.tokenInfo.shortName}.`;
-
     let errorMessage: string | undefined;
     if (!isEmulator && typeof header.kid === "undefined") {
       const isCustomToken = payload.aud === FIREBASE_AUDIENCE;
-      const isLegacyCustomToken =
-        header.alg === "HS256" &&
-        payload.v === 0 &&
-        "d" in payload &&
-        "uid" in payload.d;
-
       if (isCustomToken) {
-        errorMessage =
-          `${this.tokenInfo.verifyApiName} expects ${this.shortNameArticle} ` +
-          `${this.tokenInfo.shortName}, but was given a custom token.`;
-      } else if (isLegacyCustomToken) {
-        errorMessage =
-          `${this.tokenInfo.verifyApiName} expects ${this.shortNameArticle} ` +
-          `${this.tokenInfo.shortName}, but was given a legacy custom token.`;
+        errorMessage = `idToken was expected, but custom token was provided`;
       } else {
-        errorMessage = `${this.tokenInfo.jwtName} has no "kid" claim.`;
+        errorMessage = `idToken has no "kid" claim.`;
       }
-
-      errorMessage += verifyJwtTokenDocsMessage;
     } else if (!isEmulator && header.alg !== ALGORITHM_RS256) {
-      errorMessage =
-        `${this.tokenInfo.jwtName} has incorrect algorithm. Expected "` +
-        ALGORITHM_RS256 +
-        '" but got ' +
-        '"' +
-        header.alg +
-        '".' +
-        verifyJwtTokenDocsMessage;
+      errorMessage = `Incorrect algorithm. ${ALGORITHM_RS256} expected, ${header.alg} provided`;
     } else if (
       typeof audience !== "undefined" &&
       !(payload.aud as string).includes(audience)
     ) {
-      errorMessage =
-        `${this.tokenInfo.jwtName} has incorrect "aud" (audience) claim. Expected "` +
-        audience +
-        '" but got "' +
-        payload.aud +
-        '".' +
-        verifyJwtTokenDocsMessage;
+      errorMessage = `idToken has incorrect "aud" (audience) claim. Expected ${audience}, but got ${payload.aud}`;
     } else if (typeof audience === "undefined" && payload.aud !== projectId) {
-      errorMessage =
-        `${this.tokenInfo.jwtName} has incorrect "aud" (audience) claim. Expected "` +
-        projectId +
-        '" but got "' +
-        payload.aud +
-        '".' +
-        projectIdMatchMessage +
-        verifyJwtTokenDocsMessage;
+      errorMessage = `idToken has incorrect "aud" (audience) claim. Expected ${projectId}, but got ${payload.aud}`;
     } else if (payload.iss !== this.issuer + projectId) {
-      errorMessage =
-        `${this.tokenInfo.jwtName} has incorrect "iss" (issuer) claim. Expected ` +
-        `"${this.issuer}` +
-        projectId +
-        '" but got "' +
-        payload.iss +
-        '".' +
-        projectIdMatchMessage +
-        verifyJwtTokenDocsMessage;
+      errorMessage = `idToken has incorrect "iss" (issuer) claim. Expected ${this.issuer}${projectId}, but got ${payload.iss}`;
     } else if (typeof payload.sub !== "string") {
-      errorMessage =
-        `${this.tokenInfo.jwtName} has no "sub" (subject) claim.` +
-        verifyJwtTokenDocsMessage;
     } else if (payload.sub === "") {
-      errorMessage =
-        `${this.tokenInfo.jwtName} has an empty string "sub" (subject) claim.` +
-        verifyJwtTokenDocsMessage;
+      errorMessage = `idToken has an empty string "sub" (subject) claim.`;
     } else if (payload.sub.length > 128) {
-      errorMessage =
-        `${this.tokenInfo.jwtName} has "sub" (subject) claim longer than 128 characters.` +
-        verifyJwtTokenDocsMessage;
+      errorMessage = `idToken has "sub" (subject) claim longer than 128 characters.`;
     }
+
     if (errorMessage) {
       throw new FirebaseAuthError(
         AuthClientErrorCode.INVALID_ARGUMENT,
@@ -277,12 +140,8 @@ export class FirebaseTokenVerifier {
     });
   }
 
-  private mapJwtErrorToAuthError(error: JwtError): Error {
-    return FirebaseAuthError.fromJwtError(
-      error,
-      this.tokenInfo,
-      this.shortNameArticle
-    );
+  private mapJwtErrorToAuthError(error: JOSEError): Error {
+    return FirebaseAuthError.fromJOSEError(error);
   }
 }
 
@@ -292,7 +151,6 @@ export function createIdTokenVerifier(
   return new FirebaseTokenVerifier(
     CLIENT_CERT_URL,
     "https://securetoken.google.com/",
-    ID_TOKEN_INFO,
     projectId
   );
 }

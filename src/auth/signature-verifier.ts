@@ -1,14 +1,15 @@
 import { isNonNullObject, isString, isURL } from "./validator";
 import { JwtError, JwtErrorCode } from "./jwt/error";
-import { decode } from "./jwt";
 import { verify } from "./jwt/verify";
-import { DecodedJWTHeader } from "./jwt/types";
+import {
+  decodeProtectedHeader,
+  JWTPayload,
+  ProtectedHeaderParameters,
+} from "jose";
 
 export const ALGORITHM_RS256 = "RS256" as const;
 const NO_MATCHING_KID_ERROR_MESSAGE = "no-matching-kid-error";
 const NO_KID_IN_HEADER_ERROR_MESSAGE = "no-kid-in-header-error";
-
-export type Dictionary = { [key: string]: any };
 
 type PublicKeys = { [key: string]: string };
 
@@ -18,8 +19,8 @@ interface PublicKeysResponse {
 }
 
 export type DecodedToken = {
-  header: Dictionary;
-  payload: Dictionary;
+  header: ProtectedHeaderParameters;
+  payload: JWTPayload;
 };
 
 export interface SignatureVerifier {
@@ -137,10 +138,10 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
       );
     }
 
-    const decoded = decode(token, { complete: true });
-    const publicKey = await getKey(this.keyFetcher, decoded.header);
+    const header = decodeProtectedHeader(token);
+    const publicKey = await fetchPublicKey(this.keyFetcher, header);
 
-    return verifyJwtSignature(token, publicKey).catch((error: JwtError) => {
+    await verify(token, publicKey).catch((error: JwtError) => {
       if (error.code === JwtErrorCode.NO_KID_IN_HEADER) {
         return this.verifyWithoutKid(token);
       }
@@ -160,7 +161,7 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
   ): Promise<void> {
     const promises: Promise<boolean>[] = [];
     Object.values(keys).forEach((key) => {
-      const result = verifyJwtSignature(token, key)
+      const result = verify(token, key)
         .then(() => true)
         .catch((error) => {
           if (error.code === JwtErrorCode.TOKEN_EXPIRED) {
@@ -183,15 +184,15 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
 }
 
 export class EmulatorSignatureVerifier implements SignatureVerifier {
-  public verify(token: string): Promise<void> {
+  public async verify(token: string): Promise<void> {
     // Signature checks skipped for emulator; no need to fetch public keys.
-    return verifyJwtSignature(token, "");
+    await verify(token, "");
   }
 }
 
-async function getKey(
+export async function fetchPublicKey(
   fetcher: KeyFetcher,
-  header: DecodedJWTHeader
+  header: ProtectedHeaderParameters
 ): Promise<string> {
   if (!header.kid) {
     throw new Error(NO_KID_IN_HEADER_ERROR_MESSAGE);
@@ -205,43 +206,4 @@ async function getKey(
   }
 
   return publicKeys[kid];
-}
-
-export async function verifyJwtSignature(
-  token: string,
-  publicKey: string
-): Promise<void> {
-  if (!token) {
-    throw new JwtError(
-      JwtErrorCode.INVALID_ARGUMENT,
-      "The provided token must be a string."
-    );
-  }
-
-  await verify(token, publicKey);
-}
-
-export function decodeJwt(jwtToken: string): Promise<DecodedToken> {
-  if (!isString(jwtToken)) {
-    return Promise.reject(
-      new JwtError(
-        JwtErrorCode.INVALID_ARGUMENT,
-        "The provided token must be a string."
-      )
-    );
-  }
-
-  const fullDecodedToken: any = decode(jwtToken, {
-    complete: true,
-  });
-
-  if (!fullDecodedToken) {
-    return Promise.reject(
-      new JwtError(JwtErrorCode.INVALID_ARGUMENT, "Decoding token failed.")
-    );
-  }
-
-  const header = fullDecodedToken?.header;
-  const payload = fullDecodedToken?.payload;
-  return Promise.resolve({ header, payload });
 }

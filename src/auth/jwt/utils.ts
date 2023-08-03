@@ -61,12 +61,3 @@ export function base64StringToByteArray(base64: string): Uint8Array {
 function prepareBase64String(base64: string) {
   return base64.replace(/-/g, "+").replace(/_/g, "/");
 }
-
-export function pemToArrayBuffer(pem: string): ArrayBuffer {
-  return base64StringToArrayBuffer(
-    pem
-      .replace("-----BEGIN PRIVATE KEY-----", "")
-      .replace("-----END PRIVATE KEY-----", "")
-      .replace(/\n/g, "")
-  );
-}

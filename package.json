@@ -16,7 +16,8 @@
     "@changesets/cli": "^2.25.2",
     "@edge-runtime/ponyfill": "^2.3.0",
     "@edge-runtime/primitives": "^3.0.4",
-    "cookie": "^0.5.0"
+    "cookie": "^0.5.0",
+    "jose": "^4.14.4"
   },
   "browser": {
     "@edge-runtime/ponyfill": false
