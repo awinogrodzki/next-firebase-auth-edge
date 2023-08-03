@@ -1,5 +1,6 @@
 import { RotatingCredential } from "../rotating-credential";
-import { base64ToString, Cookie, SignCookieResult } from "./index";
+import { Cookie, SignCookieResult } from "./index";
+import { base64url } from "jose";
 
 export const get = (keys: string[]) => {
   const credential = new RotatingCredential(keys);
@@ -14,7 +15,7 @@ export const get = (keys: string[]) => {
 
     return {
       name: signedCookie.name,
-      value: base64ToString(signedCookie.value),
+      value: new TextDecoder().decode(base64url.decode(signedCookie.value)),
     };
   };
 };

@@ -17,9 +17,6 @@
     "cookie": "^0.5.0",
     "jose": "^4.14.4"
   },
-  "browser": {
-    "jose": false
-  },
   "devDependencies": {
     "@types/cookie": "^0.5.1",
     "@types/jest": "^29.2.0",

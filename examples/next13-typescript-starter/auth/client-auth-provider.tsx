@@ -1,14 +1,32 @@
 "use client";
 
 import * as React from "react";
-import { onIdTokenChanged, User as FirebaseUser } from "firebase/auth";
+import {
+  IdTokenResult,
+  onIdTokenChanged,
+  User as FirebaseUser,
+} from "firebase/auth";
 import { useFirebaseAuth } from "./firebase";
 import { AuthContext, User } from "./context";
-import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/tenant";
+import {
+  Claims,
+  filterStandardClaims,
+} from "next-firebase-auth-edge/lib/auth/claims";
 
 export interface AuthProviderProps {
   defaultUser: User | null;
   children: React.ReactNode;
+}
+
+function areClaimsEqual(claimsA: Claims, claimsB: Claims) {
+  return JSON.stringify(claimsA) === JSON.stringify(claimsB);
+}
+
+function toUser(user: FirebaseUser, idTokenResult: IdTokenResult): User {
+  return {
+    ...user,
+    customClaims: filterStandardClaims(idTokenResult.claims),
+  };
 }
 
 export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
@@ -25,16 +43,8 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
     }
 
     const idTokenResult = await firebaseUser.getIdTokenResult();
-    await fetch("/api/login", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${idTokenResult.token}`,
-      },
-    });
-    setUser({
-      ...firebaseUser,
-      customClaims: filterStandardClaims(idTokenResult.claims),
-    });
+
+    setUser(toUser(firebaseUser, idTokenResult));
   };
 
   const registerChangeListener = async () => {
