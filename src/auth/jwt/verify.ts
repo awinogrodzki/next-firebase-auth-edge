@@ -1,4 +1,3 @@
-import { JwtError, JwtErrorCode } from "./error";
 import { useEmulator } from "../firebase";
 import {
   decodeJwt,
@@ -48,30 +47,17 @@ export async function verify(
 
   if (!useEmulator()) {
     const key = await getPublicCryptoKey(publicKey);
-    try {
-      const { payload } = await jwtVerify(jwtString, key, { currentDate });
+    const { payload } = await jwtVerify(jwtString, key, { currentDate });
 
-      return payload as DecodedIdToken;
-    } catch (e) {
-      // @TODO: Remove FirebaseAuthError and JWTError
-      if (e instanceof errors.JWTExpired) {
-        throw new JwtError(
-          JwtErrorCode.TOKEN_EXPIRED,
-          "token expired: " + new Date((payload?.exp ?? 0) * 1000).toISOString()
-        );
-      }
-
-      throw e;
-    }
+    return payload as DecodedIdToken;
   }
 
   if (typeof payload.nbf !== "undefined") {
     if (typeof payload.nbf !== "number") {
-      throw new JwtError(JwtErrorCode.INVALID_ARGUMENT, "invalid nbf value");
+      throw new errors.JWTInvalid("invalid nbf value");
     }
     if (payload.nbf > currentTimestamp) {
-      throw new JwtError(
-        JwtErrorCode.TOKEN_EXPIRED,
+      throw new errors.JWTExpired(
         "jwt not active: " + new Date(payload.nbf * 1000).toISOString()
       );
     }
@@ -79,12 +65,11 @@ export async function verify(
 
   if (typeof payload.exp !== "undefined") {
     if (typeof payload.exp !== "number") {
-      throw new JwtError(JwtErrorCode.INVALID_ARGUMENT, "invalid exp value");
+      throw new errors.JWTInvalid("invalid exp value");
     }
 
     if (currentTimestamp >= payload.exp) {
-      throw new JwtError(
-        JwtErrorCode.TOKEN_EXPIRED,
+      throw new errors.JWTExpired(
         "token expired: " + new Date(payload.exp * 1000).toISOString()
       );
     }

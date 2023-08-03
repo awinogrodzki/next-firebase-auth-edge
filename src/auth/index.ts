@@ -1,18 +1,10 @@
 import { useEmulator } from "./firebase";
 import { createIdTokenVerifier, DecodedIdToken } from "./token-verifier";
-import { AuthClientErrorCode, ErrorInfo, FirebaseAuthError } from "./error";
 import { AuthRequestHandler } from "./auth-request-handler";
 import { ServiceAccount, ServiceAccountCredential } from "./credential";
 import { UserRecord } from "./user-record";
 import { createFirebaseTokenGenerator } from "./token-generator";
-import * as runtime from "@edge-runtime/ponyfill";
-
-if (
-  (typeof crypto === "undefined" || typeof global.crypto === "undefined") &&
-  Boolean(runtime?.crypto?.subtle)
-) {
-  (global as any).crypto = runtime.crypto;
-}
+import { AuthError, AuthErrorCode } from "./error";
 
 const getCustomTokenEndpoint = (apiKey: string) => {
   if (useEmulator()) {
@@ -112,13 +104,10 @@ const refreshExpiredIdToken = async (
     )} ${data.error_description ? `(${data.error_description})` : ""}`;
 
     if (isUserNotFoundResponse(data)) {
-      throw new FirebaseAuthError(AuthClientErrorCode.USER_NOT_FOUND);
+      throw new AuthError(AuthErrorCode.USER_NOT_FOUND);
     }
 
-    throw new FirebaseAuthError(
-      AuthClientErrorCode.INVALID_CREDENTIAL,
-      errorMessage
-    );
+    throw new AuthError(AuthErrorCode.INVALID_CREDENTIAL, errorMessage);
   }
 
   const data = await response.json();
@@ -126,40 +115,24 @@ const refreshExpiredIdToken = async (
   return data.id_token;
 };
 
-export function isUserNotFoundError(
-  error: unknown
-): error is FirebaseAuthError {
-  return (
-    (error as FirebaseAuthError)?.code ===
-    `auth/${AuthClientErrorCode.USER_NOT_FOUND.code}`
-  );
+export function isUserNotFoundError(error: unknown): error is AuthError {
+  return (error as AuthError)?.code === AuthErrorCode.USER_NOT_FOUND;
 }
 
-export function isInvalidCredentialError(
-  error: unknown
-): error is FirebaseAuthError {
-  return (
-    (error as FirebaseAuthError)?.code ===
-    `auth/${AuthClientErrorCode.INVALID_CREDENTIAL.code}`
-  );
+export function isInvalidCredentialError(error: unknown): error is AuthError {
+  return (error as AuthError)?.code === AuthErrorCode.INVALID_CREDENTIAL;
 }
 
 export async function handleExpiredToken<T>(
   verifyIdToken: () => Promise<T>,
-  onExpired: (e: FirebaseAuthError) => Promise<T>,
+  onExpired: (e: AuthError) => Promise<T>,
   onError: (e: unknown) => Promise<T>
 ): Promise<T> {
   try {
     return await verifyIdToken();
   } catch (e: any) {
-    // https://firebase.google.com/docs/reference/node/firebase.auth.Error
-    switch ((e as FirebaseAuthError).code) {
-      case "auth/invalid-user-token":
-      case "auth/user-token-expired":
-      case "auth/user-disabled":
-        return onError(e);
-      case "auth/id-token-expired":
-      case "auth/argument-error":
+    switch ((e as AuthError).code) {
+      case AuthErrorCode.TOKEN_EXPIRED:
         try {
           return await onExpired(e);
         } catch (e) {
@@ -210,29 +183,21 @@ export function getFirebaseAuth(
   }
 
   async function verifyDecodedJWTNotRevokedOrDisabled(
-    decodedIdToken: DecodedIdToken,
-    revocationErrorInfo: ErrorInfo
+    decodedIdToken: DecodedIdToken
   ): Promise<DecodedIdToken> {
-    // Get tokens valid after time for the corresponding user.
     return getUser(decodedIdToken.sub).then((user: UserRecord) => {
       if (user.disabled) {
-        throw new FirebaseAuthError(
-          AuthClientErrorCode.USER_DISABLED,
-          "The user record is disabled."
-        );
+        throw new AuthError(AuthErrorCode.USER_DISABLED);
       }
-      // If no tokens valid after time available, token is not revoked.
+
       if (user.tokensValidAfterTime) {
-        // Get the ID token authentication time and convert to milliseconds UTC.
         const authTimeUtc = decodedIdToken.auth_time * 1000;
-        // Get user tokens valid after time in milliseconds UTC.
         const validSinceUtc = new Date(user.tokensValidAfterTime).getTime();
-        // Check if authentication time is older than valid since time.
         if (authTimeUtc < validSinceUtc) {
-          throw new FirebaseAuthError(revocationErrorInfo);
+          throw new AuthError(AuthErrorCode.TOKEN_REVOKED);
         }
       }
-      // All checks above passed. Return the decoded token.
+
       return decodedIdToken;
     });
   }
@@ -247,10 +212,7 @@ export function getFirebaseAuth(
     const decodedIdToken = await idTokenVerifier.verifyJWT(idToken, isEmulator);
 
     if (checkRevoked) {
-      return verifyDecodedJWTNotRevokedOrDisabled(
-        decodedIdToken,
-        AuthClientErrorCode.ID_TOKEN_REVOKED
-      );
+      return verifyDecodedJWTNotRevokedOrDisabled(decodedIdToken);
     }
 
     return decodedIdToken;

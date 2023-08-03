@@ -1,5 +1,4 @@
-import { isNonNullObject, isString, isURL } from "./validator";
-import { JwtError, JwtErrorCode } from "./jwt/error";
+import { isNonNullObject, isURL } from "./validator";
 import { verify } from "./jwt/verify";
 import {
   decodeProtectedHeader,
@@ -81,7 +80,9 @@ export class UrlKeyFetcher implements KeyFetcher {
     const data = await res.json();
 
     if (data.error) {
-      throw new JwtError(JwtErrorCode.KEY_FETCH_ERROR, data.error);
+      throw new Error(
+        "Error fetching public keys for Google certs: " + data.error
+      );
     }
 
     return {
@@ -129,57 +130,10 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
   }
 
   public async verify(token: string): Promise<void> {
-    if (!isString(token)) {
-      return Promise.reject(
-        new JwtError(
-          JwtErrorCode.INVALID_ARGUMENT,
-          "The provided token must be a string."
-        )
-      );
-    }
-
     const header = decodeProtectedHeader(token);
     const publicKey = await fetchPublicKey(this.keyFetcher, header);
 
-    await verify(token, publicKey).catch((error: JwtError) => {
-      if (error.code === JwtErrorCode.NO_KID_IN_HEADER) {
-        return this.verifyWithoutKid(token);
-      }
-      throw error;
-    });
-  }
-
-  private verifyWithoutKid(token: string): Promise<void> {
-    return this.keyFetcher
-      .fetchPublicKeys()
-      .then((publicKeys) => this.verifyWithAllKeys(token, publicKeys));
-  }
-
-  private verifyWithAllKeys(
-    token: string,
-    keys: { [key: string]: string }
-  ): Promise<void> {
-    const promises: Promise<boolean>[] = [];
-    Object.values(keys).forEach((key) => {
-      const result = verify(token, key)
-        .then(() => true)
-        .catch((error) => {
-          if (error.code === JwtErrorCode.TOKEN_EXPIRED) {
-            throw error;
-          }
-          return false;
-        });
-      promises.push(result);
-    });
-
-    return Promise.all(promises).then((result) => {
-      if (result.every((r) => r === false)) {
-        throw new JwtError(
-          JwtErrorCode.INVALID_SIGNATURE,
-          "Invalid token signature."
-        );
-      }
-    });
+    await verify(token, publicKey);
   }
 }
 

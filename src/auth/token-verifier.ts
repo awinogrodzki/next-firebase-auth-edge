@@ -7,9 +7,9 @@ import {
   SignatureVerifier,
 } from "./signature-verifier";
 import { isURL } from "./validator";
-import { AuthClientErrorCode, FirebaseAuthError } from "./error";
-import { decodeJwt, decodeProtectedHeader } from "jose";
+import { decodeJwt, decodeProtectedHeader, errors } from "jose";
 import { JOSEError } from "jose/dist/types/util/errors";
+import { AuthError, AuthErrorCode } from "./error";
 
 export interface DecodedIdToken {
   aud: string;
@@ -47,8 +47,8 @@ export class FirebaseTokenVerifier {
     private projectId: string
   ) {
     if (!isURL(clientCertUrl)) {
-      throw new FirebaseAuthError(
-        AuthClientErrorCode.INVALID_ARGUMENT,
+      throw new AuthError(
+        AuthErrorCode.INVALID_ARGUMENT,
         "The provided public client certificate URL is an invalid URL."
       );
     }
@@ -123,10 +123,7 @@ export class FirebaseTokenVerifier {
     }
 
     if (errorMessage) {
-      throw new FirebaseAuthError(
-        AuthClientErrorCode.INVALID_ARGUMENT,
-        errorMessage
-      );
+      throw new AuthError(AuthErrorCode.INVALID_ARGUMENT, errorMessage);
     }
   }
 
@@ -136,12 +133,16 @@ export class FirebaseTokenVerifier {
   ): Promise<void> {
     const verifier = isEmulator ? EMULATOR_VERIFIER : this.signatureVerifier;
     return verifier.verify(jwtToken).catch((error) => {
-      throw this.mapJwtErrorToAuthError(error);
+      throw this.mapJoseErrorToAuthError(error);
     });
   }
 
-  private mapJwtErrorToAuthError(error: JOSEError): Error {
-    return FirebaseAuthError.fromJOSEError(error);
+  private mapJoseErrorToAuthError(error: JOSEError): Error {
+    if (error instanceof errors.JWTExpired) {
+      return new AuthError(AuthErrorCode.TOKEN_EXPIRED, error.message);
+    }
+
+    return new AuthError(AuthErrorCode.INTERNAL_ERROR, error.message);
   }
 }
 

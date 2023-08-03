@@ -4,12 +4,11 @@ import {
   isUserNotFoundError,
 } from "../index";
 import { v4 } from "uuid";
-import { AuthClientErrorCode, FirebaseAuthError } from "../error";
 import { fetchPublicKey, UrlKeyFetcher } from "../signature-verifier";
 import { CLIENT_CERT_URL } from "../firebase";
-import { decodeProtectedHeader } from "jose";
+import { decodeProtectedHeader, errors } from "jose";
 import { verify } from "../jwt/verify";
-import { JwtError } from "../jwt/error";
+import { AuthError, AuthErrorCode } from "../error";
 
 const {
   FIREBASE_API_KEY,
@@ -49,7 +48,7 @@ describe("verify token integration test", () => {
     expect(tenant.customClaim).toEqual("customClaimValue");
   });
 
-  it("should throw JwtError if token is expired", async () => {
+  it("should throw JWTExpired if token is expired", async () => {
     const userId = v4();
     const customToken = await createCustomToken(userId, {
       customClaim: "customClaimValue",
@@ -69,7 +68,7 @@ describe("verify token integration test", () => {
       verify(idToken, publicKey, {
         currentDate: new Date(Date.now() + 7200 * 1000),
       })
-    ).rejects.toBeInstanceOf(JwtError);
+    ).rejects.toBeInstanceOf(errors.JWTExpired);
   });
 
   it("should verify and refresh token", async () => {
@@ -139,9 +138,7 @@ describe("verify token integration test", () => {
 
     return expect(() =>
       handleTokenRefresh(refreshToken, FIREBASE_API_KEY!)
-    ).rejects.toEqual(
-      new FirebaseAuthError(AuthClientErrorCode.USER_NOT_FOUND)
-    );
+    ).rejects.toEqual(new AuthError(AuthErrorCode.USER_NOT_FOUND));
   });
 
   it('should be able to catch "user not found" error and return null', async () => {
