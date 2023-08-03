@@ -4,10 +4,6 @@ import {
   isUserNotFoundError,
 } from "../index";
 import { v4 } from "uuid";
-import { fetchPublicKey, UrlKeyFetcher } from "../signature-verifier";
-import { CLIENT_CERT_URL } from "../firebase";
-import { decodeProtectedHeader, errors } from "jose";
-import { verify } from "../jwt/verify";
 import { AuthError, AuthErrorCode } from "../error";
 
 const {
@@ -48,7 +44,7 @@ describe("verify token integration test", () => {
     expect(tenant.customClaim).toEqual("customClaimValue");
   });
 
-  it("should throw JWTExpired if token is expired", async () => {
+  it("should throw AuthError if token is expired", async () => {
     const userId = v4();
     const customToken = await createCustomToken(userId, {
       customClaim: "customClaimValue",
@@ -58,20 +54,33 @@ describe("verify token integration test", () => {
       customToken,
       FIREBASE_API_KEY!
     );
-    const header = decodeProtectedHeader(idToken);
-    const publicKey = await fetchPublicKey(
-      new UrlKeyFetcher(CLIENT_CERT_URL),
-      header
-    );
 
     return expect(() =>
-      verify(idToken, publicKey, {
+      verifyIdToken(idToken, false, {
         currentDate: new Date(Date.now() + 7200 * 1000),
       })
-    ).rejects.toBeInstanceOf(errors.JWTExpired);
+    ).rejects.toHaveProperty("code", AuthErrorCode.TOKEN_EXPIRED);
   });
 
-  it("should verify and refresh token", async () => {
+  it("should refresh token if expired", async () => {
+    const userId = v4();
+    const customToken = await createCustomToken(userId, {
+      customClaim: "customClaimValue",
+    });
+
+    const { idToken, refreshToken } = await customTokenToIdAndRefreshTokens(
+      customToken,
+      FIREBASE_API_KEY!
+    );
+
+    const result = await verifyAndRefreshExpiredIdToken(idToken, refreshToken, {
+      currentDate: new Date(Date.now() + 7200 * 1000),
+    });
+
+    expect(result?.decodedToken?.customClaim).toEqual("customClaimValue");
+  });
+
+  it("should verify token", async () => {
     const userId = v4();
     const customToken = await createCustomToken(userId, {
       customClaim: "customClaimValue",

@@ -10,7 +10,7 @@ import {
 import { ALGORITHM_RS256 } from "../signature-verifier";
 import { DecodedIdToken } from "../token-verifier";
 
-interface VerifyOptions {
+export interface VerifyOptions {
   currentDate?: Date;
 }
 

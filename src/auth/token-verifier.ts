@@ -1,8 +1,7 @@
-import { CLIENT_CERT_URL, FIREBASE_AUDIENCE } from "./firebase";
+import { CLIENT_CERT_URL, FIREBASE_AUDIENCE, useEmulator } from "./firebase";
 import {
   ALGORITHM_RS256,
   DecodedToken,
-  EmulatorSignatureVerifier,
   PublicKeySignatureVerifier,
   SignatureVerifier,
 } from "./signature-verifier";
@@ -10,6 +9,7 @@ import { isURL } from "./validator";
 import { decodeJwt, decodeProtectedHeader, errors } from "jose";
 import { JOSEError } from "jose/dist/types/util/errors";
 import { AuthError, AuthErrorCode } from "./error";
+import { VerifyOptions } from "./jwt/verify";
 
 export interface DecodedIdToken {
   aud: string;
@@ -36,8 +36,6 @@ export interface DecodedIdToken {
   [key: string]: any;
 }
 
-const EMULATOR_VERIFIER = new EmulatorSignatureVerifier();
-
 export class FirebaseTokenVerifier {
   private readonly signatureVerifier: SignatureVerifier;
 
@@ -59,12 +57,12 @@ export class FirebaseTokenVerifier {
 
   public async verifyJWT(
     jwtToken: string,
-    isEmulator = false
+    options?: VerifyOptions
   ): Promise<DecodedIdToken> {
     const decoded = await this.decodeAndVerify(
       jwtToken,
       this.projectId,
-      isEmulator
+      options
     );
 
     const decodedIdToken = decoded.payload as DecodedIdToken;
@@ -75,44 +73,34 @@ export class FirebaseTokenVerifier {
   private async decodeAndVerify(
     token: string,
     projectId: string,
-    isEmulator: boolean,
-    audience?: string
+    options?: VerifyOptions
   ): Promise<DecodedToken> {
     const header = decodeProtectedHeader(token);
     const payload = decodeJwt(token);
 
-    this.verifyContent({ header, payload }, projectId, isEmulator, audience);
-    await this.verifySignature(token, isEmulator);
+    this.verifyContent({ header, payload }, projectId);
+    await this.verifySignature(token, options);
 
     return { header, payload };
   }
 
   private verifyContent(
     fullDecodedToken: DecodedToken,
-    projectId: string | null,
-    isEmulator: boolean,
-    audience: string | undefined
+    projectId: string | null
   ): void {
     const header = fullDecodedToken && fullDecodedToken.header;
     const payload = fullDecodedToken && fullDecodedToken.payload;
 
     let errorMessage: string | undefined;
-    if (!isEmulator && typeof header.kid === "undefined") {
+    if (!useEmulator() && typeof header.kid === "undefined") {
       const isCustomToken = payload.aud === FIREBASE_AUDIENCE;
       if (isCustomToken) {
         errorMessage = `idToken was expected, but custom token was provided`;
       } else {
         errorMessage = `idToken has no "kid" claim.`;
       }
-    } else if (!isEmulator && header.alg !== ALGORITHM_RS256) {
+    } else if (!useEmulator() && header.alg !== ALGORITHM_RS256) {
       errorMessage = `Incorrect algorithm. ${ALGORITHM_RS256} expected, ${header.alg} provided`;
-    } else if (
-      typeof audience !== "undefined" &&
-      !(payload.aud as string).includes(audience)
-    ) {
-      errorMessage = `idToken has incorrect "aud" (audience) claim. Expected ${audience}, but got ${payload.aud}`;
-    } else if (typeof audience === "undefined" && payload.aud !== projectId) {
-      errorMessage = `idToken has incorrect "aud" (audience) claim. Expected ${projectId}, but got ${payload.aud}`;
     } else if (payload.iss !== this.issuer + projectId) {
       errorMessage = `idToken has incorrect "iss" (issuer) claim. Expected ${this.issuer}${projectId}, but got ${payload.iss}`;
     } else if (typeof payload.sub !== "string") {
@@ -129,10 +117,9 @@ export class FirebaseTokenVerifier {
 
   private verifySignature(
     jwtToken: string,
-    isEmulator: boolean
+    options?: VerifyOptions
   ): Promise<void> {
-    const verifier = isEmulator ? EMULATOR_VERIFIER : this.signatureVerifier;
-    return verifier.verify(jwtToken).catch((error) => {
+    return this.signatureVerifier.verify(jwtToken, options).catch((error) => {
       throw this.mapJoseErrorToAuthError(error);
     });
   }

@@ -5,6 +5,7 @@ import { ServiceAccount, ServiceAccountCredential } from "./credential";
 import { UserRecord } from "./user-record";
 import { createFirebaseTokenGenerator } from "./token-generator";
 import { AuthError, AuthErrorCode } from "./error";
+import { VerifyOptions } from "./jwt/verify";
 
 const getCustomTokenEndpoint = (apiKey: string) => {
   if (useEmulator()) {
@@ -204,12 +205,11 @@ export function getFirebaseAuth(
 
   async function verifyIdToken(
     idToken: string,
-    checkRevoked = false
+    checkRevoked = false,
+    options?: VerifyOptions
   ): Promise<DecodedIdToken> {
-    const isEmulator = useEmulator();
     const idTokenVerifier = createIdTokenVerifier(serviceAccount.projectId);
-
-    const decodedIdToken = await idTokenVerifier.verifyJWT(idToken, isEmulator);
+    const decodedIdToken = await idTokenVerifier.verifyJWT(idToken, options);
 
     if (checkRevoked) {
       return verifyDecodedJWTNotRevokedOrDisabled(decodedIdToken);
@@ -220,11 +220,12 @@ export function getFirebaseAuth(
 
   async function verifyAndRefreshExpiredIdToken(
     token: string,
-    refreshToken: string
+    refreshToken: string,
+    options?: VerifyOptions
   ): Promise<Tokens | null> {
     return await handleExpiredToken(
       async () => {
-        const decodedToken = await verifyIdToken(token);
+        const decodedToken = await verifyIdToken(token, false, options);
         return { token, decodedToken };
       },
       async () => {

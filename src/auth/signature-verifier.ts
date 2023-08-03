@@ -1,5 +1,5 @@
 import { isNonNullObject, isURL } from "./validator";
-import { verify } from "./jwt/verify";
+import { verify, VerifyOptions } from "./jwt/verify";
 import {
   decodeProtectedHeader,
   JWTPayload,
@@ -23,7 +23,7 @@ export type DecodedToken = {
 };
 
 export interface SignatureVerifier {
-  verify(token: string): Promise<void>;
+  verify(token: string, options?: VerifyOptions): Promise<void>;
 }
 
 interface KeyFetcher {
@@ -129,18 +129,11 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
     return new PublicKeySignatureVerifier(new UrlKeyFetcher(clientCertUrl));
   }
 
-  public async verify(token: string): Promise<void> {
+  public async verify(token: string, options?: VerifyOptions): Promise<void> {
     const header = decodeProtectedHeader(token);
     const publicKey = await fetchPublicKey(this.keyFetcher, header);
 
-    await verify(token, publicKey);
-  }
-}
-
-export class EmulatorSignatureVerifier implements SignatureVerifier {
-  public async verify(token: string): Promise<void> {
-    // Signature checks skipped for emulator; no need to fetch public keys.
-    await verify(token, "");
+    await verify(token, publicKey, options);
   }
 }
 
