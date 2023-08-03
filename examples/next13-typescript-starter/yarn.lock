@@ -234,16 +234,6 @@
     human-id "^1.0.2"
     prettier "^2.7.1"
 
-"@edge-runtime/ponyfill@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@edge-runtime/ponyfill/-/ponyfill-2.2.0.tgz#9cc6b24edbfde53ae8181f24a40f30c4ef81c4fb"
-  integrity sha512-/RH1SNIrGrtmV2HCV3uDTnqn1LMaf3ErCPNLVH/jtojLwxBhpi87Ka38PMSEo/BcJdi99vPpYBPanOHYp7VLaQ==
-
-"@edge-runtime/primitives@2.1.2":
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/@edge-runtime/primitives/-/primitives-2.1.2.tgz#8ff657f12a7f8c7fc4e3a0c10ec19356ef2d656d"
-  integrity sha512-SR04SMDybALlhIYIi0hiuEUwIl0b7Sn+RKwQkX6hydg4+AKMzBNDFhj2nqHDD1+xkHArV9EhmJIb6iGjShwSzg==
-
 "@fastify/busboy@^1.2.1":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@fastify/busboy/-/busboy-1.2.1.tgz#9c6db24a55f8b803b5222753b24fe3aea2ba9ca3"
@@ -2236,7 +2226,7 @@ isexe@^2.0.0:
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==
 
-jose@^4.10.4:
+jose@^4.10.4, jose@^4.14.4:
   version "4.14.4"
   resolved "https://registry.yarnpkg.com/jose/-/jose-4.14.4.tgz#59e09204e2670c3164ee24cbfe7115c6f8bff9ca"
   integrity sha512-j8GhLiKmUAh+dsFXlX1aJCbt5KMibuKb+d7j1JaOJG6s2UjX1PQlW+OKB/sD4a/5ZYF4RcmYmLSndOoU3Lt/3g==
@@ -2632,15 +2622,14 @@ nanoid@^3.3.4:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.4.tgz#730b67e3cd09e2deacf03c027c81c9d9dbc5e8ab"
   integrity sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==
 
-next-firebase-auth-edge@0.7.7:
-  version "0.7.7"
-  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-0.7.7.tgz#f5beddba80777be53a3325eaac5166eb23b9cd30"
-  integrity sha512-LtaOzRk/NHBaeHOLqsUZqXUqGl87YNDg90rg2TSP6HR5vU/9XyxRF+wbvrfP1DuUegbmNVFI+3UCCTpRHLF5tg==
+next-firebase-auth-edge@0.8.0-1:
+  version "0.8.0-1"
+  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-0.8.0-1.tgz#375a2c58fd77d96e2da98fddc2aea2129e7c4224"
+  integrity sha512-i/OB2ujJOIVMITQdFnFIJt+wjfhuPP620rUt9bHHAgGhjZbuTo5JxPbaUYgDbgAQTJwRUtiqJ19EqIr4nkR7yQ==
   dependencies:
     "@changesets/cli" "^2.25.2"
-    "@edge-runtime/ponyfill" "^2.2.0"
-    "@edge-runtime/primitives" "2.1.2"
     cookie "^0.5.0"
+    jose "^4.14.4"
 
 next@13.4.12:
   version "13.4.12"
