@@ -1,5 +1,5 @@
 import { CryptoSigner, ServiceAccountSigner } from "./jwt/crypto-signer";
-import { isNonEmptyString, isNonNullObject } from "./validator";
+import { isNonNullObject } from "./validator";
 import { ServiceAccountCredential } from "./credential";
 import { JWTPayload } from "jose";
 import { AuthError, AuthErrorCode } from "./error";
@@ -38,9 +38,7 @@ export class FirebaseTokenGenerator {
     developerClaims?: { [key: string]: any }
   ): Promise<string> {
     let errorMessage: string | undefined;
-    if (!isNonEmptyString(uid)) {
-      errorMessage = "`uid` argument must be a non-empty string uid.";
-    } else if (uid.length > 128) {
+    if (uid.length > 128) {
       errorMessage =
         "`uid` argument must a uid with less than or equal to 128 characters.";
     } else if (

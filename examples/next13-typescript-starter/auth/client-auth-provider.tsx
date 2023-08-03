@@ -18,10 +18,6 @@ export interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-function areClaimsEqual(claimsA: Claims, claimsB: Claims) {
-  return JSON.stringify(claimsA) === JSON.stringify(claimsB);
-}
-
 function toUser(user: FirebaseUser, idTokenResult: IdTokenResult): User {
   return {
     ...user,
