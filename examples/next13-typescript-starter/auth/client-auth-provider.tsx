@@ -8,10 +8,7 @@ import {
 } from "firebase/auth";
 import { useFirebaseAuth } from "./firebase";
 import { AuthContext, User } from "./context";
-import {
-  Claims,
-  filterStandardClaims,
-} from "next-firebase-auth-edge/lib/auth/claims";
+import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
 
 export interface AuthProviderProps {
   defaultUser: User | null;

@@ -10,28 +10,27 @@ Next.js 13 Firebase Authentication for Edge and Node.js runtimes. Dedicated for 
 
 <a href="https://www.npmjs.com/package/next-firebase-auth-edge">![npm](https://nodei.co/npm/next-firebase-auth-edge.png)</a>
 
-
 - [Example](#example)
 - [Why](#why)
 - [Built on top of Web Crypto API](#built-on-top-of-web-crypto-api)
 - [Installation](#installation)
 - [Overview](#overview)
-    - [Middleware](#middleware)
-        - [Options](#options)
-            - [Required](#required)
-            - [Optional](#optional)
-    - [AuthProvider](#authprovider)
-    - [Server Components](#server-components)
-    - [API Routes or getServerSideProps](#api-routes-or-getserversideprops)
-        - [API Route example](#api-route-example)
-        - [GetServerSideProps example](#getserversideprops-example)
-    - [Advanced usage](#advanced-usage)
-        - [getFirebaseAuth](#getfirebaseauth)
-            - [Methods](#methods)
-        - [refreshAuthCookies in middleware](#refreshauthcookies-in-middleware)
-        - [refreshAuthCookies in API Route](#refreshauthcookies-in-api-route)
-        - [refreshAuthCookies in API handler](#refreshauthcookies-in-api-handler)
-    - [Emulator support](#emulator-support)
+  - [Middleware](#middleware)
+    - [Options](#options)
+      - [Required](#required)
+      - [Optional](#optional)
+  - [AuthProvider](#authprovider)
+  - [Server Components](#server-components)
+  - [API Routes or getServerSideProps](#api-routes-or-getserversideprops)
+    - [API Route example](#api-route-example)
+    - [GetServerSideProps example](#getserversideprops-example)
+  - [Advanced usage](#advanced-usage)
+    - [getFirebaseAuth](#getfirebaseauth)
+      - [Methods](#methods)
+    - [refreshAuthCookies in middleware](#refreshauthcookies-in-middleware)
+    - [refreshAuthCookies in API Route](#refreshauthcookies-in-api-route)
+    - [refreshAuthCookies in API handler](#refreshauthcookies-in-api-handler)
+  - [Emulator support](#emulator-support)
 
 ## Example
 
@@ -47,9 +46,7 @@ This library aims to solve the problem of creating and verifying custom JWT toke
 
 ## Built on top of Web Crypto API
 
-`next-firebase-auth-edge` is built entirely upon [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API). Although it seems fine at first, please remember that it is still in an experimental stage. Any feedback or contribution is welcome.
-
-Node.js Edge runtime polyfill is provided by Vercel's [edge-runtime](https://github.com/vercel/edge-runtime) library
+`next-firebase-auth-edge` is built upon [jose](https://github.com/panva/jose), _JavaScript module for JSON Object Signing and Encryption_ that works seamlessly in Edge and Node.js runtimes
 
 ## Installation
 
@@ -117,7 +114,7 @@ export async function middleware(request: NextRequest) {
       path: "/",
       httpOnly: true,
       secure: false, // set to 'true' on https environments
-      sameSite: 'lax',
+      sameSite: "lax",
       maxAge: 12 * 60 * 60 * 24, // twelve days
     },
     cookieSignatureKeys: ["secret1", "secret2"],
@@ -145,7 +142,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/((?!_next|favicon.ico|api).*)", "/api/login", "/api/logout"],
+  matcher: ["/", "/((?!_next|favicon.ico|api|.*\\.).*)", "/api/login", "/api/logout"],
 };
 ```
 
@@ -180,13 +177,57 @@ One of the common issues during setup is `error - Too big integer` thrown by `cr
 
 The error is caused by malformed firebase private key. We are working on providing correct private key validation and more user friendly error message. Until then, please follow the quick fix in aforementioned issue comment.
 
-### AuthProvider
-
-We need some way to share user details between components and call our `/api/login` endpoint to store user data in cookies
+### Login and logout using Firebase
 
 `GET /api/login` endpoint should be called with firebase token (see examples below). It responds with `Set-Cookie` header containing signed cookies.
 
 `GET /api/logout` removes authentication cookies. Make sure to sign out the user from firebase before calling the endpoint.
+
+```tsx
+// app/login/page.tsx
+"use client";
+
+import * as React from "react";
+import { useFirebaseAuth } from "../../auth/firebase";
+import { PasswordFormValue } from "../../ui/PasswordForm/PasswordForm";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+
+export function LoginPage() {
+  const { getFirebaseAuth } = useFirebaseAuth();
+
+  async function handleLoginWithEmailAndPassword({
+    email,
+    password,
+  }: PasswordFormValue) {
+    const auth = getFirebaseAuth();
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    const idTokenResult = await credential.user.getIdTokenResult();
+    // Sets authenticated cookies
+    await fetch("/api/login", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${idTokenResult.token}`,
+      },
+    });
+  }
+
+  async function handleLogout() {
+    const auth = getFirebaseAuth();
+    await signOut(auth);
+    // Removes authenticated cookies
+    await fetch("/api/logout", {
+      method: "GET",
+    });
+    window.location.reload();
+  }
+
+  return <form>...</form>;
+}
+```
+
+### AuthProvider
+
+Usually, we need some way to share user data across the application. Below is a custom implementation for AuthProvider from [examples/next13-typescript-starter](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next13-typescript-starter) that builds on top of React context.
 
 You can see a working demo at [next-firebase-auth-edge-starter.vercel.app](https://next-firebase-auth-edge-starter.vercel.app/)
 
@@ -198,32 +239,31 @@ The source code for the demo can be found here [examples/next13-typescript-start
 
 import * as React from "react";
 import {
+  IdTokenResult,
   onIdTokenChanged,
   User as FirebaseUser,
-  UserInfo,
 } from "firebase/auth";
-
-export interface AuthContextValue {
-  user: UserInfo | null;
-}
-
-export const AuthContext = createContext<AuthContextValue>({
-  user: null,
-});
+import { useFirebaseAuth } from "./firebase";
+import { AuthContext, User } from "./context";
+import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
 
 export interface AuthProviderProps {
-  defaultUser: UserInfo | null;
+  defaultUser: User | null;
   children: React.ReactNode;
 }
 
-const getFirebaseApp = (options: FirebaseOptions) => {
-  return (!getApps().length ? initializeApp(options) : getApp()) as FirebaseApp;
-};
+function toUser(user: FirebaseUser, idTokenResult: IdTokenResult): User {
+  return {
+    ...user,
+    customClaims: filterStandardClaims(idTokenResult.claims),
+  };
+}
 
 export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   defaultUser,
   children,
 }) => {
+  const { getFirebaseAuth } = useFirebaseAuth();
   const [user, setUser] = React.useState(defaultUser);
 
   const handleIdTokenChanged = async (firebaseUser: FirebaseUser | null) => {
@@ -233,17 +273,12 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
     }
 
     const idTokenResult = await firebaseUser.getIdTokenResult();
-    await fetch("/api/login", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${idTokenResult.token}`,
-      },
-    });
-    setUser(firebaseUser);
+
+    setUser(toUser(firebaseUser, idTokenResult));
   };
 
   const registerChangeListener = async () => {
-    const auth = getAuth(getFirebaseApp(FIREBASE_CLIENT_CONFIG));
+    const auth = getFirebaseAuth();
     return onIdTokenChanged(auth, handleIdTokenChanged);
   };
 
@@ -488,7 +523,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/((?!_next|favicon.ico|api).*)", "/api/login", "/api/logout"],
+  matcher: ["/", "/((?!_next|favicon.ico|api|.*\\.).*)", "/api/login", "/api/logout"],
 };
 ```
 
