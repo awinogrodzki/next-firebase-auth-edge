@@ -16,7 +16,7 @@
     "firebase": "^9.18.0",
     "firebase-admin": "^11.9.0",
     "next": "13.4.12",
-    "next-firebase-auth-edge": "0.8.0-2",
+    "next-firebase-auth-edge": "0.8.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-loading-hook": "^1.0.0",

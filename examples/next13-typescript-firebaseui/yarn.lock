@@ -229,16 +229,6 @@
     human-id "^1.0.2"
     prettier "^2.7.1"
 
-"@edge-runtime/ponyfill@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@edge-runtime/ponyfill/-/ponyfill-2.2.0.tgz#9cc6b24edbfde53ae8181f24a40f30c4ef81c4fb"
-  integrity sha512-/RH1SNIrGrtmV2HCV3uDTnqn1LMaf3ErCPNLVH/jtojLwxBhpi87Ka38PMSEo/BcJdi99vPpYBPanOHYp7VLaQ==
-
-"@edge-runtime/primitives@2.1.2":
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/@edge-runtime/primitives/-/primitives-2.1.2.tgz#8ff657f12a7f8c7fc4e3a0c10ec19356ef2d656d"
-  integrity sha512-SR04SMDybALlhIYIi0hiuEUwIl0b7Sn+RKwQkX6hydg4+AKMzBNDFhj2nqHDD1+xkHArV9EhmJIb6iGjShwSzg==
-
 "@firebase/analytics-compat@0.2.4":
   version "0.2.4"
   resolved "https://registry.yarnpkg.com/@firebase/analytics-compat/-/analytics-compat-0.2.4.tgz#3887676286ead7b30f9880581e0144f43bc71f16"
@@ -1145,6 +1135,13 @@ emoji-regex@^8.0.0:
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-8.0.0.tgz#e818fd69ce5ccfcb404594f842963bf53164cc37"
   integrity sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==
 
+encoding@^0.1.13:
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/encoding/-/encoding-0.1.13.tgz#56574afdd791f54a8e9b2785c0582a2d26210fa9"
+  integrity sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==
+  dependencies:
+    iconv-lite "^0.6.2"
+
 enquirer@^2.3.0:
   version "2.3.6"
   resolved "https://registry.yarnpkg.com/enquirer/-/enquirer-2.3.6.tgz#2a7fe5dd634a1e4125a975ec994ff5456dc3734d"
@@ -1495,6 +1492,13 @@ iconv-lite@^0.4.24:
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
+iconv-lite@^0.6.2:
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.6.3.tgz#a52f80bf38da1952eb5c681790719871a1a72501"
+  integrity sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==
+  dependencies:
+    safer-buffer ">= 2.1.2 < 3.0.0"
+
 idb@7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/idb/-/idb-7.0.1.tgz#d2875b3a2f205d854ee307f6d196f246fea590a7"
@@ -1656,6 +1660,11 @@ isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==
+
+jose@^4.14.4:
+  version "4.14.4"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-4.14.4.tgz#59e09204e2670c3164ee24cbfe7115c6f8bff9ca"
+  integrity sha512-j8GhLiKmUAh+dsFXlX1aJCbt5KMibuKb+d7j1JaOJG6s2UjX1PQlW+OKB/sD4a/5ZYF4RcmYmLSndOoU3Lt/3g==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
@@ -1825,15 +1834,15 @@ nanoid@^3.3.4:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.4.tgz#730b67e3cd09e2deacf03c027c81c9d9dbc5e8ab"
   integrity sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==
 
-next-firebase-auth-edge@^0.7.7:
-  version "0.7.7"
-  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-0.7.7.tgz#f5beddba80777be53a3325eaac5166eb23b9cd30"
-  integrity sha512-LtaOzRk/NHBaeHOLqsUZqXUqGl87YNDg90rg2TSP6HR5vU/9XyxRF+wbvrfP1DuUegbmNVFI+3UCCTpRHLF5tg==
+next-firebase-auth-edge@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-0.8.0.tgz#186a0b900323de2911baafadc36cfc41bed4c043"
+  integrity sha512-PShwa59txnqhNrWma0x4ps2qG/fkAiA0CXVpxPXhxnvTdsdwjDm0PdOOYODWivFMt/xQQhqL8ErTSk0Uw+/itw==
   dependencies:
     "@changesets/cli" "^2.25.2"
-    "@edge-runtime/ponyfill" "^2.2.0"
-    "@edge-runtime/primitives" "2.1.2"
     cookie "^0.5.0"
+    encoding "^0.1.13"
+    jose "^4.14.4"
 
 next@^13.4.2:
   version "13.4.3"
@@ -2196,7 +2205,7 @@ safe-regex-test@^1.0.0:
     get-intrinsic "^1.1.3"
     is-regex "^1.1.4"
 
-"safer-buffer@>= 2.1.2 < 3":
+"safer-buffer@>= 2.1.2 < 3", "safer-buffer@>= 2.1.2 < 3.0.0":
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==

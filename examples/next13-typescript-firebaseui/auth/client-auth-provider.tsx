@@ -4,7 +4,7 @@ import * as React from "react";
 import { onIdTokenChanged, User as FirebaseUser } from "firebase/auth";
 import { useFirebaseAuth } from "./firebase";
 import { AuthContext, User } from "./context";
-import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/tenant";
+import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
 
 export interface AuthProviderProps {
   defaultUser: User | null;
