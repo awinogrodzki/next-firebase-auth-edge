@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.8.0
+
+### Minor Changes
+
+- Refactor: remove custom JSON Web Token and Signature implementation in favor of jose
+
 ## 0.7.7
 
 ### Patch Changes
