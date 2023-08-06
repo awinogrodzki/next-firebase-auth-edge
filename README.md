@@ -118,7 +118,7 @@ export async function middleware(request: NextRequest) {
       httpOnly: true,
       secure: false, // set to 'true' on https environments
       sameSite: 'lax',
-      maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
+      maxAge: 12 * 60 * 60 * 24, // twelve days
     },
     cookieSignatureKeys: ["secret1", "secret2"],
     serviceAccount: {
@@ -447,7 +447,7 @@ const commonOptions = {
     httpOnly: true,
     secure: false, // Set this to true on HTTPS environments
     sameSite: "strict" as const,
-    maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
+    maxAge: 12 * 60 * 60 * 24, // twelve days
   },
   serviceAccount: {
     projectId: "firebase-project-id",
@@ -575,7 +575,7 @@ export default async function handler(
       httpOnly: true,
       secure: false, // Set this to true on HTTPS environments
       sameSite: "strict" as const,
-      maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
+      maxAge: 12 * 60 * 60 * 24, // twelve days
     },
   });
 
