@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from "react";
 import type { UserInfo } from "firebase/auth";
-import { Claims } from "next-firebase-auth-edge/lib/auth/tenant";
+import { Claims } from "next-firebase-auth-edge/lib/auth/claims";
 
 export interface User extends Omit<UserInfo, "providerId"> {
   emailVerified: boolean;

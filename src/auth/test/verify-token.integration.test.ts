@@ -4,7 +4,7 @@ import {
   isUserNotFoundError,
 } from "../index";
 import { v4 } from "uuid";
-import { AuthClientErrorCode, FirebaseAuthError } from "../error";
+import { AuthError, AuthErrorCode } from "../error";
 
 const {
   FIREBASE_API_KEY,
@@ -13,6 +13,12 @@ const {
   FIREBASE_ADMIN_PRIVATE_KEY,
 } = process.env;
 
+const TEST_SERVICE_ACCOUNT = {
+  clientEmail: FIREBASE_ADMIN_CLIENT_EMAIL!,
+  privateKey: FIREBASE_ADMIN_PRIVATE_KEY!.replace(/\\n/g, "\n"),
+  projectId: FIREBASE_PROJECT_ID!,
+};
+
 describe("verify token integration test", () => {
   const {
     handleTokenRefresh,
@@ -20,14 +26,7 @@ describe("verify token integration test", () => {
     verifyAndRefreshExpiredIdToken,
     verifyIdToken,
     deleteUser,
-  } = getFirebaseAuth(
-    {
-      clientEmail: FIREBASE_ADMIN_CLIENT_EMAIL!,
-      privateKey: FIREBASE_ADMIN_PRIVATE_KEY!.replace(/\\n/g, "\n"),
-      projectId: FIREBASE_PROJECT_ID!,
-    },
-    FIREBASE_API_KEY!
-  );
+  } = getFirebaseAuth(TEST_SERVICE_ACCOUNT, FIREBASE_API_KEY!);
 
   it("should create and verify custom token", async () => {
     const userId = v4();
@@ -45,7 +44,43 @@ describe("verify token integration test", () => {
     expect(tenant.customClaim).toEqual("customClaimValue");
   });
 
-  it("should verify and refresh token", async () => {
+  it("should throw AuthError if token is expired", async () => {
+    const userId = v4();
+    const customToken = await createCustomToken(userId, {
+      customClaim: "customClaimValue",
+    });
+
+    const { idToken } = await customTokenToIdAndRefreshTokens(
+      customToken,
+      FIREBASE_API_KEY!
+    );
+
+    return expect(() =>
+      verifyIdToken(idToken, false, {
+        currentDate: new Date(Date.now() + 7200 * 1000),
+      })
+    ).rejects.toHaveProperty("code", AuthErrorCode.TOKEN_EXPIRED);
+  });
+
+  it("should refresh token if expired", async () => {
+    const userId = v4();
+    const customToken = await createCustomToken(userId, {
+      customClaim: "customClaimValue",
+    });
+
+    const { idToken, refreshToken } = await customTokenToIdAndRefreshTokens(
+      customToken,
+      FIREBASE_API_KEY!
+    );
+
+    const result = await verifyAndRefreshExpiredIdToken(idToken, refreshToken, {
+      currentDate: new Date(Date.now() + 7200 * 1000),
+    });
+
+    expect(result?.decodedToken?.customClaim).toEqual("customClaimValue");
+  });
+
+  it("should verify token", async () => {
     const userId = v4();
     const customToken = await createCustomToken(userId, {
       customClaim: "customClaimValue",
@@ -112,9 +147,7 @@ describe("verify token integration test", () => {
 
     return expect(() =>
       handleTokenRefresh(refreshToken, FIREBASE_API_KEY!)
-    ).rejects.toEqual(
-      new FirebaseAuthError(AuthClientErrorCode.USER_NOT_FOUND)
-    );
+    ).rejects.toEqual(new AuthError(AuthErrorCode.USER_NOT_FOUND));
   });
 
   it('should be able to catch "user not found" error and return null', async () => {

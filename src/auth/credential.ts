@@ -1,6 +1,5 @@
-import { sign } from "./jwt";
-import { DecodedJWTPayload } from "./jwt/types";
-import { getResponseCache, ResponseCache } from "./response-cache";
+import { sign } from "./jwt/sign";
+import { JWTPayload } from "jose";
 
 export interface GoogleOAuthAccessToken {
   access_token: string;
@@ -16,7 +15,6 @@ const GOOGLE_TOKEN_AUDIENCE = "https://accounts.google.com/o/oauth2/token";
 const GOOGLE_AUTH_TOKEN_HOST = "accounts.google.com";
 const GOOGLE_AUTH_TOKEN_PATH = "/o/oauth2/token";
 const ONE_HOUR_IN_SECONDS = 60 * 60;
-const JWT_ALGORITHM = "RS256";
 
 export interface ServiceAccount {
   projectId: string;
@@ -24,20 +22,20 @@ export interface ServiceAccount {
   clientEmail: string;
 }
 
+const accessTokenCache: Map<string, FirebaseAccessToken> = new Map();
+
 export class ServiceAccountCredential implements Credential {
   public readonly projectId: string;
   public readonly privateKey: string;
   public readonly clientEmail: string;
-  private readonly cache: ResponseCache;
 
   constructor(serviceAccount: ServiceAccount) {
     this.projectId = serviceAccount.projectId;
     this.privateKey = serviceAccount.privateKey;
     this.clientEmail = serviceAccount.clientEmail;
-    this.cache = getResponseCache();
   }
 
-  private async fetchAccessToken(url: URL) {
+  private async fetchAccessToken(url: URL): Promise<FirebaseAccessToken> {
     const token = await this.createJwt();
     const postData =
       "grant_type=urn%3Aietf%3Aparams%3Aoauth%3A" +
@@ -54,7 +52,6 @@ export class ServiceAccountCredential implements Credential {
       body: postData,
     });
 
-    const clone = response.clone();
     const data: GoogleOAuthAccessToken = await response.json();
 
     if (!data.access_token || !data.expires_in) {
@@ -65,17 +62,15 @@ export class ServiceAccountCredential implements Credential {
       );
     }
 
-    const body = JSON.stringify({
+    return {
       accessToken: data.access_token,
       expirationTime: Date.now() + data.expires_in * 1000,
-    } as FirebaseAccessToken);
-
-    return new Response(body, clone);
+    };
   }
 
   private async fetchAndCacheAccessToken(url: URL) {
     const response = await this.fetchAccessToken(url);
-    await this.cache.put(url, response.clone());
+    accessTokenCache.set(url.toString(), response);
     return response;
   }
   public async getAccessToken(
@@ -86,22 +81,20 @@ export class ServiceAccountCredential implements Credential {
     );
 
     if (forceRefresh) {
-      return requestAccessToken(await this.fetchAndCacheAccessToken(url));
+      return this.fetchAndCacheAccessToken(url);
     }
 
-    const cachedResponse = await this.cache.get(url);
+    const cachedResponse = accessTokenCache.get(url.toString());
 
-    if (!cachedResponse) {
-      return requestAccessToken(await this.fetchAndCacheAccessToken(url));
+    if (
+      !cachedResponse ||
+      cachedResponse.expirationTime - Date.now() <=
+        TOKEN_EXPIRY_THRESHOLD_MILLIS
+    ) {
+      return this.fetchAndCacheAccessToken(url);
     }
 
-    const response = await requestAccessToken(cachedResponse);
-
-    if (response.expirationTime - Date.now() <= TOKEN_EXPIRY_THRESHOLD_MILLIS) {
-      return requestAccessToken(await this.fetchAndCacheAccessToken(url));
-    }
-
-    return response;
+    return cachedResponse;
   }
 
   private async createJwt(): Promise<string> {
@@ -120,47 +113,13 @@ export class ServiceAccountCredential implements Credential {
         "https://www.googleapis.com/auth/identitytoolkit",
         "https://www.googleapis.com/auth/userinfo.email",
       ].join(" "),
-    } as DecodedJWTPayload;
+    } as JWTPayload;
 
     return sign({
       payload,
       privateKey: this.privateKey,
-      algorithm: JWT_ALGORITHM,
     });
   }
-}
-
-async function requestAccessToken(res: Response): Promise<FirebaseAccessToken> {
-  if (!res.ok) {
-    const data = await res.json();
-    throw new Error(getErrorMessage(data));
-  }
-  const data: FirebaseAccessToken = await res.json();
-
-  if (!data.accessToken || !data.expirationTime) {
-    throw new Error(
-      `Unexpected response while fetching access token: ${JSON.stringify(data)}`
-    );
-  }
-
-  return data;
-}
-
-function getErrorMessage(data: any): string {
-  const detail: string = getDetailFromResponse(data);
-  return `Error fetching access token: ${detail}`;
-}
-
-function getDetailFromResponse(data: any): string {
-  if (data?.error) {
-    const json = data;
-    let detail = json.error;
-    if (json.error_description) {
-      detail += " (" + json.error_description + ")";
-    }
-    return detail;
-  }
-  return "Missing error payload";
 }
 
 export interface FirebaseAccessToken {
