@@ -192,7 +192,7 @@ import { useFirebaseAuth } from "../../auth/firebase";
 import { PasswordFormValue } from "../../ui/PasswordForm/PasswordForm";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 
-export function LoginPage() {
+export default function LoginPage() {
   const { getFirebaseAuth } = useFirebaseAuth();
 
   async function handleLoginWithEmailAndPassword({
