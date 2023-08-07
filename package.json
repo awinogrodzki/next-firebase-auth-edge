@@ -47,8 +47,8 @@
     "edge",
     "middleware"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Amadeusz Winogrodzki",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/awinogrodzki/next-firebase-auth-edge.git"
