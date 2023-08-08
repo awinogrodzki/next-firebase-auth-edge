@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.8.1
+
+### Patch Changes
+
+- Remove 'cache: no-store' header from refreshExpiredIdToken
+
 ## 0.8.0
 
 ### Minor Changes
