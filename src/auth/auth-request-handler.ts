@@ -83,6 +83,11 @@ export const FIREBASE_AUTH_SET_ACCOUNT_INFO = new ApiSettings(
   "POST"
 );
 
+export const FIREBASE_AUTH_SIGN_UP_NEW_USER = new ApiSettings(
+  "/accounts",
+  "POST"
+);
+
 export abstract class AbstractAuthRequestHandler {
   private authUrlBuilder: AuthResourceUrlBuilder | undefined;
   private getToken: (forceRefresh?: boolean) => Promise<FirebaseAccessToken>;
@@ -118,6 +123,167 @@ export abstract class AbstractAuthRequestHandler {
         localId: uid,
       }
     );
+  }
+
+  public createNewAccount(properties: CreateRequest): Promise<string> {
+    type SignUpNewUserRequest = CreateRequest & {
+      photoUrl?: string | null;
+      localId?: string;
+      mfaInfo?: AuthFactorInfo[];
+    };
+
+    const request: SignUpNewUserRequest = { ...properties };
+
+    if (typeof request.photoURL !== "undefined") {
+      request.photoUrl = request.photoURL;
+      delete request.photoURL;
+    }
+
+    if (typeof request.uid !== "undefined") {
+      request.localId = request.uid;
+      delete request.uid;
+    }
+    if (request.multiFactor) {
+      if (
+        Array.isArray(request.multiFactor.enrolledFactors) &&
+        request.multiFactor.enrolledFactors.length > 0
+      ) {
+        const mfaInfo: AuthFactorInfo[] = [];
+        try {
+          request.multiFactor.enrolledFactors.forEach((multiFactorInfo) => {
+            if ("enrollmentTime" in multiFactorInfo) {
+              throw new AuthError(
+                AuthErrorCode.INVALID_ARGUMENT,
+                '"enrollmentTime" is not supported when adding second factors via "createUser()"'
+              );
+            } else if ("uid" in multiFactorInfo) {
+              throw new AuthError(
+                AuthErrorCode.INVALID_ARGUMENT,
+                '"uid" is not supported when adding second factors via "createUser()"'
+              );
+            }
+            mfaInfo.push(convertMultiFactorInfoToServerFormat(multiFactorInfo));
+          });
+        } catch (e) {
+          return Promise.reject(e);
+        }
+        request.mfaInfo = mfaInfo;
+      }
+      delete request.multiFactor;
+    }
+
+    return this.invokeRequestHandler(
+      this.getAuthUrlBuilder(),
+      FIREBASE_AUTH_SIGN_UP_NEW_USER,
+      request
+    ).then((response: any) => {
+      return response.localId as string;
+    });
+  }
+
+  public updateExistingAccount(
+    uid: string,
+    properties: UpdateRequest
+  ): Promise<string> {
+    const request: UpdateRequest & {
+      deleteAttribute?: string[];
+      deleteProvider?: string[];
+      linkProviderUserInfo?: UserProvider & { rawId?: string };
+      photoUrl?: string | null;
+      disableUser?: boolean;
+      mfa?: {
+        enrollments?: AuthFactorInfo[];
+      };
+      localId: string;
+    } = {
+      ...properties,
+      deleteAttribute: [],
+      localId: uid,
+    };
+
+    const deletableParams: { [key: string]: string } = {
+      displayName: "DISPLAY_NAME",
+      photoURL: "PHOTO_URL",
+    };
+
+    request.deleteAttribute = [];
+    for (const key in deletableParams) {
+      if (request[key] === null) {
+        request.deleteAttribute.push(deletableParams[key]);
+        delete request[key];
+      }
+    }
+    if (request.deleteAttribute.length === 0) {
+      delete request.deleteAttribute;
+    }
+
+    if (request.phoneNumber === null) {
+      request.deleteProvider
+        ? request.deleteProvider.push("phone")
+        : (request.deleteProvider = ["phone"]);
+      delete request.phoneNumber;
+    }
+
+    if (typeof request.providerToLink !== "undefined") {
+      request.linkProviderUserInfo = { ...request.providerToLink };
+      delete request.providerToLink;
+
+      request.linkProviderUserInfo.rawId = request.linkProviderUserInfo.uid;
+      delete request.linkProviderUserInfo.uid;
+    }
+
+    if (typeof request.providersToUnlink !== "undefined") {
+      if (!Array.isArray(request.deleteProvider)) {
+        request.deleteProvider = [];
+      }
+      request.deleteProvider = request.deleteProvider.concat(
+        request.providersToUnlink
+      );
+      delete request.providersToUnlink;
+    }
+
+    if (typeof request.photoURL !== "undefined") {
+      request.photoUrl = request.photoURL;
+      delete request.photoURL;
+    }
+
+    if (typeof request.disabled !== "undefined") {
+      request.disableUser = request.disabled;
+      delete request.disabled;
+    }
+
+    if (request.multiFactor) {
+      if (request.multiFactor.enrolledFactors === null) {
+        request.mfa = {};
+      } else if (Array.isArray(request.multiFactor.enrolledFactors)) {
+        request.mfa = {
+          enrollments: [],
+        };
+        try {
+          request.multiFactor.enrolledFactors.forEach(
+            (multiFactorInfo: UpdateMultiFactorInfoRequest) => {
+              request.mfa!.enrollments!.push(
+                convertMultiFactorInfoToServerFormat(multiFactorInfo)
+              );
+            }
+          );
+        } catch (e) {
+          return Promise.reject(e);
+        }
+        if (request.mfa!.enrollments!.length === 0) {
+          delete request.mfa.enrollments;
+        }
+      }
+      delete request.multiFactor;
+    }
+
+    return this.invokeRequestHandler(
+      this.getAuthUrlBuilder(),
+      FIREBASE_AUTH_SET_ACCOUNT_INFO,
+      request
+    ).then((response: any) => {
+      return response.localId as string;
+    });
   }
 
   public setCustomUserClaims(
@@ -167,12 +333,14 @@ export abstract class AbstractAuthRequestHandler {
       if (!errorCode) {
         throw new AuthError(
           AuthErrorCode.INTERNAL_ERROR,
-          `Error returned from server: ${error}.`
+          `Error returned from server: ${JSON.stringify(error)}.`
         );
       }
       throw new AuthError(
         AuthErrorCode.INTERNAL_ERROR,
-        `Error returned from server: ${error}. Code: ${errorCode}`
+        `Error returned from server: ${JSON.stringify(
+          error
+        )}. Code: ${errorCode}`
       );
     }
 
@@ -203,4 +371,123 @@ export class AuthRequestHandler extends AbstractAuthRequestHandler {
   protected newAuthUrlBuilder(): AuthResourceUrlBuilder {
     return new AuthResourceUrlBuilder("v1", this.serviceAccount.projectId);
   }
+}
+
+function isPhoneFactor(
+  multiFactorInfo: UpdateMultiFactorInfoRequest
+): multiFactorInfo is UpdatePhoneMultiFactorInfoRequest {
+  return multiFactorInfo.factorId === "phone";
+}
+
+function isUTCDateString(dateString: any): boolean {
+  try {
+    return dateString && new Date(dateString).toUTCString() === dateString;
+  } catch (e) {
+    return false;
+  }
+}
+
+export function convertMultiFactorInfoToServerFormat(
+  multiFactorInfo: UpdateMultiFactorInfoRequest
+): AuthFactorInfo {
+  let enrolledAt;
+  if (typeof multiFactorInfo.enrollmentTime !== "undefined") {
+    if (isUTCDateString(multiFactorInfo.enrollmentTime)) {
+      enrolledAt = new Date(multiFactorInfo.enrollmentTime).toISOString();
+    } else {
+      throw new AuthError(
+        AuthErrorCode.INVALID_ARGUMENT,
+        `The second factor "enrollmentTime" for "${multiFactorInfo.uid}" must be a valid ` +
+          "UTC date string."
+      );
+    }
+  }
+  if (isPhoneFactor(multiFactorInfo)) {
+    const authFactorInfo: AuthFactorInfo = {
+      mfaEnrollmentId: multiFactorInfo.uid,
+      displayName: multiFactorInfo.displayName,
+      phoneInfo: multiFactorInfo.phoneNumber,
+      enrolledAt,
+    };
+    for (const objKey in authFactorInfo) {
+      if (typeof authFactorInfo[objKey] === "undefined") {
+        delete authFactorInfo[objKey];
+      }
+    }
+    return authFactorInfo;
+  } else {
+    throw new AuthError(
+      AuthErrorCode.INVALID_ARGUMENT,
+      `Unsupported second factor "${JSON.stringify(multiFactorInfo)}" provided.`
+    );
+  }
+}
+
+export interface AuthFactorInfo {
+  mfaEnrollmentId?: string;
+  displayName?: string;
+  phoneInfo?: string;
+  enrolledAt?: string;
+  [key: string]: any;
+}
+
+export interface BaseUpdateMultiFactorInfoRequest {
+  uid?: string;
+  displayName?: string;
+  enrollmentTime?: string;
+  factorId: string;
+}
+
+export interface UpdatePhoneMultiFactorInfoRequest
+  extends BaseUpdateMultiFactorInfoRequest {
+  phoneNumber: string;
+}
+
+export type UpdateMultiFactorInfoRequest = UpdatePhoneMultiFactorInfoRequest;
+
+export interface MultiFactorUpdateSettings {
+  enrolledFactors: UpdateMultiFactorInfoRequest[] | null;
+}
+
+export interface UpdateRequest {
+  disabled?: boolean;
+  displayName?: string | null;
+  email?: string;
+  emailVerified?: boolean;
+  password?: string;
+  phoneNumber?: string | null;
+  photoURL?: string | null;
+  multiFactor?: MultiFactorUpdateSettings;
+  providerToLink?: UserProvider;
+  providersToUnlink?: string[];
+}
+
+export interface UserProvider {
+  uid?: string;
+  displayName?: string;
+  email?: string;
+  phoneNumber?: string;
+  photoURL?: string;
+  providerId?: string;
+}
+
+export interface BaseCreateMultiFactorInfoRequest {
+  displayName?: string;
+  factorId: string;
+}
+
+export interface CreatePhoneMultiFactorInfoRequest
+  extends BaseCreateMultiFactorInfoRequest {
+  phoneNumber: string;
+}
+
+export type CreateMultiFactorInfoRequest = CreatePhoneMultiFactorInfoRequest;
+
+export interface MultiFactorCreateSettings {
+  enrolledFactors: CreateMultiFactorInfoRequest[];
+}
+
+export interface CreateRequest extends UpdateRequest {
+  uid?: string;
+  multiFactor?: MultiFactorCreateSettings;
 }

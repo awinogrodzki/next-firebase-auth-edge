@@ -142,7 +142,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/((?!_next|favicon.ico|api|.*\\.).*)", "/api/login", "/api/logout"],
+  matcher: [
+    "/",
+    "/((?!_next|favicon.ico|api|.*\\.).*)",
+    "/api/login",
+    "/api/logout",
+  ],
 };
 ```
 
@@ -430,6 +435,8 @@ const {
   createCustomToken,
   handleTokenRefresh,
   getUser,
+  createUser,
+  updateUser,
   deleteUser,
   verifyAndRefreshExpiredIdToken,
   setCustomUserClaims,
@@ -445,16 +452,18 @@ const {
 
 ##### Methods
 
-| Name                           | Type                                                                       | Description                                                                                                                 |
-| ------------------------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| getCustomIdAndRefreshTokens    | `(idToken: string, firebaseApiKey: string) => Promise<IdAndRefreshTokens>` | Generates a new set of id and refresh tokens for user identified by provided `idToken`                                      |
-| verifyIdToken                  | `(idToken: string, checkRevoked?: boolean) => Promise<DecodedIdToken>`     | Verifies provided `idToken`. Throws `FirebaseAuthError`. See source code for possible error types.                          |
-| createCustomToken              | `(uid: string, developerClaims?: object) => Promise<string>`               | Creates a custom token for given firebase user. Optionally, it's possible to attach additional `developerClaims`            |
-| handleTokenRefresh             | `(refreshToken: string, firebaseApiKey: string) => Promise<Tokens>`        | Returns id `token` and `decodedToken` for given `refreshToken`                                                              |
-| getUser                        | `(uid: string) => Promise<UserRecord>`                                     | Returns Firebase UserRecord by uid                                                                                          |
-| deleteUser                     | `(uid: string) => Promise<void>`                                           | Deletes user                                                                                                                |
-| setCustomUserClaims            | `(uid: string, customClaims: object ∣ null) => Promise<void>`              | Sets custom claims for given user. Overwrites existing values. Use `getUser` to fetch current claims                        |
-| verifyAndRefreshExpiredIdToken | `(token: string, refreshToken: string) => Promise<Tokens ∣ null>`          | Verifies provided `idToken`. If token is expired, uses `refreshToken` to validate it. Returns `null` if token is not valid. |
+| Name                           | Type                                                                       | Description                                                                                                                                                                         |
+| ------------------------------ | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| getCustomIdAndRefreshTokens    | `(idToken: string, firebaseApiKey: string) => Promise<IdAndRefreshTokens>` | Generates a new set of id and refresh tokens for user identified by provided `idToken`                                                                                              |
+| verifyIdToken                  | `(idToken: string, checkRevoked?: boolean) => Promise<DecodedIdToken>`     | Verifies provided `idToken`. Throws `FirebaseAuthError`. See source code for possible error types.                                                                                  |
+| createCustomToken              | `(uid: string, developerClaims?: object) => Promise<string>`               | Creates a custom token for given firebase user. Optionally, it's possible to attach additional `developerClaims`                                                                    |
+| handleTokenRefresh             | `(refreshToken: string, firebaseApiKey: string) => Promise<Tokens>`        | Returns id `token` and `decodedToken` for given `refreshToken`                                                                                                                      |
+| getUser                        | `(uid: string) => Promise<UserRecord>`                                     | Returns Firebase UserRecord by uid                                                                                                                                                  |
+| createUser                     | `(request: CreateRequest) => Promise<UserRecord>`                          | Creates user and returns UserRecord. See official firebase [Create a user](https://firebase.google.com/docs/auth/admin/manage-users#create_a_user) docs for request examples        |
+| updateUser                     | `(uid: string, request: UpdateRequest) => Promise<UserRecord>`             | Updates user by uid and returns UserRecord. See official firebase [Update a user](https://firebase.google.com/docs/auth/admin/manage-users#update_a_user) docs for request examples |
+| deleteUser                     | `(uid: string) => Promise<void>`                                           | Deletes user                                                                                                                                                                        |
+| setCustomUserClaims            | `(uid: string, customClaims: object ∣ null) => Promise<void>`              | Sets custom claims for given user. Overwrites existing values. Use `getUser` to fetch current claims                                                                                |
+| verifyAndRefreshExpiredIdToken | `(token: string, refreshToken: string) => Promise<Tokens ∣ null>`          | Verifies provided `idToken`. If token is expired, uses `refreshToken` to validate it. Returns `null` if token is not valid.                                                         |
 
 #### refreshAuthCookies in middleware
 
@@ -523,7 +532,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/((?!_next|favicon.ico|api|.*\\.).*)", "/api/login", "/api/logout"],
+  matcher: [
+    "/",
+    "/((?!_next|favicon.ico|api|.*\\.).*)",
+    "/api/login",
+    "/api/logout",
+  ],
 };
 ```
 

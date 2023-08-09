@@ -1,6 +1,10 @@
 import { useEmulator } from "./firebase";
 import { createIdTokenVerifier, DecodedIdToken } from "./token-verifier";
-import { AuthRequestHandler } from "./auth-request-handler";
+import {
+  AuthRequestHandler,
+  CreateRequest,
+  UpdateRequest,
+} from "./auth-request-handler";
 import { ServiceAccount, ServiceAccountCredential } from "./credential";
 import { UserRecord } from "./user-record";
 import { createFirebaseTokenGenerator } from "./token-generator";
@@ -268,6 +272,23 @@ export function getFirebaseAuth(
     await authRequestHandler.setCustomUserClaims(uid, customUserClaims);
   }
 
+  async function createUser(properties: CreateRequest): Promise<UserRecord> {
+    return authRequestHandler.createNewAccount(properties).then((uid) => {
+      return getUser(uid);
+    });
+  }
+
+  async function updateUser(
+    uid: string,
+    properties: UpdateRequest
+  ): Promise<UserRecord> {
+    return authRequestHandler
+      .updateExistingAccount(uid, properties)
+      .then((existingUid) => {
+        return getUser(existingUid);
+      });
+  }
+
   return {
     verifyAndRefreshExpiredIdToken,
     verifyIdToken,
@@ -277,5 +298,7 @@ export function getFirebaseAuth(
     deleteUser,
     setCustomUserClaims,
     getUser,
+    updateUser,
+    createUser,
   };
 }
