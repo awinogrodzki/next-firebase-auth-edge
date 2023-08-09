@@ -10,9 +10,22 @@ Next.js 13 Firebase Authentication for Edge and Node.js runtimes. Dedicated for 
 
 <a href="https://www.npmjs.com/package/next-firebase-auth-edge">![npm](https://nodei.co/npm/next-firebase-auth-edge.png)</a>
 
-- [Example](#example)
-- [Why](#why)
-- [Built on top of Web Crypto API](#built-on-top-of-web-crypto-api)
+## Example
+
+The starter demo is available at [next-firebase-auth-edge-starter.vercel.app](https://next-firebase-auth-edge-starter.vercel.app/)
+
+You can find source code for the demo in [examples/next13-typescript-starter](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next13-typescript-starter)
+
+## Why
+
+Official `firebase-admin` library relies heavily on Node.js internal `crypto` library and primitives that are unavailable inside [Next.js Edge Runtime](https://nextjs.org/docs/api-reference/edge-runtime).
+
+This library aims to solve the problem of creating and verifying custom JWT tokens provided by **Firebase Authentication** using Web Crypto API available inside Edge runtimes
+
+## Built on top of Web Crypto API
+
+`next-firebase-auth-edge` is built upon [jose](https://github.com/panva/jose), _JavaScript module for JSON Object Signing and Encryption_ that works seamlessly in Edge and Node.js runtimes
+
 - [Installation](#installation)
 - [Overview](#overview)
   - [Middleware](#middleware)
@@ -31,22 +44,6 @@ Next.js 13 Firebase Authentication for Edge and Node.js runtimes. Dedicated for 
     - [refreshAuthCookies in API Route](#refreshauthcookies-in-api-route)
     - [refreshAuthCookies in API handler](#refreshauthcookies-in-api-handler)
   - [Emulator support](#emulator-support)
-
-## Example
-
-The starter demo is available at [next-firebase-auth-edge-starter.vercel.app](https://next-firebase-auth-edge-starter.vercel.app/)
-
-You can find source code for the demo in [examples/next13-typescript-starter](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next13-typescript-starter)
-
-## Why
-
-Official `firebase-admin` library relies heavily on Node.js internal `crypto` library and primitives that are unavailable inside [Next.js Edge Runtime](https://nextjs.org/docs/api-reference/edge-runtime).
-
-This library aims to solve the problem of creating and verifying custom JWT tokens provided by **Firebase Authentication** using Web Crypto API available inside Edge runtimes
-
-## Built on top of Web Crypto API
-
-`next-firebase-auth-edge` is built upon [jose](https://github.com/panva/jose), _JavaScript module for JSON Object Signing and Encryption_ that works seamlessly in Edge and Node.js runtimes
 
 ## Installation
 
