@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.8.2
+
+### Patch Changes
+
+- Added createUser and updateUser methods
+
 ## 0.8.1
 
 ### Patch Changes
