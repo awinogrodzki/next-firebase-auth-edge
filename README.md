@@ -26,6 +26,8 @@ This library aims to solve the problem of creating and verifying custom JWT toke
 
 `next-firebase-auth-edge` is built upon [jose](https://github.com/panva/jose), _JavaScript module for JSON Object Signing and Encryption_ that works seamlessly in Edge and Node.js runtimes
 
+# Table of Contents
+
 - [Installation](#installation)
 - [Overview](#overview)
   - [Middleware](#middleware)
