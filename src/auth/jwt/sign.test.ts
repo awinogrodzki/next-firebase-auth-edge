@@ -10,7 +10,8 @@ type GlobalAny = {
   };
 };
 
-const PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----\n" +
+const PRIVATE_KEY =
+  "-----BEGIN PRIVATE KEY-----\n" +
   "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDFL3Pc33GkWha1\n" +
   "WSMRw5e3spUCQAwpGnsRBMcG6JH+eHeHOJYI0odFPqCujVQTyTOEZwKZUtzRvMWP\n" +
   "h+kgIdDw+1+hzsJJTDijHHNi/G/g2kPHpXXVaEdOKnwvOddhC3L79W2vxhcx2e64\n" +

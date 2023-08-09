@@ -21,7 +21,7 @@ describe("rotating-credential", () => {
 
     expect(await credential1.verify("some string", key2)).toBe(true);
     expect(await credential1.verify("some string", key3)).toBe(true);
-    expect(await credential3.verify("some string", key2)).toBe(true)
+    expect(await credential3.verify("some string", key2)).toBe(true);
     expect(await credential3.verify("some string", key1)).toBe(true);
 
     expect(await credential2.verify("some string", key1)).toBe(false);
