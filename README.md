@@ -26,7 +26,7 @@ This library aims to solve the problem of creating and verifying custom JWT toke
 
 `next-firebase-auth-edge` is built upon [jose](https://github.com/panva/jose), _JavaScript module for JSON Object Signing and Encryption_ that works seamlessly in Edge and Node.js runtimes
 
-# Table of Contents
+## Table of Contents
 
 - [Installation](#installation)
 - [Overview](#overview)
@@ -452,9 +452,9 @@ const {
 ##### Methods
 
 | Name                           | Type                                                                       | Description                                                                                                                                                                         |
-| ------------------------------ | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ------------------------------ | -------------------------------------------------------------------------- |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | getCustomIdAndRefreshTokens    | `(idToken: string, firebaseApiKey: string) => Promise<IdAndRefreshTokens>` | Generates a new set of id and refresh tokens for user identified by provided `idToken`                                                                                              |
-| verifyIdToken                  | `(idToken: string, checkRevoked?: boolean) => Promise<DecodedIdToken>`     | Verifies provided `idToken`. Throws `FirebaseAuthError`. See source code for possible error types.                                                                                  |
+| verifyIdToken                  | `(idToken: string, checkRevoked?: boolean) => Promise<DecodedIdToken>`     | Verifies provided `idToken`. Throws `AuthError`. See [source code](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/src/auth/error.ts) for possible error types.                                                                                      |
 | createCustomToken              | `(uid: string, developerClaims?: object) => Promise<string>`               | Creates a custom token for given firebase user. Optionally, it's possible to attach additional `developerClaims`                                                                    |
 | handleTokenRefresh             | `(refreshToken: string, firebaseApiKey: string) => Promise<Tokens>`        | Returns id `token` and `decodedToken` for given `refreshToken`                                                                                                                      |
 | getUser                        | `(uid: string) => Promise<UserRecord>`                                     | Returns Firebase UserRecord by uid                                                                                                                                                  |
