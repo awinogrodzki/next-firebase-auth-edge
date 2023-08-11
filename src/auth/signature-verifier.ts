@@ -5,6 +5,7 @@ import {
   JWTPayload,
   ProtectedHeaderParameters,
 } from "jose";
+import { useEmulator } from "./firebase";
 
 export const ALGORITHM_RS256 = "RS256" as const;
 const NO_MATCHING_KID_ERROR_MESSAGE = "no-matching-kid-error";
@@ -131,7 +132,9 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
 
   public async verify(token: string, options?: VerifyOptions): Promise<void> {
     const header = decodeProtectedHeader(token);
-    const publicKey = await fetchPublicKey(this.keyFetcher, header);
+    const publicKey = useEmulator()
+      ? ""
+      : await fetchPublicKey(this.keyFetcher, header);
 
     await verify(token, publicKey, options);
   }
