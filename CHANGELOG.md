@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.8.4
+
+### Patch Changes
+
+- Fix https://github.com/awinogrodzki/next-firebase-auth-edge/issues/90 by validating token against all returned public keys in case of not matching kid header
+
 ## 0.8.3
 
 ### Patch Changes
