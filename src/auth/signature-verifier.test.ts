@@ -135,7 +135,8 @@ describe("signature verifier", () => {
     const mockFetcher = {
       fetchPublicKeys: jest.fn(() =>
         Promise.resolve({
-          "any-public-key": "-----BEGIN PUBLIC KEY-----\n" +
+          "any-public-key":
+            "-----BEGIN PUBLIC KEY-----\n" +
             "MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgHPhprdfhd268SBs0iY3on/msJmn\n" +
             "v+69vwNbls1j1/EZTKSmHsk4NeEwuwt/DFOx0ZQj17MK4IeWpB++rkmHfdHXIvRj\n" +
             "Z564l+ovfplmwlI+lHCFBgt3wQ9hA1VQnJGuG88CcvMLr5cxdg0njaKQIj+J/tZq\n" +
