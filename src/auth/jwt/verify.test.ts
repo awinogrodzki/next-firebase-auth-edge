@@ -49,6 +49,6 @@ aQIDAQAB
       privateKey,
     });
 
-    await verify(jwt, publicKey);
+    await verify(jwt, async () => publicKey);
   });
 });
