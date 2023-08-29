@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.8.6
+
+### Patch Changes
+
+- Throw user friendly error on no matching kid in public keys response
+
 ## 0.8.5
 
 ### Patch Changes

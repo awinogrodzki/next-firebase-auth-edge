@@ -76,7 +76,7 @@ describe("signature verifier", () => {
     );
   });
 
-  it("verifies jwt with all public keys if kid does not match any public key", async () => {
+  it("throws no matching kid error when non of the public keys corresponds to kid", async () => {
     const mockKeyId = "some-key-id";
     const mockFetcher = {
       fetchPublicKeys: jest.fn(() =>
@@ -89,11 +89,13 @@ describe("signature verifier", () => {
     const payload = { exp: Date.now() / 1000 + 1 };
     const token = await sign({ payload, privateKey, keyId: mockKeyId });
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
-    await signatureVerifier.verify(token);
+
+    return expect(() => signatureVerifier.verify(token)).rejects.toEqual(
+      new AuthError(AuthErrorCode.NO_MATCHING_KID)
+    );
   });
 
   it("throws expired error if one of certificates matches, but token is expired", async () => {
-    const mockKeyId = "some-key-id";
     const mockFetcher = {
       fetchPublicKeys: jest.fn(() =>
         Promise.resolve({
@@ -103,7 +105,7 @@ describe("signature verifier", () => {
       ),
     } as KeyFetcher;
     const payload = { exp: Date.now() / 1000 - 1 };
-    const token = await sign({ payload, privateKey, keyId: mockKeyId });
+    const token = await sign({ payload, privateKey, keyId: "" });
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
 
     return expect(() => signatureVerifier.verify(token)).rejects.toBeInstanceOf(
@@ -129,18 +131,21 @@ describe("signature verifier", () => {
     const mockFetcher = {
       fetchPublicKeys: jest.fn(() =>
         Promise.resolve({
-          "any-public-key":
+          "any-kid":
             "-----BEGIN PUBLIC KEY-----\n" +
-            "MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgHPhprdfhd268SBs0iY3on/msJmn\n" +
-            "v+69vwNbls1j1/EZTKSmHsk4NeEwuwt/DFOx0ZQj17MK4IeWpB++rkmHfdHXIvRj\n" +
-            "Z564l+ovfplmwlI+lHCFBgt3wQ9hA1VQnJGuG88CcvMLr5cxdg0njaKQIj+J/tZq\n" +
-            "01SjkhrmskbpKRZNAgMBAAE=\n" +
+            "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn3JOtipuElI0FxM9a7Ni\n" +
+            "IjGBPtZBa8RJofUHJNoGHRS+cN0NU+XUDvwBBozB2jDl6XRg1+fIVX3WiIokFi3O\n" +
+            "MI0iUc6Ht++lEC2IhSpQ3F7IxeZYlpvTLA+Df5y2SCcK1haa5mxhzCYxbE3Iyu7q\n" +
+            "Ms4wf7AgNY/zYz9wXlhI6ZomuahkLm4nu1yYnKZOxATsCWBeHx9o+skQbYOQ5fn5\n" +
+            "e34EVa2fE592Jg4iTXobVSAF1KZIsJerP9P7tkZzrQm6qPz0qV1c7H/1kLN9k3if\n" +
+            "EXeCUZP7tL38XtlP5iB6F49f7jmc0WgL7wOuUqyrQbkRiOxOaXP2ibAa+TPgPxP3\n" +
+            "1wIDAQAB\n" +
             "-----END PUBLIC KEY-----",
         })
       ),
     } as KeyFetcher;
     const payload = { exp: Date.now() / 1000 - 1 };
-    const token = await sign({ payload, privateKey, keyId: "some-kid" });
+    const token = await sign({ payload, privateKey, keyId: "" });
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
 
     return expect(() => signatureVerifier.verify(token)).rejects.toEqual(
