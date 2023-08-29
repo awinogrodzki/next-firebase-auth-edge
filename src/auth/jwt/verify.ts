@@ -38,7 +38,7 @@ export async function getPublicCryptoKey(publicKey: string): Promise<KeyLike> {
 
 export async function verify(
   jwtString: string,
-  publicKey: string,
+  getPublicKey: () => Promise<string>,
   options: VerifyOptions = {}
 ) {
   const currentDate = options.currentDate ?? new Date();
@@ -46,7 +46,7 @@ export async function verify(
   const payload = decodeJwt(jwtString);
 
   if (!useEmulator()) {
-    const key = await getPublicCryptoKey(publicKey);
+    const key = await getPublicCryptoKey(await getPublicKey());
     const { payload } = await jwtVerify(jwtString, key, { currentDate });
 
     return payload as DecodedIdToken;

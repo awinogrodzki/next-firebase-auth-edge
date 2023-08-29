@@ -2,14 +2,14 @@ import { isNonNullObject, isURL } from "./validator";
 import { verify, VerifyOptions } from "./jwt/verify";
 import {
   decodeProtectedHeader,
+  errors,
   JWTPayload,
   ProtectedHeaderParameters,
 } from "jose";
 import { useEmulator } from "./firebase";
+import { AuthError, AuthErrorCode } from "./error";
 
 export const ALGORITHM_RS256 = "RS256" as const;
-const NO_MATCHING_KID_ERROR_MESSAGE = "no-matching-kid-error";
-const NO_KID_IN_HEADER_ERROR_MESSAGE = "no-kid-in-header-error";
 
 type PublicKeys = { [key: string]: string };
 
@@ -86,9 +86,11 @@ export class UrlKeyFetcher implements KeyFetcher {
       );
     }
 
+    const expiresAt = getExpiresAt(res);
+
     return {
       keys: data,
-      expiresAt: getExpiresAt(res),
+      expiresAt,
     };
   }
 
@@ -108,8 +110,9 @@ export class UrlKeyFetcher implements KeyFetcher {
     }
 
     const { keys, expiresAt } = cachedResponse;
+    const now = Date.now();
 
-    if (expiresAt <= Date.now()) {
+    if (expiresAt <= now) {
       return this.fetchAndCachePublicKeys(url);
     }
 
@@ -130,13 +133,59 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
     return new PublicKeySignatureVerifier(new UrlKeyFetcher(clientCertUrl));
   }
 
+  private async getPublicKey(header: ProtectedHeaderParameters) {
+    if (useEmulator()) {
+      return "";
+    }
+
+    return fetchPublicKey(this.keyFetcher, header);
+  }
+
   public async verify(token: string, options?: VerifyOptions): Promise<void> {
     const header = decodeProtectedHeader(token);
-    const publicKey = useEmulator()
-      ? ""
-      : await fetchPublicKey(this.keyFetcher, header);
 
-    await verify(token, publicKey, options);
+    try {
+      await verify(token, () => this.getPublicKey(header), options);
+    } catch (e) {
+      if (e instanceof AuthError && e.code === AuthErrorCode.NO_MATCHING_KID) {
+        await this.verifyWithoutKid(token);
+        return;
+      }
+
+      throw e;
+    }
+  }
+
+  private async verifyWithoutKid(token: string): Promise<void> {
+    const publicKeys = await this.keyFetcher.fetchPublicKeys();
+
+    return this.verifyWithAllKeys(token, publicKeys);
+  }
+
+  private async verifyWithAllKeys(
+    token: string,
+    keys: { [key: string]: string }
+  ): Promise<void> {
+    const promises: Promise<boolean>[] = [];
+
+    Object.values(keys).forEach((key) => {
+      const promise = verify(token, async () => key)
+        .then(() => true)
+        .catch((error) => {
+          if (error instanceof errors.JWTExpired) {
+            throw error;
+          }
+          return false;
+        });
+
+      promises.push(promise);
+    });
+
+    return Promise.all(promises).then((result) => {
+      if (result.every((r) => r === false)) {
+        throw new AuthError(AuthErrorCode.INVALID_SIGNATURE);
+      }
+    });
   }
 }
 
@@ -145,14 +194,14 @@ export async function fetchPublicKey(
   header: ProtectedHeaderParameters
 ): Promise<string> {
   if (!header.kid) {
-    throw new Error(NO_KID_IN_HEADER_ERROR_MESSAGE);
+    throw new AuthError(AuthErrorCode.NO_KID_IN_HEADER);
   }
 
   const kid = header.kid || "";
   const publicKeys = await fetcher.fetchPublicKeys();
 
   if (!Object.prototype.hasOwnProperty.call(publicKeys, kid)) {
-    throw new Error(NO_MATCHING_KID_ERROR_MESSAGE);
+    throw new AuthError(AuthErrorCode.NO_MATCHING_KID);
   }
 
   return publicKeys[kid];
