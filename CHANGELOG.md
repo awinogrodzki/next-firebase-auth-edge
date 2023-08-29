@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.8.5
+
+### Patch Changes
+
+- Revalidate token against all public keys if kid is missing
+
 ## 0.8.4
 
 ### Patch Changes
