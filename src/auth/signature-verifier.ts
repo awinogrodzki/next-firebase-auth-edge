@@ -147,7 +147,11 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
     try {
       await verify(token, () => this.getPublicKey(header), options);
     } catch (e) {
-      if (e instanceof AuthError && e.code === AuthErrorCode.NO_MATCHING_KID) {
+      if (
+        e instanceof AuthError &&
+        (e.code === AuthErrorCode.NO_MATCHING_KID ||
+          e.code === AuthErrorCode.NO_KID_IN_HEADER)
+      ) {
         await this.verifyWithoutKid(token);
         return;
       }
@@ -197,7 +201,7 @@ export async function fetchPublicKey(
     throw new AuthError(AuthErrorCode.NO_KID_IN_HEADER);
   }
 
-  const kid = header.kid || "";
+  const kid = header.kid;
   const publicKeys = await fetcher.fetchPublicKeys();
 
   if (!Object.prototype.hasOwnProperty.call(publicKeys, kid)) {

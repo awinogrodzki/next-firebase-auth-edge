@@ -114,7 +114,7 @@ describe("signature verifier", () => {
     );
   });
 
-  it("throws no kid error if header is missing kid", async () => {
+  it("validates token against all public keys if key id is missing", async () => {
     const mockFetcher = {
       fetchPublicKeys: jest.fn(() =>
         Promise.resolve({
@@ -122,13 +122,10 @@ describe("signature verifier", () => {
         })
       ),
     } as any as UrlKeyFetcher;
-    const payload = { exp: Date.now() / 1000 - 1 };
+    const payload = { exp: Date.now() / 1000 + 1 };
     const token = await sign({ payload, privateKey, keyId: "" });
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
-
-    return expect(() => signatureVerifier.verify(token)).rejects.toEqual(
-      new AuthError(AuthErrorCode.NO_KID_IN_HEADER)
-    );
+    await signatureVerifier.verify(token);
   });
 
   it("throws invalid signature error if none of existing keys is valid against token", async () => {
