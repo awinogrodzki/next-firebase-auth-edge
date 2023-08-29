@@ -27,7 +27,7 @@ export interface SignatureVerifier {
   verify(token: string, options?: VerifyOptions): Promise<void>;
 }
 
-interface KeyFetcher {
+export interface KeyFetcher {
   fetchPublicKeys(): Promise<PublicKeys>;
 }
 

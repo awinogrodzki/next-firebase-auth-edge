@@ -1,7 +1,4 @@
-import {
-  PublicKeySignatureVerifier,
-  UrlKeyFetcher,
-} from "./signature-verifier";
+import { KeyFetcher, PublicKeySignatureVerifier } from "./signature-verifier";
 import { sign } from "./jwt/sign";
 import { errors } from "jose";
 import { AuthError, AuthErrorCode } from "./error";
@@ -54,7 +51,7 @@ describe("signature verifier", () => {
           [mockKeyId]: publicKey,
         })
       ),
-    } as any as UrlKeyFetcher;
+    } as KeyFetcher;
     const payload = { exp: Date.now() / 1000 + 1 };
     const token = await sign({ payload, privateKey, keyId: mockKeyId });
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
@@ -69,7 +66,7 @@ describe("signature verifier", () => {
           [mockKeyId]: publicKey,
         })
       ),
-    } as any as UrlKeyFetcher;
+    } as KeyFetcher;
     const payload = { exp: Date.now() / 1000 - 1 };
     const token = await sign({ payload, privateKey, keyId: mockKeyId });
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
@@ -88,7 +85,7 @@ describe("signature verifier", () => {
           "any-public-key": publicKey,
         })
       ),
-    } as any as UrlKeyFetcher;
+    } as KeyFetcher;
     const payload = { exp: Date.now() / 1000 + 1 };
     const token = await sign({ payload, privateKey, keyId: mockKeyId });
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
@@ -104,7 +101,7 @@ describe("signature verifier", () => {
           "any-public-key": publicKey,
         })
       ),
-    } as any as UrlKeyFetcher;
+    } as KeyFetcher;
     const payload = { exp: Date.now() / 1000 - 1 };
     const token = await sign({ payload, privateKey, keyId: mockKeyId });
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
@@ -121,7 +118,7 @@ describe("signature verifier", () => {
           "any-public-key": publicKey,
         })
       ),
-    } as any as UrlKeyFetcher;
+    } as KeyFetcher;
     const payload = { exp: Date.now() / 1000 + 1 };
     const token = await sign({ payload, privateKey, keyId: "" });
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
@@ -141,7 +138,7 @@ describe("signature verifier", () => {
             "-----END PUBLIC KEY-----",
         })
       ),
-    } as any as UrlKeyFetcher;
+    } as KeyFetcher;
     const payload = { exp: Date.now() / 1000 - 1 };
     const token = await sign({ payload, privateKey, keyId: "some-kid" });
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
