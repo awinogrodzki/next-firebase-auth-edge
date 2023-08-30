@@ -318,8 +318,10 @@ import { cookies } from "next/headers";
 import { AuthProvider } from "./auth-provider";
 import { Tokens } from "next-firebase-auth-edge/lib/auth";
 import { UserInfo } from "firebase/auth";
+import { User } from "./context";
+import { filterStandardClaims } from 'next-firebase-auth-edge/lib/auth/claims';
 
-const mapTokensToUser = ({ decodedToken }: Tokens): UserInfo => {
+const mapTokensToUser = ({ decodedToken }: Tokens): User => {
   const {
     uid,
     email,
@@ -329,6 +331,8 @@ const mapTokensToUser = ({ decodedToken }: Tokens): UserInfo => {
     name: displayName,
   } = decodedToken;
 
+  const customClaims = filterStandardClaims(decodedToken);
+
   return {
     uid,
     email: email ?? null,
@@ -336,9 +340,10 @@ const mapTokensToUser = ({ decodedToken }: Tokens): UserInfo => {
     photoURL: photoURL ?? null,
     phoneNumber: phoneNumber ?? null,
     emailVerified: emailVerified ?? false,
-    provider: "firebase",
+    customClaims
   };
 };
+
 
 //...
 export default async function AuthenticatedLayout({
