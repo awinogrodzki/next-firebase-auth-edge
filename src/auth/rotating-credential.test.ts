@@ -5,7 +5,7 @@ describe("rotating-credential", () => {
     const credential = new RotatingCredential(["key1", "key2"]);
     const key = await credential.sign("some string");
 
-    expect(key).toEqual("nm_d9VoUViUmwkxYFgr_7Bp7mkHH1PgyWgAPFq8yrs4");
+    expect(key).toEqual("5HbAdrpJpHWA9T_0SMi3bEb3cp6ZArMxq1FF0GAOMyc");
     expect(await credential.verify("some string", key)).toBe(true);
     expect(await credential.verify("some string", "wat")).toBe(false);
     expect(await credential.verify("some", key)).toBe(false);
