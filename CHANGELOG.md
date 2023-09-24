@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.8.7
+
+### Patch Changes
+
+- Convert signature key to UInt8Array directly instead using base64url.decode due to #92
+
 ## 0.8.6
 
 ### Patch Changes
