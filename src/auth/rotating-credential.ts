@@ -1,12 +1,16 @@
 import { FlattenedSign, base64url } from "jose";
 
+function toUint8Array(key: string) {
+  return Uint8Array.from(key.split("").map((x) => x.charCodeAt(0)));
+}
+
 export class RotatingCredential {
   constructor(private keys: string[]) {}
 
   private async signKey(data: string, keyValue: string) {
     const jws = await new FlattenedSign(base64url.decode(data))
       .setProtectedHeader({ alg: "HS256" })
-      .sign(base64url.decode(keyValue));
+      .sign(toUint8Array(keyValue));
 
     return jws.signature;
   }
