@@ -99,13 +99,14 @@ export abstract class AbstractAuthRequestHandler {
     );
   }
 
-  constructor(serviceAccount: ServiceAccount) {
+  constructor(serviceAccount: ServiceAccount, protected tenantId?: string) {
     this.getToken = getFirebaseAdminTokenProvider(serviceAccount).getToken;
   }
 
   public getAccountInfoByUid(uid: string): Promise<object> {
     const request = {
       localId: [uid],
+      tenantId: this.tenantId,
     };
 
     return this.invokeRequestHandler(
@@ -121,6 +122,7 @@ export abstract class AbstractAuthRequestHandler {
       FIREBASE_AUTH_DELETE_ACCOUNT,
       {
         localId: uid,
+        tenantId: this.tenantId,
       }
     );
   }
@@ -130,9 +132,13 @@ export abstract class AbstractAuthRequestHandler {
       photoUrl?: string | null;
       localId?: string;
       mfaInfo?: AuthFactorInfo[];
+      tenantId?: string;
     };
 
-    const request: SignUpNewUserRequest = { ...properties };
+    const request: SignUpNewUserRequest = {
+      tenantId: this.tenantId,
+      ...properties,
+    };
 
     if (typeof request.photoURL !== "undefined") {
       request.photoUrl = request.photoURL;
@@ -297,6 +303,7 @@ export abstract class AbstractAuthRequestHandler {
     const request: any = {
       localId: uid,
       customAttributes: JSON.stringify(customUserClaims),
+      tenantId: this.tenantId,
     };
     return this.invokeRequestHandler(
       this.getAuthUrlBuilder(),
@@ -360,8 +367,8 @@ export abstract class AbstractAuthRequestHandler {
 export class AuthRequestHandler extends AbstractAuthRequestHandler {
   protected readonly authResourceUrlBuilder: AuthResourceUrlBuilder;
 
-  constructor(private serviceAccount: ServiceAccount) {
-    super(serviceAccount);
+  constructor(private serviceAccount: ServiceAccount, tenantId?: string) {
+    super(serviceAccount, tenantId);
     this.authResourceUrlBuilder = new AuthResourceUrlBuilder(
       "v2",
       serviceAccount.projectId

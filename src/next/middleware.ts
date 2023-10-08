@@ -24,6 +24,7 @@ export interface CreateAuthMiddlewareOptions {
   cookieSerializeOptions: CookieSerializeOptions;
   serviceAccount: ServiceAccount;
   apiKey: string;
+  tenantId?: string;
 }
 
 export async function createAuthMiddlewareResponse(
@@ -37,6 +38,7 @@ export async function createAuthMiddlewareResponse(
       cookieSignatureKeys: options.cookieSignatureKeys,
       serviceAccount: options.serviceAccount,
       apiKey: options.apiKey,
+      tenantId: options.tenantId,
     });
   }
 
@@ -105,7 +107,8 @@ export async function authentication(
 
   const { verifyIdToken, handleTokenRefresh } = getFirebaseAuth(
     options.serviceAccount,
-    options.apiKey
+    options.apiKey,
+    options.tenantId
   );
 
   const idAndRefreshTokens = await getRequestCookiesTokens(

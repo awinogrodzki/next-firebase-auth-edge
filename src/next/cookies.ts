@@ -12,6 +12,7 @@ export interface SetAuthCookiesOptions {
   cookieSerializeOptions: CookieSerializeOptions;
   serviceAccount: ServiceAccount;
   apiKey: string;
+  tenantId?: string;
 }
 
 export async function appendAuthCookiesApi(
@@ -100,7 +101,8 @@ export async function setAuthCookies(
 ): Promise<NextResponse> {
   const { getCustomIdAndRefreshTokens } = getFirebaseAuth(
     options.serviceAccount,
-    options.apiKey
+    options.apiKey,
+    options.tenantId
   );
   const token = headers.get("Authorization")?.split(" ")[1] ?? "";
   const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
