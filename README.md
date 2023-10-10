@@ -170,6 +170,8 @@ Since v0.9.0 `handleValidToken` is called with modified request `headers` as a s
 
 You can pass this object to `NextResponse.next({ request: { headers } })` to enable token verification caching.
 
+See [Modifying Request Headers in Middleware](https://vercel.com/templates/next.js/edge-functions-modify-request-header) for more information on how modified headers work
+
 ```tsx
 handleValidToken: async ({ token, decodedToken }, headers) => {
   return NextResponse.next({
