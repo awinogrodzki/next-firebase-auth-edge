@@ -1,3 +1,6 @@
+import { DecodedIdToken } from "./token-verifier";
+import { JWTPayload } from "jose";
+
 export function formatString(str: string, params?: object): string {
   let formatted = str;
   Object.keys(params || {}).forEach((key) => {
@@ -7,6 +10,12 @@ export function formatString(str: string, params?: object): string {
     );
   });
   return formatted;
+}
+
+export function mapJwtPayloadToDecodedIdToken(payload: JWTPayload) {
+  const decodedIdToken = payload as DecodedIdToken;
+  decodedIdToken.uid = decodedIdToken.sub;
+  return decodedIdToken;
 }
 
 export function addReadonlyGetter(obj: object, prop: string, value: any): void {

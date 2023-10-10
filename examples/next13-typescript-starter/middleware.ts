@@ -32,13 +32,17 @@ export async function middleware(request: NextRequest) {
     cookieSerializeOptions: authConfig.cookieSerializeOptions,
     cookieSignatureKeys: authConfig.cookieSignatureKeys,
     serviceAccount: authConfig.serviceAccount,
-    handleValidToken: async ({ token, decodedToken }) => {
+    handleValidToken: async ({ token, decodedToken }, headers) => {
       // Authenticated user should not be able to access /login, /register and /reset-password routes
       if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
         return redirectToHome(request);
       }
 
-      return NextResponse.next();
+      return NextResponse.next({
+        request: {
+          headers,
+        },
+      });
     },
     handleInvalidToken: async () => {
       return redirectToLogin(request);
@@ -51,5 +55,10 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/((?!_next|favicon.ico|api|.*\\.).*)", "/api/login", "/api/logout"],
+  matcher: [
+    "/",
+    "/((?!_next|favicon.ico|api|.*\\.).*)",
+    "/api/login",
+    "/api/logout",
+  ],
 };

@@ -10,6 +10,7 @@ import { decodeJwt, decodeProtectedHeader, errors } from "jose";
 import { JOSEError } from "jose/dist/types/util/errors";
 import { AuthError, AuthErrorCode } from "./error";
 import { VerifyOptions } from "./jwt/verify";
+import { mapJwtPayloadToDecodedIdToken } from "./utils";
 
 export interface DecodedIdToken {
   aud: string;
@@ -65,9 +66,7 @@ export class FirebaseTokenVerifier {
       options
     );
 
-    const decodedIdToken = decoded.payload as DecodedIdToken;
-    decodedIdToken.uid = decodedIdToken.sub;
-    return decodedIdToken;
+    return mapJwtPayloadToDecodedIdToken(decoded.payload);
   }
 
   private async decodeAndVerify(
