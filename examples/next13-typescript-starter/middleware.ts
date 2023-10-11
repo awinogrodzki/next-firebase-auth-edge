@@ -40,8 +40,8 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.next({
         request: {
-          headers,
-        },
+          headers
+        }
       });
     },
     handleInvalidToken: async () => {
