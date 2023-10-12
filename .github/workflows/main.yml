@@ -24,7 +24,7 @@ env:
   FIREBASE_PROJECT_ID: next-firebase-auth-edge-demo
   FIREBASE_ADMIN_CLIENT_EMAIL: ${{ secrets.FIREBASE_ADMIN_CLIENT_EMAIL }}
   FIREBASE_ADMIN_PRIVATE_KEY: ${{ secrets.FIREBASE_ADMIN_PRIVATE_KEY }}
-
+  FIREBASE_AUTH_TENANT_ID: ${{ secrets.FIREBASE_AUTH_TENANT_ID }}
 jobs:
   install:
     name: Install dependencies
