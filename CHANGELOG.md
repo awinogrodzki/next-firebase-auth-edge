@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.8.8
+
+### Patch Changes
+
+- Add support for specifying tenantId in middleware
+
 ## 0.8.7
 
 ### Patch Changes
