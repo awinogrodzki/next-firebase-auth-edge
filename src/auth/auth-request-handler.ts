@@ -132,7 +132,6 @@ export abstract class AbstractAuthRequestHandler {
       photoUrl?: string | null;
       localId?: string;
       mfaInfo?: AuthFactorInfo[];
-      tenantId?: string;
     };
 
     const request: SignUpNewUserRequest = {
@@ -202,6 +201,7 @@ export abstract class AbstractAuthRequestHandler {
       };
       localId: string;
     } = {
+      tenantId: this.tenantId,
       ...properties,
       deleteAttribute: [],
       localId: uid,
@@ -467,6 +467,7 @@ export interface UpdateRequest {
   multiFactor?: MultiFactorUpdateSettings;
   providerToLink?: UserProvider;
   providersToUnlink?: string[];
+  tenantId?: string;
 }
 
 export interface UserProvider {
