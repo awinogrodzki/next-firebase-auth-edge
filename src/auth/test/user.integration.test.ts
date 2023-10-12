@@ -14,7 +14,6 @@ describe("user integration test", () => {
   const scenarios = [
     {
       desc: "single-tenant",
-      tenantID: undefined,
     },
     {
       desc: "multi-tenant",
