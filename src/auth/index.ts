@@ -31,7 +31,8 @@ const getRefreshTokenEndpoint = (apiKey: string) => {
 
 export async function customTokenToIdAndRefreshTokens(
   customToken: string,
-  firebaseApiKey: string
+  firebaseApiKey: string,
+  tenantId?: string
 ): Promise<IdAndRefreshTokens> {
   const refreshTokenResponse = await fetch(
     getCustomTokenEndpoint(firebaseApiKey),
@@ -41,6 +42,7 @@ export async function customTokenToIdAndRefreshTokens(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        tenantId,
         token: customToken,
         returnSecureToken: true,
       }),
@@ -160,11 +162,12 @@ export interface Tokens {
 
 export function getFirebaseAuth(
   serviceAccount: ServiceAccount,
-  apiKey: string
+  apiKey: string,
+  tenantId?: string
 ) {
-  const authRequestHandler = new AuthRequestHandler(serviceAccount);
+  const authRequestHandler = new AuthRequestHandler(serviceAccount, tenantId);
   const credential = new ServiceAccountCredential(serviceAccount);
-  const tokenGenerator = createFirebaseTokenGenerator(credential);
+  const tokenGenerator = createFirebaseTokenGenerator(credential, tenantId);
 
   const handleTokenRefresh = async (
     refreshToken: string,
@@ -258,7 +261,11 @@ export function getFirebaseAuth(
     const tenant = await verifyIdToken(idToken);
     const customToken = await createCustomToken(tenant.uid);
 
-    return customTokenToIdAndRefreshTokens(customToken, firebaseApiKey);
+    return customTokenToIdAndRefreshTokens(
+      customToken,
+      firebaseApiKey,
+      tenantId
+    );
   }
 
   async function deleteUser(uid: string): Promise<void> {
