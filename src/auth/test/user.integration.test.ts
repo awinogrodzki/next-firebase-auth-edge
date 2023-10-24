@@ -54,6 +54,17 @@ describe("user integration test", () => {
             tenantId,
           })
         );
+
+        expect(await listUsers()).toEqual({
+          users: [
+            expect.objectContaining({
+              displayName: "John Smith",
+              email: "john-smith@next-firebase-auth-edge.github",
+              uid: TEST_USER_ID,
+              tenantId,
+            }),
+          ],
+        });
       });
 
       it("should update user", async () => {
@@ -75,17 +86,6 @@ describe("user integration test", () => {
             uid: TEST_USER_ID,
             tenantId,
           })
-        );
-
-        expect(await listUsers()).toEqual(
-          expect.arrayContaining(
-            expect.objectContaining({
-              displayName: "John Smith",
-              email: "john-smith@next-firebase-auth-edge.github",
-              uid: TEST_USER_ID,
-              tenantId,
-            })
-          )
         );
       });
     });
