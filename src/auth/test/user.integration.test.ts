@@ -58,7 +58,7 @@ describe("user integration test", () => {
         expect(await listUsers()).toEqual({
           users: [
             expect.objectContaining({
-              displayName: "John Smith",
+              displayName: "John Doe",
               email: "john-smith@next-firebase-auth-edge.github",
               uid: TEST_USER_ID,
               tenantId,
