@@ -88,6 +88,11 @@ export const FIREBASE_AUTH_SIGN_UP_NEW_USER = new ApiSettings(
   "POST"
 );
 
+export const FIREBASE_AUTH_LIST_USERS_INFO = new ApiSettings(
+  "/accounts:batchGet",
+  "GET"
+);
+
 export abstract class AbstractAuthRequestHandler {
   private authUrlBuilder: AuthResourceUrlBuilder | undefined;
   private getToken: (forceRefresh?: boolean) => Promise<FirebaseAccessToken>;
@@ -312,6 +317,20 @@ export abstract class AbstractAuthRequestHandler {
     ).then((response: any) => {
       return response.localId as string;
     });
+  }
+
+  public listUsers(nextPageToken?: string, maxResults?: number) {
+    const request: any = {
+      tenandId: this.tenantId,
+      nextPageToken,
+      maxResults,
+    };
+
+    return this.invokeRequestHandler(
+      this.getAuthUrlBuilder(),
+      FIREBASE_AUTH_LIST_USERS_INFO,
+      request
+    );
   }
 
   protected async invokeRequestHandler(

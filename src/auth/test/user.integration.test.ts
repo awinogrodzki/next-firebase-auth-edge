@@ -22,15 +22,16 @@ describe("user integration test", () => {
   ];
   for (const { desc, tenantId } of scenarios) {
     describe(desc, () => {
-      const { createUser, getUser, deleteUser, updateUser } = getFirebaseAuth(
-        {
-          clientEmail: FIREBASE_ADMIN_CLIENT_EMAIL!,
-          privateKey: FIREBASE_ADMIN_PRIVATE_KEY!.replace(/\\n/g, "\n"),
-          projectId: FIREBASE_PROJECT_ID!,
-        },
-        FIREBASE_API_KEY!,
-        tenantId
-      );
+      const { createUser, getUser, deleteUser, updateUser, listUsers } =
+        getFirebaseAuth(
+          {
+            clientEmail: FIREBASE_ADMIN_CLIENT_EMAIL!,
+            privateKey: FIREBASE_ADMIN_PRIVATE_KEY!.replace(/\\n/g, "\n"),
+            projectId: FIREBASE_PROJECT_ID!,
+          },
+          FIREBASE_API_KEY!,
+          tenantId
+        );
 
       beforeEach(async () => {
         try {
@@ -74,6 +75,17 @@ describe("user integration test", () => {
             uid: TEST_USER_ID,
             tenantId,
           })
+        );
+
+        expect(await listUsers()).toEqual(
+          expect.arrayContaining(
+            expect.objectContaining({
+              displayName: "John Smith",
+              email: "john-smith@next-firebase-auth-edge.github",
+              uid: TEST_USER_ID,
+              tenantId,
+            })
+          )
         );
       });
     });
