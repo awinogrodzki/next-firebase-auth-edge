@@ -1,10 +1,13 @@
 import { getFirebaseAuth, IdAndRefreshTokens } from "../auth";
 import { ServiceAccount } from "../auth/credential";
-import { sign } from "../auth/cookies/sign";
+import { sign, SignedCookies } from "../auth/cookies/sign";
 import { CookieSerializeOptions, serialize } from "cookie";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSignatureCookieName } from "../auth/cookies";
 import { NextApiResponse } from "next";
+import { RequestCookies } from "next/dist/server/web/spec-extension/cookies";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { AuthError, AuthErrorCode } from "../auth/error";
 
 export interface SetAuthCookiesOptions {
   cookieName: string;
@@ -15,31 +18,119 @@ export interface SetAuthCookiesOptions {
   tenantId?: string;
 }
 
+export type CookiesObject = Partial<{ [K in string]: string }>;
+
+const INTERNAL_VERIFIED_TOKEN_COOKIE_NAME =
+  "x-next-firebase-auth-edge-verified";
+const INTERNAL_VERIFIED_TOKEN_COOKIE_VALUE = "true";
+
+export function validateMiddlewareRequestCookies(
+  cookies: RequestCookies | ReadonlyRequestCookies
+) {
+  if (cookies.get(INTERNAL_VERIFIED_TOKEN_COOKIE_NAME)?.value) {
+    throw new AuthError(
+      AuthErrorCode.INVALID_ARGUMENT,
+      `Looks like you're calling Next.js Middleware with cookie reserved for internal use. Please remove ${INTERNAL_VERIFIED_TOKEN_COOKIE_NAME} from request cookies.`
+    );
+  }
+}
+
+export function markCookiesAsVerified(
+  cookies: RequestCookies | ReadonlyRequestCookies
+) {
+  cookies.set(
+    INTERNAL_VERIFIED_TOKEN_COOKIE_NAME,
+    INTERNAL_VERIFIED_TOKEN_COOKIE_VALUE
+  );
+}
+
+export function wasResponseDecoratedWithModifiedRequestHeaders(
+  response: NextResponse
+) {
+  return (
+    response.headers
+      .get("x-middleware-request-cookie")
+      ?.includes(INTERNAL_VERIFIED_TOKEN_COOKIE_NAME) ?? false
+  );
+}
+
+export function areCookiesVerifiedByMiddleware(
+  cookies: RequestCookies | ReadonlyRequestCookies
+) {
+  return (
+    cookies.get(INTERNAL_VERIFIED_TOKEN_COOKIE_NAME)?.value ===
+    INTERNAL_VERIFIED_TOKEN_COOKIE_VALUE
+  );
+}
+
+export function isCookiesObjectVerifiedByMiddleware(cookies: CookiesObject) {
+  return (
+    cookies[INTERNAL_VERIFIED_TOKEN_COOKIE_NAME] ===
+    INTERNAL_VERIFIED_TOKEN_COOKIE_VALUE
+  );
+}
+
 export async function appendAuthCookiesApi(
   response: NextApiResponse,
   tokens: IdAndRefreshTokens,
   options: SetAuthCookiesOptions
 ) {
   const value = JSON.stringify(tokens);
-  const { signatureCookie, signedCookie } = await sign(
-    options.cookieSignatureKeys
-  )({
+  const signedCookie = await sign(options.cookieSignatureKeys)({
     name: options.cookieName,
     value,
   });
 
   response.setHeader("Set-Cookie", [
     serialize(
-      signatureCookie.name,
-      signatureCookie.value,
+      signedCookie.signature.name,
+      signedCookie.signature.value,
       options.cookieSerializeOptions
     ),
     serialize(
-      signedCookie.name,
-      signedCookie.value,
+      signedCookie.signed.name,
+      signedCookie.signed.value,
       options.cookieSerializeOptions
     ),
   ]);
+}
+
+export function updateRequestAuthCookies(
+  request: NextRequest,
+  cookies: SignedCookies
+) {
+  request.cookies.set(cookies.signed.name, cookies.signed.value);
+  request.cookies.set(cookies.signature.name, cookies.signature.value);
+}
+
+export function updateResponseAuthCookies(
+  response: NextResponse,
+  cookies: SignedCookies,
+  options: CookieSerializeOptions
+) {
+  response.headers.append(
+    "Set-Cookie",
+    serialize(cookies.signature.name, cookies.signature.value, options)
+  );
+
+  response.headers.append(
+    "Set-Cookie",
+    serialize(cookies.signed.name, cookies.signed.value, options)
+  );
+
+  return response;
+}
+
+export function toSignedCookies(
+  tokens: IdAndRefreshTokens,
+  options: SetAuthCookiesOptions
+) {
+  const value = JSON.stringify(tokens);
+
+  return sign(options.cookieSignatureKeys)({
+    name: options.cookieName,
+    value,
+  });
 }
 
 export async function appendAuthCookies(
@@ -47,33 +138,13 @@ export async function appendAuthCookies(
   tokens: IdAndRefreshTokens,
   options: SetAuthCookiesOptions
 ) {
-  const value = JSON.stringify(tokens);
-  const { signatureCookie, signedCookie } = await sign(
-    options.cookieSignatureKeys
-  )({
-    name: options.cookieName,
-    value,
-  });
+  const signedCookies = await toSignedCookies(tokens, options);
 
-  response.headers.append(
-    "Set-Cookie",
-    serialize(
-      signatureCookie.name,
-      signatureCookie.value,
-      options.cookieSerializeOptions
-    )
+  return updateResponseAuthCookies(
+    response,
+    signedCookies,
+    options.cookieSerializeOptions
   );
-
-  response.headers.append(
-    "Set-Cookie",
-    serialize(
-      signedCookie.name,
-      signedCookie.value,
-      options.cookieSerializeOptions
-    )
-  );
-
-  return response;
 }
 
 export async function refreshAuthCookies(

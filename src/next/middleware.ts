@@ -4,9 +4,15 @@ import { CookieSerializeOptions } from "cookie";
 import { ServiceAccount } from "../auth/credential";
 import {
   appendAuthCookies,
+  markCookiesAsVerified,
   removeAuthCookies,
   setAuthCookies,
   SetAuthCookiesOptions,
+  toSignedCookies,
+  updateRequestAuthCookies,
+  updateResponseAuthCookies,
+  validateMiddlewareRequestCookies,
+  wasResponseDecoratedWithModifiedRequestHeaders,
 } from "./cookies";
 import { getRequestCookiesTokens, GetTokensOptions } from "./tokens";
 import {
@@ -53,7 +59,10 @@ export async function createAuthMiddlewareResponse(
 }
 
 export type HandleInvalidToken = () => Promise<NextResponse>;
-export type HandleValidToken = (tokens: Tokens) => Promise<NextResponse>;
+export type HandleValidToken = (
+  tokens: Tokens,
+  headers: Headers
+) => Promise<NextResponse>;
 export type HandleError = (e: unknown) => Promise<NextResponse>;
 
 export interface AuthenticationOptions
@@ -86,8 +95,23 @@ export async function refreshAuthCookies(
 
 const defaultInvalidTokenHandler = async () => NextResponse.next();
 
-const defaultValidTokenHandler: HandleValidToken = async () =>
-  NextResponse.next();
+const defaultValidTokenHandler: HandleValidToken = async (
+  _tokens: Tokens,
+  headers: Headers
+) =>
+  NextResponse.next({
+    request: {
+      headers,
+    },
+  });
+
+function validateResponse(response: NextResponse) {
+  if (!wasResponseDecoratedWithModifiedRequestHeaders(response)) {
+    console.warn(
+      `– \x1b[33mwarn\x1b[0m next-firebase-auth-edge: NextResponse returned by handleValidToken was not decorated by modified request headers. This can cause token verification to happen multiple times in a single request. See: https://github.com/awinogrodzki/next-firebase-auth-edge#middleware-token-verification-caching`
+    );
+  }
+}
 
 export async function authentication(
   request: NextRequest,
@@ -98,6 +122,12 @@ export async function authentication(
 
   const handleInvalidToken =
     options.handleInvalidToken ?? defaultInvalidTokenHandler;
+
+  try {
+    validateMiddlewareRequestCookies(request.cookies);
+  } catch (e) {
+    return handleError(e);
+  }
 
   if (
     [options.loginPath, options.logoutPath].includes(request.nextUrl.pathname)
@@ -127,10 +157,18 @@ export async function authentication(
         options.checkRevoked
       );
 
-      return await handleValidToken({
-        token: idAndRefreshTokens.idToken,
-        decodedToken,
-      });
+      markCookiesAsVerified(request.cookies);
+      const response = await handleValidToken(
+        {
+          token: idAndRefreshTokens.idToken,
+          decodedToken,
+        },
+        request.headers
+      );
+
+      validateResponse(response);
+
+      return response;
     },
     async () => {
       const { token, decodedToken } = await handleTokenRefresh(
@@ -138,13 +176,27 @@ export async function authentication(
         options.apiKey
       );
 
-      return appendAuthCookies(
-        await handleValidToken({ token, decodedToken }),
+      const signedCookies = await toSignedCookies(
         {
           idToken: token,
           refreshToken: idAndRefreshTokens.refreshToken,
         },
         options
+      );
+
+      updateRequestAuthCookies(request, signedCookies);
+      markCookiesAsVerified(request.cookies);
+      const response = await handleValidToken(
+        { token, decodedToken },
+        request.headers
+      );
+
+      validateResponse(response);
+
+      return updateResponseAuthCookies(
+        response,
+        signedCookies,
+        options.cookieSerializeOptions
       );
     },
     async (e) => {

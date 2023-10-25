@@ -29,7 +29,8 @@ This library aims to solve the problem of creating and verifying custom JWT toke
 To allow gradual adoption of latest Next.js features, `next-firebase-auth-edge` works interchangeably with [getServerSideProps](https://nextjs.org/docs/pages/building-your-application/data-fetching/get-server-side-props) and legacy [Api Routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes)
 
 ### zero bundle size
-The library does not introduce any additional javascript code to the client bundle. It works 100% on server side. 
+
+The library does not introduce any additional javascript code to the client bundle. It works 100% on server side.
 
 ## Built on top of Web Crypto API
 
@@ -131,13 +132,17 @@ export async function middleware(request: NextRequest) {
       clientEmail: "YOUR-FIREBASE-CLIENT-EMAIL",
       privateKey: "YOUR-FIREBASE-PRIVATE-KEY",
     },
-    handleValidToken: async ({ token, decodedToken }) => {
+    handleValidToken: async ({ token, decodedToken }, headers) => {
       // Authenticated user should not be able to access /login, /register and /reset-password routes
       if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
         return redirectToHome(request);
       }
 
-      return NextResponse.next();
+      return NextResponse.next({
+        request: {
+          headers, // Pass modified request headers to skip token verification in subsequent getTokens and getTokensFromObject calls
+        },
+      });
     },
     handleInvalidToken: async () => {
       return redirectToLogin(request);
@@ -159,6 +164,49 @@ export const config = {
 };
 ```
 
+#### Middleware token verification caching
+
+Since v0.9.0 `handleValidToken` is called with modified request `headers` as a second parameter.
+
+You can pass this object to `NextResponse.next({ request: { headers } })` to enable token verification caching.
+
+See [Modifying Request Headers in Middleware](https://vercel.com/templates/next.js/edge-functions-modify-request-header) for more information on how modified headers work
+
+```tsx
+handleValidToken: async ({ token, decodedToken }, headers) => {
+  return NextResponse.next({
+    request: {
+      headers, // Pass modified request headers to skip token verification in subsequent getTokens and getTokensFromObject calls
+    },
+  });
+};
+```
+
+#### Usage with `next-intl` and other middlewares
+
+```tsx
+import { NextRequest } from 'next/server';
+import createIntlMiddleware from "next-intl/middleware";
+import { authentication } from 'next-firebase-auth-edge/lib/next/middleware';
+
+
+const handleI18nRouting = createIntlMiddleware({
+  locales: ['en', 'pl'],
+  defaultLocale: 'en',
+});
+
+export async function middleware(request: NextRequest) {
+  return authentication(request, {
+    // ...
+    handleValidToken: async tokens => {
+      return handleI18nRouting(request)
+    },
+  })
+}
+```
+
+**Please note that you don't need to pass `headers` as in [middleware token verification caching](#middleware-token-verification-caching) when using `next-intl` middleware. `request` is already updated with modified headers by the time we call `handleI18nRouting`. `next-intl` will pass modified headers for us.**
+
 #### Options
 
 ##### Required
@@ -175,21 +223,13 @@ export const config = {
 
 ##### Optional
 
-| Name               | Type                                                                                                                          | Description                                                                                                                                                                                                                                          |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| tenantId       | `string` By default `undefined`                                                                                                  | Google Cloud Platform tenant identifier. Specify if your project supports [multi-tenancy](https://cloud.google.com/identity-platform/docs/multi-tenancy-authentication) |
-| checkRevoked       | `boolean` By default `false`                                                                                                  | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                      |
-| handleValidToken   | `(tokens: { token: string, decodedToken: DecodedIdToken }) => Promise<NextResponse>` By default returns `NextResponse.next()` | Receives id and decoded tokens and should return a promise that resolves with NextResponse.                                                                                                                                                          |
-| handleInvalidToken | `() => Promise<NextResponse>` By default returns `NextResponse.next()`                                                        | If passed, is called and returned if request has not been authenticated (either does not have credentials attached or credentials have expired). Can be used to redirect unauthenticated users to specific page or pages.                            |
-| handleError        | `(error: unknown) => Promise<NextResponse>` By default returns `NextResponse.next()`                                          | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, we just allow application to render. This allows you to customize error handling |
-
-#### Troubleshooting
-
-##### error - Too big integer
-
-One of the common issues during setup is `error - Too big integer` thrown by `crypto-signer`. If you stumble on it, please make sure to follow resolution mentioned in https://github.com/awinogrodzki/next-firebase-auth-edge/issues/17#issuecomment-1376298292
-
-The error is caused by malformed firebase private key. We are working on providing correct private key validation and more user friendly error message. Until then, please follow the quick fix in aforementioned issue comment.
+| Name               | Type                                                                                                                                            | Description                                                                                                                                                                                                                                                                                                                                                                          |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| tenantId           | `string` By default `undefined`                                                                                                                 | Google Cloud Platform tenant identifier. Specify if your project supports [multi-tenancy](https://cloud.google.com/identity-platform/docs/multi-tenancy-authentication)                                                                                                                                                                                                              |
+| checkRevoked       | `boolean` By default `false`                                                                                                                    | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                                                                                                                                                      |
+| handleValidToken   | `(tokens: { token: string, decodedToken: DecodedIdToken }, headers: Headers) => Promise<NextResponse>` By default returns `NextResponse.next()` | Receives id and decoded tokens and should return a promise that resolves with NextResponse. Function is called with modified request `headers` as a second parameter. By passing this parameters down to `NextResponse.next({ request: { headers } })` library won't verify the token in subsequent calls to `getTokens` or `getTokensFromObject`, which can improve response times. |
+| handleInvalidToken | `() => Promise<NextResponse>` By default returns `NextResponse.next()`                                                                          | If passed, is called and returned if request has not been authenticated (either does not have credentials attached or credentials have expired). Can be used to redirect unauthenticated users to specific page or pages.                                                                                                                                                            |
+| handleError        | `(error: unknown) => Promise<NextResponse>` By default returns `NextResponse.next()`                                                            | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, we just allow application to render. This allows you to customize error handling                                                                                                                                 |
 
 ### Login and logout using Firebase
 
@@ -329,7 +369,7 @@ import { AuthProvider } from "./auth-provider";
 import { Tokens } from "next-firebase-auth-edge/lib/auth";
 import { UserInfo } from "firebase/auth";
 import { User } from "./context";
-import { filterStandardClaims } from 'next-firebase-auth-edge/lib/auth/claims';
+import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
 
 const mapTokensToUser = ({ decodedToken }: Tokens): User => {
   const {
@@ -350,10 +390,9 @@ const mapTokensToUser = ({ decodedToken }: Tokens): User => {
     photoURL: photoURL ?? null,
     phoneNumber: phoneNumber ?? null,
     emailVerified: emailVerified ?? false,
-    customClaims
+    customClaims,
   };
 };
-
 
 //...
 export default async function AuthenticatedLayout({
@@ -467,9 +506,9 @@ const {
 ##### Methods
 
 | Name                           | Type                                                                       | Description                                                                                                                                                                         |
-| ------------------------------ | -------------------------------------------------------------------------- |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------------------------ | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | getCustomIdAndRefreshTokens    | `(idToken: string, firebaseApiKey: string) => Promise<IdAndRefreshTokens>` | Generates a new set of id and refresh tokens for user identified by provided `idToken`                                                                                              |
-| verifyIdToken                  | `(idToken: string, checkRevoked?: boolean) => Promise<DecodedIdToken>`     | Verifies provided `idToken`. Throws `AuthError`. See [source code](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/src/auth/error.ts) for possible error types.                                                                                      |
+| verifyIdToken                  | `(idToken: string, checkRevoked?: boolean) => Promise<DecodedIdToken>`     | Verifies provided `idToken`. Throws `AuthError`. See [source code](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/src/auth/error.ts) for possible error types.   |
 | createCustomToken              | `(uid: string, developerClaims?: object) => Promise<string>`               | Creates a custom token for given firebase user. Optionally, it's possible to attach additional `developerClaims`                                                                    |
 | handleTokenRefresh             | `(refreshToken: string, firebaseApiKey: string) => Promise<Tokens>`        | Returns id `token` and `decodedToken` for given `refreshToken`                                                                                                                      |
 | getUser                        | `(uid: string) => Promise<UserRecord>`                                     | Returns Firebase UserRecord by uid                                                                                                                                                  |
@@ -523,7 +562,7 @@ export async function middleware(request: NextRequest) {
   return authentication(request, {
     loginPath: "/api/login",
     logoutPath: "/api/logout",
-    handleValidToken: async ({ token, decodedToken }) => {
+    handleValidToken: async ({ token, decodedToken }, headers) => {
       if (request.nextUrl.pathname === "/api/custom-claims") {
         await setCustomUserClaims(decodedToken.uid, {
           someClaims: ["someValue"],
@@ -539,7 +578,11 @@ export async function middleware(request: NextRequest) {
         return response;
       }
 
-      return NextResponse.next();
+      return NextResponse.next({
+        request: {
+          headers,
+        },
+      });
     },
     ...commonOptions,
   });

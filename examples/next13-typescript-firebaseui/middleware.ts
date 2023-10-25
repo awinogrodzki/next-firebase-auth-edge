@@ -12,9 +12,13 @@ export async function middleware(request: NextRequest) {
     cookieSignatureKeys: authConfig.cookieSignatureKeys,
     cookieSerializeOptions: authConfig.cookieSerializeOptions,
     serviceAccount: authConfig.serviceAccount,
-    handleValidToken: async ({ token, decodedToken }) => {
+    handleValidToken: async ({ token, decodedToken }, headers) => {
       console.log("Successfully authenticated", { token, decodedToken });
-      return NextResponse.next();
+      return NextResponse.next({
+        request: {
+          headers,
+        },
+      });
     },
     handleError: async (error) => {
       console.error("Oops, this should not have happened.", { error });
@@ -24,6 +28,10 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/((?!_next|favicon.ico|api|.*\\.).*)", "/api/login", "/api/logout"],
+  matcher: [
+    "/",
+    "/((?!_next|favicon.ico|api|.*\\.).*)",
+    "/api/login",
+    "/api/logout",
+  ],
 };
-

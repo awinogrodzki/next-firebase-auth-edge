@@ -4,6 +4,13 @@ import { ServiceAccount } from "../auth/credential";
 import { getSignatureCookieName } from "../auth/cookies";
 import { getFirebaseAuth, IdAndRefreshTokens, Tokens } from "../auth";
 import { get } from "../auth/cookies/get";
+import { decodeJwt } from "jose";
+import { mapJwtPayloadToDecodedIdToken } from "../auth/utils";
+import {
+  areCookiesVerifiedByMiddleware,
+  CookiesObject,
+  isCookiesObjectVerifiedByMiddleware,
+} from "./cookies";
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   serviceAccount: ServiceAccount;
@@ -27,18 +34,16 @@ export async function getRequestCookiesTokens(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetCookiesTokensOptions
 ): Promise<IdAndRefreshTokens | null> {
-  const signedCookie = cookies.get(options.cookieName);
-  const signatureCookie = cookies.get(
-    getSignatureCookieName(options.cookieName)
-  );
+  const signed = cookies.get(options.cookieName);
+  const signature = cookies.get(getSignatureCookieName(options.cookieName));
 
-  if (!signedCookie || !signatureCookie) {
+  if (!signed || !signature) {
     return null;
   }
 
   const cookie = await get(options.cookieSignatureKeys)({
-    signedCookie,
-    signatureCookie,
+    signed,
+    signature,
   });
 
   if (!cookie?.value) {
@@ -65,6 +70,15 @@ export async function getTokens(
     return null;
   }
 
+  if (areCookiesVerifiedByMiddleware(cookies)) {
+    const payload = decodeJwt(tokens.idToken);
+
+    return {
+      token: tokens.idToken,
+      decodedToken: mapJwtPayloadToDecodedIdToken(payload),
+    };
+  }
+
   return verifyAndRefreshExpiredIdToken(tokens.idToken, tokens.refreshToken);
 }
 
@@ -80,11 +94,11 @@ async function getCookiesTokens(
   }
 
   const cookie = await get(options.cookieSignatureKeys)({
-    signedCookie: {
+    signed: {
       name: options.cookieName,
       value: signedCookie,
     },
-    signatureCookie: {
+    signature: {
       name: getSignatureCookieName(options.cookieName),
       value: signatureCookie,
     },
@@ -98,7 +112,7 @@ async function getCookiesTokens(
 }
 
 export async function getTokensFromObject(
-  cookies: Partial<{ [K in string]: string }>,
+  cookies: CookiesObject,
   options: GetTokensOptions
 ): Promise<Tokens | null> {
   const { verifyAndRefreshExpiredIdToken } = getFirebaseAuth(
@@ -110,6 +124,15 @@ export async function getTokensFromObject(
 
   if (!tokens) {
     return null;
+  }
+
+  if (isCookiesObjectVerifiedByMiddleware(cookies)) {
+    const payload = decodeJwt(tokens.idToken);
+
+    return {
+      token: tokens.idToken,
+      decodedToken: mapJwtPayloadToDecodedIdToken(payload),
+    };
   }
 
   return verifyAndRefreshExpiredIdToken(tokens.idToken, tokens.refreshToken);
