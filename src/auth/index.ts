@@ -200,12 +200,12 @@ export function getFirebaseAuth(
   ): Promise<UsersList> {
     return authRequestHandler
       .listUsers(nextPageToken, maxResults)
-      .then((response: any) => {
+      .then((response) => {
         const result: UsersList = {
-          users: response.users.map((user: any) => new UserRecord(user)),
+          users: response.users.map((user) => new UserRecord(user)),
         };
 
-        if (response.nextPageToken.length > 0) {
+        if (response.nextPageToken) {
           result.nextPageToken = response.nextPageToken;
         }
 
