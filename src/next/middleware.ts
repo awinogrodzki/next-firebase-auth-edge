@@ -81,7 +81,8 @@ export async function refreshAuthCookies(
 ): Promise<IdAndRefreshTokens> {
   const { getCustomIdAndRefreshTokens } = getFirebaseAuth(
     options.serviceAccount,
-    options.apiKey
+    options.apiKey,
+    options.tenantId
   );
   const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
     idToken,
