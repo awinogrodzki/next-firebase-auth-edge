@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.9.1
+
+### Patch Changes
+
+- Return null if user was deleted from Firebase
+
 ## 0.9.0
 
 ### Minor Changes
