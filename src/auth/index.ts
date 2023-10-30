@@ -284,9 +284,18 @@ export function getFirebaseAuth(
   }
 
   async function createUser(properties: CreateRequest): Promise<UserRecord> {
-    return authRequestHandler.createNewAccount(properties).then((uid) => {
-      return getUser(uid);
-    });
+    return authRequestHandler
+      .createNewAccount(properties)
+      .then((uid) => getUser(uid))
+      .then((user) => {
+        if (!user) {
+          throw new AuthError(
+            AuthErrorCode.INTERNAL_ERROR,
+            "Could not get recently created user from database. Most likely it was deleted."
+          );
+        }
+        return user;
+      });
   }
 
   async function updateUser(
@@ -295,8 +304,16 @@ export function getFirebaseAuth(
   ): Promise<UserRecord> {
     return authRequestHandler
       .updateExistingAccount(uid, properties)
-      .then((existingUid) => {
-        return getUser(existingUid);
+      .then((existingUid) => getUser(existingUid))
+      .then((user) => {
+        if (!user) {
+          throw new AuthError(
+            AuthErrorCode.INTERNAL_ERROR,
+            "Could not get recently updated user from database. Most likely it was deleted."
+          );
+        }
+
+        return user;
       });
   }
 

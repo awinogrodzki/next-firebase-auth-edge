@@ -38,8 +38,8 @@ describe("set custom user claims integration test", () => {
     });
 
     const user = await getUser(userId);
-    expect(user.uid).toEqual(userId);
-    expect(user.customClaims).toEqual({
+    expect(user?.uid).toEqual(userId);
+    expect(user?.customClaims).toEqual({
       newCustomClaim: "newCustomClaimValue",
     });
   });
