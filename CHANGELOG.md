@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.9.3
+
+### Patch Changes
+
+- 964c04c: Check if the FIREBASE_AUTH_EMULATOR_HOST has already http:// added to it, otherwise you will get a cryptic fetch failed error.
+
 ## 0.9.2
 
 ### Patch Changes
