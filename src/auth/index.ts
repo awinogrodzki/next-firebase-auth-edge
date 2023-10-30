@@ -182,17 +182,21 @@ export function getFirebaseAuth(
     };
   };
 
-  async function getUser(uid: string): Promise<UserRecord> {
+  async function getUser(uid: string): Promise<UserRecord | null> {
     return authRequestHandler.getAccountInfoByUid(uid).then((response: any) => {
       // Returns the user record populated with server response.
-      return new UserRecord(response.users[0]);
+      return response.users?.length ? new UserRecord(response.users[0]) : null;
     });
   }
 
   async function verifyDecodedJWTNotRevokedOrDisabled(
     decodedIdToken: DecodedIdToken
   ): Promise<DecodedIdToken> {
-    return getUser(decodedIdToken.sub).then((user: UserRecord) => {
+    return getUser(decodedIdToken.sub).then((user: UserRecord | null) => {
+      if (!user) {
+        throw new AuthError(AuthErrorCode.USER_NOT_FOUND);
+      }
+
       if (user.disabled) {
         throw new AuthError(AuthErrorCode.USER_DISABLED);
       }
