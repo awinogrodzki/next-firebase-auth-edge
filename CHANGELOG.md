@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.9.2
+
+### Patch Changes
+
+- Support tenantId in refreshAuthCookies
+
 ## 0.9.1
 
 ### Patch Changes
