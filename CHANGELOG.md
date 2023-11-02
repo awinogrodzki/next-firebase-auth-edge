@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.9.5
+
+### Patch Changes
+
+- Skip response headers validation on redirect
+
 ## 0.9.4
 
 ### Patch Changes
