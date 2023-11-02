@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.10.0
+
+### Minor Changes
+
+- Next.js 14 support
+
 ## 0.9.5
 
 ### Patch Changes
