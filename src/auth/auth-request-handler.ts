@@ -7,6 +7,7 @@ import {
   ServiceAccount,
 } from "./credential";
 import { AuthError, AuthErrorCode } from "./error";
+import { GetAccountInfoUserResponse } from "./user-record";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD";
 
@@ -88,6 +89,21 @@ export const FIREBASE_AUTH_SIGN_UP_NEW_USER = new ApiSettings(
   "POST"
 );
 
+export const FIREBASE_AUTH_LIST_USERS_INFO = new ApiSettings(
+  "/accounts:batchGet",
+  "GET"
+);
+
+export type ListUsersResponse = {
+  kind: string;
+  users: GetAccountInfoUserResponse[];
+  nextPageToken: string;
+};
+
+type ResponseObject = {
+  localId: string;
+};
+
 export abstract class AbstractAuthRequestHandler {
   private authUrlBuilder: AuthResourceUrlBuilder | undefined;
   private getToken: (forceRefresh?: boolean) => Promise<FirebaseAccessToken>;
@@ -103,10 +119,20 @@ export abstract class AbstractAuthRequestHandler {
     this.getToken = getFirebaseAdminTokenProvider(serviceAccount).getToken;
   }
 
-  public getAccountInfoByUid(uid: string): Promise<object> {
+  private prepareRequest(request: object) {
+    if (!this.tenantId) {
+      return request;
+    }
+
+    return {
+      ...request,
+      tenantId: this.tenantId,
+    };
+  }
+
+  public getAccountInfoByUid(uid: string): Promise<ResponseObject> {
     const request = {
       localId: [uid],
-      tenantId: this.tenantId,
     };
 
     return this.invokeRequestHandler(
@@ -116,13 +142,12 @@ export abstract class AbstractAuthRequestHandler {
     );
   }
 
-  public deleteAccount(uid: string): Promise<object> {
+  public deleteAccount(uid: string): Promise<ResponseObject> {
     return this.invokeRequestHandler(
       this.getAuthUrlBuilder(),
       FIREBASE_AUTH_DELETE_ACCOUNT,
       {
         localId: uid,
-        tenantId: this.tenantId,
       }
     );
   }
@@ -135,7 +160,6 @@ export abstract class AbstractAuthRequestHandler {
     };
 
     const request: SignUpNewUserRequest = {
-      tenantId: this.tenantId,
       ...properties,
     };
 
@@ -181,8 +205,8 @@ export abstract class AbstractAuthRequestHandler {
       this.getAuthUrlBuilder(),
       FIREBASE_AUTH_SIGN_UP_NEW_USER,
       request
-    ).then((response: any) => {
-      return response.localId as string;
+    ).then((response) => {
+      return response.localId;
     });
   }
 
@@ -201,7 +225,6 @@ export abstract class AbstractAuthRequestHandler {
       };
       localId: string;
     } = {
-      tenantId: this.tenantId,
       ...properties,
       deleteAttribute: [],
       localId: uid,
@@ -287,8 +310,8 @@ export abstract class AbstractAuthRequestHandler {
       this.getAuthUrlBuilder(),
       FIREBASE_AUTH_SET_ACCOUNT_INFO,
       request
-    ).then((response: any) => {
-      return response.localId as string;
+    ).then((response) => {
+      return response.localId;
     });
   }
 
@@ -300,39 +323,86 @@ export abstract class AbstractAuthRequestHandler {
       customUserClaims = {};
     }
 
-    const request: any = {
+    const request = {
       localId: uid,
       customAttributes: JSON.stringify(customUserClaims),
-      tenantId: this.tenantId,
     };
+
     return this.invokeRequestHandler(
       this.getAuthUrlBuilder(),
       FIREBASE_AUTH_SET_ACCOUNT_INFO,
       request
-    ).then((response: any) => {
-      return response.localId as string;
+    ).then((response) => {
+      return response.localId;
     });
   }
 
-  protected async invokeRequestHandler(
+  public listUsers(nextPageToken?: string, maxResults?: number) {
+    const request = {
+      nextPageToken,
+      maxResults,
+    };
+
+    return this.invokeRequestHandler<ListUsersResponse>(
+      this.getAuthUrlBuilder(),
+      FIREBASE_AUTH_LIST_USERS_INFO,
+      request
+    );
+  }
+
+  private getSearchParams(requestData: object) {
+    const searchParams = new URLSearchParams();
+
+    for (const key in requestData) {
+      if (!requestData[key]) {
+        continue;
+      }
+
+      searchParams.append(key, requestData[key]);
+    }
+
+    return searchParams;
+  }
+
+  private decorateUrlWithParams(url: string, requestData: object) {
+    const params = this.getSearchParams(requestData);
+    const paramsString = params.toString();
+
+    if (!paramsString) {
+      return url;
+    }
+
+    return `${url}?${paramsString}`;
+  }
+
+  protected async invokeRequestHandler<T = ResponseObject>(
     urlBuilder: AuthResourceUrlBuilder,
     apiSettings: ApiSettings,
     requestData: object | undefined,
     additionalResourceParams?: object
-  ): Promise<object> {
-    const url = await urlBuilder.getUrl(
+  ): Promise<T> {
+    let url = await urlBuilder.getUrl(
       apiSettings.getEndpoint(),
       additionalResourceParams
     );
     const token = await this.getToken();
-    const res = await fetch(url, {
+    const init: RequestInit = {
       method: apiSettings.getHttpMethod(),
       headers: {
         ...FIREBASE_AUTH_HEADER,
         Authorization: `Bearer ${token.accessToken}`,
       },
-      body: JSON.stringify(requestData),
-    });
+    };
+
+    if (requestData && !["GET", "HEAD"].includes(apiSettings.getHttpMethod())) {
+      init.body = JSON.stringify(this.prepareRequest(requestData));
+    }
+
+    if (requestData && ["GET", "HEAD"].includes(apiSettings.getHttpMethod())) {
+      url = this.decorateUrlWithParams(url, this.prepareRequest(requestData));
+    }
+
+    const res = await fetch(url, init);
 
     if (!res.ok) {
       const error = await res.json();
@@ -386,9 +456,11 @@ function isPhoneFactor(
   return multiFactorInfo.factorId === "phone";
 }
 
-function isUTCDateString(dateString: any): boolean {
+function isUTCDateString(dateString: string): boolean {
   try {
-    return dateString && new Date(dateString).toUTCString() === dateString;
+    return (
+      Boolean(dateString) && new Date(dateString).toUTCString() === dateString
+    );
   } catch (e) {
     return false;
   }

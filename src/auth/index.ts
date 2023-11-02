@@ -170,6 +170,11 @@ export interface Tokens {
   token: string;
 }
 
+export interface UsersList {
+  users: UserRecord[];
+  nextPageToken?: string;
+}
+
 export function getFirebaseAuth(
   serviceAccount: ServiceAccount,
   apiKey: string,
@@ -197,6 +202,25 @@ export function getFirebaseAuth(
       // Returns the user record populated with server response.
       return response.users?.length ? new UserRecord(response.users[0]) : null;
     });
+  }
+
+  async function listUsers(
+    nextPageToken?: string,
+    maxResults?: number
+  ): Promise<UsersList> {
+    return authRequestHandler
+      .listUsers(nextPageToken, maxResults)
+      .then((response) => {
+        const result: UsersList = {
+          users: response.users.map((user) => new UserRecord(user)),
+        };
+
+        if (response.nextPageToken) {
+          result.nextPageToken = response.nextPageToken;
+        }
+
+        return result;
+      });
   }
 
   async function verifyDecodedJWTNotRevokedOrDisabled(
@@ -338,5 +362,6 @@ export function getFirebaseAuth(
     getUser,
     updateUser,
     createUser,
+    listUsers,
   };
 }
