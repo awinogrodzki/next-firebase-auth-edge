@@ -17,9 +17,10 @@ import { Badge } from "../../../ui/Badge";
 
 interface UserProfileProps {
   count: number;
+  incrementCounter: () => void;
 }
 
-export function UserProfile({ count }: UserProfileProps) {
+export function UserProfile({ count, incrementCounter }: UserProfileProps) {
   const router = useRouter();
   const { user } = useAuth();
   const { getFirebaseAuth } = useFirebaseAuth();
@@ -138,9 +139,7 @@ export function UserProfile({ count }: UserProfileProps) {
             disabled={
               isIncrementCounterActionPending || isIncrementCounterApiLoading
             }
-            onClick={() =>
-              startTransition(() => incrementCounter() as unknown as void)
-            }
+            onClick={() => startTransition(() => incrementCounter())}
           >
             Update counter w/ server action
           </Button>

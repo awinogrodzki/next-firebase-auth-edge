@@ -29,7 +29,6 @@ export default function RootLayout({
 
 export const metadata: Metadata = {
   title: "next-firebase-auth-edge example page",
-  viewport: "width=device-width, initial-scale=1",
   description: "Next.js page showcasing next-firebase-auth-edge features",
   icons: "/favicon.ico",
 };

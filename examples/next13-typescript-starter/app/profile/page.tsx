@@ -10,6 +10,7 @@ import { getFirestore } from "firebase-admin/firestore";
 import { Badge } from "../../ui/Badge";
 import { HomeLink } from "../../ui/HomeLink";
 import { MainTitle } from "../../ui/MainTitle";
+import { incrementCounter } from "../actions/user-counters";
 
 const db = getFirestore(getFirebaseAdminApp());
 async function getUserCounter(): Promise<number> {
@@ -45,7 +46,7 @@ export default async function Profile() {
       </MainTitle>
       {/* @ts-expect-error https://github.com/vercel/next.js/issues/43537 */}
       <ServerAuthProvider>
-        <UserProfile count={count} />
+        <UserProfile count={count} incrementCounter={incrementCounter} />
       </ServerAuthProvider>
     </div>
   );
