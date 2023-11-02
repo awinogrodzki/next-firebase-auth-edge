@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.9.4
+
+### Patch Changes
+
+- Add list users function support
+
 ## 0.9.3
 
 ### Patch Changes
