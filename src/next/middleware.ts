@@ -167,7 +167,9 @@ export async function authentication(
         request.headers
       );
 
-      validateResponse(response);
+      if (!response.headers.has("location")) {
+        validateResponse(response);
+      }
 
       return response;
     },

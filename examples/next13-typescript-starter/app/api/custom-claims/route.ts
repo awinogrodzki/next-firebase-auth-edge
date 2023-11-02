@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   const user = await getUser(tokens.decodedToken.uid);
   const response = new NextResponse(
     JSON.stringify({
-      customClaims: user.customClaims,
+      customClaims: user?.customClaims,
     }),
     {
       status: 200,
