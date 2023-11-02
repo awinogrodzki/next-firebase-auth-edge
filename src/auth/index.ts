@@ -13,8 +13,10 @@ import { VerifyOptions } from "./jwt/verify";
 
 const getCustomTokenEndpoint = (apiKey: string) => {
   if (useEmulator() && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
-    let protocol = 'http://';
-    if((process.env.FIREBASE_AUTH_EMULATOR_HOST as string).startsWith('http://')) {
+    let protocol = "http://";
+    if (
+      (process.env.FIREBASE_AUTH_EMULATOR_HOST as string).startsWith("http://")
+    ) {
       protocol = "";
     }
     return `${protocol}${process.env
@@ -25,10 +27,11 @@ const getCustomTokenEndpoint = (apiKey: string) => {
 };
 
 const getRefreshTokenEndpoint = (apiKey: string) => {
-
   if (useEmulator() && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
-    let protocol = 'http://';
-    if((process.env.FIREBASE_AUTH_EMULATOR_HOST as string).startsWith('http://')) {
+    let protocol = "http://";
+    if (
+      (process.env.FIREBASE_AUTH_EMULATOR_HOST as string).startsWith("http://")
+    ) {
       protocol = "";
     }
 
