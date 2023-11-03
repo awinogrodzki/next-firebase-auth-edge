@@ -1,5 +1,12 @@
 # next-firebase-auth-edge
 
+## 0.10.1
+
+### Patch Changes
+
+- Remove internal verification cookie on middleware request instead throwing an error
+- Remove internal verification cookie on middleware request instead of throwing an error
+
 ## 0.10.0
 
 ### Minor Changes
