@@ -7,7 +7,6 @@ import { getSignatureCookieName } from "../auth/cookies";
 import { NextApiResponse } from "next";
 import { RequestCookies } from "next/dist/server/web/spec-extension/cookies";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import { AuthError, AuthErrorCode } from "../auth/error";
 
 export interface SetAuthCookiesOptions {
   cookieName: string;
@@ -24,14 +23,11 @@ const INTERNAL_VERIFIED_TOKEN_COOKIE_NAME =
   "x-next-firebase-auth-edge-verified";
 const INTERNAL_VERIFIED_TOKEN_COOKIE_VALUE = "true";
 
-export function validateMiddlewareRequestCookies(
+export function removeInternalVerifiedCookieIfExists(
   cookies: RequestCookies | ReadonlyRequestCookies
 ) {
   if (cookies.get(INTERNAL_VERIFIED_TOKEN_COOKIE_NAME)?.value) {
-    throw new AuthError(
-      AuthErrorCode.INVALID_ARGUMENT,
-      `Looks like you're calling Next.js Middleware with cookie reserved for internal use. Please remove ${INTERNAL_VERIFIED_TOKEN_COOKIE_NAME} from request cookies.`
-    );
+    cookies.delete(INTERNAL_VERIFIED_TOKEN_COOKIE_NAME);
   }
 }
 

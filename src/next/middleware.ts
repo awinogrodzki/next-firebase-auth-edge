@@ -11,7 +11,7 @@ import {
   toSignedCookies,
   updateRequestAuthCookies,
   updateResponseAuthCookies,
-  validateMiddlewareRequestCookies,
+  removeInternalVerifiedCookieIfExists,
   wasResponseDecoratedWithModifiedRequestHeaders,
 } from "./cookies";
 import { getRequestCookiesTokens, GetTokensOptions } from "./tokens";
@@ -124,11 +124,7 @@ export async function authentication(
   const handleInvalidToken =
     options.handleInvalidToken ?? defaultInvalidTokenHandler;
 
-  try {
-    validateMiddlewareRequestCookies(request.cookies);
-  } catch (e) {
-    return handleError(e);
-  }
+  removeInternalVerifiedCookieIfExists(request.cookies);
 
   if (
     [options.loginPath, options.logoutPath].includes(request.nextUrl.pathname)
