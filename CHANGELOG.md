@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.10.2
+
+### Patch Changes
+
+- Stop displaying middleware verification cache warning on prefetched routes
+
 ## 0.10.1
 
 ### Patch Changes

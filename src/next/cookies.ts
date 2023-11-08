@@ -43,10 +43,15 @@ export function markCookiesAsVerified(
 export function wasResponseDecoratedWithModifiedRequestHeaders(
   response: NextResponse
 ) {
+  const cookie = response.headers.get("cookie");
+  const middlewareRequestCookie = response.headers.get(
+    "x-middleware-request-cookie"
+  );
+
   return (
-    response.headers
-      .get("x-middleware-request-cookie")
-      ?.includes(INTERNAL_VERIFIED_TOKEN_COOKIE_NAME) ?? false
+    cookie?.includes(INTERNAL_VERIFIED_TOKEN_COOKIE_NAME) ||
+    middlewareRequestCookie?.includes(INTERNAL_VERIFIED_TOKEN_COOKIE_NAME) ||
+    false
   );
 }
 
