@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.11.0
+
+### Patch Changes
+
+- Added App Check support
+
 ## 0.10.2
 
 ### Patch Changes
