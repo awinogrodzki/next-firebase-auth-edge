@@ -6,7 +6,7 @@ const {
   FIREBASE_ADMIN_CLIENT_EMAIL,
   FIREBASE_ADMIN_PRIVATE_KEY,
   FIREBASE_AUTH_TENANT_ID,
-  NEXT_PUBLIC_FIREBASE_APP_ID,
+  FIREBASE_APP_ID,
 } = process.env;
 
 const TEST_SERVICE_ACCOUNT = {
@@ -34,13 +34,13 @@ describe("app check integration test", () => {
       );
 
       it("should create and verify app check token", async () => {
-        const { token } = await createToken(NEXT_PUBLIC_FIREBASE_APP_ID!);
+        const { token } = await createToken(FIREBASE_APP_ID!);
 
         await verifyToken(token);
       });
 
       it("should throw app check expired error if token is expired", async () => {
-        const { token } = await createToken(NEXT_PUBLIC_FIREBASE_APP_ID!);
+        const { token } = await createToken(FIREBASE_APP_ID!);
 
         return expect(() =>
           verifyToken(token, {

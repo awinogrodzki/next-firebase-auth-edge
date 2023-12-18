@@ -3,17 +3,17 @@ name: Main
 on:
   pull_request:
     paths:
-      - '**'
-      - '!*.md'
-      - '!**/*.md'
-      - '!.gitignore'
+      - "**"
+      - "!*.md"
+      - "!**/*.md"
+      - "!.gitignore"
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - '**'
-      - '!*.md'
-      - '!**/*.md'
-      - '!.gitignore'
+      - "**"
+      - "!*.md"
+      - "!**/*.md"
+      - "!.gitignore"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,6 +25,8 @@ env:
   FIREBASE_ADMIN_CLIENT_EMAIL: ${{ secrets.FIREBASE_ADMIN_CLIENT_EMAIL }}
   FIREBASE_ADMIN_PRIVATE_KEY: ${{ secrets.FIREBASE_ADMIN_PRIVATE_KEY }}
   FIREBASE_AUTH_TENANT_ID: ${{ secrets.FIREBASE_AUTH_TENANT_ID }}
+  FIREBASE_APP_CHECK_KEY: ${{ secrets.FIREBASE_APP_CHECK_KEY }}
+  FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
 jobs:
   install:
     name: Install dependencies
@@ -35,7 +37,7 @@ jobs:
       - name: Use Node.js 18
         uses: actions/setup-node@v3
         with:
-          cache: 'yarn'
+          cache: "yarn"
           cache-dependency-path: yarn.lock
           node-version: 18
       - name: Cache node_modules
