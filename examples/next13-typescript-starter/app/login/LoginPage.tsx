@@ -14,6 +14,8 @@ import { MainTitle } from "../../ui/MainTitle";
 import { PasswordForm } from "../../ui/PasswordForm";
 import { PasswordFormValue } from "../../ui/PasswordForm/PasswordForm";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { getToken } from "@firebase/app-check";
+import { getAppCheck } from "../../app-check";
 
 export function LoginPage() {
   const router = useRouter();
@@ -26,16 +28,20 @@ export function LoginPage() {
     useLoadingCallback(async ({ email, password }: PasswordFormValue) => {
       setHasLogged(false);
       const auth = getFirebaseAuth();
+      const appCheckTokenResponse = await getToken(getAppCheck(), false);
+
       const credential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
       const idTokenResult = await credential.user.getIdTokenResult();
+
       await fetch("/api/login", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${idTokenResult.token}`,
+          "X-Firebase-AppCheck": appCheckTokenResponse.token,
         },
       });
       setHasLogged(true);
@@ -46,12 +52,15 @@ export function LoginPage() {
     async () => {
       setHasLogged(false);
       const auth = getFirebaseAuth();
+      const appCheckTokenResponse = await getToken(getAppCheck(), false);
       const user = await loginWithProvider(auth, getGoogleProvider(auth));
       const idTokenResult = await user.getIdTokenResult();
+
       await fetch("/api/login", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${idTokenResult.token}`,
+          "X-Firebase-AppCheck": appCheckTokenResponse.token,
         },
       });
       setHasLogged(true);

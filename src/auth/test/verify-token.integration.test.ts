@@ -50,7 +50,7 @@ describe("verify token integration test", () => {
         const { idToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId }
         );
         const tenant = await verifyIdToken(idToken);
 
@@ -68,7 +68,7 @@ describe("verify token integration test", () => {
         const { idToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId }
         );
 
         return expect(() =>
@@ -87,7 +87,7 @@ describe("verify token integration test", () => {
         const { idToken, refreshToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId }
         );
 
         const result = await verifyAndRefreshExpiredIdToken(
@@ -110,7 +110,7 @@ describe("verify token integration test", () => {
         const { idToken, refreshToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId }
         );
         const tokens = await verifyAndRefreshExpiredIdToken(
           idToken,
@@ -131,7 +131,7 @@ describe("verify token integration test", () => {
         const { idToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId }
         );
         const tenant = await verifyIdToken(idToken, true);
 
@@ -149,7 +149,7 @@ describe("verify token integration test", () => {
         const { idToken, refreshToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId }
         );
         const { decodedToken } = await handleTokenRefresh(
           refreshToken,
@@ -170,7 +170,7 @@ describe("verify token integration test", () => {
         const { refreshToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId }
         );
 
         await deleteUser(userId);
@@ -201,7 +201,7 @@ describe("verify token integration test", () => {
         const { refreshToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId }
         );
 
         await deleteUser(userId);
