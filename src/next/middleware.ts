@@ -86,7 +86,8 @@ export async function refreshAuthCookies(
   );
   const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
     idToken,
-    options.apiKey
+    options.apiKey,
+    options.appCheckToken
   );
 
   await appendAuthCookies(response, idAndRefreshTokens, options);

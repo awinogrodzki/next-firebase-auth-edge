@@ -104,6 +104,10 @@ type ResponseObject = {
   localId: string;
 };
 
+export interface AuthRequestHandlerOptions {
+  tenantId?: string;
+}
+
 export abstract class AbstractAuthRequestHandler {
   private authUrlBuilder: AuthResourceUrlBuilder | undefined;
   private getToken: (forceRefresh?: boolean) => Promise<FirebaseAccessToken>;
@@ -115,18 +119,21 @@ export abstract class AbstractAuthRequestHandler {
     );
   }
 
-  constructor(serviceAccount: ServiceAccount, protected tenantId?: string) {
+  constructor(
+    serviceAccount: ServiceAccount,
+    protected options: AuthRequestHandlerOptions = {}
+  ) {
     this.getToken = getFirebaseAdminTokenProvider(serviceAccount).getToken;
   }
 
   private prepareRequest(request: object) {
-    if (!this.tenantId) {
+    if (!this.options.tenantId) {
       return request;
     }
 
     return {
       ...request,
-      tenantId: this.tenantId,
+      tenantId: this.options.tenantId,
     };
   }
 
@@ -437,8 +444,11 @@ export abstract class AbstractAuthRequestHandler {
 export class AuthRequestHandler extends AbstractAuthRequestHandler {
   protected readonly authResourceUrlBuilder: AuthResourceUrlBuilder;
 
-  constructor(private serviceAccount: ServiceAccount, tenantId?: string) {
-    super(serviceAccount, tenantId);
+  constructor(
+    private serviceAccount: ServiceAccount,
+    options?: AuthRequestHandlerOptions
+  ) {
+    super(serviceAccount, options);
     this.authResourceUrlBuilder = new AuthResourceUrlBuilder(
       "v2",
       serviceAccount.projectId

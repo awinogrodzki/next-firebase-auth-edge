@@ -199,7 +199,9 @@ export function getFirebaseAuth(
   apiKey: string,
   tenantId?: string
 ) {
-  const authRequestHandler = new AuthRequestHandler(serviceAccount, tenantId);
+  const authRequestHandler = new AuthRequestHandler(serviceAccount, {
+    tenantId,
+  });
   const credential = new ServiceAccountCredential(serviceAccount);
   const tokenGenerator = createFirebaseTokenGenerator(credential, tenantId);
 

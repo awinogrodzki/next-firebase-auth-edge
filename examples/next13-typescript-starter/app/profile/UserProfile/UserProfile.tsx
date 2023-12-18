@@ -43,8 +43,13 @@ export function UserProfile({ count, incrementCounter }: UserProfileProps) {
 
   const [handleClaims, isClaimsLoading] = useLoadingCallback(async () => {
     const auth = getFirebaseAuth();
+    const appCheckTokenResponse = await getToken(getAppCheck(), false);
+
     await fetch("/api/custom-claims", {
       method: "POST",
+      headers: {
+        "X-Firebase-AppCheck": appCheckTokenResponse.token,
+      },
     });
 
     await auth.currentUser!.getIdTokenResult(true);

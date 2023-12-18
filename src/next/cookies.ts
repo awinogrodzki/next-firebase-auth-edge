@@ -15,6 +15,7 @@ export interface SetAuthCookiesOptions {
   serviceAccount: ServiceAccount;
   apiKey: string;
   tenantId?: string;
+  appCheckToken?: string;
 }
 
 export type CookiesObject = Partial<{ [K in string]: string }>;
