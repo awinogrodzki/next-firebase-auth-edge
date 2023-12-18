@@ -15,6 +15,7 @@ import { Card } from "../../../ui/Card";
 import { Badge } from "../../../ui/Badge";
 import { getToken } from "@firebase/app-check";
 import { getAppCheck } from "../../../app-check";
+import { logout } from "../../../api";
 
 interface UserProfileProps {
   count: number;
@@ -30,14 +31,8 @@ export function UserProfile({ count, incrementCounter }: UserProfileProps) {
     const auth = getFirebaseAuth();
     await signOut(auth);
     setHasLoggedOut(true);
-    const appCheckTokenResponse = await getToken(getAppCheck(), false);
 
-    await fetch("/api/logout", {
-      method: "GET",
-      headers: {
-        "X-Firebase-AppCheck": appCheckTokenResponse.token,
-      },
-    });
+    await logout();
     window.location.reload();
   });
 
