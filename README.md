@@ -41,10 +41,7 @@ The library does not introduce any additional javascript code to the client bund
 - [Installation](#installation)
 - [Overview](#overview)
   - [Middleware](#middleware)
-    - [Options](#options)
-      - [Required](#required)
-      - [Optional](#optional)
-  - [AuthProvider](#authprovider)
+  - [Example AuthProvider](#authprovider)
   - [Server Components](#server-components)
   - [API Routes or getServerSideProps](#api-routes-or-getserversideprops)
     - [API Route example](#api-route-example)
@@ -56,6 +53,7 @@ The library does not introduce any additional javascript code to the client bund
     - [refreshAuthCookies in API Route](#refreshauthcookies-in-api-route)
     - [refreshAuthCookies in API handler](#refreshauthcookies-in-api-handler)
   - [Emulator support](#emulator-support)
+  - [App Check support](#app-check-support)
 
 ## Installation
 
@@ -707,4 +705,42 @@ Library provides Firebase Authentication Emulator support. Follow starter exampl
 
 ### App Check support
 
-Library provides [Firebase App Check](https://firebase.google.com/docs/app-check) support. Follow starter example README [examples/next13-typescript-starter](examples/next13-typescript-starter) for more information.
+Library provides [Firebase App Check](https://firebase.google.com/docs/app-check) support. Follow starter example README [examples/next13-typescript-starter](examples/next13-typescript-starter) for more information on integrating your app with App Check.
+
+#### Advanced usage
+
+You can use `getAppCheck` from `next-firebase-auth-edge/lib/app-check` if you need to create or verify App Check token explicitly, as in provided example:
+
+```tsx
+import { getAppCheck } from "next-firebase-auth-edge/lib/app-check";
+
+// Usually defined in shared location
+const serviceAccount = {
+  projectId: "firebase-project-id",
+  privateKey: "firebase service account private key",
+  clientEmail: "firebase service account client email",
+};
+
+// Optional. Specify if your project supports multi-tenancy
+// https://cloud.google.com/identity-platform/docs/multi-tenancy-authentication
+const tenantId = "You tenant id";
+
+const { createToken, verifyToken } = getAppCheck(serviceAccount, tenantId);
+```
+
+```tsx
+const appId = "your-app-id";
+
+// Optional
+const createTokenOptions = {
+  ttlMillis: 3600 * 1000,
+};
+
+const token = await createToken(appId, createTokenOptions);
+
+// Optional
+const verifyTokenOptions = {
+  currentDate: new Date(),
+};
+const response = await verifyToken(token, verifyTokenOptions);
+```
