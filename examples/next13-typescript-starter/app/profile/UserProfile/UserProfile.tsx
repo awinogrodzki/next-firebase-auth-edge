@@ -38,13 +38,18 @@ export function UserProfile({ count, incrementCounter }: UserProfileProps) {
 
   const [handleClaims, isClaimsLoading] = useLoadingCallback(async () => {
     const auth = getFirebaseAuth();
-    const appCheckTokenResponse = await getToken(getAppCheck(), false);
+    const headers: Record<string, string> = {};
+
+    // This is optional. Use it if your app supports App Check – https://firebase.google.com/docs/app-check
+    if (process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_KEY) {
+      const appCheckTokenResponse = await getToken(getAppCheck(), false);
+
+      headers["X-Firebase-AppCheck"] = appCheckTokenResponse.token;
+    }
 
     await fetch("/api/custom-claims", {
       method: "POST",
-      headers: {
-        "X-Firebase-AppCheck": appCheckTokenResponse.token,
-      },
+      headers,
     });
 
     await auth.currentUser!.getIdTokenResult(true);
@@ -60,7 +65,14 @@ export function UserProfile({ count, incrementCounter }: UserProfileProps) {
       },
     });
 
-    console.log("APP CHECK RESPONSE", await response.json());
+    if (response.ok) {
+      console.info(
+        "Successfully verified App Check token",
+        await response.json()
+      );
+    } else {
+      console.error("Could not verify App Check token", await response.json());
+    }
   });
 
   const [handleIncrementCounterApi, isIncrementCounterApiLoading] =

@@ -2,13 +2,14 @@
 
 This is a [Next.js](https://nextjs.org/) project showcasing `next-firebase-auth-edge` library features.
 
-Demo of this project can be previewed at [next-firebase-auth-edge-static-demo.vercel.app](https://next-firebase-auth-edge-static-demo.vercel.app/) 
+Demo of this project can be previewed at [next-firebase-auth-edge-static-demo.vercel.app](https://next-firebase-auth-edge-static-demo.vercel.app/)
 
 ## Before Getting Started
 
 To properly run this example, you will need to setup a new Firebase Project.
 
 You will also need to:
+
 - Create a new web app in your new Firebase Project.
 - Add Firebase Auth to your project and enable Google and Email/Password sign-in methods
 - Add a Firestore database
@@ -16,7 +17,6 @@ You will also need to:
 - Make a copy of `.env.dist` and rename it to `.env.local`
 - Fill in the variables inside the `.env.local`
 - Make sure to format private variable in `.env.local` as follows to avoid parsing errors `FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR KEY\n-----END PRIVATE KEY-----\n"`
-
 
 First, run the development server:
 
@@ -47,6 +47,23 @@ FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099
 Please note that even in emulator mode, library needs actual service account credentials to sign tokens with x509 certificate fetched from Google, a step that does not currently support emulation. Make sure to provide valid service account credentials even if using emulator.
 
 Also, don't forget to put correct Firebase Project ID in `.firebaserc` file.
+
+## App Check support
+
+Library provides [Firebase App Check](https://firebase.google.com/docs/app-check) support
+
+Use [the official guide](https://firebase.google.com/docs/app-check/web/recaptcha-enterprise-provider) to integrate your app with App Check.
+
+In order to integrate the example with App Check, you need to add two env variables to your `.env.local` file (you can copy them from `.env.dist`).
+
+```shell
+NEXT_PUBLIC_FIREBASE_APP_CHECK_KEY=XXxxxxXxXXXXXXXxxxXxxxXXXxxXXXXxxxxxXX_X
+NEXT_PUBLIC_FIREBASE_APP_ID=x:xxxxxxxxxxxx:web:xxxxxxxxxxxxxxxxxxxxxx
+```
+
+`NEXT_PUBLIC_FIREBASE_APP_CHECK_KEY` should be an app check key obtained by following [Set up your Firebase project](https://firebase.google.com/docs/app-check/web/recaptcha-enterprise-provider#project-setup) step
+
+`NEXT_PUBLIC_FIREBASE_APP_ID` can be obtained by following to `Project overview` > `Project settings`, under `Your apps` section in your Firebase Console.
 
 ## Learn More
 
