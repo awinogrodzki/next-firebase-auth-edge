@@ -42,23 +42,39 @@ const getRefreshTokenEndpoint = (apiKey: string) => {
   return `https://securetoken.googleapis.com/v1/token?key=${apiKey}`;
 };
 
+interface CustomTokenToIdAndRefreshTokensOptions {
+  tenantId?: string;
+  appCheckToken?: string;
+}
+
 export async function customTokenToIdAndRefreshTokens(
   customToken: string,
   firebaseApiKey: string,
-  tenantId?: string
+  options: CustomTokenToIdAndRefreshTokensOptions = {}
 ): Promise<IdAndRefreshTokens> {
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  const body: object = {
+    token: customToken,
+    returnSecureToken: true,
+  };
+
+  if (options.appCheckToken) {
+    headers["X-Firebase-AppCheck"] = options.appCheckToken;
+  }
+
+  if (options.tenantId) {
+    body["tenantId"] = options.tenantId;
+  }
+
   const refreshTokenResponse = await fetch(
     getCustomTokenEndpoint(firebaseApiKey),
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        tenantId,
-        token: customToken,
-        returnSecureToken: true,
-      }),
+      headers,
+      body: JSON.stringify(body),
     }
   );
 
@@ -183,7 +199,9 @@ export function getFirebaseAuth(
   apiKey: string,
   tenantId?: string
 ) {
-  const authRequestHandler = new AuthRequestHandler(serviceAccount, tenantId);
+  const authRequestHandler = new AuthRequestHandler(serviceAccount, {
+    tenantId,
+  });
   const credential = new ServiceAccountCredential(serviceAccount);
   const tokenGenerator = createFirebaseTokenGenerator(credential, tenantId);
 
@@ -297,16 +315,16 @@ export function getFirebaseAuth(
 
   async function getCustomIdAndRefreshTokens(
     idToken: string,
-    firebaseApiKey: string
+    firebaseApiKey: string,
+    appCheckToken?: string
   ) {
     const tenant = await verifyIdToken(idToken);
     const customToken = await createCustomToken(tenant.uid);
 
-    return customTokenToIdAndRefreshTokens(
-      customToken,
-      firebaseApiKey,
-      tenantId
-    );
+    return customTokenToIdAndRefreshTokens(customToken, firebaseApiKey, {
+      tenantId,
+      appCheckToken,
+    });
   }
 
   async function deleteUser(uid: string): Promise<void> {

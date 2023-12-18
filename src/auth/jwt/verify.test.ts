@@ -1,5 +1,5 @@
 import { sign } from "./sign";
-import { verify } from "./verify";
+import { getPublicCryptoKey, verify } from "./verify";
 
 describe("verify", () => {
   it("verifies jwt", async () => {
@@ -49,6 +49,6 @@ aQIDAQAB
       privateKey,
     });
 
-    await verify(jwt, async () => publicKey);
+    await verify(jwt, async () => getPublicCryptoKey(publicKey));
   });
 });

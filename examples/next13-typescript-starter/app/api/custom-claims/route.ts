@@ -16,6 +16,8 @@ export async function POST(request: NextRequest) {
     throw new Error("Cannot update custom claims of unauthenticated user");
   }
 
+  const appCheckToken = request.headers.get("X-Firebase-AppCheck") ?? undefined;
+
   await setCustomUserClaims(tokens.decodedToken.uid, {
     someCustomClaim: {
       updatedAt: Date.now(),
@@ -23,18 +25,25 @@ export async function POST(request: NextRequest) {
   });
 
   const user = await getUser(tokens.decodedToken.uid);
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
   const response = new NextResponse(
     JSON.stringify({
       customClaims: user?.customClaims,
     }),
     {
       status: 200,
-      headers: { "content-type": "application/json" },
+      headers,
     }
   );
 
   // Attach `Set-Cookie` headers with token containing new custom claims
-  await refreshAuthCookies(tokens.token, response, authConfig);
+  await refreshAuthCookies(tokens.token, response, {
+    ...authConfig,
+    appCheckToken,
+  });
 
   return response;
 }

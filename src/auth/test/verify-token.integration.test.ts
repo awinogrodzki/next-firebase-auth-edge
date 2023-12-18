@@ -5,6 +5,8 @@ import {
 } from "../index";
 import { v4 } from "uuid";
 import { AuthError, AuthErrorCode } from "../error";
+import { getAppCheck } from "../../app-check";
+import { AppCheckToken } from "../../app-check/types";
 
 const {
   FIREBASE_API_KEY,
@@ -12,6 +14,7 @@ const {
   FIREBASE_ADMIN_CLIENT_EMAIL,
   FIREBASE_ADMIN_PRIVATE_KEY,
   FIREBASE_AUTH_TENANT_ID,
+  FIREBASE_APP_ID,
 } = process.env;
 
 const TEST_SERVICE_ACCOUNT = {
@@ -32,6 +35,14 @@ describe("verify token integration test", () => {
     },
   ];
   for (const { desc, tenantId } of scenarios) {
+    let appCheckToken: AppCheckToken = { token: "", ttlMillis: 0 };
+
+    beforeAll(async () => {
+      const { createToken } = getAppCheck(TEST_SERVICE_ACCOUNT, tenantId);
+
+      appCheckToken = await createToken(FIREBASE_APP_ID!);
+    });
+
     describe(desc, () => {
       const {
         handleTokenRefresh,
@@ -50,7 +61,7 @@ describe("verify token integration test", () => {
         const { idToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId, appCheckToken: appCheckToken.token }
         );
         const tenant = await verifyIdToken(idToken);
 
@@ -68,7 +79,7 @@ describe("verify token integration test", () => {
         const { idToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId, appCheckToken: appCheckToken.token }
         );
 
         return expect(() =>
@@ -87,7 +98,7 @@ describe("verify token integration test", () => {
         const { idToken, refreshToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId, appCheckToken: appCheckToken.token }
         );
 
         const result = await verifyAndRefreshExpiredIdToken(
@@ -110,7 +121,7 @@ describe("verify token integration test", () => {
         const { idToken, refreshToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId, appCheckToken: appCheckToken.token }
         );
         const tokens = await verifyAndRefreshExpiredIdToken(
           idToken,
@@ -131,7 +142,7 @@ describe("verify token integration test", () => {
         const { idToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId, appCheckToken: appCheckToken.token }
         );
         const tenant = await verifyIdToken(idToken, true);
 
@@ -149,7 +160,7 @@ describe("verify token integration test", () => {
         const { idToken, refreshToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId, appCheckToken: appCheckToken.token }
         );
         const { decodedToken } = await handleTokenRefresh(
           refreshToken,
@@ -170,7 +181,7 @@ describe("verify token integration test", () => {
         const { refreshToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId, appCheckToken: appCheckToken.token }
         );
 
         await deleteUser(userId);
@@ -201,7 +212,7 @@ describe("verify token integration test", () => {
         const { refreshToken } = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          tenantId
+          { tenantId, appCheckToken: appCheckToken.token }
         );
 
         await deleteUser(userId);

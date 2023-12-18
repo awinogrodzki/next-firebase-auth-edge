@@ -29,7 +29,7 @@ const FIREBASE_AUDIENCE =
 export class FirebaseTokenGenerator {
   private readonly signer: CryptoSigner;
 
-  constructor(signer: CryptoSigner, public readonly tenantId?: string) {
+  constructor(signer: CryptoSigner) {
     this.signer = signer;
   }
 
@@ -76,9 +76,7 @@ export class FirebaseTokenGenerator {
         sub: account,
         uid,
       };
-      if (this.tenantId) {
-        body.tenant_id = this.tenantId;
-      }
+
       if (Object.keys(claims).length > 0) {
         body.claims = claims;
       }
@@ -99,6 +97,6 @@ export function createFirebaseTokenGenerator(
   credential: ServiceAccountCredential,
   tenantId?: string
 ): FirebaseTokenGenerator {
-  const signer = new ServiceAccountSigner(credential);
-  return new FirebaseTokenGenerator(signer, tenantId);
+  const signer = new ServiceAccountSigner(credential, tenantId);
+  return new FirebaseTokenGenerator(signer);
 }

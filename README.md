@@ -41,10 +41,7 @@ The library does not introduce any additional javascript code to the client bund
 - [Installation](#installation)
 - [Overview](#overview)
   - [Middleware](#middleware)
-    - [Options](#options)
-      - [Required](#required)
-      - [Optional](#optional)
-  - [AuthProvider](#authprovider)
+  - [Example AuthProvider](#authprovider)
   - [Server Components](#server-components)
   - [API Routes or getServerSideProps](#api-routes-or-getserversideprops)
     - [API Route example](#api-route-example)
@@ -56,6 +53,7 @@ The library does not introduce any additional javascript code to the client bund
     - [refreshAuthCookies in API Route](#refreshauthcookies-in-api-route)
     - [refreshAuthCookies in API handler](#refreshauthcookies-in-api-handler)
   - [Emulator support](#emulator-support)
+  - [App Check support](#app-check-support)
 
 ## Installation
 
@@ -185,23 +183,22 @@ handleValidToken: async ({ token, decodedToken }, headers) => {
 #### Usage with `next-intl` and other middlewares
 
 ```tsx
-import { NextRequest } from 'next/server';
+import { NextRequest } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
-import { authentication } from 'next-firebase-auth-edge/lib/next/middleware';
-
+import { authentication } from "next-firebase-auth-edge/lib/next/middleware";
 
 const handleI18nRouting = createIntlMiddleware({
-  locales: ['en', 'pl'],
-  defaultLocale: 'en',
+  locales: ["en", "pl"],
+  defaultLocale: "en",
 });
 
 export async function middleware(request: NextRequest) {
   return authentication(request, {
     // ...
-    handleValidToken: async tokens => {
-      return handleI18nRouting(request)
+    handleValidToken: async (tokens) => {
+      return handleI18nRouting(request);
     },
-  })
+  });
 }
 ```
 
@@ -505,18 +502,18 @@ const {
 
 ##### Methods
 
-| Name                           | Type                                                                       | Description                                                                                                                                                                         |
-| ------------------------------ | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| getCustomIdAndRefreshTokens    | `(idToken: string, firebaseApiKey: string) => Promise<IdAndRefreshTokens>` | Generates a new set of id and refresh tokens for user identified by provided `idToken`                                                                                              |
-| verifyIdToken                  | `(idToken: string, checkRevoked?: boolean) => Promise<DecodedIdToken>`     | Verifies provided `idToken`. Throws `AuthError`. See [source code](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/src/auth/error.ts) for possible error types.   |
-| createCustomToken              | `(uid: string, developerClaims?: object) => Promise<string>`               | Creates a custom token for given firebase user. Optionally, it's possible to attach additional `developerClaims`                                                                    |
-| handleTokenRefresh             | `(refreshToken: string, firebaseApiKey: string) => Promise<Tokens>`        | Returns id `token` and `decodedToken` for given `refreshToken`                                                                                                                      |
-| getUser                        | `(uid: string) => Promise<UserRecord>`                                     | Returns Firebase UserRecord by uid                                                                                                                                                  |
-| createUser                     | `(request: CreateRequest) => Promise<UserRecord>`                          | Creates user and returns UserRecord. See official firebase [Create a user](https://firebase.google.com/docs/auth/admin/manage-users#create_a_user) docs for request examples        |
-| updateUser                     | `(uid: string, request: UpdateRequest) => Promise<UserRecord>`             | Updates user by uid and returns UserRecord. See official firebase [Update a user](https://firebase.google.com/docs/auth/admin/manage-users#update_a_user) docs for request examples |
-| deleteUser                     | `(uid: string) => Promise<void>`                                           | Deletes user                                                                                                                                                                        |
-| setCustomUserClaims            | `(uid: string, customClaims: object ∣ null) => Promise<void>`              | Sets custom claims for given user. Overwrites existing values. Use `getUser` to fetch current claims                                                                                |
-| verifyAndRefreshExpiredIdToken | `(token: string, refreshToken: string) => Promise<Tokens ∣ null>`          | Verifies provided `idToken`. If token is expired, uses `refreshToken` to validate it. Returns `null` if token is not valid.                                                         |
+| Name                           | Type                                                                                               | Description                                                                                                                                                                                                                                   |
+| ------------------------------ | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| getCustomIdAndRefreshTokens    | `(idToken: string, firebaseApiKey: string, appCheckToken?: string) => Promise<IdAndRefreshTokens>` | Generates a new set of id and refresh tokens for user identified by provided `idToken`. Accepts optional `appCheckToken` as a third argument. You should pass it if your app supports [App Check](https://firebase.google.com/docs/app-check) |
+| verifyIdToken                  | `(idToken: string, checkRevoked?: boolean) => Promise<DecodedIdToken>`                             | Verifies provided `idToken`. Throws `AuthError`. See [source code](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/src/auth/error.ts) for possible error types.                                                             |
+| createCustomToken              | `(uid: string, developerClaims?: object) => Promise<string>`                                       | Creates a custom token for given firebase user. Optionally, it's possible to attach additional `developerClaims`                                                                                                                              |
+| handleTokenRefresh             | `(refreshToken: string, firebaseApiKey: string) => Promise<Tokens>`                                | Returns id `token` and `decodedToken` for given `refreshToken`                                                                                                                                                                                |
+| getUser                        | `(uid: string) => Promise<UserRecord>`                                                             | Returns Firebase UserRecord by uid                                                                                                                                                                                                            |
+| createUser                     | `(request: CreateRequest) => Promise<UserRecord>`                                                  | Creates user and returns UserRecord. See official firebase [Create a user](https://firebase.google.com/docs/auth/admin/manage-users#create_a_user) docs for request examples                                                                  |
+| updateUser                     | `(uid: string, request: UpdateRequest) => Promise<UserRecord>`                                     | Updates user by uid and returns UserRecord. See official firebase [Update a user](https://firebase.google.com/docs/auth/admin/manage-users#update_a_user) docs for request examples                                                           |
+| deleteUser                     | `(uid: string) => Promise<void>`                                                                   | Deletes user                                                                                                                                                                                                                                  |
+| setCustomUserClaims            | `(uid: string, customClaims: object ∣ null) => Promise<void>`                                      | Sets custom claims for given user. Overwrites existing values. Use `getUser` to fetch current claims                                                                                                                                          |
+| verifyAndRefreshExpiredIdToken | `(token: string, refreshToken: string) => Promise<Tokens ∣ null>`                                  | Verifies provided `idToken`. If token is expired, uses `refreshToken` to validate it. Returns `null` if token is not valid.                                                                                                                   |
 
 #### refreshAuthCookies in middleware
 
@@ -704,4 +701,46 @@ await fetch("/api/refresh-tokens", {
 
 ### Emulator support
 
-Library provides Firebase Authentication Emulator support. Follow starter example readme [examples/next13-typescript-starter](examples/next13-typescript-starter)
+Library provides Firebase Authentication Emulator support. Follow starter example README [examples/next13-typescript-starter](examples/next13-typescript-starter) for more information.
+
+### App Check support
+
+Library provides [Firebase App Check](https://firebase.google.com/docs/app-check) support. Follow starter example README [examples/next13-typescript-starter](examples/next13-typescript-starter) for more information on integrating your app with App Check.
+
+#### Advanced usage
+
+You can use `getAppCheck` from `next-firebase-auth-edge/lib/app-check` if you need to create or verify App Check token explicitly, as in provided example:
+
+```tsx
+import { getAppCheck } from "next-firebase-auth-edge/lib/app-check";
+
+// Usually defined in shared location
+const serviceAccount = {
+  projectId: "firebase-project-id",
+  privateKey: "firebase service account private key",
+  clientEmail: "firebase service account client email",
+};
+
+// Optional. Specify if your project supports multi-tenancy
+// https://cloud.google.com/identity-platform/docs/multi-tenancy-authentication
+const tenantId = "You tenant id";
+
+const { createToken, verifyToken } = getAppCheck(serviceAccount, tenantId);
+```
+
+```tsx
+const appId = "your-app-id";
+
+// Optional
+const createTokenOptions = {
+  ttlMillis: 3600 * 1000,
+};
+
+const token = await createToken(appId, createTokenOptions);
+
+// Optional
+const verifyTokenOptions = {
+  currentDate: new Date(),
+};
+const response = await verifyToken(token, verifyTokenOptions);
+```

@@ -1,13 +1,16 @@
 import { isNonNullObject, isURL } from "./validator";
-import { verify, VerifyOptions } from "./jwt/verify";
+import { getPublicCryptoKey, verify, VerifyOptions } from "./jwt/verify";
 import {
+  createRemoteJWKSet,
   decodeProtectedHeader,
   errors,
   JWTPayload,
+  KeyLike,
   ProtectedHeaderParameters,
 } from "jose";
 import { useEmulator } from "./firebase";
 import { AuthError, AuthErrorCode } from "./error";
+import { RemoteJWKSetOptions } from "jose/dist/types/jwks/remote";
 
 export const ALGORITHM_RS256 = "RS256" as const;
 
@@ -120,6 +123,51 @@ export class UrlKeyFetcher implements KeyFetcher {
   }
 }
 
+export class JWKSSignatureVerifier implements SignatureVerifier {
+  private jwksUrl: URL;
+
+  constructor(jwksUrl: string, private options?: RemoteJWKSetOptions) {
+    if (!isURL(jwksUrl)) {
+      throw new Error("The provided JWKS URL is not a valid URL.");
+    }
+
+    this.jwksUrl = new URL(jwksUrl);
+  }
+
+  private async getPublicKey(
+    header: ProtectedHeaderParameters
+  ): Promise<KeyLike> {
+    const getKey = createRemoteJWKSet(this.jwksUrl, this.options);
+
+    return getKey(header);
+  }
+
+  public async verify(token: string, options?: VerifyOptions): Promise<void> {
+    const header = decodeProtectedHeader(token);
+
+    try {
+      await verify(token, () => this.getPublicKey(header), options);
+    } catch (e) {
+      if (e instanceof errors.JWKSMultipleMatchingKeys) {
+        for await (const publicKey of e) {
+          try {
+            await verify(token, () => Promise.resolve(publicKey), options);
+            return;
+          } catch (innerError) {
+            if (innerError instanceof errors.JWSSignatureVerificationFailed) {
+              continue;
+            }
+            throw innerError;
+          }
+        }
+        throw new errors.JWSSignatureVerificationFailed();
+      }
+
+      throw e;
+    }
+  }
+}
+
 export class PublicKeySignatureVerifier implements SignatureVerifier {
   constructor(private keyFetcher: KeyFetcher) {
     if (!isNonNullObject(keyFetcher)) {
@@ -133,12 +181,14 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
     return new PublicKeySignatureVerifier(new UrlKeyFetcher(clientCertUrl));
   }
 
-  private async getPublicKey(header: ProtectedHeaderParameters) {
+  private async getPublicKey(
+    header: ProtectedHeaderParameters
+  ): Promise<KeyLike> {
     if (useEmulator()) {
-      return "";
+      return { type: "none" };
     }
 
-    return fetchPublicKey(this.keyFetcher, header);
+    return fetchPublicKey(this.keyFetcher, header).then(getPublicCryptoKey);
   }
 
   public async verify(token: string, options?: VerifyOptions): Promise<void> {
@@ -169,7 +219,7 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
     const promises: Promise<boolean>[] = [];
 
     Object.values(keys).forEach((key) => {
-      const promise = verify(token, async () => key)
+      const promise = verify(token, async () => getPublicCryptoKey(key))
         .then(() => true)
         .catch((error) => {
           if (error instanceof errors.JWTExpired) {

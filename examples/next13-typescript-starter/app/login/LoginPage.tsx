@@ -14,6 +14,7 @@ import { MainTitle } from "../../ui/MainTitle";
 import { PasswordForm } from "../../ui/PasswordForm";
 import { PasswordFormValue } from "../../ui/PasswordForm/PasswordForm";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { login } from "../../api";
 
 export function LoginPage() {
   const router = useRouter();
@@ -26,18 +27,15 @@ export function LoginPage() {
     useLoadingCallback(async ({ email, password }: PasswordFormValue) => {
       setHasLogged(false);
       const auth = getFirebaseAuth();
+
       const credential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
       const idTokenResult = await credential.user.getIdTokenResult();
-      await fetch("/api/login", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${idTokenResult.token}`,
-        },
-      });
+
+      await login(idTokenResult.token);
       setHasLogged(true);
       router.push(redirect ?? "/");
     });
@@ -48,12 +46,9 @@ export function LoginPage() {
       const auth = getFirebaseAuth();
       const user = await loginWithProvider(auth, getGoogleProvider(auth));
       const idTokenResult = await user.getIdTokenResult();
-      await fetch("/api/login", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${idTokenResult.token}`,
-        },
-      });
+
+      await login(idTokenResult.token);
+
       setHasLogged(true);
       router.push(redirect ?? "/");
     }

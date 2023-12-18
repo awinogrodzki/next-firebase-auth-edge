@@ -8,9 +8,16 @@ export interface CryptoSigner {
 }
 
 export class ServiceAccountSigner implements CryptoSigner {
-  constructor(private readonly credential: ServiceAccountCredential) {}
+  constructor(
+    private readonly credential: ServiceAccountCredential,
+    private readonly tenantId?: string
+  ) {}
 
   public async sign(payload: JWTPayload): Promise<string> {
+    if (this.tenantId) {
+      payload.tenant_id = this.tenantId;
+    }
+
     return sign({ payload, privateKey: this.credential.privateKey });
   }
 

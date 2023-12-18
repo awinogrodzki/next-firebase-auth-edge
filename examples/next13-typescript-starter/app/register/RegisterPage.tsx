@@ -16,6 +16,7 @@ import { PasswordFormValue } from "../../ui/PasswordForm/PasswordForm";
 import { LoadingIcon } from "../../ui/icons";
 import { Button } from "../../ui/Button";
 import Link from "next/link";
+import { login } from "../../api";
 
 export function RegisterPage() {
   const router = useRouter();
@@ -35,12 +36,9 @@ export function RegisterPage() {
       );
       await sendEmailVerification(credential.user);
       const idTokenResult = await credential.user.getIdTokenResult();
-      await fetch("/api/login", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${idTokenResult.token}`,
-        },
-      });
+
+      await login(idTokenResult.token);
+
       setHasLogged(true);
       router.push(redirect ?? "/");
     });

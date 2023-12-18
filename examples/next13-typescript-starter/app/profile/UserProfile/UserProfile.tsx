@@ -9,11 +9,13 @@ import { clientConfig } from "../../../config/client-config";
 import { Button } from "../../../ui/Button";
 import { LoadingIcon } from "../../../ui/icons";
 import { useRouter } from "next/navigation";
-import { incrementCounter } from "../../actions/user-counters";
-import { signOut, reload } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { ButtonGroup } from "../../../ui/ButtonGroup";
 import { Card } from "../../../ui/Card";
 import { Badge } from "../../../ui/Badge";
+import { getToken } from "@firebase/app-check";
+import { getAppCheck } from "../../../app-check";
+import { logout } from "../../../api";
 
 interface UserProfileProps {
   count: number;
@@ -29,19 +31,48 @@ export function UserProfile({ count, incrementCounter }: UserProfileProps) {
     const auth = getFirebaseAuth();
     await signOut(auth);
     setHasLoggedOut(true);
-    await fetch("/api/logout", {
-      method: "GET",
-    });
+
+    await logout();
     window.location.reload();
   });
 
   const [handleClaims, isClaimsLoading] = useLoadingCallback(async () => {
     const auth = getFirebaseAuth();
+    const headers: Record<string, string> = {};
+
+    // This is optional. Use it if your app supports App Check – https://firebase.google.com/docs/app-check
+    if (process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_KEY) {
+      const appCheckTokenResponse = await getToken(getAppCheck(), false);
+
+      headers["X-Firebase-AppCheck"] = appCheckTokenResponse.token;
+    }
+
     await fetch("/api/custom-claims", {
       method: "POST",
+      headers,
     });
 
     await auth.currentUser!.getIdTokenResult(true);
+  });
+
+  const [handleAppCheck, isAppCheckLoading] = useLoadingCallback(async () => {
+    const appCheckTokenResponse = await getToken(getAppCheck(), false);
+
+    const response = await fetch("/api/test-app-check", {
+      method: "POST",
+      headers: {
+        "X-Firebase-AppCheck": appCheckTokenResponse.token,
+      },
+    });
+
+    if (response.ok) {
+      console.info(
+        "Successfully verified App Check token",
+        await response.json()
+      );
+    } else {
+      console.error("Could not verify App Check token", await response.json());
+    }
   });
 
   const [handleIncrementCounterApi, isIncrementCounterApiLoading] =
@@ -109,6 +140,15 @@ export function UserProfile({ count, incrementCounter }: UserProfileProps) {
           >
             Refresh custom user claims
           </Button>
+          {process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_KEY && (
+            <Button
+              onClick={handleAppCheck}
+              loading={isAppCheckLoading}
+              disabled={isAppCheckLoading}
+            >
+              Test AppCheck integration
+            </Button>
+          )}
           <Button
             loading={isLogoutLoading}
             disabled={isLogoutLoading}

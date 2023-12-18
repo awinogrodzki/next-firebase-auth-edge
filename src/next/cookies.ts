@@ -15,6 +15,7 @@ export interface SetAuthCookiesOptions {
   serviceAccount: ServiceAccount;
   apiKey: string;
   tenantId?: string;
+  appCheckToken?: string;
 }
 
 export type CookiesObject = Partial<{ [K in string]: string }>;
@@ -178,9 +179,11 @@ export async function setAuthCookies(
     options.tenantId
   );
   const token = headers.get("Authorization")?.split(" ")[1] ?? "";
+  const appCheckToken = headers.get("X-Firebase-AppCheck") ?? undefined;
   const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
     token,
-    options.apiKey
+    options.apiKey,
+    appCheckToken
   );
 
   const response = new NextResponse(JSON.stringify({ success: true }), {
