@@ -707,7 +707,7 @@ Library provides Firebase Authentication Emulator support. Follow starter exampl
 
 Library provides [Firebase App Check](https://firebase.google.com/docs/app-check) support. Follow starter example README [examples/next13-typescript-starter](examples/next13-typescript-starter) for more information on integrating your app with App Check.
 
-In order to make `next-firebase-auth-edge` work with App Check, you need to send `X-Firebase-AppCheck` header with App Check token when making a call to `/api/login` endpoint.
+In order to make `next-firebase-auth-edge` work with App Check, you need to send `X-Firebase-AppCheck` header with App Check token when making a call to `/api/login` endpoint, as in [this example](https://github.com/awinogrodzki/next13-typescript-starter/blob/ef0153d4957380ffcdf7358126ec325a3e71c1fc/api/index.ts#L10-L14)
 
 ```tsx
 export async function login(token: string) {
