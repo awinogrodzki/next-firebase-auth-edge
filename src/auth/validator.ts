@@ -11,7 +11,7 @@ export function isNonNullObject<T>(value: T | null | undefined): value is T {
 }
 
 export function isEmail(email: any): boolean {
-  if (typeof email !== 'string') {
+  if (typeof email !== "string") {
     return false;
   }
   // There must at least one character before the @ symbol and another after.
