@@ -485,6 +485,7 @@ const {
   createCustomToken,
   handleTokenRefresh,
   getUser,
+  getUserByEmail,
   createUser,
   updateUser,
   deleteUser,
@@ -509,6 +510,7 @@ const {
 | createCustomToken              | `(uid: string, developerClaims?: object) => Promise<string>`                                       | Creates a custom token for given firebase user. Optionally, it's possible to attach additional `developerClaims`                                                                                                                              |
 | handleTokenRefresh             | `(refreshToken: string, firebaseApiKey: string) => Promise<Tokens>`                                | Returns id `token` and `decodedToken` for given `refreshToken`                                                                                                                                                                                |
 | getUser                        | `(uid: string) => Promise<UserRecord>`                                                             | Returns Firebase UserRecord by uid                                                                                                                                                                                                            |
+| getUserByEmail                 | `(email: string) => Promise<UserRecord>`                                                           | Returns Firebase UserRecord by email                                                                                                                                                                                                          |
 | createUser                     | `(request: CreateRequest) => Promise<UserRecord>`                                                  | Creates user and returns UserRecord. See official firebase [Create a user](https://firebase.google.com/docs/auth/admin/manage-users#create_a_user) docs for request examples                                                                  |
 | updateUser                     | `(uid: string, request: UpdateRequest) => Promise<UserRecord>`                                     | Updates user by uid and returns UserRecord. See official firebase [Update a user](https://firebase.google.com/docs/auth/admin/manage-users#update_a_user) docs for request examples                                                           |
 | deleteUser                     | `(uid: string) => Promise<void>`                                                                   | Deletes user                                                                                                                                                                                                                                  |

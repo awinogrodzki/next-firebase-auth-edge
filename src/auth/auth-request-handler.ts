@@ -1,6 +1,6 @@
 import { emulatorHost, useEmulator } from "./firebase";
 import { formatString } from "./utils";
-import { isNonNullObject } from "./validator";
+import { isEmail, isNonNullObject } from "./validator";
 import {
   FirebaseAccessToken,
   getFirebaseAdminTokenProvider,
@@ -100,6 +100,10 @@ export type ListUsersResponse = {
   nextPageToken: string;
 };
 
+export type GetAccountInfoByEmailResponse = {
+  users: GetAccountInfoUserResponse[];
+};
+
 type ResponseObject = {
   localId: string;
 };
@@ -156,6 +160,26 @@ export abstract class AbstractAuthRequestHandler {
       {
         localId: uid,
       }
+    );
+  }
+
+  public getAccountInfoByEmail(
+    email: string
+  ): Promise<GetAccountInfoByEmailResponse> {
+    if (!isEmail(email)) {
+      return Promise.reject(
+        new AuthError(AuthErrorCode.INVALID_ARGUMENT, "Invalid e-mail address")
+      );
+    }
+
+    const request = {
+      email: [email],
+    };
+
+    return this.invokeRequestHandler(
+      this.getAuthUrlBuilder(),
+      FIREBASE_AUTH_GET_ACCOUNT_INFO,
+      request
     );
   }
 

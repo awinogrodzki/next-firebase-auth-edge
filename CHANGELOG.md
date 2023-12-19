@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 0.11.2
+
+### Patch Changes
+
+- Added getUserByEmail method
+
 ## 0.11.1
 
 ### Patch Changes

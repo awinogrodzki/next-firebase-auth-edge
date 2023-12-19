@@ -10,6 +10,15 @@ export function isNonNullObject<T>(value: T | null | undefined): value is T {
   return isObject(value) && value !== null;
 }
 
+export function isEmail(email: any): boolean {
+  if (typeof email !== 'string') {
+    return false;
+  }
+  // There must at least one character before the @ symbol and another after.
+  const re = /^[^@]+@[^@]+$/;
+  return re.test(email);
+}
+
 export function isURL(urlStr: any): boolean {
   if (typeof urlStr !== "string") {
     return false;

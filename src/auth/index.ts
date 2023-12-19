@@ -244,6 +244,16 @@ export function getFirebaseAuth(
       });
   }
 
+  async function getUserByEmail(email: string): Promise<UserRecord> {
+    return authRequestHandler.getAccountInfoByEmail(email).then((response) => {
+      if (!response.users || !response.users.length) {
+        throw new AuthError(AuthErrorCode.USER_NOT_FOUND);
+      }
+
+      return new UserRecord(response.users[0]);
+    });
+  }
+
   async function verifyDecodedJWTNotRevokedOrDisabled(
     decodedIdToken: DecodedIdToken
   ): Promise<DecodedIdToken> {
@@ -381,6 +391,7 @@ export function getFirebaseAuth(
     deleteUser,
     setCustomUserClaims,
     getUser,
+    getUserByEmail,
     updateUser,
     createUser,
     listUsers,

@@ -100,4 +100,30 @@ describe("user integration test", () => {
       });
     });
   }
+
+  it("should get user by email", async () => {
+    const { createUser, getUser, getUserByEmail, deleteUser } = getFirebaseAuth(
+      {
+        clientEmail: FIREBASE_ADMIN_CLIENT_EMAIL!,
+        privateKey: FIREBASE_ADMIN_PRIVATE_KEY!.replace(/\\n/g, "\n"),
+        projectId: FIREBASE_PROJECT_ID!,
+      },
+      FIREBASE_API_KEY!
+    );
+
+    try {
+      await deleteUser(TEST_USER_ID);
+    } catch (e) {}
+
+    await createUser({
+      uid: TEST_USER_ID,
+      displayName: "John Doe",
+      email: "john-doe@ensite.in",
+      emailVerified: true,
+    });
+
+    const user = await getUserByEmail("john-doe@ensite.in");
+
+    expect(await getUser(TEST_USER_ID)).toEqual(user);
+  });
 });
