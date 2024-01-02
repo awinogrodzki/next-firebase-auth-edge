@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
-import { useFirebaseAuth } from "../../auth/firebase";
 import { useLoadingCallback } from "react-loading-hook";
 import styles from "./ResetPasswordPage.module.css";
 import { MainTitle } from "../../ui/MainTitle";
@@ -11,12 +10,12 @@ import { Button } from "../../ui/Button";
 import Link from "next/link";
 import { Input } from "../../ui/Input";
 import { FormError } from "../../ui/FormError";
+import { getFirebaseAuth } from "../../auth/firebase";
 
 export function ResetPasswordPage() {
   const params = useSearchParams();
   const [email, setEmail] = React.useState("");
   const [isSent, setIsSent] = React.useState(false);
-  const { getFirebaseAuth } = useFirebaseAuth();
   const redirect = params?.get("redirect");
   const [sendResetInstructions, loading, error] = useLoadingCallback(
     async (event: React.FormEvent) => {

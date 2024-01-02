@@ -17,20 +17,16 @@ export const getFirebaseApp = () => {
   return app;
 };
 
-export const useFirebaseAuth = () => {
-  const getFirebaseAuth = () => {
-    const auth = getAuth(getFirebaseApp());
+export function getFirebaseAuth() {
+  const auth = getAuth(getFirebaseApp());
 
-    if (process.env.NEXT_PUBLIC_EMULATOR_HOST) {
-      // https://stackoverflow.com/questions/73605307/firebase-auth-emulator-fails-intermittently-with-auth-emulator-config-failed
-      (auth as unknown as any)._canInitEmulator = true;
-      connectAuthEmulator(auth, process.env.NEXT_PUBLIC_EMULATOR_HOST, {
-        disableWarnings: true,
-      });
-    }
+  if (process.env.NEXT_PUBLIC_EMULATOR_HOST) {
+    // https://stackoverflow.com/questions/73605307/firebase-auth-emulator-fails-intermittently-with-auth-emulator-config-failed
+    (auth as unknown as any)._canInitEmulator = true;
+    connectAuthEmulator(auth, process.env.NEXT_PUBLIC_EMULATOR_HOST, {
+      disableWarnings: true,
+    });
+  }
 
-    return auth;
-  };
-
-  return { getFirebaseAuth };
-};
+  return auth;
+}

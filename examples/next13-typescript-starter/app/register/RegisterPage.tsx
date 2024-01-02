@@ -2,9 +2,8 @@
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useFirebaseAuth } from "../../auth/firebase";
 import { useLoadingCallback } from "react-loading-hook";
-import { useAuth } from "../../auth/context";
+import { useAuth } from "../../auth/AuthContext";
 import styles from "./register.module.css";
 import { MainTitle } from "../../ui/MainTitle";
 import { PasswordForm } from "../../ui/PasswordForm";
@@ -17,13 +16,13 @@ import { LoadingIcon } from "../../ui/icons";
 import { Button } from "../../ui/Button";
 import Link from "next/link";
 import { login } from "../../api";
+import { getFirebaseAuth } from "../../auth/firebase";
 
 export function RegisterPage() {
   const router = useRouter();
   const params = useSearchParams();
   const [hasLogged, setHasLogged] = React.useState(false);
   const { user } = useAuth();
-  const { getFirebaseAuth } = useFirebaseAuth();
   const redirect = params?.get("redirect");
   const [registerWithEmailAndPassword, isRegisterLoading, error] =
     useLoadingCallback(async ({ email, password }: PasswordFormValue) => {

@@ -33,6 +33,38 @@ export interface CreateAuthMiddlewareOptions {
   tenantId?: string;
 }
 
+export function redirectToHome(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  url.pathname = "/";
+  url.search = "";
+  return NextResponse.redirect(url);
+}
+
+interface RedirectToLoginOptions {
+  path: string;
+  publicPaths: string[];
+  redirectParamKeyName?: string;
+}
+
+export function redirectToLogin(
+  request: NextRequest,
+  options: RedirectToLoginOptions = {
+    path: "/login",
+    publicPaths: ["/login"],
+  }
+) {
+  const redirectKey = options.redirectParamKeyName || "redirect";
+
+  if (options.publicPaths.includes(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
+  const url = request.nextUrl.clone();
+  url.pathname = options.path;
+  url.search = `${redirectKey}=${request.nextUrl.pathname}${url.search}`;
+  return NextResponse.redirect(url);
+}
+
 export async function createAuthMiddlewareResponse(
   request: NextRequest,
   options: CreateAuthMiddlewareOptions
@@ -115,7 +147,7 @@ function validateResponse(response: NextResponse) {
   }
 }
 
-export async function authentication(
+export async function authMiddleware(
   request: NextRequest,
   options: AuthenticationOptions
 ): Promise<NextResponse> {
@@ -204,3 +236,9 @@ export async function authentication(
     }
   );
 }
+
+/**
+ * @deprecated
+ * Backwards compatiblity with 0.x
+ */
+export { authMiddleware as authentication };

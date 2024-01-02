@@ -1,9 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useAuth } from "../../../auth/context";
+import { useAuth } from "../../../auth/AuthContext";
 import styles from "./UserProfile.module.css";
-import { useFirebaseAuth } from "../../../auth/firebase";
 import { useLoadingCallback } from "react-loading-hook";
 import { clientConfig } from "../../../config/client-config";
 import { Button } from "../../../ui/Button";
@@ -16,6 +15,7 @@ import { Badge } from "../../../ui/Badge";
 import { getToken } from "@firebase/app-check";
 import { getAppCheck } from "../../../app-check";
 import { logout } from "../../../api";
+import { getFirebaseAuth } from "../../../auth/firebase";
 
 interface UserProfileProps {
   count: number;
@@ -25,7 +25,6 @@ interface UserProfileProps {
 export function UserProfile({ count, incrementCounter }: UserProfileProps) {
   const router = useRouter();
   const { user } = useAuth();
-  const { getFirebaseAuth } = useFirebaseAuth();
   const [hasLoggedOut, setHasLoggedOut] = React.useState(false);
   const [handleLogout, isLogoutLoading] = useLoadingCallback(async () => {
     const auth = getFirebaseAuth();

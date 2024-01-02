@@ -1,30 +1,15 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { authentication } from "next-firebase-auth-edge/lib/next/middleware";
+import { NextRequest, NextResponse } from "next/server";
+import {
+  authMiddleware,
+  redirectToHome,
+  redirectToLogin,
+} from "next-firebase-auth-edge";
 import { authConfig } from "./config/server-config";
 
 const PUBLIC_PATHS = ["/register", "/login", "/reset-password"];
 
-function redirectToHome(request: NextRequest) {
-  const url = request.nextUrl.clone();
-  url.pathname = "/";
-  url.search = "";
-  return NextResponse.redirect(url);
-}
-
-function redirectToLogin(request: NextRequest) {
-  if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
-    return NextResponse.next();
-  }
-
-  const url = request.nextUrl.clone();
-  url.pathname = "/login";
-  url.search = `redirect=${request.nextUrl.pathname}${url.search}`;
-  return NextResponse.redirect(url);
-}
-
 export async function middleware(request: NextRequest) {
-  return authentication(request, {
+  return authMiddleware(request, {
     loginPath: "/api/login",
     logoutPath: "/api/logout",
     apiKey: authConfig.apiKey,
@@ -40,16 +25,22 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.next({
         request: {
-          headers
-        }
+          headers,
+        },
       });
     },
     handleInvalidToken: async () => {
-      return redirectToLogin(request);
+      return redirectToLogin(request, {
+        path: "/login",
+        publicPaths: PUBLIC_PATHS,
+      });
     },
     handleError: async (error) => {
       console.error("Unhandled authentication error", { error });
-      return redirectToLogin(request);
+      return redirectToLogin(request, {
+        path: "/login",
+        publicPaths: PUBLIC_PATHS,
+      });
     },
   });
 }

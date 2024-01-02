@@ -1,0 +1,7 @@
+{
+  "index": "Welcome!",
+  "middleware": "Middleware",
+  "auth-context": "AuthContext",
+  "auth-provider": "AuthProvider",
+  "layout": "Layout"
+}

@@ -1,0 +1,78 @@
+# Layout
+
+We can use `getTokens` function from `next-firebase-auth-edge` to extract user information from request cookies.
+
+After extracting token details, we can map them to `User` object and pass it to `AuthProvider` created in [previous step](/docs/getting-started/auth-provider).
+
+You can use `getTokens` inside any React Server Component, be it a `page.tsx` or `layout.tsx`.
+
+Read more about Next.js App Router in [official docs](https://nextjs.org/docs/app)
+
+## Example RootLayout
+
+The following is an example implementation of custom `RootLayout` React Server Component that uses `getTokens` function to create user object based on user cookies and pass it down to `AuthProvider` client component.
+
+
+
+```tsx filename="layout.tsx"
+import { Metadata } from "next";
+import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
+import { Tokens, getTokens } from "next-firebase-auth-edge";
+import { cookies } from "next/headers";
+import { User } from "./AuthContext";
+import { AuthProvider } from "./AuthProvider";
+
+const toUser = ({ decodedToken }: Tokens): User => {
+  const {
+    uid,
+    email,
+    picture: photoURL,
+    email_verified: emailVerified,
+    phone_number: phoneNumber,
+    name: displayName,
+  } = decodedToken;
+
+  const customClaims = filterStandardClaims(decodedToken);
+
+  return {
+    uid,
+    email: email ?? null,
+    displayName: displayName ?? null,
+    photoURL: photoURL ?? null,
+    phoneNumber: phoneNumber ?? null,
+    emailVerified: emailVerified ?? false,
+    customClaims,
+  };
+};
+
+export default async function RootLayout({
+  children,
+}: {
+  children: JSX.Element
+}) {
+  const tokens = await getTokens(cookies(), {
+    apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
+    cookieName: 'AuthToken',
+    cookieSignatureKeys: ['secret1', 'secret2'],
+    serviceAccount: {
+      projectId: 'your-firebase-project-id',
+      clientEmail:
+        'firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com',
+      privateKey:
+        '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
+    }
+  });
+  const user = tokens ? toUser(tokens) : null;
+
+  return (
+    <html lang="en">
+      <head />
+      <body>
+        <main>
+          <AuthProvider serverUser={user}>{children}</AuthProvider>
+        </main>
+      </body>
+    </html>
+  );
+}
+```

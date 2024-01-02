@@ -239,13 +239,11 @@ export async function middleware(request: NextRequest) {
 "use client";
 
 import * as React from "react";
-import { useFirebaseAuth } from "../../auth/firebase";
+import { getFirebaseAuth } from "../../auth/firebase";
 import { PasswordFormValue } from "../../ui/PasswordForm/PasswordForm";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 export default function LoginPage() {
-  const { getFirebaseAuth } = useFirebaseAuth();
-
   async function handleLoginWithEmailAndPassword({
     email,
     password,
@@ -294,7 +292,7 @@ import {
   onIdTokenChanged,
   User as FirebaseUser,
 } from "firebase/auth";
-import { useFirebaseAuth } from "./firebase";
+import { getFirebaseAuth } from "./firebase";
 import { AuthContext, User } from "./context";
 import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
 
@@ -314,7 +312,6 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   defaultUser,
   children,
 }) => {
-  const { getFirebaseAuth } = useFirebaseAuth();
   const [user, setUser] = React.useState(defaultUser);
 
   const handleIdTokenChanged = async (firebaseUser: FirebaseUser | null) => {

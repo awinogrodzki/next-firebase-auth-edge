@@ -1,0 +1,39 @@
+# Core library
+
+While `next-intl` is primarily intended to be used within React components, the core is agnostic and can be used independently of React.
+
+```tsx
+import {createTranslator} from 'next-intl';
+
+const messages = {
+  basic: 'Hello {name}!',
+  rich: 'Hello <b>{name}</b>!'
+};
+
+// This creates the same function that is returned by `useTranslations`.
+// Since there's no provider, you can pass all the properties you'd
+// usually pass to the provider directly here.
+const t = createTranslator({locale: 'en', messages});
+
+// Result: "Hello world!"
+t('basic', {name: 'world'});
+
+// To generate HTML markup, you can consider using the `markup`
+// function which in contrast to `t.rich` returns a markup string.
+t.markup('rich', {
+  name: 'world',
+  b: (chunks) => `<b>${chunks}</b>`
+});
+```
+
+For date, time and number formatting, the `format` object can be created outside of React as well:
+
+```js
+import {createFormatter} from 'next-intl';
+
+// Creates the same object that is returned by `useFormatter`.
+const format = createFormatter({locale: 'en'});
+
+// Result: "Oct 17, 2022"
+format.dateTime(new Date(2022, 9, 17), {dateStyle: 'medium'});
+```

@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useFirebaseAuth } from "../../auth/firebase";
 import { useLoadingCallback } from "react-loading-hook";
 import { getGoogleProvider, loginWithProvider } from "./firebase";
 import styles from "./login.module.css";
@@ -15,12 +14,12 @@ import { PasswordForm } from "../../ui/PasswordForm";
 import { PasswordFormValue } from "../../ui/PasswordForm/PasswordForm";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { login } from "../../api";
+import { getFirebaseAuth } from "../../auth/firebase";
 
 export function LoginPage() {
   const router = useRouter();
   const params = useSearchParams();
   const [hasLogged, setHasLogged] = React.useState(false);
-  const { getFirebaseAuth } = useFirebaseAuth();
   const redirect = params?.get("redirect");
 
   const [handleLoginWithEmailAndPassword, isEmailLoading, error] =

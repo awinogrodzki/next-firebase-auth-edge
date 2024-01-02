@@ -1,5 +1,4 @@
 import styles from "./page.module.css";
-import { ServerAuthProvider } from "../../auth/server-auth-provider";
 import { UserProfile } from "./UserProfile";
 import { Metadata } from "next";
 import { getTokens } from "next-firebase-auth-edge/lib/next/tokens";
@@ -44,10 +43,7 @@ export default async function Profile() {
         <span>Profile</span>
         <Badge>Rendered on server</Badge>
       </MainTitle>
-      {/* @ts-expect-error https://github.com/vercel/next.js/issues/43537 */}
-      <ServerAuthProvider>
-        <UserProfile count={count} incrementCounter={incrementCounter} />
-      </ServerAuthProvider>
+      <UserProfile count={count} incrementCounter={incrementCounter} />
     </div>
   );
 }
