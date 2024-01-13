@@ -3,7 +3,7 @@ import {
   initializeAppCheck,
   ReCaptchaEnterpriseProvider,
 } from "@firebase/app-check";
-import { getFirebaseApp } from "../auth/firebase";
+import { getFirebaseApp } from "../app/auth/firebase";
 import { FirebaseApp } from "@firebase/app";
 
 let appCheck: AppCheck | null = null;

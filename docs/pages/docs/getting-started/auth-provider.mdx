@@ -8,7 +8,7 @@ Before copying example, make sure to setup Firebase Auth web client by following
 
 ## Example AuthProvider
 
-The following is an example implementation of custom `AuthProvider` component that uses `AuthContext` to share user data between components.
+The following is an example implementation of custom `AuthProvider` component that uses `AuthContext` to share user data between components. It calls `/api/login` and `/api/logout` endpoints whenever user data changes to sync `firebase/auth` with `next-firebase-auth-edge`.
 
 ```tsx filename="AuthProvider.tsx"
 "use client";
@@ -38,9 +38,21 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
 
   const handleIdTokenChanged = async (firebaseUser: FirebaseUser | null) => {
     if (firebaseUser) {
-      setUser(toUser(firebaseUser, await firebaseUser.getIdTokenResult()));
+      const idTokenResult = await firebaseUser.getIdTokenResult();
+
+      // Sets authenticated user cookies
+      await fetch("/api/login", {
+        headers: {
+          Authorization: `Bearer ${idTokenResult.token}`,
+        },
+      });
+
+      setUser(toUser(firebaseUser, idTokenResult));
       return;
     }
+
+    // Removes authenticated user cookies
+    await fetch("/api/logout");
 
     setUser(null);
   };

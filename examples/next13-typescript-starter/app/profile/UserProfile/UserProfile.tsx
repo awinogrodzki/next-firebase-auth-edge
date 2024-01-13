@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useAuth } from "../../../auth/AuthContext";
+import { useAuth } from "../../auth/AuthContext";
 import styles from "./UserProfile.module.css";
 import { useLoadingCallback } from "react-loading-hook";
 import { clientConfig } from "../../../config/client-config";
@@ -15,7 +15,7 @@ import { Badge } from "../../../ui/Badge";
 import { getToken } from "@firebase/app-check";
 import { getAppCheck } from "../../../app-check";
 import { logout } from "../../../api";
-import { getFirebaseAuth } from "../../../auth/firebase";
+import { getFirebaseAuth } from "../../auth/firebase";
 
 interface UserProfileProps {
   count: number;

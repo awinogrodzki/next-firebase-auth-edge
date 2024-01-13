@@ -9,7 +9,7 @@ import {
 import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
 import { AuthContext, User } from "./AuthContext";
 import { getFirebaseAuth } from "./firebase";
-import { login, logout } from "../api";
+import { login, logout } from "../../api";
 
 export interface AuthProviderProps {
   serverUser: User | null;

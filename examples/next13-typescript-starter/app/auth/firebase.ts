@@ -1,7 +1,7 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
-import { clientConfig } from "../config/client-config";
-import { getOrInitializeAppCheck } from "../app-check";
+import { clientConfig } from "../../config/client-config";
+import { getOrInitializeAppCheck } from "../../app-check";
 
 export const getFirebaseApp = () => {
   if (getApps().length) {

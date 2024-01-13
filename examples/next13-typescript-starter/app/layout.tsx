@@ -1,12 +1,12 @@
 import "./globals.css";
 import styles from "./layout.module.css";
 import { Metadata } from "next";
-import { User } from "../auth/AuthContext";
+import { User } from "./auth/AuthContext";
 import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
 import { Tokens, getTokens } from "next-firebase-auth-edge";
 import { cookies } from "next/headers";
 import { authConfig } from "../config/server-config";
-import { AuthProvider } from "../auth/AuthProvider";
+import { AuthProvider } from "./auth/AuthProvider";
 
 const toUser = ({ decodedToken }: Tokens): User => {
   const {

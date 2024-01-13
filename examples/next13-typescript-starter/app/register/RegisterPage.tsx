@@ -7,7 +7,7 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import Link from "next/link";
-import { getFirebaseAuth } from "../../auth/firebase";
+import { getFirebaseAuth } from "../auth/firebase";
 import { Button } from "../../ui/Button";
 import { MainTitle } from "../../ui/MainTitle";
 import { PasswordForm } from "../../ui/PasswordForm";
@@ -20,7 +20,7 @@ import { useRedirect } from "../shared/useRedirect";
 
 export function RegisterPage() {
   const [hasLogged, setHasLogged] = React.useState(false);
-  const redirect = useRedirectParam()
+  const redirect = useRedirectParam();
 
   useRedirect();
 
@@ -37,7 +37,6 @@ export function RegisterPage() {
 
       setHasLogged(true);
     });
-
 
   return (
     <div className={styles.page}>

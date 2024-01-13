@@ -12,7 +12,7 @@ import { MainTitle } from "../../ui/MainTitle";
 import { PasswordForm } from "../../ui/PasswordForm";
 import { PasswordFormValue } from "../../ui/PasswordForm/PasswordForm";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { getFirebaseAuth } from "../../auth/firebase";
+import { getFirebaseAuth } from "../auth/firebase";
 import { appendRedirectParam } from "../shared/redirect";
 import { useRedirect } from "../shared/useRedirect";
 import { useRedirectParam } from "../shared/useRedirectParam";
@@ -28,11 +28,7 @@ export function LoginPage() {
       setHasLogged(false);
 
       const auth = getFirebaseAuth();
-      await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      await signInWithEmailAndPassword(auth, email, password);
 
       setHasLogged(true);
     });

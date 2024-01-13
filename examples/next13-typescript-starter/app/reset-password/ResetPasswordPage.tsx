@@ -4,7 +4,7 @@ import * as React from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import Link from "next/link";
 import { useLoadingCallback } from "react-loading-hook";
-import { getFirebaseAuth } from "../../auth/firebase";
+import { getFirebaseAuth } from "../auth/firebase";
 import { Button } from "../../ui/Button";
 import { FormError } from "../../ui/FormError";
 import { Input } from "../../ui/Input";
