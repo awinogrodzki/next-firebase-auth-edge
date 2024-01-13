@@ -1,4 +1,5 @@
 {
   "index": "Start",
-  "middleware": "Middleware"
+  "middleware": "Middleware",
+  "server-components": "Server Components"
 }
