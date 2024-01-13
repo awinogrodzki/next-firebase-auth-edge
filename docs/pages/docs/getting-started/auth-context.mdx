@@ -6,13 +6,13 @@ See below for an example `AuthContext`
 
 ## Example AuthContext
 
-The following is an example implementation of custom `AuthContext` React context to share user data between server and client components.
+The following is an example implementation of custom `AuthContext` using React's [createContext](https://react.dev/reference/react/createContext).
 
 ```tsx filename="AuthContext.ts"
 "use client";
 
 import { createContext, useContext } from "react";
-import type { UserInfo } from "firebase/auth";
+import { UserInfo } from "firebase/auth";
 import { Claims } from "next-firebase-auth-edge/lib/auth/claims";
 
 export interface User extends Omit<UserInfo, "providerId"> {

@@ -1,22 +1,22 @@
 "use client";
 
 import * as React from "react";
-import { useSearchParams } from "next/navigation";
-import { useLoadingCallback } from "react-loading-hook";
-import styles from "./ResetPasswordPage.module.css";
-import { MainTitle } from "../../ui/MainTitle";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { Button } from "../../ui/Button";
 import Link from "next/link";
-import { Input } from "../../ui/Input";
-import { FormError } from "../../ui/FormError";
+import { useLoadingCallback } from "react-loading-hook";
 import { getFirebaseAuth } from "../../auth/firebase";
+import { Button } from "../../ui/Button";
+import { FormError } from "../../ui/FormError";
+import { Input } from "../../ui/Input";
+import { MainTitle } from "../../ui/MainTitle";
+import { appendRedirectParam } from "../shared/redirect";
+import { useRedirectParam } from "../shared/useRedirectParam";
+import styles from "./ResetPasswordPage.module.css";
 
 export function ResetPasswordPage() {
-  const params = useSearchParams();
   const [email, setEmail] = React.useState("");
   const [isSent, setIsSent] = React.useState(false);
-  const redirect = params?.get("redirect");
+  const redirect = useRedirectParam();
   const [sendResetInstructions, loading, error] = useLoadingCallback(
     async (event: React.FormEvent) => {
       event.preventDefault();
@@ -29,14 +29,6 @@ export function ResetPasswordPage() {
       setIsSent(true);
     }
   );
-
-  function getLoginUrl() {
-    if (redirect) {
-      return `/login?redirect=${redirect}`;
-    }
-
-    return "/login";
-  }
 
   return (
     <div className={styles.page}>
@@ -62,7 +54,7 @@ export function ResetPasswordPage() {
         >
           Send reset instructions
         </Button>
-        <Link href={getLoginUrl()}>
+        <Link href={appendRedirectParam("/login", redirect)}>
           <Button disabled={loading}>Back to login</Button>
         </Link>
       </form>

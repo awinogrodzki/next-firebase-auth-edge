@@ -9,6 +9,7 @@ import {
 import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
 import { AuthContext, User } from "./AuthContext";
 import { getFirebaseAuth } from "./firebase";
+import { login, logout } from "../api";
 
 export interface AuthProviderProps {
   serverUser: User | null;
@@ -30,10 +31,14 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
 
   const handleIdTokenChanged = async (firebaseUser: FirebaseUser | null) => {
     if (firebaseUser) {
-      setUser(toUser(firebaseUser, await firebaseUser.getIdTokenResult()));
+      const tokenResult = await firebaseUser.getIdTokenResult();
+
+      await login(tokenResult.token);
+      setUser(toUser(firebaseUser, tokenResult));
       return;
     }
 
+    await logout();
     setUser(null);
   };
 

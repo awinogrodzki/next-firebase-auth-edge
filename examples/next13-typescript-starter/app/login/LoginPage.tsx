@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useLoadingCallback } from "react-loading-hook";
 import { getGoogleProvider, loginWithProvider } from "./firebase";
 import styles from "./login.module.css";
@@ -13,53 +12,41 @@ import { MainTitle } from "../../ui/MainTitle";
 import { PasswordForm } from "../../ui/PasswordForm";
 import { PasswordFormValue } from "../../ui/PasswordForm/PasswordForm";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { login } from "../../api";
 import { getFirebaseAuth } from "../../auth/firebase";
+import { appendRedirectParam } from "../shared/redirect";
+import { useRedirect } from "../shared/useRedirect";
+import { useRedirectParam } from "../shared/useRedirectParam";
 
 export function LoginPage() {
-  const router = useRouter();
-  const params = useSearchParams();
   const [hasLogged, setHasLogged] = React.useState(false);
-  const redirect = params?.get("redirect");
+  const redirect = useRedirectParam();
+
+  useRedirect();
 
   const [handleLoginWithEmailAndPassword, isEmailLoading, error] =
     useLoadingCallback(async ({ email, password }: PasswordFormValue) => {
       setHasLogged(false);
-      const auth = getFirebaseAuth();
 
-      const credential = await signInWithEmailAndPassword(
+      const auth = getFirebaseAuth();
+      await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
-      const idTokenResult = await credential.user.getIdTokenResult();
 
-      await login(idTokenResult.token);
       setHasLogged(true);
-      router.push(redirect ?? "/");
     });
 
   const [handleLoginWithGoogle, isGoogleLoading] = useLoadingCallback(
     async () => {
       setHasLogged(false);
-      const auth = getFirebaseAuth();
-      const user = await loginWithProvider(auth, getGoogleProvider(auth));
-      const idTokenResult = await user.getIdTokenResult();
 
-      await login(idTokenResult.token);
+      const auth = getFirebaseAuth();
+      await loginWithProvider(auth, getGoogleProvider(auth));
 
       setHasLogged(true);
-      router.push(redirect ?? "/");
     }
   );
-
-  function passRedirectParam(url: string) {
-    if (redirect) {
-      return `${url}?redirect=${redirect}`;
-    }
-
-    return url;
-  }
 
   return (
     <div className={styles.page}>
@@ -81,11 +68,11 @@ export function LoginPage() {
           <ButtonGroup>
             <Link
               className={styles.link}
-              href={passRedirectParam("/reset-password")}
+              href={appendRedirectParam("/reset-password", redirect)}
             >
               Reset password
             </Link>
-            <Link href={passRedirectParam("/register")}>
+            <Link href={appendRedirectParam("/register", redirect)}>
               <Button>Register</Button>
             </Link>
             <Button

@@ -1,10 +1,10 @@
 # Authentication Middleware
 
-Example usage of `authMiddleware` in `middleware.ts`
+Basic usage of `authMiddleware` in `middleware.ts`
 
 ```tsx filename="middleware.ts"
 import { NextRequest, NextResponse } from "next/server";
-import { authMiddleware, redirectToHome, redirectToLogin } from "next-firebase-auth-edge";
+import { authMiddleware } from "next-firebase-auth-edge";
 
 export async function middleware(request: NextRequest) {
   return authMiddleware(request, {

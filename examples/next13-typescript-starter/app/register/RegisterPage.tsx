@@ -1,29 +1,29 @@
 "use client";
 
 import * as React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useLoadingCallback } from "react-loading-hook";
-import { useAuth } from "../../auth/AuthContext";
-import styles from "./register.module.css";
-import { MainTitle } from "../../ui/MainTitle";
-import { PasswordForm } from "../../ui/PasswordForm";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
 } from "firebase/auth";
+import Link from "next/link";
+import { getFirebaseAuth } from "../../auth/firebase";
+import { Button } from "../../ui/Button";
+import { MainTitle } from "../../ui/MainTitle";
+import { PasswordForm } from "../../ui/PasswordForm";
 import { PasswordFormValue } from "../../ui/PasswordForm/PasswordForm";
 import { LoadingIcon } from "../../ui/icons";
-import { Button } from "../../ui/Button";
-import Link from "next/link";
-import { login } from "../../api";
-import { getFirebaseAuth } from "../../auth/firebase";
+import { appendRedirectParam } from "../shared/redirect";
+import { useRedirectParam } from "../shared/useRedirectParam";
+import styles from "./register.module.css";
+import { useRedirect } from "../shared/useRedirect";
 
 export function RegisterPage() {
-  const router = useRouter();
-  const params = useSearchParams();
   const [hasLogged, setHasLogged] = React.useState(false);
-  const { user } = useAuth();
-  const redirect = params?.get("redirect");
+  const redirect = useRedirectParam()
+
+  useRedirect();
+
   const [registerWithEmailAndPassword, isRegisterLoading, error] =
     useLoadingCallback(async ({ email, password }: PasswordFormValue) => {
       setHasLogged(false);
@@ -34,21 +34,10 @@ export function RegisterPage() {
         password
       );
       await sendEmailVerification(credential.user);
-      const idTokenResult = await credential.user.getIdTokenResult();
-
-      await login(idTokenResult.token);
 
       setHasLogged(true);
-      router.push(redirect ?? "/");
     });
 
-  function getLoginUrl() {
-    if (redirect) {
-      return `/login?redirect=${redirect}`;
-    }
-
-    return "/login";
-  }
 
   return (
     <div className={styles.page}>
@@ -56,7 +45,7 @@ export function RegisterPage() {
       {hasLogged && (
         <div className={styles.info}>
           <span>
-            Redirecting to <strong>{params?.get("redirect") || "/"}</strong>
+            Redirecting to <strong>{redirect || "/"}</strong>
           </span>
           <LoadingIcon />
         </div>
@@ -67,7 +56,7 @@ export function RegisterPage() {
           loading={isRegisterLoading}
           error={error}
         >
-          <Link href={getLoginUrl()}>
+          <Link href={appendRedirectParam("/login", redirect)}>
             <Button disabled={isRegisterLoading}>Back to login</Button>
           </Link>
         </PasswordForm>
