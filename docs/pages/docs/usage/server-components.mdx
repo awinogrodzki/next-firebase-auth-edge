@@ -1,6 +1,6 @@
 # Usage in Server Components
 
-The library provides `getTokens` function to extract and validate user credentials. The function can be used only in `Server Components`. It returns `null` if there are no authentication cookies or the credentials have expired. If request contains valid user credentials, the function returns an object with `token` and `decodedToken` properties. `token` is jwt-encoded string, whereas `decodedToken` is an object representing decoded `token`.
+The library provides `getTokens` function to extract and validate user credentials. The function can be used only in `Server Components` or [API Route Handlers](/docs/usage/app-router-api-routes). It returns `null` if there are no authentication cookies or the credentials have expired. If request contains valid user credentials, the function returns an object with `token` and `decodedToken` properties. `token` is jwt-encoded string, whereas `decodedToken` is an object representing decoded `token`.
 
 ## getTokens
 
