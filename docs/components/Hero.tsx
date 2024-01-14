@@ -23,7 +23,7 @@ export default function Hero({
       <div className="relative max-w-full overflow-hidden bg-slate-850 py-16 sm:px-2 lg:px-0">
         <div className="absolute left-0 top-0 h-[20500px] w-[20500px] translate-x-[-47.5%] rounded-full bg-gradient-to-b from-slate-900 via-cyan-500 md:top-1" />
         <Wrapper>
-          <div className="flex flex-col gap-16 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between">
             <div className="max-w-3xl">
               <h1 className="inline bg-gradient-to-r from-white via-sky-100 to-primary bg-clip-text text-3xl leading-tight tracking-tight text-transparent lg:text-5xl">
                 <strong className="font-semibold">{titleStrong}</strong>{' '}
