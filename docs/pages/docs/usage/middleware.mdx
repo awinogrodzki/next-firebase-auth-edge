@@ -1,6 +1,14 @@
 # Authentication Middleware
 
-Authentication Middleware is mainly responsible for managing, validating and refreshing browser cookies. It's also a perfect place to implement custom routing behaviour based on user credentials.
+`authMiddleware` works together with [getTokens](/docs/usage/server-components) function to share valid user credentials between [Next.js Middleware](https://nextjs.org/docs/app/building-your-application/routing/middleware) and [Server Components](https://nextjs.org/docs/app/building-your-application/rendering/server-components).
+
+## Features
+
+1. It sets up `/api/login` and `/api/logout` endpoints to allow the client to manage browser authentication cookies. Please note that you don't have to setup dedicated api routes youself, as middleware does it for you. You can change the name of those endpoints by changing `loginPath` and `logoutPath` middleware options.
+2. Automatically refreshes browser authentication cookies when token expires, and let's developer act accordingly
+3. Signs user cookies with rotating keys to mitigate the risk of cryptanalysis attacks.
+4. Validates user cookies on each request
+5. Allows to customize behaviour by defining `handleValidToken`, `handleInvalidToken` and `handleError` callbacks.
 
 ## Advanced usage
 
