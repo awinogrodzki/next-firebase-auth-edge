@@ -2,11 +2,9 @@
 
 Example usage of [getTokensFromObject](/docs/usage/pages-router-api-routes) function in [getServerSideProps](https://nextjs.org/docs/pages/building-your-application/data-fetching/get-server-side-props)
 
-```tsx filename="pages/index.ts"
+```tsx
 import { GetServerSidePropsContext } from "next";
 import { getTokensFromObject } from "next-firebase-auth-edge";
-
-// ...
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const tokens = await getTokensFromObject(context.req.cookies, {

@@ -4,5 +4,7 @@
   "server-components": "Server Components",
   "app-router-api-routes": "App Router API Route Handlers",
   "pages-router-api-routes": "Pages Router API Routes",
-  "get-server-side-props": "Usage in getServerSideProps"
+  "get-server-side-props": "Usage in getServerSideProps",
+  "refresh-auth-cookies": "Refresh authentication cookies",
+  "advanced-usage": "Advanced usage"
 }
