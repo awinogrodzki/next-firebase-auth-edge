@@ -1,16 +1,16 @@
-import { CLIENT_CERT_URL, FIREBASE_AUDIENCE, useEmulator } from "./firebase";
+import {CLIENT_CERT_URL, FIREBASE_AUDIENCE, useEmulator} from './firebase';
 import {
   ALGORITHM_RS256,
   DecodedToken,
   PublicKeySignatureVerifier,
-  SignatureVerifier,
-} from "./signature-verifier";
-import { isURL } from "./validator";
-import { decodeJwt, decodeProtectedHeader, errors } from "jose";
-import { JOSEError } from "jose/dist/types/util/errors";
-import { AuthError, AuthErrorCode } from "./error";
-import { VerifyOptions } from "./jwt/verify";
-import { mapJwtPayloadToDecodedIdToken } from "./utils";
+  SignatureVerifier
+} from './signature-verifier';
+import {isURL} from './validator';
+import {decodeJwt, decodeProtectedHeader, errors} from 'jose';
+import {JOSEError} from 'jose/dist/types/util/errors';
+import {AuthError, AuthErrorCode} from './error';
+import {VerifyOptions} from './jwt/verify';
+import {mapJwtPayloadToDecodedIdToken} from './utils';
 
 export interface DecodedIdToken {
   aud: string;
@@ -48,7 +48,7 @@ export class FirebaseTokenVerifier {
     if (!isURL(clientCertUrl)) {
       throw new AuthError(
         AuthErrorCode.INVALID_ARGUMENT,
-        "The provided public client certificate URL is an invalid URL."
+        'The provided public client certificate URL is an invalid URL.'
       );
     }
 
@@ -77,10 +77,10 @@ export class FirebaseTokenVerifier {
     const header = decodeProtectedHeader(token);
     const payload = decodeJwt(token);
 
-    this.verifyContent({ header, payload }, projectId);
+    this.verifyContent({header, payload}, projectId);
     await this.verifySignature(token, options);
 
-    return { header, payload };
+    return {header, payload};
   }
 
   private verifyContent(
@@ -91,7 +91,7 @@ export class FirebaseTokenVerifier {
     const payload = fullDecodedToken && fullDecodedToken.payload;
 
     let errorMessage: string | undefined;
-    if (!useEmulator() && typeof header.kid === "undefined") {
+    if (!useEmulator() && typeof header.kid === 'undefined') {
       const isCustomToken = payload.aud === FIREBASE_AUDIENCE;
       if (isCustomToken) {
         errorMessage = `idToken was expected, but custom token was provided`;
@@ -102,8 +102,8 @@ export class FirebaseTokenVerifier {
       errorMessage = `Incorrect algorithm. ${ALGORITHM_RS256} expected, ${header.alg} provided`;
     } else if (payload.iss !== this.issuer + projectId) {
       errorMessage = `idToken has incorrect "iss" (issuer) claim. Expected ${this.issuer}${projectId}, but got ${payload.iss}`;
-    } else if (typeof payload.sub !== "string") {
-    } else if (payload.sub === "") {
+    } else if (typeof payload.sub !== 'string') {
+    } else if (payload.sub === '') {
       errorMessage = `idToken has an empty string "sub" (subject) claim.`;
     } else if (payload.sub.length > 128) {
       errorMessage = `idToken has "sub" (subject) claim longer than 128 characters.`;
@@ -149,7 +149,7 @@ export function createIdTokenVerifier(
 ): FirebaseTokenVerifier {
   return new FirebaseTokenVerifier(
     CLIENT_CERT_URL,
-    "https://securetoken.google.com/",
+    'https://securetoken.google.com/',
     projectId
   );
 }

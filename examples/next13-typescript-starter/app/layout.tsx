@@ -1,21 +1,21 @@
-import "./globals.css";
-import styles from "./layout.module.css";
-import { Metadata } from "next";
-import { User } from "./auth/AuthContext";
-import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
-import { Tokens, getTokens } from "next-firebase-auth-edge";
-import { cookies } from "next/headers";
-import { authConfig } from "../config/server-config";
-import { AuthProvider } from "./auth/AuthProvider";
+import './globals.css';
+import styles from './layout.module.css';
+import {Metadata} from 'next';
+import {User} from './auth/AuthContext';
+import {filterStandardClaims} from 'next-firebase-auth-edge/lib/auth/claims';
+import {Tokens, getTokens} from 'next-firebase-auth-edge';
+import {cookies} from 'next/headers';
+import {authConfig} from '../config/server-config';
+import {AuthProvider} from './auth/AuthProvider';
 
-const toUser = ({ decodedToken }: Tokens): User => {
+const toUser = ({decodedToken}: Tokens): User => {
   const {
     uid,
     email,
     picture: photoURL,
     email_verified: emailVerified,
     phone_number: phoneNumber,
-    name: displayName,
+    name: displayName
   } = decodedToken;
 
   const customClaims = filterStandardClaims(decodedToken);
@@ -27,12 +27,12 @@ const toUser = ({ decodedToken }: Tokens): User => {
     photoURL: photoURL ?? null,
     phoneNumber: phoneNumber ?? null,
     emailVerified: emailVerified ?? false,
-    customClaims,
+    customClaims
   };
 };
 
 export default async function RootLayout({
-  children,
+  children
 }: {
   children: React.ReactNode;
 }) {
@@ -62,7 +62,7 @@ export default async function RootLayout({
 }
 
 export const metadata: Metadata = {
-  title: "next-firebase-auth-edge example page",
-  description: "Next.js page showcasing next-firebase-auth-edge features",
-  icons: "/favicon.ico",
+  title: 'next-firebase-auth-edge example page',
+  description: 'Next.js page showcasing next-firebase-auth-edge features',
+  icons: '/favicon.ico'
 };

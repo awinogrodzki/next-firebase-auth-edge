@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useLoadingCallback } from "react-loading-hook";
+import * as React from 'react';
+import {useLoadingCallback} from 'react-loading-hook';
 import {
   createUserWithEmailAndPassword,
-  sendEmailVerification,
-} from "firebase/auth";
-import Link from "next/link";
-import { getFirebaseAuth } from "../auth/firebase";
-import { Button } from "../../ui/Button";
-import { MainTitle } from "../../ui/MainTitle";
-import { PasswordForm } from "../../ui/PasswordForm";
-import { PasswordFormValue } from "../../ui/PasswordForm/PasswordForm";
-import { LoadingIcon } from "../../ui/icons";
-import { appendRedirectParam } from "../shared/redirect";
-import { useRedirectParam } from "../shared/useRedirectParam";
-import styles from "./register.module.css";
-import { useRedirect } from "../shared/useRedirect";
+  sendEmailVerification
+} from 'firebase/auth';
+import Link from 'next/link';
+import {getFirebaseAuth} from '../auth/firebase';
+import {Button} from '../../ui/Button';
+import {MainTitle} from '../../ui/MainTitle';
+import {PasswordForm} from '../../ui/PasswordForm';
+import {PasswordFormValue} from '../../ui/PasswordForm/PasswordForm';
+import {LoadingIcon} from '../../ui/icons';
+import {appendRedirectParam} from '../shared/redirect';
+import {useRedirectParam} from '../shared/useRedirectParam';
+import styles from './register.module.css';
+import {useRedirect} from '../shared/useRedirect';
 
 export function RegisterPage() {
   const [hasLogged, setHasLogged] = React.useState(false);
@@ -25,7 +25,7 @@ export function RegisterPage() {
   useRedirect();
 
   const [registerWithEmailAndPassword, isRegisterLoading, error] =
-    useLoadingCallback(async ({ email, password }: PasswordFormValue) => {
+    useLoadingCallback(async ({email, password}: PasswordFormValue) => {
       setHasLogged(false);
       const auth = getFirebaseAuth();
       const credential = await createUserWithEmailAndPassword(
@@ -44,7 +44,7 @@ export function RegisterPage() {
       {hasLogged && (
         <div className={styles.info}>
           <span>
-            Redirecting to <strong>{redirect || "/"}</strong>
+            Redirecting to <strong>{redirect || '/'}</strong>
           </span>
           <LoadingIcon />
         </div>
@@ -55,7 +55,7 @@ export function RegisterPage() {
           loading={isRegisterLoading}
           error={error}
         >
-          <Link href={appendRedirectParam("/login", redirect)}>
+          <Link href={appendRedirectParam('/login', redirect)}>
             <Button disabled={isRegisterLoading}>Back to login</Button>
           </Link>
         </PasswordForm>

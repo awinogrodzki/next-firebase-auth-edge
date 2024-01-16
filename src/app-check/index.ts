@@ -1,14 +1,14 @@
-import { AppCheckApiClient } from "./api-client";
-import { AppCheckTokenGenerator } from "./token-generator";
-import { AppCheckTokenVerifier } from "./token-verifier";
-import { ServiceAccount, ServiceAccountCredential } from "../auth/credential";
-import { ServiceAccountSigner } from "../auth/jwt/crypto-signer";
+import {AppCheckApiClient} from './api-client';
+import {AppCheckTokenGenerator} from './token-generator';
+import {AppCheckTokenVerifier} from './token-verifier';
+import {ServiceAccount, ServiceAccountCredential} from '../auth/credential';
+import {ServiceAccountSigner} from '../auth/jwt/crypto-signer';
 import {
   AppCheckToken,
   AppCheckTokenOptions,
-  VerifyAppCheckTokenResponse,
-} from "./types";
-import { VerifyOptions } from "../auth/jwt/verify";
+  VerifyAppCheckTokenResponse
+} from './types';
+import {VerifyOptions} from '../auth/jwt/verify';
 
 class AppCheck {
   private readonly client: AppCheckApiClient;
@@ -45,7 +45,7 @@ class AppCheck {
       .then((decodedToken) => {
         return {
           appId: decodedToken.app_id,
-          token: decodedToken,
+          token: decodedToken
         };
       });
   };

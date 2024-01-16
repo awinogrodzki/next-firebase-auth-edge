@@ -12,10 +12,10 @@ export default function Section({children, description, title}: Props) {
     <section className="py-20 lg:py-40">
       <Wrapper>
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white lg:text-4xl">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900 lg:text-4xl dark:text-white">
             {title}
           </h2>
-          <div className="mt-6 max-w-[42rem] text-base text-slate-600 dark:text-slate-400 lg:text-lg">
+          <div className="mt-6 max-w-[42rem] text-base text-slate-600 lg:text-lg dark:text-slate-400">
             {description}
           </div>
         </div>

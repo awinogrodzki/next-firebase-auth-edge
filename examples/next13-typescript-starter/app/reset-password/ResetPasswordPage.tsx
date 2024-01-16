@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { sendPasswordResetEmail } from "firebase/auth";
-import Link from "next/link";
-import { useLoadingCallback } from "react-loading-hook";
-import { getFirebaseAuth } from "../auth/firebase";
-import { Button } from "../../ui/Button";
-import { FormError } from "../../ui/FormError";
-import { Input } from "../../ui/Input";
-import { MainTitle } from "../../ui/MainTitle";
-import { appendRedirectParam } from "../shared/redirect";
-import { useRedirectParam } from "../shared/useRedirectParam";
-import styles from "./ResetPasswordPage.module.css";
+import * as React from 'react';
+import {sendPasswordResetEmail} from 'firebase/auth';
+import Link from 'next/link';
+import {useLoadingCallback} from 'react-loading-hook';
+import {getFirebaseAuth} from '../auth/firebase';
+import {Button} from '../../ui/Button';
+import {FormError} from '../../ui/FormError';
+import {Input} from '../../ui/Input';
+import {MainTitle} from '../../ui/MainTitle';
+import {appendRedirectParam} from '../shared/redirect';
+import {useRedirectParam} from '../shared/useRedirectParam';
+import styles from './ResetPasswordPage.module.css';
 
 export function ResetPasswordPage() {
-  const [email, setEmail] = React.useState("");
+  const [email, setEmail] = React.useState('');
   const [isSent, setIsSent] = React.useState(false);
   const redirect = useRedirectParam();
   const [sendResetInstructions, loading, error] = useLoadingCallback(
@@ -25,7 +25,7 @@ export function ResetPasswordPage() {
       const auth = getFirebaseAuth();
       setIsSent(false);
       await sendPasswordResetEmail(auth, email);
-      setEmail("");
+      setEmail('');
       setIsSent(true);
     }
   );
@@ -54,7 +54,7 @@ export function ResetPasswordPage() {
         >
           Send reset instructions
         </Button>
-        <Link href={appendRedirectParam("/login", redirect)}>
+        <Link href={appendRedirectParam('/login', redirect)}>
           <Button disabled={loading}>Back to login</Button>
         </Link>
       </form>

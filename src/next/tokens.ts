@@ -1,16 +1,16 @@
-import type { RequestCookies } from "next/dist/server/web/spec-extension/cookies";
-import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import { ServiceAccount } from "../auth/credential";
-import { getSignatureCookieName } from "../auth/cookies";
-import { getFirebaseAuth, IdAndRefreshTokens, Tokens } from "../auth";
-import { get } from "../auth/cookies/get";
-import { decodeJwt } from "jose";
-import { mapJwtPayloadToDecodedIdToken } from "../auth/utils";
+import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
+import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import {ServiceAccount} from '../auth/credential';
+import {getSignatureCookieName} from '../auth/cookies';
+import {getFirebaseAuth, IdAndRefreshTokens, Tokens} from '../auth';
+import {get} from '../auth/cookies/get';
+import {decodeJwt} from 'jose';
+import {mapJwtPayloadToDecodedIdToken} from '../auth/utils';
 import {
   areCookiesVerifiedByMiddleware,
   CookiesObject,
-  isCookiesObjectVerifiedByMiddleware,
-} from "./cookies";
+  isCookiesObjectVerifiedByMiddleware
+} from './cookies';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   serviceAccount: ServiceAccount;
@@ -20,7 +20,7 @@ export interface GetTokensOptions extends GetCookiesTokensOptions {
 export function validateOptions(options: GetTokensOptions) {
   if (!options.cookieSignatureKeys.length) {
     throw new Error(
-      "You should provide at least one cookie signature encryption key"
+      'You should provide at least one cookie signature encryption key'
     );
   }
 }
@@ -43,7 +43,7 @@ export async function getRequestCookiesTokens(
 
   const cookie = await get(options.cookieSignatureKeys)({
     signed,
-    signature,
+    signature
   });
 
   if (!cookie?.value) {
@@ -59,7 +59,7 @@ export async function getTokens(
 ): Promise<Tokens | null> {
   validateOptions(options);
 
-  const { verifyAndRefreshExpiredIdToken } = getFirebaseAuth(
+  const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth(
     options.serviceAccount,
     options.apiKey
   );
@@ -75,7 +75,7 @@ export async function getTokens(
 
     return {
       token: tokens.idToken,
-      decodedToken: mapJwtPayloadToDecodedIdToken(payload),
+      decodedToken: mapJwtPayloadToDecodedIdToken(payload)
     };
   }
 
@@ -83,7 +83,7 @@ export async function getTokens(
 }
 
 async function getCookiesTokens(
-  cookies: Partial<{ [K in string]: string }>,
+  cookies: Partial<{[K in string]: string}>,
   options: GetCookiesTokensOptions
 ): Promise<IdAndRefreshTokens | null> {
   const signedCookie = cookies[options.cookieName];
@@ -96,12 +96,12 @@ async function getCookiesTokens(
   const cookie = await get(options.cookieSignatureKeys)({
     signed: {
       name: options.cookieName,
-      value: signedCookie,
+      value: signedCookie
     },
     signature: {
       name: getSignatureCookieName(options.cookieName),
-      value: signatureCookie,
-    },
+      value: signatureCookie
+    }
   });
 
   if (!cookie?.value) {
@@ -115,7 +115,7 @@ export async function getTokensFromObject(
   cookies: CookiesObject,
   options: GetTokensOptions
 ): Promise<Tokens | null> {
-  const { verifyAndRefreshExpiredIdToken } = getFirebaseAuth(
+  const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth(
     options.serviceAccount,
     options.apiKey
   );
@@ -131,7 +131,7 @@ export async function getTokensFromObject(
 
     return {
       token: tokens.idToken,
-      decodedToken: mapJwtPayloadToDecodedIdToken(payload),
+      decodedToken: mapJwtPayloadToDecodedIdToken(payload)
     };
   }
 

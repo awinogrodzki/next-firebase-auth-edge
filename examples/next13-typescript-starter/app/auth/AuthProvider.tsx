@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   IdTokenResult,
   onIdTokenChanged,
-  User as FirebaseUser,
-} from "firebase/auth";
-import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
-import { AuthContext, User } from "./AuthContext";
-import { getFirebaseAuth } from "./firebase";
-import { login, logout } from "../../api";
+  User as FirebaseUser
+} from 'firebase/auth';
+import {filterStandardClaims} from 'next-firebase-auth-edge/lib/auth/claims';
+import {AuthContext, User} from './AuthContext';
+import {getFirebaseAuth} from './firebase';
+import {login, logout} from '../../api';
 
 export interface AuthProviderProps {
   serverUser: User | null;
@@ -19,13 +19,13 @@ export interface AuthProviderProps {
 function toUser(user: FirebaseUser, idTokenResult: IdTokenResult): User {
   return {
     ...user,
-    customClaims: filterStandardClaims(idTokenResult.claims),
+    customClaims: filterStandardClaims(idTokenResult.claims)
   };
 }
 
 export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   serverUser,
-  children,
+  children
 }) => {
   const [user, setUser] = React.useState(serverUser);
 
@@ -49,7 +49,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   return (
     <AuthContext.Provider
       value={{
-        user,
+        user
       }}
     >
       {children}

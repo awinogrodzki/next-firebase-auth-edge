@@ -1,23 +1,23 @@
-import { useEmulator } from "./firebase";
-import { createIdTokenVerifier, DecodedIdToken } from "./token-verifier";
+import {useEmulator} from './firebase';
+import {createIdTokenVerifier, DecodedIdToken} from './token-verifier';
 import {
   AuthRequestHandler,
   CreateRequest,
-  UpdateRequest,
-} from "./auth-request-handler";
-import { ServiceAccount, ServiceAccountCredential } from "./credential";
-import { UserRecord } from "./user-record";
-import { createFirebaseTokenGenerator } from "./token-generator";
-import { AuthError, AuthErrorCode } from "./error";
-import { VerifyOptions } from "./jwt/verify";
+  UpdateRequest
+} from './auth-request-handler';
+import {ServiceAccount, ServiceAccountCredential} from './credential';
+import {UserRecord} from './user-record';
+import {createFirebaseTokenGenerator} from './token-generator';
+import {AuthError, AuthErrorCode} from './error';
+import {VerifyOptions} from './jwt/verify';
 
 const getCustomTokenEndpoint = (apiKey: string) => {
   if (useEmulator() && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
-    let protocol = "http://";
+    let protocol = 'http://';
     if (
-      (process.env.FIREBASE_AUTH_EMULATOR_HOST as string).startsWith("http://")
+      (process.env.FIREBASE_AUTH_EMULATOR_HOST as string).startsWith('http://')
     ) {
-      protocol = "";
+      protocol = '';
     }
     return `${protocol}${process.env
       .FIREBASE_AUTH_EMULATOR_HOST!}/identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${apiKey}`;
@@ -28,11 +28,11 @@ const getCustomTokenEndpoint = (apiKey: string) => {
 
 const getRefreshTokenEndpoint = (apiKey: string) => {
   if (useEmulator() && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
-    let protocol = "http://";
+    let protocol = 'http://';
     if (
-      (process.env.FIREBASE_AUTH_EMULATOR_HOST as string).startsWith("http://")
+      (process.env.FIREBASE_AUTH_EMULATOR_HOST as string).startsWith('http://')
     ) {
-      protocol = "";
+      protocol = '';
     }
 
     return `${protocol}${process.env
@@ -53,28 +53,28 @@ export async function customTokenToIdAndRefreshTokens(
   options: CustomTokenToIdAndRefreshTokensOptions = {}
 ): Promise<IdAndRefreshTokens> {
   const headers = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json'
   };
 
   const body: object = {
     token: customToken,
-    returnSecureToken: true,
+    returnSecureToken: true
   };
 
   if (options.appCheckToken) {
-    headers["X-Firebase-AppCheck"] = options.appCheckToken;
+    headers['X-Firebase-AppCheck'] = options.appCheckToken;
   }
 
   if (options.tenantId) {
-    body["tenantId"] = options.tenantId;
+    body['tenantId'] = options.tenantId;
   }
 
   const refreshTokenResponse = await fetch(
     getCustomTokenEndpoint(firebaseApiKey),
     {
-      method: "POST",
+      method: 'POST',
       headers,
-      body: JSON.stringify(body),
+      body: JSON.stringify(body)
     }
   );
 
@@ -89,15 +89,15 @@ export async function customTokenToIdAndRefreshTokens(
 
   return {
     idToken: refreshTokenJSON.idToken,
-    refreshToken: refreshTokenJSON.refreshToken,
+    refreshToken: refreshTokenJSON.refreshToken
   };
 }
 
 interface ErrorResponse {
   error: {
     code: number;
-    message: "USER_NOT_FOUND" | "TOKEN_EXPIRED";
-    status: "INVALID_ARGUMENT";
+    message: 'USER_NOT_FOUND' | 'TOKEN_EXPIRED';
+    status: 'INVALID_ARGUMENT';
   };
   error_description?: string;
 }
@@ -105,8 +105,8 @@ interface ErrorResponse {
 interface UserNotFoundResponse extends ErrorResponse {
   error: {
     code: 400;
-    message: "USER_NOT_FOUND";
-    status: "INVALID_ARGUMENT";
+    message: 'USER_NOT_FOUND';
+    status: 'INVALID_ARGUMENT';
   };
 }
 
@@ -115,7 +115,7 @@ const isUserNotFoundResponse = (
 ): data is UserNotFoundResponse => {
   return (
     (data as UserNotFoundResponse)?.error?.code === 400 &&
-    (data as UserNotFoundResponse)?.error?.message === "USER_NOT_FOUND"
+    (data as UserNotFoundResponse)?.error?.message === 'USER_NOT_FOUND'
   );
 };
 
@@ -125,18 +125,18 @@ const refreshExpiredIdToken = async (
 ): Promise<string> => {
   // https://firebase.google.com/docs/reference/rest/auth/#section-refresh-token
   const response = await fetch(getRefreshTokenEndpoint(apiKey), {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
+      'Content-Type': 'application/x-www-form-urlencoded'
     },
-    body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
+    body: `grant_type=refresh_token&refresh_token=${refreshToken}`
   });
 
   if (!response.ok) {
     const data = await response.json();
     const errorMessage = `Error fetching access token: ${JSON.stringify(
       data.error
-    )} ${data.error_description ? `(${data.error_description})` : ""}`;
+    )} ${data.error_description ? `(${data.error_description})` : ''}`;
 
     if (isUserNotFoundResponse(data)) {
       throw new AuthError(AuthErrorCode.USER_NOT_FOUND);
@@ -200,7 +200,7 @@ export function getFirebaseAuth(
   tenantId?: string
 ) {
   const authRequestHandler = new AuthRequestHandler(serviceAccount, {
-    tenantId,
+    tenantId
   });
   const credential = new ServiceAccountCredential(serviceAccount);
   const tokenGenerator = createFirebaseTokenGenerator(credential, tenantId);
@@ -214,7 +214,7 @@ export function getFirebaseAuth(
 
     return {
       decodedToken: decodedToken,
-      token: newToken,
+      token: newToken
     };
   };
 
@@ -233,7 +233,7 @@ export function getFirebaseAuth(
       .listUsers(nextPageToken, maxResults)
       .then((response) => {
         const result: UsersList = {
-          users: response.users.map((user) => new UserRecord(user)),
+          users: response.users.map((user) => new UserRecord(user))
         };
 
         if (response.nextPageToken) {
@@ -301,7 +301,7 @@ export function getFirebaseAuth(
     return await handleExpiredToken(
       async () => {
         const decodedToken = await verifyIdToken(token, false, options);
-        return { token, decodedToken };
+        return {token, decodedToken};
       },
       async () => {
         if (refreshToken) {
@@ -333,7 +333,7 @@ export function getFirebaseAuth(
 
     return customTokenToIdAndRefreshTokens(customToken, firebaseApiKey, {
       tenantId,
-      appCheckToken,
+      appCheckToken
     });
   }
 
@@ -356,7 +356,7 @@ export function getFirebaseAuth(
         if (!user) {
           throw new AuthError(
             AuthErrorCode.INTERNAL_ERROR,
-            "Could not get recently created user from database. Most likely it was deleted."
+            'Could not get recently created user from database. Most likely it was deleted.'
           );
         }
         return user;
@@ -374,7 +374,7 @@ export function getFirebaseAuth(
         if (!user) {
           throw new AuthError(
             AuthErrorCode.INTERNAL_ERROR,
-            "Could not get recently updated user from database. Most likely it was deleted."
+            'Could not get recently updated user from database. Most likely it was deleted.'
           );
         }
 
@@ -394,6 +394,6 @@ export function getFirebaseAuth(
     getUserByEmail,
     updateUser,
     createUser,
-    listUsers,
+    listUsers
   };
 }

@@ -1,20 +1,20 @@
-import { isNonNullObject, isURL } from "./validator";
-import { getPublicCryptoKey, verify, VerifyOptions } from "./jwt/verify";
+import {isNonNullObject, isURL} from './validator';
+import {getPublicCryptoKey, verify, VerifyOptions} from './jwt/verify';
 import {
   createRemoteJWKSet,
   decodeProtectedHeader,
   errors,
   JWTPayload,
   KeyLike,
-  ProtectedHeaderParameters,
-} from "jose";
-import { useEmulator } from "./firebase";
-import { AuthError, AuthErrorCode } from "./error";
-import { RemoteJWKSetOptions } from "jose/dist/types/jwks/remote";
+  ProtectedHeaderParameters
+} from 'jose';
+import {useEmulator} from './firebase';
+import {AuthError, AuthErrorCode} from './error';
+import {RemoteJWKSetOptions} from 'jose/dist/types/jwks/remote';
 
-export const ALGORITHM_RS256 = "RS256" as const;
+export const ALGORITHM_RS256 = 'RS256' as const;
 
-type PublicKeys = { [key: string]: string };
+type PublicKeys = {[key: string]: string};
 
 interface PublicKeysResponse {
   keys: PublicKeys;
@@ -35,15 +35,15 @@ export interface KeyFetcher {
 }
 
 function getExpiresAt(res: Response) {
-  if (!res.headers.has("cache-control")) {
+  if (!res.headers.has('cache-control')) {
     return 0;
   }
 
-  const cacheControlHeader: string = res.headers.get("cache-control")!;
-  const parts = cacheControlHeader.split(",");
+  const cacheControlHeader: string = res.headers.get('cache-control')!;
+  const parts = cacheControlHeader.split(',');
   const maxAge = parts.reduce((acc, part) => {
-    const subParts = part.trim().split("=");
-    if (subParts[0] === "max-age") {
+    const subParts = part.trim().split('=');
+    if (subParts[0] === 'max-age') {
       return +subParts[1];
     }
 
@@ -59,7 +59,7 @@ export class UrlKeyFetcher implements KeyFetcher {
   constructor(private clientCertUrl: string) {
     if (!isURL(clientCertUrl)) {
       throw new Error(
-        "The provided public client certificate URL is not a valid URL."
+        'The provided public client certificate URL is not a valid URL.'
       );
     }
   }
@@ -68,12 +68,12 @@ export class UrlKeyFetcher implements KeyFetcher {
     const res = await fetch(url);
 
     if (!res.ok) {
-      let errorMessage = "Error fetching public keys for Google certs: ";
+      let errorMessage = 'Error fetching public keys for Google certs: ';
       const data = await res.json();
       if (data.error) {
         errorMessage += `${data.error}`;
         if (data.error_description) {
-          errorMessage += " (" + data.error_description + ")";
+          errorMessage += ' (' + data.error_description + ')';
         }
       } else {
         errorMessage += `${await res.text()}`;
@@ -85,7 +85,7 @@ export class UrlKeyFetcher implements KeyFetcher {
 
     if (data.error) {
       throw new Error(
-        "Error fetching public keys for Google certs: " + data.error
+        'Error fetching public keys for Google certs: ' + data.error
       );
     }
 
@@ -93,7 +93,7 @@ export class UrlKeyFetcher implements KeyFetcher {
 
     return {
       keys: data,
-      expiresAt,
+      expiresAt
     };
   }
 
@@ -112,7 +112,7 @@ export class UrlKeyFetcher implements KeyFetcher {
       return this.fetchAndCachePublicKeys(url);
     }
 
-    const { keys, expiresAt } = cachedResponse;
+    const {keys, expiresAt} = cachedResponse;
     const now = Date.now();
 
     if (expiresAt <= now) {
@@ -128,7 +128,7 @@ export class JWKSSignatureVerifier implements SignatureVerifier {
 
   constructor(jwksUrl: string, private options?: RemoteJWKSetOptions) {
     if (!isURL(jwksUrl)) {
-      throw new Error("The provided JWKS URL is not a valid URL.");
+      throw new Error('The provided JWKS URL is not a valid URL.');
     }
 
     this.jwksUrl = new URL(jwksUrl);
@@ -171,7 +171,7 @@ export class JWKSSignatureVerifier implements SignatureVerifier {
 export class PublicKeySignatureVerifier implements SignatureVerifier {
   constructor(private keyFetcher: KeyFetcher) {
     if (!isNonNullObject(keyFetcher)) {
-      throw new Error("The provided key fetcher is not an object or null.");
+      throw new Error('The provided key fetcher is not an object or null.');
     }
   }
 
@@ -185,7 +185,7 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
     header: ProtectedHeaderParameters
   ): Promise<KeyLike> {
     if (useEmulator()) {
-      return { type: "none" };
+      return {type: 'none'};
     }
 
     return fetchPublicKey(this.keyFetcher, header).then(getPublicCryptoKey);
@@ -214,7 +214,7 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
 
   private async verifyWithAllKeys(
     token: string,
-    keys: { [key: string]: string }
+    keys: {[key: string]: string}
   ): Promise<void> {
     const promises: Promise<boolean>[] = [];
 

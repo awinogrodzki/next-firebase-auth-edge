@@ -1,9 +1,9 @@
-import { addReadonlyGetter, deepCopy } from "./utils";
-import { isNonNullObject } from "./validator";
-import { base64url } from "jose";
-import { AuthError, AuthErrorCode } from "./error";
+import {addReadonlyGetter, deepCopy} from './utils';
+import {isNonNullObject} from './validator';
+import {base64url} from 'jose';
+import {AuthError, AuthErrorCode} from './error';
 
-const B64_REDACTED = base64url.encode("REDACTED");
+const B64_REDACTED = base64url.encode('REDACTED');
 
 function parseDate(time: any): string | null {
   try {
@@ -55,7 +55,7 @@ export interface GetAccountInfoUserResponse {
 }
 
 enum MultiFactorId {
-  Phone = "phone",
+  Phone = 'phone'
 }
 
 export abstract class MultiFactorInfo {
@@ -83,7 +83,7 @@ export abstract class MultiFactorInfo {
       uid: this.uid,
       displayName: this.displayName,
       factorId: this.factorId,
-      enrollmentTime: this.enrollmentTime,
+      enrollmentTime: this.enrollmentTime
     };
   }
 
@@ -96,20 +96,20 @@ export abstract class MultiFactorInfo {
     if (!factorId || !response || !response.mfaEnrollmentId) {
       throw new AuthError(
         AuthErrorCode.INTERNAL_ERROR,
-        "INTERNAL ASSERT FAILED: Invalid multi-factor info response"
+        'INTERNAL ASSERT FAILED: Invalid multi-factor info response'
       );
     }
-    addReadonlyGetter(this, "uid", response.mfaEnrollmentId);
-    addReadonlyGetter(this, "factorId", factorId);
-    addReadonlyGetter(this, "displayName", response.displayName);
+    addReadonlyGetter(this, 'uid', response.mfaEnrollmentId);
+    addReadonlyGetter(this, 'factorId', factorId);
+    addReadonlyGetter(this, 'displayName', response.displayName);
     if (response.enrolledAt) {
       addReadonlyGetter(
         this,
-        "enrollmentTime",
+        'enrollmentTime',
         new Date(response.enrolledAt).toUTCString()
       );
     } else {
-      addReadonlyGetter(this, "enrollmentTime", null);
+      addReadonlyGetter(this, 'enrollmentTime', null);
     }
   }
 }
@@ -119,12 +119,12 @@ export class PhoneMultiFactorInfo extends MultiFactorInfo {
 
   constructor(response: MultiFactorInfoResponse) {
     super(response);
-    addReadonlyGetter(this, "phoneNumber", response.phoneInfo);
+    addReadonlyGetter(this, 'phoneNumber', response.phoneInfo);
   }
 
   public toJSON(): object {
     return Object.assign(super.toJSON(), {
-      phoneNumber: this.phoneNumber,
+      phoneNumber: this.phoneNumber
     });
   }
 
@@ -141,7 +141,7 @@ export class MultiFactorSettings {
     if (!isNonNullObject(response)) {
       throw new AuthError(
         AuthErrorCode.INTERNAL_ERROR,
-        "INTERNAL ASSERT FAILED: Invalid multi-factor response"
+        'INTERNAL ASSERT FAILED: Invalid multi-factor response'
       );
     } else if (response.mfaInfo) {
       response.mfaInfo.forEach((factorResponse) => {
@@ -155,14 +155,14 @@ export class MultiFactorSettings {
 
     addReadonlyGetter(
       this,
-      "enrolledFactors",
+      'enrolledFactors',
       Object.freeze(parsedEnrolledFactors)
     );
   }
 
   public toJSON(): object {
     return {
-      enrolledFactors: this.enrolledFactors.map((info) => info.toJSON()),
+      enrolledFactors: this.enrolledFactors.map((info) => info.toJSON())
     };
   }
 }
@@ -173,19 +173,19 @@ export class UserMetadata {
   public readonly lastRefreshTime?: string | null;
 
   constructor(response: GetAccountInfoUserResponse) {
-    addReadonlyGetter(this, "creationTime", parseDate(response.createdAt));
-    addReadonlyGetter(this, "lastSignInTime", parseDate(response.lastLoginAt));
+    addReadonlyGetter(this, 'creationTime', parseDate(response.createdAt));
+    addReadonlyGetter(this, 'lastSignInTime', parseDate(response.lastLoginAt));
     const lastRefreshAt = response.lastRefreshAt
       ? new Date(response.lastRefreshAt).toUTCString()
       : null;
-    addReadonlyGetter(this, "lastRefreshTime", lastRefreshAt);
+    addReadonlyGetter(this, 'lastRefreshTime', lastRefreshAt);
   }
 
   public toJSON(): object {
     return {
       lastSignInTime: this.lastSignInTime,
       creationTime: this.creationTime,
-      lastRefreshTime: this.lastRefreshTime,
+      lastRefreshTime: this.lastRefreshTime
     };
   }
 }
@@ -202,16 +202,16 @@ export class UserInfo {
     if (!response.rawId || !response.providerId) {
       throw new AuthError(
         AuthErrorCode.INTERNAL_ERROR,
-        "INTERNAL ASSERT FAILED: Invalid user info response"
+        'INTERNAL ASSERT FAILED: Invalid user info response'
       );
     }
 
-    addReadonlyGetter(this, "uid", response.rawId);
-    addReadonlyGetter(this, "displayName", response.displayName);
-    addReadonlyGetter(this, "email", response.email);
-    addReadonlyGetter(this, "photoURL", response.photoUrl);
-    addReadonlyGetter(this, "providerId", response.providerId);
-    addReadonlyGetter(this, "phoneNumber", response.phoneNumber);
+    addReadonlyGetter(this, 'uid', response.rawId);
+    addReadonlyGetter(this, 'displayName', response.displayName);
+    addReadonlyGetter(this, 'email', response.email);
+    addReadonlyGetter(this, 'photoURL', response.photoUrl);
+    addReadonlyGetter(this, 'providerId', response.providerId);
+    addReadonlyGetter(this, 'phoneNumber', response.phoneNumber);
   }
 
   public toJSON(): object {
@@ -221,7 +221,7 @@ export class UserInfo {
       email: this.email,
       photoURL: this.photoURL,
       providerId: this.providerId,
-      phoneNumber: this.phoneNumber,
+      phoneNumber: this.phoneNumber
     };
   }
 }
@@ -238,7 +238,7 @@ export class UserRecord {
   public readonly providerData!: UserInfo[];
   public readonly passwordHash?: string;
   public readonly passwordSalt?: string;
-  public readonly customClaims?: { [key: string]: any };
+  public readonly customClaims?: {[key: string]: any};
   public readonly tenantId?: string | null;
   public readonly tokensValidAfterTime?: string;
   public readonly multiFactor?: MultiFactorSettings;
@@ -247,52 +247,52 @@ export class UserRecord {
     if (!response.localId) {
       throw new AuthError(
         AuthErrorCode.INTERNAL_ERROR,
-        "INTERNAL ASSERT FAILED: Invalid user response"
+        'INTERNAL ASSERT FAILED: Invalid user response'
       );
     }
 
-    addReadonlyGetter(this, "uid", response.localId);
-    addReadonlyGetter(this, "email", response.email);
-    addReadonlyGetter(this, "emailVerified", !!response.emailVerified);
-    addReadonlyGetter(this, "displayName", response.displayName);
-    addReadonlyGetter(this, "photoURL", response.photoUrl);
-    addReadonlyGetter(this, "phoneNumber", response.phoneNumber);
-    addReadonlyGetter(this, "disabled", response.disabled || false);
-    addReadonlyGetter(this, "metadata", new UserMetadata(response));
+    addReadonlyGetter(this, 'uid', response.localId);
+    addReadonlyGetter(this, 'email', response.email);
+    addReadonlyGetter(this, 'emailVerified', !!response.emailVerified);
+    addReadonlyGetter(this, 'displayName', response.displayName);
+    addReadonlyGetter(this, 'photoURL', response.photoUrl);
+    addReadonlyGetter(this, 'phoneNumber', response.phoneNumber);
+    addReadonlyGetter(this, 'disabled', response.disabled || false);
+    addReadonlyGetter(this, 'metadata', new UserMetadata(response));
     const providerData: UserInfo[] = [];
     for (const entry of response.providerUserInfo || []) {
       providerData.push(new UserInfo(entry));
     }
-    addReadonlyGetter(this, "providerData", providerData);
+    addReadonlyGetter(this, 'providerData', providerData);
 
     if (response.passwordHash === B64_REDACTED) {
-      addReadonlyGetter(this, "passwordHash", undefined);
+      addReadonlyGetter(this, 'passwordHash', undefined);
     } else {
-      addReadonlyGetter(this, "passwordHash", response.passwordHash);
+      addReadonlyGetter(this, 'passwordHash', response.passwordHash);
     }
 
-    addReadonlyGetter(this, "passwordSalt", response.salt);
+    addReadonlyGetter(this, 'passwordSalt', response.salt);
     if (response.customAttributes) {
       addReadonlyGetter(
         this,
-        "customClaims",
+        'customClaims',
         JSON.parse(response.customAttributes)
       );
     }
 
     let validAfterTime: string | null = null;
-    if (typeof response.validSince !== "undefined") {
+    if (typeof response.validSince !== 'undefined') {
       validAfterTime = parseDate(parseInt(response.validSince, 10) * 1000);
     }
     addReadonlyGetter(
       this,
-      "tokensValidAfterTime",
+      'tokensValidAfterTime',
       validAfterTime || undefined
     );
-    addReadonlyGetter(this, "tenantId", response.tenantId);
+    addReadonlyGetter(this, 'tenantId', response.tenantId);
     const multiFactor = new MultiFactorSettings(response);
     if (multiFactor.enrolledFactors.length > 0) {
-      addReadonlyGetter(this, "multiFactor", multiFactor);
+      addReadonlyGetter(this, 'multiFactor', multiFactor);
     }
   }
 
@@ -310,7 +310,7 @@ export class UserRecord {
       passwordSalt: this.passwordSalt,
       customClaims: deepCopy(this.customClaims),
       tokensValidAfterTime: this.tokensValidAfterTime,
-      tenantId: this.tenantId,
+      tenantId: this.tenantId
     };
     if (this.multiFactor) {
       json.multiFactor = this.multiFactor.toJSON();

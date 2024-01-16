@@ -1,9 +1,9 @@
-import { sign } from "./sign";
-import { getPublicCryptoKey, verify } from "./verify";
+import {sign} from './sign';
+import {getPublicCryptoKey, verify} from './verify';
 
-describe("verify", () => {
-  it("verifies jwt", async () => {
-    const payload = { exp: 9123812123123 };
+describe('verify', () => {
+  it('verifies jwt', async () => {
+    const payload = {exp: 9123812123123};
     const privateKey = `-----BEGIN PRIVATE KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDHDTErwJZxwJQH
 q+Z6t6qwxuyciqfJauCDD6IUf619noIRQZ4GZCUqFkxX8mOPYnEhLApLQdbIlgWq
@@ -46,7 +46,7 @@ aQIDAQAB
 
     const jwt = await sign({
       payload,
-      privateKey,
+      privateKey
     });
 
     await verify(jwt, async () => getPublicCryptoKey(publicKey));

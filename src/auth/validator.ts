@@ -1,5 +1,5 @@
 export function isObject(value: any): boolean {
-  return typeof value === "object" && !isArray(value);
+  return typeof value === 'object' && !isArray(value);
 }
 
 export function isArray<T>(value: any): value is T[] {
@@ -11,7 +11,7 @@ export function isNonNullObject<T>(value: T | null | undefined): value is T {
 }
 
 export function isEmail(email: any): boolean {
-  if (typeof email !== "string") {
+  if (typeof email !== 'string') {
     return false;
   }
   // There must at least one character before the @ symbol and another after.
@@ -20,7 +20,7 @@ export function isEmail(email: any): boolean {
 }
 
 export function isURL(urlStr: any): boolean {
-  if (typeof urlStr !== "string") {
+  if (typeof urlStr !== 'string') {
     return false;
   }
 
@@ -33,7 +33,7 @@ export function isURL(urlStr: any): boolean {
     const scheme = uri.protocol;
     const hostname = uri.hostname;
     const pathname = uri.pathname;
-    if (scheme !== "http:" && scheme !== "https:") {
+    if (scheme !== 'http:' && scheme !== 'https:') {
       return false;
     }
 
@@ -45,7 +45,7 @@ export function isURL(urlStr: any): boolean {
     }
 
     const pathnameRe = /^(\/[\w\-.~!$'()*+,;=:@%]+)*\/?$/;
-    if (pathname && pathname !== "/" && !pathnameRe.test(pathname)) {
+    if (pathname && pathname !== '/' && !pathnameRe.test(pathname)) {
       return false;
     }
   } catch (e) {

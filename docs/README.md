@@ -1,10 +1,10 @@
 # docs
 
-Website for `next-intl`
+Website for `next-firebase-auth-edge`
 
 You can run it locally like this:
 
 ```
-pnpm install
-pnpm dev
+yarn install
+yarn dev
 ```

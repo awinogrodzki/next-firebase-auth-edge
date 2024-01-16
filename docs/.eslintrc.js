@@ -1,16 +1,13 @@
 module.exports = {
-  extends: [
-    'molindo/typescript',
-    'molindo/react',
-    'molindo/tailwind',
-    'plugin:@next/next/recommended'
-  ],
-  env: {
-    node: true,
-    browser: true
+  extends: ['prettier'],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
   },
+  plugins: ['@typescript-eslint', 'prettier'],
+  root: true,
   rules: {
-    'jsx-a11y/anchor-is-valid': 'off',
-    'import/no-unresolved': 'off'
-  }
+    'prettier/prettier': 'error',
+  },
 };

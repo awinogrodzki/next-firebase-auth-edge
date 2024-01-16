@@ -1,13 +1,13 @@
-import type { Auth, AuthError, AuthProvider, User } from "firebase/auth";
+import type {Auth, AuthError, AuthProvider, User} from 'firebase/auth';
 import {
   browserPopupRedirectResolver,
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
-  useDeviceLanguage,
-} from "firebase/auth";
+  useDeviceLanguage
+} from 'firebase/auth';
 
-const CREDENTIAL_ALREADY_IN_USE_ERROR = "auth/credential-already-in-use";
+const CREDENTIAL_ALREADY_IN_USE_ERROR = 'auth/credential-already-in-use';
 export const isCredentialAlreadyInUseError = (e: AuthError) =>
   e?.code === CREDENTIAL_ALREADY_IN_USE_ERROR;
 
@@ -17,11 +17,11 @@ export const logout = async (auth: Auth): Promise<void> => {
 
 export const getGoogleProvider = (auth: Auth) => {
   const provider = new GoogleAuthProvider();
-  provider.addScope("profile");
-  provider.addScope("email");
+  provider.addScope('profile');
+  provider.addScope('email');
   useDeviceLanguage(auth);
   provider.setCustomParameters({
-    display: "popup",
+    display: 'popup'
   });
 
   return provider;
