@@ -1,13 +1,13 @@
-import { CryptoSigner } from "../auth/jwt/crypto-signer";
-import { AppCheckTokenOptions } from "./types";
-import { FirebaseAppCheckError } from "./api-client";
+import {CryptoSigner} from '../auth/jwt/crypto-signer';
+import {AppCheckTokenOptions} from './types';
+import {FirebaseAppCheckError} from './api-client';
 
 const ONE_MINUTE_IN_SECONDS = 60;
 const ONE_MINUTE_IN_MILLIS = ONE_MINUTE_IN_SECONDS * 1000;
 const ONE_DAY_IN_MILLIS = 24 * 60 * 60 * 1000;
 
 const FIREBASE_APP_CHECK_AUDIENCE =
-  "https://firebaseappcheck.googleapis.com/google.firebase.appcheck.v1.TokenExchangeService";
+  'https://firebaseappcheck.googleapis.com/google.firebase.appcheck.v1.TokenExchangeService';
 
 function transformMillisecondsToSecondsString(milliseconds: number): string {
   let duration: string;
@@ -16,7 +16,7 @@ function transformMillisecondsToSecondsString(milliseconds: number): string {
   if (nanos > 0) {
     let nanoString = nanos.toString();
     while (nanoString.length < 9) {
-      nanoString = "0" + nanoString;
+      nanoString = '0' + nanoString;
     }
     duration = `${seconds}.${nanoString}s`;
   } else {
@@ -38,12 +38,12 @@ export class AppCheckTokenGenerator {
   ): Promise<string> {
     if (!appId) {
       throw new FirebaseAppCheckError(
-        "invalid-argument",
-        "`appId` must be a non-empty string."
+        'invalid-argument',
+        '`appId` must be a non-empty string.'
       );
     }
     let customOptions = {};
-    if (typeof options !== "undefined") {
+    if (typeof options !== 'undefined') {
       customOptions = this.validateTokenOptions(options);
     }
 
@@ -57,7 +57,7 @@ export class AppCheckTokenGenerator {
       aud: FIREBASE_APP_CHECK_AUDIENCE,
       exp: iat + ONE_MINUTE_IN_SECONDS * 5,
       iat,
-      ...customOptions,
+      ...customOptions
     };
 
     return this.signer.sign(body);
@@ -66,18 +66,18 @@ export class AppCheckTokenGenerator {
   private validateTokenOptions(options: AppCheckTokenOptions): {
     [key: string]: any;
   } {
-    if (typeof options.ttlMillis !== "undefined") {
+    if (typeof options.ttlMillis !== 'undefined') {
       if (
         options.ttlMillis < ONE_MINUTE_IN_MILLIS * 30 ||
         options.ttlMillis > ONE_DAY_IN_MILLIS * 7
       ) {
         throw new FirebaseAppCheckError(
-          "invalid-argument",
-          "ttlMillis must be a duration in milliseconds between 30 minutes and 7 days (inclusive)."
+          'invalid-argument',
+          'ttlMillis must be a duration in milliseconds between 30 minutes and 7 days (inclusive).'
         );
       }
 
-      return { ttl: transformMillisecondsToSecondsString(options.ttlMillis) };
+      return {ttl: transformMillisecondsToSecondsString(options.ttlMillis)};
     }
     return {};
   }

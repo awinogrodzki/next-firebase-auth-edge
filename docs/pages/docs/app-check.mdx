@@ -1,0 +1,56 @@
+# App Check support
+
+Library provides [Firebase App Check](https://firebase.google.com/docs/app-check) support. Follow [starter example README](https://github.com/awinogrodzki/next-firebase-auth-edge/tree/main/examples/next13-typescript-starter) for more information on integrating your app with App Check.
+
+In order to make `next-firebase-auth-edge` work with App Check, you need to send `X-Firebase-AppCheck` header with App Check token when making a call to `/api/login` endpoint, as in [this example](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next13-typescript-starter/api/index.ts#L10-L14)
+
+```tsx
+const appCheckTokenResponse = await getToken(getAppCheck(), false);
+
+await fetch("/api/login", {
+  method: "GET",
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "X-Firebase-AppCheck": appCheckTokenResponse.token,
+  },
+});
+```
+
+## Advanced usage
+
+You can use `getAppCheck` from `next-firebase-auth-edge/lib/app-check` if you need to create or verify App Check token explicitly, as in provided example:
+
+```tsx
+import { getAppCheck } from "next-firebase-auth-edge/lib/app-check";
+
+// Usually defined in shared location
+const serviceAccount = {
+  projectId: "firebase-project-id",
+  privateKey: "firebase service account private key",
+  clientEmail: "firebase service account client email",
+};
+
+// Optional. Specify if your project supports multi-tenancy
+// https://cloud.google.com/identity-platform/docs/multi-tenancy-authentication
+const tenantId = "You tenant id";
+
+const { createToken, verifyToken } = getAppCheck(serviceAccount, tenantId);
+```
+
+```tsx
+const appId = "your-app-id";
+
+// Optional
+const createTokenOptions = {
+  ttlMillis: 3600 * 1000,
+};
+
+const token = await createToken(appId, createTokenOptions);
+
+// Optional
+const verifyTokenOptions = {
+  currentDate: new Date(),
+};
+
+const response = await verifyToken(token, verifyTokenOptions);
+```

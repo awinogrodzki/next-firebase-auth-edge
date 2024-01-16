@@ -1,20 +1,20 @@
-export type Claims = { [key: string]: any };
+export type Claims = {[key: string]: any};
 
 export const STANDARD_CLAIMS = [
-  "aud",
-  "auth_time",
-  "email",
-  "email_verified",
-  "exp",
-  "firebase",
-  "iat",
-  "iss",
-  "name",
-  "phone_number",
-  "picture",
-  "sub",
-  "uid",
-  "user_id",
+  'aud',
+  'auth_time',
+  'email',
+  'email_verified',
+  'exp',
+  'firebase',
+  'iat',
+  'iss',
+  'name',
+  'phone_number',
+  'picture',
+  'sub',
+  'uid',
+  'user_id'
 ];
 
 export const filterStandardClaims = (obj: Claims = {}) => {

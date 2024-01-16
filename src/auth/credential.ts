@@ -1,5 +1,5 @@
-import { sign } from "./jwt/sign";
-import { JWTPayload } from "jose";
+import {sign} from './jwt/sign';
+import {JWTPayload} from 'jose';
 
 export interface GoogleOAuthAccessToken {
   access_token: string;
@@ -11,9 +11,9 @@ export interface Credential {
 }
 
 const TOKEN_EXPIRY_THRESHOLD_MILLIS = 5 * 60 * 1000;
-const GOOGLE_TOKEN_AUDIENCE = "https://accounts.google.com/o/oauth2/token";
-const GOOGLE_AUTH_TOKEN_HOST = "accounts.google.com";
-const GOOGLE_AUTH_TOKEN_PATH = "/o/oauth2/token";
+const GOOGLE_TOKEN_AUDIENCE = 'https://accounts.google.com/o/oauth2/token';
+const GOOGLE_AUTH_TOKEN_HOST = 'accounts.google.com';
+const GOOGLE_AUTH_TOKEN_PATH = '/o/oauth2/token';
 const ONE_HOUR_IN_SECONDS = 60 * 60;
 
 export interface ServiceAccount {
@@ -38,18 +38,18 @@ export class ServiceAccountCredential implements Credential {
   private async fetchAccessToken(url: URL): Promise<FirebaseAccessToken> {
     const token = await this.createJwt();
     const postData =
-      "grant_type=urn%3Aietf%3Aparams%3Aoauth%3A" +
-      "grant-type%3Ajwt-bearer&assertion=" +
+      'grant_type=urn%3Aietf%3Aparams%3Aoauth%3A' +
+      'grant-type%3Ajwt-bearer&assertion=' +
       token;
 
     const response = await fetch(url, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Bearer ${token}`,
-        Accept: "application/json",
+        Accept: 'application/json'
       },
-      body: postData,
+      body: postData
     });
 
     const data: GoogleOAuthAccessToken = await response.json();
@@ -64,7 +64,7 @@ export class ServiceAccountCredential implements Credential {
 
     return {
       accessToken: data.access_token,
-      expirationTime: Date.now() + data.expires_in * 1000,
+      expirationTime: Date.now() + data.expires_in * 1000
     };
   }
 
@@ -107,17 +107,17 @@ export class ServiceAccountCredential implements Credential {
       iss: this.clientEmail,
       sub: this.clientEmail,
       scope: [
-        "https://www.googleapis.com/auth/cloud-platform",
-        "https://www.googleapis.com/auth/firebase.database",
-        "https://www.googleapis.com/auth/firebase.messaging",
-        "https://www.googleapis.com/auth/identitytoolkit",
-        "https://www.googleapis.com/auth/userinfo.email",
-      ].join(" "),
+        'https://www.googleapis.com/auth/cloud-platform',
+        'https://www.googleapis.com/auth/firebase.database',
+        'https://www.googleapis.com/auth/firebase.messaging',
+        'https://www.googleapis.com/auth/identitytoolkit',
+        'https://www.googleapis.com/auth/userinfo.email'
+      ].join(' ')
     } as JWTPayload;
 
     return sign({
       payload,
-      privateKey: this.privateKey,
+      privateKey: this.privateKey
     });
   }
 }
@@ -135,6 +135,6 @@ export const getFirebaseAdminTokenProvider = (account: ServiceAccount) => {
   }
 
   return {
-    getToken,
+    getToken
   };
 };

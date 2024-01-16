@@ -1,31 +1,30 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useAuth } from "../../../auth/context";
-import styles from "./UserProfile.module.css";
-import { useFirebaseAuth } from "../../../auth/firebase";
-import { useLoadingCallback } from "react-loading-hook";
-import { clientConfig } from "../../../config/client-config";
-import { Button } from "../../../ui/Button";
-import { LoadingIcon } from "../../../ui/icons";
-import { useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
-import { ButtonGroup } from "../../../ui/ButtonGroup";
-import { Card } from "../../../ui/Card";
-import { Badge } from "../../../ui/Badge";
-import { getToken } from "@firebase/app-check";
-import { getAppCheck } from "../../../app-check";
-import { logout } from "../../../api";
+import * as React from 'react';
+import {useAuth} from '../../auth/AuthContext';
+import styles from './UserProfile.module.css';
+import {useLoadingCallback} from 'react-loading-hook';
+import {clientConfig} from '../../../config/client-config';
+import {Button} from '../../../ui/Button';
+import {LoadingIcon} from '../../../ui/icons';
+import {useRouter} from 'next/navigation';
+import {signOut} from 'firebase/auth';
+import {ButtonGroup} from '../../../ui/ButtonGroup';
+import {Card} from '../../../ui/Card';
+import {Badge} from '../../../ui/Badge';
+import {getToken} from '@firebase/app-check';
+import {getAppCheck} from '../../../app-check';
+import {logout} from '../../../api';
+import {getFirebaseAuth} from '../../auth/firebase';
 
 interface UserProfileProps {
   count: number;
   incrementCounter: () => void;
 }
 
-export function UserProfile({ count, incrementCounter }: UserProfileProps) {
+export function UserProfile({count, incrementCounter}: UserProfileProps) {
   const router = useRouter();
-  const { user } = useAuth();
-  const { getFirebaseAuth } = useFirebaseAuth();
+  const {user} = useAuth();
   const [hasLoggedOut, setHasLoggedOut] = React.useState(false);
   const [handleLogout, isLogoutLoading] = useLoadingCallback(async () => {
     const auth = getFirebaseAuth();
@@ -44,12 +43,12 @@ export function UserProfile({ count, incrementCounter }: UserProfileProps) {
     if (process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_KEY) {
       const appCheckTokenResponse = await getToken(getAppCheck(), false);
 
-      headers["X-Firebase-AppCheck"] = appCheckTokenResponse.token;
+      headers['X-Firebase-AppCheck'] = appCheckTokenResponse.token;
     }
 
-    await fetch("/api/custom-claims", {
-      method: "POST",
-      headers,
+    await fetch('/api/custom-claims', {
+      method: 'POST',
+      headers
     });
 
     await auth.currentUser!.getIdTokenResult(true);
@@ -58,27 +57,27 @@ export function UserProfile({ count, incrementCounter }: UserProfileProps) {
   const [handleAppCheck, isAppCheckLoading] = useLoadingCallback(async () => {
     const appCheckTokenResponse = await getToken(getAppCheck(), false);
 
-    const response = await fetch("/api/test-app-check", {
-      method: "POST",
+    const response = await fetch('/api/test-app-check', {
+      method: 'POST',
       headers: {
-        "X-Firebase-AppCheck": appCheckTokenResponse.token,
-      },
+        'X-Firebase-AppCheck': appCheckTokenResponse.token
+      }
     });
 
     if (response.ok) {
       console.info(
-        "Successfully verified App Check token",
+        'Successfully verified App Check token',
         await response.json()
       );
     } else {
-      console.error("Could not verify App Check token", await response.json());
+      console.error('Could not verify App Check token', await response.json());
     }
   });
 
   const [handleIncrementCounterApi, isIncrementCounterApiLoading] =
     useLoadingCallback(async () => {
-      const response = await fetch("/api/user-counters", {
-        method: "POST",
+      const response = await fetch('/api/user-counters', {
+        method: 'POST'
       });
 
       await response.json();

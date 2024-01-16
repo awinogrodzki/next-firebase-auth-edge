@@ -1,6 +1,6 @@
-import { ServiceAccountCredential } from "../credential";
-import { sign } from "./sign";
-import { JWTPayload } from "jose";
+import {ServiceAccountCredential} from '../credential';
+import {sign} from './sign';
+import {JWTPayload} from 'jose';
 
 export interface CryptoSigner {
   sign(payload: JWTPayload): Promise<string>;
@@ -18,7 +18,7 @@ export class ServiceAccountSigner implements CryptoSigner {
       payload.tenant_id = this.tenantId;
     }
 
-    return sign({ payload, privateKey: this.credential.privateKey });
+    return sign({payload, privateKey: this.credential.privateKey});
   }
 
   public getAccountId(): Promise<string> {

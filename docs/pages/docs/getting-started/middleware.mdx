@@ -1,0 +1,38 @@
+# Authentication Middleware
+
+The library provides `authMiddleware` function that is designed to be used with [Next.js Middleware](https://nextjs.org/docs/app/building-your-application/routing/middleware)
+
+[See Authentication Middleware usage docs](/docs/usage/middleware) for more documentation
+
+Basic usage of `authMiddleware` in `middleware.ts`:
+
+```tsx filename="middleware.ts"
+import { NextRequest, NextResponse } from "next/server";
+import { authMiddleware } from "next-firebase-auth-edge";
+
+export async function middleware(request: NextRequest) {
+  return authMiddleware(request, {
+    loginPath: "/api/login",
+    logoutPath: "/api/logout",
+    apiKey: "XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX",
+    cookieName: "AuthToken",
+    cookieSignatureKeys: ["secret1", "secret2"],
+    cookieSerializeOptions: {
+      path: "/",
+      httpOnly: true,
+      secure: false, // Set this to true on HTTPS environments
+      sameSite: "lax" as const,
+      maxAge: 12 * 60 * 60 * 24, // twelve days
+    },
+    serviceAccount: {
+      projectId: "your-firebase-project-id",
+      clientEmail: "firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com",
+      privateKey: "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
+    },
+  });
+}
+
+export const config = {
+  matcher: ["/api/login", "/api/logout", "/", "/((?!_next|favicon.ico|api|.*\\.).*)"],
+};
+```

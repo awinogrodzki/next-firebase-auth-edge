@@ -1,12 +1,12 @@
-import { DecodedIdToken } from "./token-verifier";
-import { JWTPayload } from "jose";
+import {DecodedIdToken} from './token-verifier';
+import {JWTPayload} from 'jose';
 
 export function formatString(str: string, params?: object): string {
   let formatted = str;
   Object.keys(params || {}).forEach((key) => {
     formatted = formatted.replace(
-      new RegExp("{" + key + "}", "g"),
-      (params as { [key: string]: string })[key]
+      new RegExp('{' + key + '}', 'g'),
+      (params as {[key: string]: string})[key]
     );
   });
   return formatted;
@@ -22,7 +22,7 @@ export function addReadonlyGetter(obj: object, prop: string, value: any): void {
   Object.defineProperty(obj, prop, {
     value,
     writable: false,
-    enumerable: true,
+    enumerable: true
   });
 }
 

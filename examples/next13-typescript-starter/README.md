@@ -11,7 +11,8 @@ To properly run this example, you will need to setup a new Firebase Project.
 You will also need to:
 
 - Create a new web app in your new Firebase Project.
-- Add Firebase Auth to your project and enable Google and Email/Password sign-in methods
+- Add Firebase Auth to your project and enable Google, Email/Password and Email Link sign-in methods
+- Add `localhost` and any other authorized domains in `Authentication > Settings > Authorized domains`
 - Add a Firestore database
 - Get your private keys from "Project settings > Service Accounts > Generate new private keys"
 - Make a copy of `.env.dist` and rename it to `.env.local`

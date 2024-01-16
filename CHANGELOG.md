@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 1.0.0
+
+### Major Changes
+
+- Reworked APIs
+
 ## 0.11.2
 
 ### Patch Changes

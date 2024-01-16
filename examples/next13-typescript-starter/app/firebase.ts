@@ -1,9 +1,9 @@
-import admin from "firebase-admin";
-import { authConfig } from "../config/server-config";
+import admin from 'firebase-admin';
+import {authConfig} from '../config/server-config';
 
 const initializeApp = () => {
   return admin.initializeApp({
-    credential: admin.credential.cert(authConfig.serviceAccount),
+    credential: admin.credential.cert(authConfig.serviceAccount)
   });
 };
 

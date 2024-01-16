@@ -1,6 +1,6 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { getTokensFromObject } from "next-firebase-auth-edge/lib/next/tokens";
-import { authConfig } from "../../config/server-config";
+import {NextApiRequest, NextApiResponse} from 'next';
+import {getTokensFromObject} from 'next-firebase-auth-edge/lib/next/tokens';
+import {authConfig} from '../../config/server-config';
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,8 +10,8 @@ export default async function handler(
     apiKey: authConfig.apiKey,
     cookieName: authConfig.cookieName,
     cookieSignatureKeys: authConfig.cookieSignatureKeys,
-    serviceAccount: authConfig.serviceAccount,
+    serviceAccount: authConfig.serviceAccount
   });
 
-  return res.status(200).json({ tokens });
+  return res.status(200).json({tokens});
 }

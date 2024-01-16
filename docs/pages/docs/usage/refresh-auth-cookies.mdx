@@ -1,0 +1,179 @@
+# Refresh authentication cookies
+
+`next-firebase-auth-edge` provides two different `refreshAuthCookies` functions to update user cookies after updating user credentials (eg. after setting new user claims).
+
+You should import `refreshAuthCookies` from `next-firebase-auth-edge/lib/next/middleware` if you plan to use it in Middleware or App Router API Route Handlers
+
+You should import `refreshAuthCookies` from `next-firebase-auth-edge/lib/next/cookies` if you plan to use it in legacy Pages Router API Routes
+
+The function takes valid token as the first argument, a response object as the second argument and configuration options as the third argument.
+
+It resolves with an object containing `idToken` and `refreshToken`, which can optionally be used.
+
+## refreshAuthCookies in Middleware
+
+Use `refreshAuthCookies` from `next-firebase-auth-edge/lib/next/middleware` to refresh authentication cookies after updating user token in [Next.js Middleware](https://nextjs.org/docs/app/building-your-application/routing/middleware)
+
+```tsx filename="middleware.ts"
+import { NextRequest } from "next/server";
+import { refreshAuthCookies } from "next-firebase-auth-edge/lib/next/middleware";
+import { getFirebaseAuth, authMiddleware } from "next-firebase-auth-edge";
+
+const commonOptions = {
+  apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
+  cookieName: "AuthToken",
+  cookieSignatureKeys: ["secret1", "secret2"],
+  cookieSerializeOptions: {
+    path: "/",
+    httpOnly: true,
+    secure: false, // Set this to true on HTTPS environments
+    sameSite: "strict" as const,
+    maxAge: 12 * 60 * 60 * 24, // twelve days
+  },
+  serviceAccount: {
+    projectId: 'your-firebase-project-id',
+    clientEmail: 'firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com',
+    privateKey: '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
+  }
+};
+
+const { setCustomUserClaims, getUser } = getFirebaseAuth(
+  commonOptions.serviceAccount,
+  commonOptions.apiKey
+);
+
+export async function middleware(request: NextRequest) {
+  return authMiddleware(request, {
+    handleValidToken: async ({ token, decodedToken }, headers) => {
+      if (request.nextUrl.pathname === "/api/custom-claims") {
+        await setCustomUserClaims(decodedToken.uid, {
+          someClaims: ["someValue"],
+        });
+
+        const user = await getUser(decodedToken.uid);
+        const response = new NextResponse(JSON.stringify(user.customClaims), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+
+        await refreshAuthCookies(token, response, commonOptions);
+        return response;
+      }
+
+      return NextResponse.next({
+        request: {
+          headers,
+        },
+      });
+    },
+    ...commonOptions,
+  });
+}
+
+export const config = {
+  matcher: ["/", "/((?!_next|favicon.ico|api|.*\\.).*)", "/api/login", "/api/logout"],
+};
+```
+
+## refreshAuthCookies in API Route Handlers
+
+Use `refreshAuthCookies` from `next-firebase-auth-edge/lib/next/middleware` to refresh authentication cookies after updating user token in [API Route Handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
+
+```tsx
+import { NextRequest, NextResponse } from "next/server";
+import { refreshAuthCookies } from "next-firebase-auth-edge/lib/next/middleware";
+import { getFirebaseAuth, getTokens } from "next-firebase-auth-edge";
+
+const commonOptions = {
+  apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
+  cookieName: "AuthToken",
+  cookieSignatureKeys: ["secret1", "secret2"],
+  cookieSerializeOptions: {
+    path: "/",
+    httpOnly: true,
+    secure: false, // Set this to true on HTTPS environments
+    sameSite: "strict" as const,
+    maxAge: 12 * 60 * 60 * 24, // twelve days
+  },
+  serviceAccount: {
+    projectId: 'your-firebase-project-id',
+    clientEmail: 'firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com',
+    privateKey: '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
+  }
+};
+
+const { setCustomUserClaims, getUser } = getFirebaseAuth(
+  commonOptions.serviceAccount,
+  commonOptions.apiKey
+);
+
+export async function POST(request: NextRequest) {
+  const tokens = await getTokens(request.cookies, commonOptions);
+
+  if (!tokens) {
+    throw new Error("Cannot update custom claims of unauthenticated user");
+  }
+
+  await setCustomUserClaims(tokens.decodedToken.uid, {
+    someCustomClaim: {
+      updatedAt: Date.now(),
+    },
+  });
+
+  const user = await getUser(tokens.decodedToken.uid);
+  const response = new NextResponse(
+    JSON.stringify({
+      customClaims: user.customClaims,
+    }),
+    {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    }
+  );
+
+  await refreshAuthCookies(tokens.token, response, commonOptions);
+
+  return response;
+}
+```
+
+
+## refreshAuthCookies in Pages Router API Routes
+
+Use `refreshAuthCookies` from `next-firebase-auth-edge/lib/next/cookies` to refresh authentication cookies after updating user token in [API Routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes)
+
+```tsx
+import { NextApiRequest, NextApiResponse } from "next";
+import { refreshAuthCookies } from "next-firebase-auth-edge/lib/next/cookies";
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const bearerToken = req.headers["authorization"]?.split(" ")[1] ?? "";
+
+  // ...
+
+  const { idToken, refreshToken } = await refreshAuthCookies(bearerToken, res, {
+    serviceAccount: {
+      projectId: 'your-firebase-project-id',
+      clientEmail: 'firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com',
+      privateKey: '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
+    },
+    apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
+    cookieName: "AuthToken",
+    cookieSignatureKeys: ["secret1", "secret2"],
+    cookieSerializeOptions: {
+      path: "/",
+      httpOnly: true,
+      secure: false, // Set this to true on HTTPS environments
+      sameSite: "strict" as const,
+      maxAge: 12 * 60 * 60 * 24, // twelve days
+    },
+  });
+
+  // Optionally do something with new `idToken` and `refreshToken`
+
+  res.status(200).json({ example: true });
+}
+```

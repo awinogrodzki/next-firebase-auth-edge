@@ -1,27 +1,26 @@
-import styles from "./page.module.css";
-import { ServerAuthProvider } from "../../auth/server-auth-provider";
-import { UserProfile } from "./UserProfile";
-import { Metadata } from "next";
-import { getTokens } from "next-firebase-auth-edge/lib/next/tokens";
-import { cookies } from "next/headers";
-import { authConfig } from "../../config/server-config";
-import { getFirebaseAdminApp } from "../firebase";
-import { getFirestore } from "firebase-admin/firestore";
-import { Badge } from "../../ui/Badge";
-import { HomeLink } from "../../ui/HomeLink";
-import { MainTitle } from "../../ui/MainTitle";
-import { incrementCounter } from "../actions/user-counters";
+import styles from './page.module.css';
+import {UserProfile} from './UserProfile';
+import {Metadata} from 'next';
+import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
+import {cookies} from 'next/headers';
+import {authConfig} from '../../config/server-config';
+import {getFirebaseAdminApp} from '../firebase';
+import {getFirestore} from 'firebase-admin/firestore';
+import {Badge} from '../../ui/Badge';
+import {HomeLink} from '../../ui/HomeLink';
+import {MainTitle} from '../../ui/MainTitle';
+import {incrementCounter} from '../actions/user-counters';
 
 const db = getFirestore(getFirebaseAdminApp());
 async function getUserCounter(): Promise<number> {
   const tokens = await getTokens(cookies(), authConfig);
 
   if (!tokens) {
-    throw new Error("Cannot get counter of unauthenticated user");
+    throw new Error('Cannot get counter of unauthenticated user');
   }
 
   const snapshot = await db
-    .collection("user-counters")
+    .collection('user-counters')
     .doc(tokens.decodedToken.uid)
     .get();
 
@@ -44,10 +43,7 @@ export default async function Profile() {
         <span>Profile</span>
         <Badge>Rendered on server</Badge>
       </MainTitle>
-      {/* @ts-expect-error https://github.com/vercel/next.js/issues/43537 */}
-      <ServerAuthProvider>
-        <UserProfile count={count} incrementCounter={incrementCounter} />
-      </ServerAuthProvider>
+      <UserProfile count={count} incrementCounter={incrementCounter} />
     </div>
   );
 }
@@ -62,6 +58,6 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   return {
-    title: `${tokens.decodedToken.email} profile page | next-firebase-auth-edge example`,
+    title: `${tokens.decodedToken.email} profile page | next-firebase-auth-edge example`
   };
 }

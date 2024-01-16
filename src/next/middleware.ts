@@ -1,7 +1,7 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { CookieSerializeOptions } from "cookie";
-import { ServiceAccount } from "../auth/credential";
+import type {NextRequest} from 'next/server';
+import {NextResponse} from 'next/server';
+import {CookieSerializeOptions} from 'cookie';
+import {ServiceAccount} from '../auth/credential';
 import {
   appendAuthCookies,
   markCookiesAsVerified,
@@ -12,15 +12,15 @@ import {
   updateRequestAuthCookies,
   updateResponseAuthCookies,
   removeInternalVerifiedCookieIfExists,
-  wasResponseDecoratedWithModifiedRequestHeaders,
-} from "./cookies";
-import { getRequestCookiesTokens, GetTokensOptions } from "./tokens";
+  wasResponseDecoratedWithModifiedRequestHeaders
+} from './cookies';
+import {getRequestCookiesTokens, GetTokensOptions} from './tokens';
 import {
   getFirebaseAuth,
   handleExpiredToken,
   IdAndRefreshTokens,
-  Tokens,
-} from "../auth";
+  Tokens
+} from '../auth';
 
 export interface CreateAuthMiddlewareOptions {
   loginPath: string;
@@ -31,6 +31,38 @@ export interface CreateAuthMiddlewareOptions {
   serviceAccount: ServiceAccount;
   apiKey: string;
   tenantId?: string;
+}
+
+export function redirectToHome(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  url.pathname = '/';
+  url.search = '';
+  return NextResponse.redirect(url);
+}
+
+interface RedirectToLoginOptions {
+  path: string;
+  publicPaths: string[];
+  redirectParamKeyName?: string;
+}
+
+export function redirectToLogin(
+  request: NextRequest,
+  options: RedirectToLoginOptions = {
+    path: '/login',
+    publicPaths: ['/login']
+  }
+) {
+  const redirectKey = options.redirectParamKeyName || 'redirect';
+
+  if (options.publicPaths.includes(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
+  const url = request.nextUrl.clone();
+  url.pathname = options.path;
+  url.search = `${redirectKey}=${request.nextUrl.pathname}${url.search}`;
+  return NextResponse.redirect(url);
 }
 
 export async function createAuthMiddlewareResponse(
@@ -44,14 +76,14 @@ export async function createAuthMiddlewareResponse(
       cookieSignatureKeys: options.cookieSignatureKeys,
       serviceAccount: options.serviceAccount,
       apiKey: options.apiKey,
-      tenantId: options.tenantId,
+      tenantId: options.tenantId
     });
   }
 
   if (request.nextUrl.pathname === options.logoutPath) {
     return removeAuthCookies(request.headers, {
       cookieName: options.cookieName,
-      cookieSerializeOptions: options.cookieSerializeOptions,
+      cookieSerializeOptions: options.cookieSerializeOptions
     });
   }
 
@@ -79,7 +111,7 @@ export async function refreshAuthCookies(
   response: NextResponse,
   options: SetAuthCookiesOptions
 ): Promise<IdAndRefreshTokens> {
-  const { getCustomIdAndRefreshTokens } = getFirebaseAuth(
+  const {getCustomIdAndRefreshTokens} = getFirebaseAuth(
     options.serviceAccount,
     options.apiKey,
     options.tenantId
@@ -103,8 +135,8 @@ const defaultValidTokenHandler: HandleValidToken = async (
 ) =>
   NextResponse.next({
     request: {
-      headers,
-    },
+      headers
+    }
   });
 
 function validateResponse(response: NextResponse) {
@@ -115,7 +147,7 @@ function validateResponse(response: NextResponse) {
   }
 }
 
-export async function authentication(
+export async function authMiddleware(
   request: NextRequest,
   options: AuthenticationOptions
 ): Promise<NextResponse> {
@@ -133,7 +165,7 @@ export async function authentication(
     return createAuthMiddlewareResponse(request, options);
   }
 
-  const { verifyIdToken, handleTokenRefresh } = getFirebaseAuth(
+  const {verifyIdToken, handleTokenRefresh} = getFirebaseAuth(
     options.serviceAccount,
     options.apiKey,
     options.tenantId
@@ -159,19 +191,19 @@ export async function authentication(
       const response = await handleValidToken(
         {
           token: idAndRefreshTokens.idToken,
-          decodedToken,
+          decodedToken
         },
         request.headers
       );
 
-      if (!response.headers.has("location")) {
+      if (!response.headers.has('location')) {
         validateResponse(response);
       }
 
       return response;
     },
     async () => {
-      const { token, decodedToken } = await handleTokenRefresh(
+      const {token, decodedToken} = await handleTokenRefresh(
         idAndRefreshTokens.refreshToken,
         options.apiKey
       );
@@ -179,7 +211,7 @@ export async function authentication(
       const signedCookies = await toSignedCookies(
         {
           idToken: token,
-          refreshToken: idAndRefreshTokens.refreshToken,
+          refreshToken: idAndRefreshTokens.refreshToken
         },
         options
       );
@@ -187,7 +219,7 @@ export async function authentication(
       updateRequestAuthCookies(request, signedCookies);
       markCookiesAsVerified(request.cookies);
       const response = await handleValidToken(
-        { token, decodedToken },
+        {token, decodedToken},
         request.headers
       );
 
@@ -204,3 +236,9 @@ export async function authentication(
     }
   );
 }
+
+/**
+ * @deprecated
+ * Backwards compatiblity with 0.x
+ */
+export {authMiddleware as authentication};

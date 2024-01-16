@@ -1,13 +1,13 @@
-import { getSdkVersion } from "../auth/auth-request-handler";
-import { AppCheckToken } from "./types";
-import { formatString } from "../auth/utils";
-import { ServiceAccountCredential } from "../auth/credential";
+import {getSdkVersion} from '../auth/auth-request-handler';
+import {AppCheckToken} from './types';
+import {formatString} from '../auth/utils';
+import {ServiceAccountCredential} from '../auth/credential';
 
 const FIREBASE_APP_CHECK_V1_API_URL_FORMAT =
-  "https://firebaseappcheck.googleapis.com/v1/projects/{projectId}/apps/{appId}:exchangeCustomToken";
+  'https://firebaseappcheck.googleapis.com/v1/projects/{projectId}/apps/{appId}:exchangeCustomToken';
 
 const FIREBASE_APP_CHECK_CONFIG_HEADERS = {
-  "X-Firebase-Client": `fire-admin-node/${getSdkVersion()}`,
+  'X-Firebase-Client': `fire-admin-node/${getSdkVersion()}`
 };
 
 export class AppCheckApiClient {
@@ -21,12 +21,12 @@ export class AppCheckApiClient {
     const token = await this.credential.getAccessToken(false);
 
     const response = await fetch(url, {
-      method: "POST",
+      method: 'POST',
       headers: {
         ...FIREBASE_APP_CHECK_CONFIG_HEADERS,
-        Authorization: `Bearer ${token.accessToken}`,
+        Authorization: `Bearer ${token.accessToken}`
       },
-      body: JSON.stringify({ customToken }),
+      body: JSON.stringify({customToken})
     });
 
     if (response.ok) {
@@ -39,7 +39,7 @@ export class AppCheckApiClient {
   private getUrl(appId: string): string {
     const urlParams = {
       projectId: this.credential.projectId,
-      appId,
+      appId
     };
     const baseUrl = formatString(
       FIREBASE_APP_CHECK_V1_API_URL_FORMAT,
@@ -54,7 +54,7 @@ export class AppCheckApiClient {
   ): Promise<FirebaseAppCheckError> {
     const data = (await response.json()) as ErrorResponse;
     const error: Error = data.error || {};
-    let code: AppCheckErrorCode = "unknown-error";
+    let code: AppCheckErrorCode = 'unknown-error';
     if (error.status && error.status in APP_CHECK_ERROR_CODE_MAPPING) {
       code = APP_CHECK_ERROR_CODE_MAPPING[error.status];
     }
@@ -69,15 +69,15 @@ export class AppCheckApiClient {
 
     return {
       token,
-      ttlMillis,
+      ttlMillis
     };
   }
 
   private stringToMilliseconds(duration: string): number {
-    if (!duration.endsWith("s")) {
+    if (!duration.endsWith('s')) {
       throw new FirebaseAppCheckError(
-        "invalid-argument",
-        "`ttl` must be a valid duration string with the suffix `s`."
+        'invalid-argument',
+        '`ttl` must be a valid duration string with the suffix `s`.'
       );
     }
     const seconds = duration.slice(0, -1);
@@ -98,26 +98,26 @@ export interface Error {
 export const APP_CHECK_ERROR_CODE_MAPPING: {
   [key: string]: AppCheckErrorCode;
 } = {
-  ABORTED: "aborted",
-  INVALID_ARGUMENT: "invalid-argument",
-  INVALID_CREDENTIAL: "invalid-credential",
-  INTERNAL: "internal-error",
-  PERMISSION_DENIED: "permission-denied",
-  UNAUTHENTICATED: "unauthenticated",
-  NOT_FOUND: "not-found",
-  UNKNOWN: "unknown-error",
+  ABORTED: 'aborted',
+  INVALID_ARGUMENT: 'invalid-argument',
+  INVALID_CREDENTIAL: 'invalid-credential',
+  INTERNAL: 'internal-error',
+  PERMISSION_DENIED: 'permission-denied',
+  UNAUTHENTICATED: 'unauthenticated',
+  NOT_FOUND: 'not-found',
+  UNKNOWN: 'unknown-error'
 };
 
 export type AppCheckErrorCode =
-  | "aborted"
-  | "invalid-argument"
-  | "invalid-credential"
-  | "internal-error"
-  | "permission-denied"
-  | "unauthenticated"
-  | "not-found"
-  | "app-check-token-expired"
-  | "unknown-error";
+  | 'aborted'
+  | 'invalid-argument'
+  | 'invalid-credential'
+  | 'internal-error'
+  | 'permission-denied'
+  | 'unauthenticated'
+  | 'not-found'
+  | 'app-check-token-expired'
+  | 'unknown-error';
 
 export class FirebaseAppCheckError extends Error {
   constructor(public readonly code: AppCheckErrorCode, message: string) {

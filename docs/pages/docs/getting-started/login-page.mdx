@@ -1,0 +1,59 @@
+# Usage with Firebase Auth
+
+Use official `firebase/auth` [guide](https://firebase.google.com/docs/auth/web/password-auth) to perform different operations, such as `signInWithEmailAndPassword` or `signOut`.
+
+See [starter example](/examples#starter) for more complete examples, including login, registration and password reset flow.
+
+## Example LoginPage
+
+A very basic login page client component that allows users to sign in using `email` and `password`:
+
+```tsx filename="page.tsx"
+"use client";
+
+import * as React from "react";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+
+export default function LoginPage() {
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    await signInWithEmailAndPassword(getAuth(), email, password);
+  }
+
+  return (
+    <div>
+      <h1>Login</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          name="email"
+          type="email"
+          placeholder="Email address"
+        />
+        <br/>
+        <input
+          required
+          name="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          type="password"
+          placeholder="Password"
+          minLength={8}
+        />
+        <button
+          type="submit"
+        >
+          Submit
+        </button>
+      </form>
+    </div>
+  );
+}
+```

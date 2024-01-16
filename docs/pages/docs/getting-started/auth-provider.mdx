@@ -1,0 +1,74 @@
+# AuthProvider
+
+To exchange user data between server and client components, we could use custom `AuthContext` created in [previous step](/docs/getting-started/auth-context)
+
+## Before you begin
+
+Before copying example, make sure to setup Firebase Auth web client by following [official documentation](https://firebase.google.com/docs/web/setup)
+
+## Example AuthProvider
+
+The following is an example implementation of custom `AuthProvider` component that uses `AuthContext` to share user data between components. It calls `/api/login` and `/api/logout` endpoints whenever user data changes to sync `firebase/auth` with `next-firebase-auth-edge`.
+
+```tsx filename="AuthProvider.tsx"
+"use client";
+
+import * as React from "react";
+import { getAuth, IdTokenResult, onIdTokenChanged, User as FirebaseUser } from "firebase/auth";
+import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
+import { AuthContext, User } from "./AuthContext";
+
+export interface AuthProviderProps {
+  serverUser: User | null;
+  children: React.ReactNode;
+}
+
+function toUser(user: FirebaseUser, idTokenResult: IdTokenResult): User {
+  return {
+    ...user,
+    customClaims: filterStandardClaims(idTokenResult.claims),
+  };
+}
+
+export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
+  serverUser,
+  children,
+}) => {
+  const [user, setUser] = React.useState(serverUser);
+
+  const handleIdTokenChanged = async (firebaseUser: FirebaseUser | null) => {
+    if (firebaseUser) {
+      const idTokenResult = await firebaseUser.getIdTokenResult();
+
+      // Sets authenticated user cookies
+      await fetch("/api/login", {
+        headers: {
+          Authorization: `Bearer ${idTokenResult.token}`,
+        },
+      });
+
+      setUser(toUser(firebaseUser, idTokenResult));
+      return;
+    }
+
+    // Removes authenticated user cookies
+    await fetch("/api/logout");
+
+    setUser(null);
+  };
+
+  React.useEffect(() => {
+    return onIdTokenChanged(getAuth(), handleIdTokenChanged);
+  }, []);
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+```

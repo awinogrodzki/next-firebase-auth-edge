@@ -1,6 +1,6 @@
-import { RotatingCredential } from "../rotating-credential";
-import { Cookie, getSignatureCookieName } from "./index";
-import { base64url } from "jose";
+import {RotatingCredential} from '../rotating-credential';
+import {Cookie, getSignatureCookieName} from './index';
+import {base64url} from 'jose';
 
 export interface SignedCookies {
   signature: Cookie;
@@ -15,11 +15,11 @@ export const sign = (keys: string[]) => {
     const hash = await credential.sign(value);
 
     return {
-      signature: { name: cookie.name, value },
+      signature: {name: cookie.name, value},
       signed: {
         name: getSignatureCookieName(cookie.name),
-        value: hash,
-      },
+        value: hash
+      }
     };
   };
 };
