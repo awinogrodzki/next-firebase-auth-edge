@@ -16,7 +16,7 @@
  * Navbar on home
  */
 .navbar-home {
-  @apply bg-slate-850 text-white dark:bg-slate-850;
+  @apply bg-slate-800 text-white dark:bg-slate-800;
 }
 
 /* Hamburger menu */

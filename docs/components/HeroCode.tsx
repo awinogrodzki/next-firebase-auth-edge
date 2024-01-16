@@ -357,7 +357,7 @@ const files = [
     )
   },
   {
-    name: 'AuthContext.ts',
+    name: 'app/layout.tsx',
     code: (
       <code
         className="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10"
@@ -367,19 +367,16 @@ const files = [
       >
         <span className="line">
           <span style={{ color: "var(--shiki-token-keyword)" }}>import</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {" "}
-            {"{"} createContext
-          </span>
+          <span style={{ color: "var(--shiki-color-text)" }}> {"{"} Tokens</span>
           <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
           <span style={{ color: "var(--shiki-color-text)" }}>
             {" "}
-            useContext {"}"}{" "}
+            getTokens {"}"}{" "}
           </span>
           <span style={{ color: "var(--shiki-token-keyword)" }}>from</span>
           <span style={{ color: "var(--shiki-color-text)" }}> </span>
           <span style={{ color: "var(--shiki-token-string-expression)" }}>
-            "react"
+            "next-firebase-auth-edge"
           </span>
           <span style={{ color: "var(--shiki-color-text)" }}>;</span>
         </span>
@@ -388,26 +385,12 @@ const files = [
           <span style={{ color: "var(--shiki-token-keyword)" }}>import</span>
           <span style={{ color: "var(--shiki-color-text)" }}>
             {" "}
-            {"{"} UserInfo {"}"}{" "}
+            {"{"} cookies {"}"}{" "}
           </span>
           <span style={{ color: "var(--shiki-token-keyword)" }}>from</span>
           <span style={{ color: "var(--shiki-color-text)" }}> </span>
           <span style={{ color: "var(--shiki-token-string-expression)" }}>
-            "firebase/auth"
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>;</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-token-keyword)" }}>import</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {" "}
-            {"{"} Claims {"}"}{" "}
-          </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>from</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-string-expression)" }}>
-            "next-firebase-auth-edge/lib/auth/claims"
+            "next/headers"
           </span>
           <span style={{ color: "var(--shiki-color-text)" }}>;</span>
         </span>
@@ -417,455 +400,103 @@ const files = [
         <span className="line">
           <span style={{ color: "var(--shiki-token-keyword)" }}>export</span>
           <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>interface</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>User</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>extends</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>Omit</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>&lt;</span>
-          <span style={{ color: "var(--shiki-token-function)" }}>UserInfo</span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-string-expression)" }}>
-            "providerId"
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>&gt; {"{"}</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {"  "}emailVerified
-          </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>boolean</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>;</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {"  "}customClaims
-          </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>Claims</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>;</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"}"}</span>
-        </span>
-        {"\n"}
-        <span className="line"> </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-token-keyword)" }}>export</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>interface</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>
-            AuthContextValue
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}> {"{"}</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"  "}user</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>User</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>|</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>null</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>;</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"}"}</span>
-        </span>
-        {"\n"}
-        <span className="line"> </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-token-keyword)" }}>export</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>const</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>AuthContext</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>=</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>
-            createContext
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>&lt;</span>
-          <span style={{ color: "var(--shiki-token-function)" }}>
-            AuthContextValue
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>&gt;({"{"}</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"  "}user</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>null</span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"}"});</span>
-        </span>
-        {"\n"}
-        <span className="line"> </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-token-keyword)" }}>export</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>const</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>useAuth</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>=</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> () </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>=&gt;</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>useContext</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>(AuthContext);</span>
-        </span>
-      </code>
-    )
-  },
-  {
-    name: 'AuthProvider.tsx',
-    code: (
-      <code
-        className="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10"
-        dir="ltr"
-        data-language="tsx"
-        data-theme="default"
-      >
-        <span className="line">
-          <span style={{ color: "var(--shiki-token-string-expression)" }}>
-            "use client"
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>;</span>
-        </span>
-        {"\n"}
-        <span className="line"> </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-token-keyword)" }}>import</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>*</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>as</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> React </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>from</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-string-expression)" }}>
-            "react"
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>;</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-token-keyword)" }}>import</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> {"{"} getAuth</span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> IdTokenResult</span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {" "}
-            onIdTokenChanged
-          </span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> User </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>as</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {" "}
-            FirebaseUser {"}"}{" "}
-          </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>from</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-string-expression)" }}>
-            "firebase/auth"
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>;</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-token-keyword)" }}>import</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {" "}
-            {"{"} filterStandardClaims {"}"}{" "}
-          </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>from</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-string-expression)" }}>
-            "next-firebase-auth-edge/lib/auth/claims"
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>;</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-token-keyword)" }}>import</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {" "}
-            {"{"} AuthContext
-          </span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> User {"}"} </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>from</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-string-expression)" }}>
-            "./AuthContext"
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>;</span>
-        </span>
-        {"\n"}
-        <span className="line"> </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-token-keyword)" }}>export</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>interface</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>
-            AuthProviderProps
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}> {"{"}</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"  "}serverUser</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>User</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>|</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>null</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>;</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"  "}children</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>React</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>.</span>
-          <span style={{ color: "var(--shiki-token-function)" }}>ReactNode</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>;</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"}"}</span>
-        </span>
-        {"\n"}
-        <span className="line"> </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-token-keyword)" }}>function</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>toUser</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>(user</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>FirebaseUser</span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> idTokenResult</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>
-            IdTokenResult
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>)</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>User</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> {"{"}</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"  "}</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>return</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> {"{"}</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"    "}</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>...</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>user</span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {"    "}customClaims
-          </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>
-            filterStandardClaims
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>(</span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>
-            idTokenResult
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>.claims)</span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {"  "}
-            {"}"};
-          </span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"}"}</span>
-        </span>
-        {"\n"}
-        <span className="line"> </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-token-keyword)" }}>export</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>const</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>AuthProvider</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>React</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>.</span>
-          <span style={{ color: "var(--shiki-token-function)" }}>
-            FunctionComponent
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>&lt;</span>
-          <span style={{ color: "var(--shiki-token-function)" }}>
-            AuthProviderProps
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>&gt; </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>=</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> ({"{"}</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"  "}serverUser</span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"  "}children</span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"}"}) </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>=&gt;</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> {"{"}</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"  "}</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>const</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> [</span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>user</span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>setUser</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>] </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>=</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>React</span>
-          <span style={{ color: "var(--shiki-token-function)" }}>.useState</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>(serverUser);</span>
-        </span>
-        {"\n"}
-        <span className="line"> </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"  "}</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>const</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>
-            handleIdTokenChanged
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>=</span>
+          <span style={{ color: "var(--shiki-token-keyword)" }}>default</span>
           <span style={{ color: "var(--shiki-color-text)" }}> </span>
           <span style={{ color: "var(--shiki-token-keyword)" }}>async</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> (firebaseUser</span>
+          <span style={{ color: "var(--shiki-color-text)" }}> </span>
+          <span style={{ color: "var(--shiki-token-keyword)" }}>function</span>
+          <span style={{ color: "var(--shiki-color-text)" }}> </span>
+          <span style={{ color: "var(--shiki-token-function)" }}>RootLayout</span>
+          <span style={{ color: "var(--shiki-color-text)" }}>({"{"}</span>
+        </span>
+        {"\n"}
+        <span className="line">
+          <span style={{ color: "var(--shiki-color-text)" }}>{"  "}children</span>
+          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
+        </span>
+        {"\n"}
+        <span className="line">
+          <span style={{ color: "var(--shiki-color-text)" }}>{"}"}</span>
           <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>FirebaseUser</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>|</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>null</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>) </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>=&gt;</span>
           <span style={{ color: "var(--shiki-color-text)" }}> {"{"}</span>
         </span>
         {"\n"}
         <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"    "}</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>if</span>
+          <span style={{ color: "var(--shiki-color-text)" }}>{"  "}children</span>
+          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
+          <span style={{ color: "var(--shiki-color-text)" }}> </span>
+          <span style={{ color: "var(--shiki-token-function)" }}>JSX</span>
+          <span style={{ color: "var(--shiki-color-text)" }}>.</span>
+          <span style={{ color: "var(--shiki-token-function)" }}>Element</span>
+        </span>
+        {"\n"}
+        <span className="line">
           <span style={{ color: "var(--shiki-color-text)" }}>
-            {" "}
-            (firebaseUser) {"{"}
+            {"}"}) {"{"}
           </span>
         </span>
         {"\n"}
         <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"      "}</span>
+          <span style={{ color: "var(--shiki-color-text)" }}>{"  "}</span>
           <span style={{ color: "var(--shiki-token-keyword)" }}>const</span>
           <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>
-            idTokenResult
-          </span>
+          <span style={{ color: "var(--shiki-token-constant)" }}>tokens</span>
           <span style={{ color: "var(--shiki-color-text)" }}> </span>
           <span style={{ color: "var(--shiki-token-keyword)" }}>=</span>
           <span style={{ color: "var(--shiki-color-text)" }}> </span>
           <span style={{ color: "var(--shiki-token-keyword)" }}>await</span>
           <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>firebaseUser</span>
-          <span style={{ color: "var(--shiki-token-function)" }}>
-            .getIdTokenResult
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>();</span>
-        </span>
-        {"\n"}
-        <span className="line"> </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"      "}</span>
-          <span style={{ color: "var(--shiki-token-comment)" }}>
-        // Sets authenticated user cookies
-          </span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"      "}</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>await</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>fetch</span>
+          <span style={{ color: "var(--shiki-token-function)" }}>getTokens</span>
           <span style={{ color: "var(--shiki-color-text)" }}>(</span>
-          <span style={{ color: "var(--shiki-token-string-expression)" }}>
-            "/api/login"
-          </span>
+          <span style={{ color: "var(--shiki-token-function)" }}>cookies</span>
+          <span style={{ color: "var(--shiki-color-text)" }}>()</span>
           <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
           <span style={{ color: "var(--shiki-color-text)" }}> {"{"}</span>
         </span>
         {"\n"}
         <span className="line">
+          <span style={{ color: "var(--shiki-color-text)" }}>{"    "}apiKey</span>
+          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
+          <span style={{ color: "var(--shiki-color-text)" }}> </span>
+          <span style={{ color: "var(--shiki-token-string-expression)" }}>
+            'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX'
+          </span>
+          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
+        </span>
+        {"\n"}
+        <span className="line">
           <span style={{ color: "var(--shiki-color-text)" }}>
-            {"        "}headers
+            {"    "}cookieName
+          </span>
+          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
+          <span style={{ color: "var(--shiki-color-text)" }}> </span>
+          <span style={{ color: "var(--shiki-token-string-expression)" }}>
+            'AuthToken'
+          </span>
+          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
+        </span>
+        {"\n"}
+        <span className="line">
+          <span style={{ color: "var(--shiki-color-text)" }}>
+            {"    "}cookieSignatureKeys
+          </span>
+          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
+          <span style={{ color: "var(--shiki-color-text)" }}> [</span>
+          <span style={{ color: "var(--shiki-token-string-expression)" }}>
+            'secret1'
+          </span>
+          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
+          <span style={{ color: "var(--shiki-color-text)" }}> </span>
+          <span style={{ color: "var(--shiki-token-string-expression)" }}>
+            'secret2'
+          </span>
+          <span style={{ color: "var(--shiki-color-text)" }}>]</span>
+          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
+        </span>
+        {"\n"}
+        <span className="line">
+          <span style={{ color: "var(--shiki-color-text)" }}>
+            {"    "}serviceAccount
           </span>
           <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
           <span style={{ color: "var(--shiki-color-text)" }}> {"{"}</span>
@@ -873,57 +504,37 @@ const files = [
         {"\n"}
         <span className="line">
           <span style={{ color: "var(--shiki-color-text)" }}>
-            {"          "}Authorization
+            {"      "}projectId
           </span>
           <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
           <span style={{ color: "var(--shiki-color-text)" }}> </span>
           <span style={{ color: "var(--shiki-token-string-expression)" }}>
-            `Bearer{" "}
-          </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>${"{"}</span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>
-            idTokenResult
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>.token</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>{"}"}</span>
-          <span style={{ color: "var(--shiki-token-string-expression)" }}>`</span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {"        "}
-            {"}"}
+            'your-firebase-project-id'
           </span>
           <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
         </span>
         {"\n"}
         <span className="line">
           <span style={{ color: "var(--shiki-color-text)" }}>
-            {"      "}
-            {"}"});
+            {"      "}clientEmail
           </span>
-        </span>
-        {"\n"}
-        <span className="line"> </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"      "}</span>
-          <span style={{ color: "var(--shiki-token-function)" }}>setUser</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>(</span>
-          <span style={{ color: "var(--shiki-token-function)" }}>toUser</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>(firebaseUser</span>
+          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
+          <span style={{ color: "var(--shiki-color-text)" }}> </span>
+          <span style={{ color: "var(--shiki-token-string-expression)" }}>
+            'firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com'
+          </span>
           <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {" "}
-            idTokenResult));
-          </span>
         </span>
         {"\n"}
         <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"      "}</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>return</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>;</span>
+          <span style={{ color: "var(--shiki-color-text)" }}>
+            {"      "}privateKey
+          </span>
+          <span style={{ color: "var(--shiki-token-keyword)" }}>:</span>
+          <span style={{ color: "var(--shiki-color-text)" }}> </span>
+          <span style={{ color: "var(--shiki-token-string-expression)" }}>
+            '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
+          </span>
         </span>
         {"\n"}
         <span className="line">
@@ -933,79 +544,11 @@ const files = [
           </span>
         </span>
         {"\n"}
-        <span className="line"> </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"    "}</span>
-          <span style={{ color: "var(--shiki-token-comment)" }}>
-        // Removes authenticated user cookies
-          </span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"    "}</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>await</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>fetch</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>(</span>
-          <span style={{ color: "var(--shiki-token-string-expression)" }}>
-            "/api/logout"
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>);</span>
-        </span>
-        {"\n"}
-        <span className="line"> </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"    "}</span>
-          <span style={{ color: "var(--shiki-token-function)" }}>setUser</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>(</span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>null</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>);</span>
-        </span>
-        {"\n"}
         <span className="line">
           <span style={{ color: "var(--shiki-color-text)" }}>
             {"  "}
-            {"}"};
+            {"}"});
           </span>
-        </span>
-        {"\n"}
-        <span className="line"> </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"  "}</span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>React</span>
-          <span style={{ color: "var(--shiki-token-function)" }}>.useEffect</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>(() </span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>=&gt;</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> {"{"}</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"    "}</span>
-          <span style={{ color: "var(--shiki-token-keyword)" }}>return</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> </span>
-          <span style={{ color: "var(--shiki-token-function)" }}>
-            onIdTokenChanged
-          </span>
-          <span style={{ color: "var(--shiki-color-text)" }}>(</span>
-          <span style={{ color: "var(--shiki-token-function)" }}>getAuth</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>()</span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {" "}
-            handleIdTokenChanged);
-          </span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {"  "}
-            {"}"}
-          </span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-          <span style={{ color: "var(--shiki-color-text)" }}> []);</span>
         </span>
         {"\n"}
         <span className="line"> </span>
@@ -1018,49 +561,55 @@ const files = [
         {"\n"}
         <span className="line">
           <span style={{ color: "var(--shiki-color-text)" }}>{"    "}&lt;</span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>
-            AuthContext.Provider
+          <span style={{ color: "var(--shiki-token-string-expression)" }}>
+            html
           </span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"      "}</span>
-          <span style={{ color: "var(--shiki-token-function)" }}>value</span>
+          <span style={{ color: "var(--shiki-color-text)" }}> </span>
+          <span style={{ color: "var(--shiki-token-function)" }}>lang</span>
           <span style={{ color: "var(--shiki-token-keyword)" }}>=</span>
+          <span style={{ color: "var(--shiki-token-string-expression)" }}>
+            "en"
+          </span>
+          <span style={{ color: "var(--shiki-color-text)" }}>&gt;</span>
+        </span>
+        {"\n"}
+        <span className="line">
+          <span style={{ color: "var(--shiki-color-text)" }}>{"      "}&lt;</span>
+          <span style={{ color: "var(--shiki-token-string-expression)" }}>
+            head
+          </span>
+          <span style={{ color: "var(--shiki-color-text)" }}> /&gt;</span>
+        </span>
+        {"\n"}
+        <span className="line">
+          <span style={{ color: "var(--shiki-color-text)" }}>{"      "}&lt;</span>
+          <span style={{ color: "var(--shiki-token-string-expression)" }}>
+            body
+          </span>
+          <span style={{ color: "var(--shiki-color-text)" }}>&gt;</span>
+        </span>
+        {"\n"}
+        <span className="line">
           <span style={{ color: "var(--shiki-color-text)" }}>
+            {"        "}
             {"{"}
-            {"{"}
           </span>
+          <span style={{ color: "var(--shiki-token-comment)" }}>/* ... */</span>
+          <span style={{ color: "var(--shiki-color-text)" }}>{"}"}</span>
         </span>
         {"\n"}
         <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"        "}user</span>
-          <span style={{ color: "var(--shiki-token-punctuation)" }}>,</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {"      "}
-            {"}"}
-            {"}"}
+          <span style={{ color: "var(--shiki-color-text)" }}>{"      "}&lt;/</span>
+          <span style={{ color: "var(--shiki-token-string-expression)" }}>
+            body
           </span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"    "}&gt;</span>
-        </span>
-        {"\n"}
-        <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>
-            {"      "}
-            {"{"}children{"}"}
-          </span>
+          <span style={{ color: "var(--shiki-color-text)" }}>&gt;</span>
         </span>
         {"\n"}
         <span className="line">
           <span style={{ color: "var(--shiki-color-text)" }}>{"    "}&lt;/</span>
-          <span style={{ color: "var(--shiki-token-constant)" }}>
-            AuthContext.Provider
+          <span style={{ color: "var(--shiki-token-string-expression)" }}>
+            html
           </span>
           <span style={{ color: "var(--shiki-color-text)" }}>&gt;</span>
         </span>
@@ -1070,586 +619,7 @@ const files = [
         </span>
         {"\n"}
         <span className="line">
-          <span style={{ color: "var(--shiki-color-text)" }}>{"}"};</span>
-        </span>
-      </code>
-    )
-  },
-  {
-    name: 'layout.tsx',
-    code: (
-      <code
-        className="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10"
-        dir="ltr"
-        data-language="tsx"
-        data-theme="default"
-      >
-        <span className="line">
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>import</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {' '}
-            {'{'} Metadata {'}'}{' '}
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>from</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            "next"
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>import</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {' '}
-            {'{'} filterStandardClaims {'}'}{' '}
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>from</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            "next-firebase-auth-edge/lib/auth/claims"
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>import</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> {'{'} Tokens</span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {' '}
-            getTokens {'}'}{' '}
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>from</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            "next-firebase-auth-edge"
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>import</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {' '}
-            {'{'} cookies {'}'}{' '}
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>from</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            "next/headers"
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>import</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {' '}
-            {'{'} User {'}'}{' '}
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>from</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            "./AuthContext"
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>import</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {' '}
-            {'{'} AuthProvider {'}'}{' '}
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>from</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            "./AuthProvider"
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>;</span>
-        </span>
-        {'\n'}
-        <span className="line"> </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>const</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-function)' }}>toUser</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>=</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {' '}
-            ({'{'} decodedToken {'}'}
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-function)' }}>Tokens</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>)</span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-function)' }}>User</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>=&gt;</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> {'{'}</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'  '}</span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>const</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> {'{'}</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'    '}</span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>uid</span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'    '}</span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>email</span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'    '}picture:{' '}
-          </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>photoURL</span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'    '}email_verified:{' '}
-          </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>
-            emailVerified
-          </span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'    '}phone_number:{' '}
-          </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>
-            phoneNumber
-          </span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'    '}name: </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>
-            displayName
-          </span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'  '}
-            {'}'}{' '}
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>=</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> decodedToken;</span>
-        </span>
-        {'\n'}
-        <span className="line"> </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'  '}</span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>const</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>
-            customClaims
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>=</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-function)' }}>
-            filterStandardClaims
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            (decodedToken);
-          </span>
-        </span>
-        {'\n'}
-        <span className="line"> </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'  '}</span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>return</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> {'{'}</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'    '}uid</span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'    '}email</span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> email </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>??</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>null</span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'    '}displayName
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> displayName </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>??</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>null</span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'    '}photoURL
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> photoURL </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>??</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>null</span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'    '}phoneNumber
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> phoneNumber </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>??</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>null</span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'    '}emailVerified
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {' '}
-            emailVerified{' '}
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>??</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>false</span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'    '}customClaims
-          </span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'  '}
-            {'}'};
-          </span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'}'};</span>
-        </span>
-        {'\n'}
-        <span className="line"> </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>export</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>default</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>async</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>function</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-function)' }}>RootLayout</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>({'{'}</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'  '}children</span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'}'}</span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> {'{'}</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'  '}children</span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-function)' }}>JSX</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>.</span>
-          <span style={{ color: 'var(--shiki-token-function)' }}>Element</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'}'}) {'{'}
-          </span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'  '}</span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>const</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>tokens</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>=</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>await</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-function)' }}>getTokens</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>(</span>
-          <span style={{ color: 'var(--shiki-token-function)' }}>cookies</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>()</span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> {'{'}</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'    '}apiKey</span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX'
-          </span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'    '}cookieName
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            'AuthToken'
-          </span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'    '}cookieSignatureKeys
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> [</span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            'secret1'
-          </span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            'secret2'
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>]</span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'    '}serviceAccount
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> {'{'}</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'      '}projectId
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            'your-firebase-project-id'
-          </span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'      '}clientEmail
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'        '}</span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            'firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com'
-          </span>
-          <span style={{ color: 'var(--shiki-token-punctuation)' }}>,</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'      '}privateKey
-          </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'        '}</span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
-          </span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'    '}
-            {'}'}
-          </span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'  '}
-            {'}'});
-          </span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'  '}</span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>const</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>user</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>=</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> tokens </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>?</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-function)' }}>toUser</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>(tokens) </span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>:</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>null</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>;</span>
-        </span>
-        {'\n'}
-        <span className="line"> </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'  '}</span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>return</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> (</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'    '}&lt;</span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            html
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-function)' }}>lang</span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>=</span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            "en"
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>&gt;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'      '}&lt;</span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            head
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> /&gt;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'      '}&lt;</span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            body
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>&gt;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'        '}&lt;
-          </span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            main
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>&gt;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'          '}&lt;
-          </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>
-            AuthProvider
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}> </span>
-          <span style={{ color: 'var(--shiki-token-function)' }}>serverUser</span>
-          <span style={{ color: 'var(--shiki-token-keyword)' }}>=</span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'{'}user{'}'}&gt;{'{'}children{'}'}&lt;/
-          </span>
-          <span style={{ color: 'var(--shiki-token-constant)' }}>
-            AuthProvider
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>&gt;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'        '}&lt;/
-          </span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            main
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>&gt;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>
-            {'      '}&lt;/
-          </span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            body
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>&gt;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'    '}&lt;/</span>
-          <span style={{ color: 'var(--shiki-token-string-expression)' }}>
-            html
-          </span>
-          <span style={{ color: 'var(--shiki-color-text)' }}>&gt;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'  '});</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{ color: 'var(--shiki-color-text)' }}>{'}'}</span>
+          <span style={{ color: "var(--shiki-color-text)" }}>{"}"}</span>
         </span>
       </code>
     )

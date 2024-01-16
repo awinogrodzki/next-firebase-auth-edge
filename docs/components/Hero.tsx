@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import HeroCode from './HeroCode';
 import LinkButton from './LinkButton';
 import Wrapper from './Wrapper';
@@ -20,7 +19,7 @@ export default function Hero({
 }: Props) {
   return (
     <div className="dark overflow-hidden">
-      <div className="relative max-w-full overflow-hidden bg-slate-850 py-16 sm:px-2 lg:px-0">
+      <div className="relative max-w-full overflow-hidden bg-slate-800 py-16 sm:px-2 lg:px-0">
         <div className="absolute left-0 top-0 h-[20500px] w-[20500px] translate-x-[-47.5%] rounded-full bg-gradient-to-b from-slate-900 via-cyan-500 md:top-1" />
         <Wrapper>
           <div className="flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between">
@@ -36,7 +35,7 @@ export default function Hero({
               <div className="mt-8 flex gap-4 lg:mt-10">
                 <LinkButton href="/docs">{getStarted}</LinkButton>
                 <LinkButton
-                  href="https://next-intl-example-app-router.vercel.app"
+                  href="https://next-firebase-auth-edge-starter.vercel.app"
                   target="_blank"
                   variant="secondary"
                 >

@@ -1,5 +1,4 @@
 import Footer from 'components/Footer';
-import PartnerSidebar from 'components/PartnerSidebar';
 import { useRouter } from 'next/router';
 import { ThemeConfig } from 'nextra';
 import { Navbar, ThemeSwitch, useConfig } from 'nextra-theme-docs';
@@ -196,7 +195,7 @@ export default {
   docsRepositoryBase: config.githubUrl + '/blob/main/docs',
   useNextSeoProps() {
     return {
-      titleTemplate: '%s – Internationalization (i18n) for Next.js'
+      titleTemplate: '%s – Firebase Authentication for Next.js 14'
     };
   },
   // banner: {
@@ -220,7 +219,6 @@ export default {
     component(props: ComponentProps<typeof ThemeSwitch>) {
       return (
         <div className="flex items-end justify-between">
-          <PartnerSidebar />
           <ThemeSwitch {...props} />
         </div>
       );
@@ -298,7 +296,6 @@ export default {
         name="twitter:description"
       />
 
-      <meta content="jamannnnnn" name="twitter:site" />
       <meta content="summary_large_image" name="twitter:card" />
 
       <meta
