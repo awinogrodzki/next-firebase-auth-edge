@@ -23,7 +23,10 @@ export default function Footer() {
             GitHub
           </FooterLink>
           <FooterSeparator />
-          <FooterLink href="https://github.com/sponsors/awinogrodzki" target="_blank">
+          <FooterLink
+            href="https://github.com/sponsors/awinogrodzki"
+            target="_blank"
+          >
             &#9829; Sponsor
           </FooterLink>
         </div>
