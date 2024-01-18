@@ -23,7 +23,7 @@ export default function Footer() {
             GitHub
           </FooterLink>
           <FooterSeparator />
-          <FooterLink href={config.githubUrl} target="_blank">
+          <FooterLink href="https://github.com/sponsors/awinogrodzki" target="_blank">
             &#9829; Sponsor
           </FooterLink>
         </div>
