@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 1.0.1
+
+### Patch Changes
+
+- Update middleware token verification caching doc link
+
 ## 1.0.0
 
 ### Major Changes
