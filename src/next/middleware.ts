@@ -142,7 +142,7 @@ const defaultValidTokenHandler: HandleValidToken = async (
 function validateResponse(response: NextResponse) {
   if (!wasResponseDecoratedWithModifiedRequestHeaders(response)) {
     console.warn(
-      `– \x1b[33mwarn\x1b[0m next-firebase-auth-edge: NextResponse returned by handleValidToken was not decorated by modified request headers. This can cause token verification to happen multiple times in a single request. See: https://github.com/awinogrodzki/next-firebase-auth-edge#middleware-token-verification-caching`
+      `– \x1b[33mwarn\x1b[0m next-firebase-auth-edge: NextResponse returned by handleValidToken was not decorated by modified request headers. This can cause token verification to happen multiple times in a single request. See: https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#middleware-token-verification-caching`
     );
   }
 }
