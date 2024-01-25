@@ -2,7 +2,7 @@
 
 This is a [Next.js](https://nextjs.org/) project showcasing `next-firebase-auth-edge` library features.
 
-Demo of this project can be previewed at [next-firebase-auth-edge-static-demo.vercel.app](https://next-firebase-auth-edge-static-demo.vercel.app/)
+Demo of this project can be previewed at [next-firebase-auth-edge-starter.vercel.app](https://next-firebase-auth-edge-starter.vercel.app)
 
 ## Before Getting Started
 
