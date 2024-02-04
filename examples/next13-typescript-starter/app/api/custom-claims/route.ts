@@ -1,10 +1,10 @@
-import {NextRequest, NextResponse} from 'next/server';
-import {authConfig} from '../../../config/server-config';
-import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
-import {refreshAuthCookies} from 'next-firebase-auth-edge/lib/next/middleware';
-import {getFirebaseAuth} from 'next-firebase-auth-edge/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { authConfig } from '../../../config/server-config';
+import { getTokens } from 'next-firebase-auth-edge/lib/next/tokens';
+import { refreshNextResponseCookies } from 'next-firebase-auth-edge/lib/next/cookies';
+import { getFirebaseAuth } from 'next-firebase-auth-edge/lib/auth';
 
-const {setCustomUserClaims, getUser} = getFirebaseAuth(
+const { setCustomUserClaims, getUser } = getFirebaseAuth(
   authConfig.serviceAccount,
   authConfig.apiKey
 );
@@ -39,11 +39,8 @@ export async function POST(request: NextRequest) {
     }
   );
 
-  // Attach `Set-Cookie` headers with token containing new custom claims
-  await refreshAuthCookies(tokens.token, response, {
+  return refreshNextResponseCookies(request, response, {
     ...authConfig,
     appCheckToken
   });
-
-  return response;
 }

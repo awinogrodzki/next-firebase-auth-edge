@@ -109,7 +109,7 @@ describe('verify token integration test', () => {
           }
         );
 
-        expect(result?.decodedToken?.customClaim).toEqual('customClaimValue');
+        expect(result?.decodedIdToken?.customClaim).toEqual('customClaimValue');
       });
 
       it('should verify token', async () => {
@@ -128,9 +128,9 @@ describe('verify token integration test', () => {
           refreshToken
         );
 
-        expect(tokens?.decodedToken.uid).toEqual(userId);
-        expect(tokens?.decodedToken.customClaim).toEqual('customClaimValue');
-        expect(tokens?.decodedToken.firebase.tenant).toEqual(tenantId);
+        expect(tokens?.decodedIdToken.uid).toEqual(userId);
+        expect(tokens?.decodedIdToken.customClaim).toEqual('customClaimValue');
+        expect(tokens?.decodedIdToken.firebase.tenant).toEqual(tenantId);
       });
 
       it('should checked revoked token', async () => {
@@ -162,14 +162,14 @@ describe('verify token integration test', () => {
           FIREBASE_API_KEY!,
           {tenantId, appCheckToken: appCheckToken.token}
         );
-        const {decodedToken} = await handleTokenRefresh(
+        const {decodedIdToken} = await handleTokenRefresh(
           refreshToken,
           FIREBASE_API_KEY!
         );
 
-        expect(decodedToken.uid).toEqual(userId);
-        expect(decodedToken.customClaim).toEqual('customClaimValue');
-        expect(decodedToken.token).not.toEqual(idToken);
+        expect(decodedIdToken.uid).toEqual(userId);
+        expect(decodedIdToken.customClaim).toEqual('customClaimValue');
+        expect(decodedIdToken.token).not.toEqual(idToken);
       });
 
       it('should throw firebase auth error when user is not found during token refresh', async () => {

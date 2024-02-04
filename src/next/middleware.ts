@@ -106,6 +106,10 @@ export interface AuthenticationOptions
   handleError?: HandleError;
 }
 
+/**
+ * @deprecated
+ * Use `refreshNextResponseCookies` from `next-firebase-auth-edge/lib/next/cookies` instead
+ */
 export async function refreshAuthCookies(
   idToken: string,
   response: NextResponse,
@@ -203,15 +207,15 @@ export async function authMiddleware(
       return response;
     },
     async () => {
-      const {token, decodedToken} = await handleTokenRefresh(
+      const {idToken, decodedIdToken, refreshToken} = await handleTokenRefresh(
         idAndRefreshTokens.refreshToken,
         options.apiKey
       );
 
       const signedCookies = await toSignedCookies(
         {
-          idToken: token,
-          refreshToken: idAndRefreshTokens.refreshToken
+          idToken,
+          refreshToken
         },
         options
       );
@@ -219,7 +223,7 @@ export async function authMiddleware(
       updateRequestAuthCookies(request, signedCookies);
       markCookiesAsVerified(request.cookies);
       const response = await handleValidToken(
-        {token, decodedToken},
+        {token: idToken, decodedToken: decodedIdToken},
         request.headers
       );
 

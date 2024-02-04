@@ -1,15 +1,15 @@
-import {useEmulator} from './firebase';
-import {createIdTokenVerifier, DecodedIdToken} from './token-verifier';
 import {
   AuthRequestHandler,
   CreateRequest,
   UpdateRequest
 } from './auth-request-handler';
 import {ServiceAccount, ServiceAccountCredential} from './credential';
-import {UserRecord} from './user-record';
-import {createFirebaseTokenGenerator} from './token-generator';
 import {AuthError, AuthErrorCode} from './error';
+import {useEmulator} from './firebase';
 import {VerifyOptions} from './jwt/verify';
+import {createFirebaseTokenGenerator} from './token-generator';
+import {createIdTokenVerifier, DecodedIdToken} from './token-verifier';
+import {UserRecord} from './user-record';
 
 const getCustomTokenEndpoint = (apiKey: string) => {
   if (useEmulator() && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
@@ -122,7 +122,7 @@ const isUserNotFoundResponse = (
 const refreshExpiredIdToken = async (
   refreshToken: string,
   apiKey: string
-): Promise<string> => {
+): Promise<IdAndRefreshTokens> => {
   // https://firebase.google.com/docs/reference/rest/auth/#section-refresh-token
   const response = await fetch(getRefreshTokenEndpoint(apiKey), {
     method: 'POST',
@@ -147,7 +147,10 @@ const refreshExpiredIdToken = async (
 
   const data = await response.json();
 
-  return data.id_token;
+  return {
+    idToken: data.id_token,
+    refreshToken: data.refresh_token
+  };
 };
 
 export function isUserNotFoundError(error: unknown): error is AuthError {
@@ -194,6 +197,12 @@ export interface UsersList {
   nextPageToken?: string;
 }
 
+export interface VerifyTokenResult {
+  idToken: string;
+  decodedIdToken: DecodedIdToken;
+  refreshToken: string;
+}
+
 export function getFirebaseAuth(
   serviceAccount: ServiceAccount,
   apiKey: string,
@@ -208,13 +217,15 @@ export function getFirebaseAuth(
   const handleTokenRefresh = async (
     refreshToken: string,
     firebaseApiKey: string
-  ): Promise<Tokens> => {
-    const newToken = await refreshExpiredIdToken(refreshToken, firebaseApiKey);
-    const decodedToken = await verifyIdToken(newToken);
+  ): Promise<VerifyTokenResult> => {
+    const {idToken, refreshToken: newRefreshToken} =
+      await refreshExpiredIdToken(refreshToken, firebaseApiKey);
+    const decodedIdToken = await verifyIdToken(idToken);
 
     return {
-      decodedToken: decodedToken,
-      token: newToken
+      decodedIdToken,
+      idToken,
+      refreshToken: newRefreshToken
     };
   };
 
@@ -294,14 +305,14 @@ export function getFirebaseAuth(
   }
 
   async function verifyAndRefreshExpiredIdToken(
-    token: string,
+    idToken: string,
     refreshToken: string,
     options?: VerifyOptions
-  ): Promise<Tokens | null> {
+  ): Promise<VerifyTokenResult | null> {
     return await handleExpiredToken(
       async () => {
-        const decodedToken = await verifyIdToken(token, false, options);
-        return {token, decodedToken};
+        const decodedIdToken = await verifyIdToken(idToken, false, options);
+        return {idToken, decodedIdToken, refreshToken};
       },
       async () => {
         if (refreshToken) {
