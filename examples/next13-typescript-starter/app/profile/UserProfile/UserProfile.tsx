@@ -36,7 +36,6 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
   });
 
   const [handleClaims, isClaimsLoading] = useLoadingCallback(async () => {
-    const auth = getFirebaseAuth();
     const headers: Record<string, string> = {};
 
     // This is optional. Use it if your app supports App Check – https://firebase.google.com/docs/app-check
@@ -51,7 +50,7 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
       headers
     });
 
-    await auth.currentUser!.getIdTokenResult(true);
+    await getFirebaseAuth().currentUser?.getIdTokenResult(true);
   });
 
   const [handleAppCheck, isAppCheckLoading] = useLoadingCallback(async () => {

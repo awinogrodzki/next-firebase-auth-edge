@@ -122,7 +122,6 @@ export async function refreshAuthCookies(
   );
   const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
     idToken,
-    options.apiKey,
     options.appCheckToken
   );
 
@@ -208,8 +207,7 @@ export async function authMiddleware(
     },
     async () => {
       const {idToken, decodedIdToken, refreshToken} = await handleTokenRefresh(
-        idAndRefreshTokens.refreshToken,
-        options.apiKey
+        idAndRefreshTokens.refreshToken
       );
 
       const signedCookies = await toSignedCookies(
