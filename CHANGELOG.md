@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 1.1.0
+
+### Minor Changes
+
+- Deprecated refreshAuthCookies methods in favor of refreshNextResponseCookies and refreshApiResponseCookies
+
 ## 1.0.1
 
 ### Patch Changes
