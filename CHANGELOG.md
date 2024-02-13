@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 1.2.0
+
+### Minor Changes
+
+- Introduced refreshServerCookies method to refresh credentials from inside Server Actions
+
 ## 1.1.0
 
 ### Minor Changes
