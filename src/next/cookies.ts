@@ -1,12 +1,13 @@
-import {getFirebaseAuth, IdAndRefreshTokens} from '../auth';
-import {ServiceAccount} from '../auth/credential';
-import {sign, SignedCookies} from '../auth/cookies/sign';
 import {CookieSerializeOptions, serialize} from 'cookie';
-import {NextRequest, NextResponse} from 'next/server';
-import {getSignatureCookieName} from '../auth/cookies';
-import {NextApiResponse} from 'next';
-import {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
+import {NextApiRequest, NextApiResponse} from 'next';
 import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
+import {NextRequest, NextResponse} from 'next/server';
+import {getFirebaseAuth, IdAndRefreshTokens, VerifyTokenResult} from '../auth';
+import {getSignatureCookieName} from '../auth/cookies';
+import {sign, SignedCookies} from '../auth/cookies/sign';
+import {ServiceAccount} from '../auth/credential';
+import {getCookiesTokens, getRequestCookiesTokens} from './tokens';
 
 export interface SetAuthCookiesOptions {
   cookieName: string;
@@ -149,6 +150,10 @@ export async function appendAuthCookies(
   );
 }
 
+/**
+ * @deprecated
+ * Use `refreshApiResponseCookies` from `next-firebase-auth-edge/lib/next/cookies` instead
+ */
 export async function refreshAuthCookies(
   idToken: string,
   response: NextApiResponse,
@@ -225,6 +230,98 @@ export function removeAuthCookies(
       expires: new Date(0)
     })
   );
+
+  return response;
+}
+
+export async function verifyApiRequest(
+  request: NextApiRequest,
+  options: SetAuthCookiesOptions
+): Promise<VerifyTokenResult | null> {
+  const cookies = await getCookiesTokens(request.cookies, options);
+
+  if (!cookies) {
+    return null;
+  }
+
+  const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth(
+    options.serviceAccount,
+    options.apiKey,
+    options.tenantId
+  );
+
+  const verifyTokenResult = await verifyAndRefreshExpiredIdToken(
+    cookies.idToken,
+    cookies.refreshToken
+  );
+
+  if (!verifyTokenResult) {
+    return null;
+  }
+
+  return verifyTokenResult;
+}
+
+export async function refreshApiResponseCookies(
+  request: NextApiRequest,
+  response: NextApiResponse,
+  options: SetAuthCookiesOptions
+): Promise<NextApiResponse> {
+  const verifyTokenResult = await verifyApiRequest(request, options);
+
+  if (!verifyTokenResult) {
+    return response;
+  }
+
+  await appendAuthCookiesApi(response, verifyTokenResult, options);
+
+  return response;
+}
+
+// function isVerifyTokenResultEqual(a: IdAndRefreshTokens, b: VerifyTokenResult | null) {
+//   return a.idToken === b?.idToken && a.refreshToken === b?.refreshToken;
+// }
+
+export async function verifyNextRequest(
+  request: NextRequest,
+  options: SetAuthCookiesOptions
+): Promise<VerifyTokenResult | null> {
+  const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth(
+    options.serviceAccount,
+    options.apiKey,
+    options.tenantId
+  );
+
+  const cookies = await getRequestCookiesTokens(request.cookies, options);
+
+  if (!cookies) {
+    return null;
+  }
+
+  const verifyTokenResult = await verifyAndRefreshExpiredIdToken(
+    cookies.idToken,
+    cookies.refreshToken
+  );
+
+  if (!verifyTokenResult) {
+    return null;
+  }
+
+  return verifyTokenResult;
+}
+
+export async function refreshNextResponseCookies(
+  request: NextRequest,
+  response: NextResponse,
+  options: SetAuthCookiesOptions
+): Promise<NextResponse> {
+  const verifyTokenResult = await verifyNextRequest(request, options);
+
+  if (!verifyTokenResult) {
+    return response;
+  }
+
+  await appendAuthCookies(response, verifyTokenResult, options);
 
   return response;
 }

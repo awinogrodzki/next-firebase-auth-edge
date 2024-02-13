@@ -1,21 +1,26 @@
 'use client';
 
 import * as React from 'react';
-import { useLoadingCallback } from 'react-loading-hook';
-import { getGoogleProvider, loginWithProvider } from './firebase';
+import {useLoadingCallback} from 'react-loading-hook';
+import {getGoogleProvider, loginWithProvider} from './firebase';
 import styles from './login.module.css';
-import { Button } from '../../ui/Button';
-import { LoadingIcon } from '../../ui/icons';
+import {Button} from '../../ui/Button';
+import {LoadingIcon} from '../../ui/icons';
 import Link from 'next/link';
-import { ButtonGroup } from '../../ui/ButtonGroup';
-import { MainTitle } from '../../ui/MainTitle';
-import { PasswordForm } from '../../ui/PasswordForm';
-import { PasswordFormValue } from '../../ui/PasswordForm/PasswordForm';
-import { isSignInWithEmailLink, sendSignInLinkToEmail, signInWithEmailAndPassword, signInWithEmailLink } from 'firebase/auth';
-import { getFirebaseAuth } from '../auth/firebase';
-import { appendRedirectParam } from '../shared/redirect';
-import { useRedirect } from '../shared/useRedirect';
-import { useRedirectParam } from '../shared/useRedirectParam';
+import {ButtonGroup} from '../../ui/ButtonGroup';
+import {MainTitle} from '../../ui/MainTitle';
+import {PasswordForm} from '../../ui/PasswordForm';
+import {PasswordFormValue} from '../../ui/PasswordForm/PasswordForm';
+import {
+  isSignInWithEmailLink,
+  sendSignInLinkToEmail,
+  signInWithEmailAndPassword,
+  signInWithEmailLink
+} from 'firebase/auth';
+import {getFirebaseAuth} from '../auth/firebase';
+import {appendRedirectParam} from '../shared/redirect';
+import {useRedirect} from '../shared/useRedirect';
+import {useRedirectParam} from '../shared/useRedirectParam';
 
 export function LoginPage() {
   const [hasLogged, setHasLogged] = React.useState(false);
@@ -24,7 +29,7 @@ export function LoginPage() {
   useRedirect();
 
   const [handleLoginWithEmailAndPassword, isEmailLoading, emailPasswordError] =
-    useLoadingCallback(async ({ email, password }: PasswordFormValue) => {
+    useLoadingCallback(async ({email, password}: PasswordFormValue) => {
       setHasLogged(false);
 
       const auth = getFirebaseAuth();
@@ -33,19 +38,18 @@ export function LoginPage() {
       setHasLogged(true);
     });
 
-  const [handleLoginWithGoogle, isGoogleLoading, googleError] = useLoadingCallback(
-    async () => {
+  const [handleLoginWithGoogle, isGoogleLoading, googleError] =
+    useLoadingCallback(async () => {
       setHasLogged(false);
 
       const auth = getFirebaseAuth();
       await loginWithProvider(auth, getGoogleProvider(auth));
 
       setHasLogged(true);
-    }
-  );
+    });
 
-  const [handleLoginWithEmailLink, isEmailLinkLoading, emailLinkError] = useLoadingCallback(
-    async () => {
+  const [handleLoginWithEmailLink, isEmailLinkLoading, emailLinkError] =
+    useLoadingCallback(async () => {
       const auth = getFirebaseAuth();
       const email = window.prompt('Please provide your email');
 
@@ -56,16 +60,15 @@ export function LoginPage() {
       window.localStorage.setItem('emailForSignIn', email);
 
       await sendSignInLinkToEmail(auth, email, {
-        url: process.env.NEXT_PUBLIC_ORIGIN + "/login",
+        url: process.env.NEXT_PUBLIC_ORIGIN + '/login',
         handleCodeInApp: true
       });
-    }
-  );
+    });
 
   async function handleLoginWithEmailLinkCallback() {
     const auth = getFirebaseAuth();
     if (!isSignInWithEmailLink(auth, window.location.href)) {
-      return
+      return;
     }
 
     let email = window.localStorage.getItem('emailForSignIn');
@@ -79,7 +82,7 @@ export function LoginPage() {
 
     setHasLogged(false);
 
-    await signInWithEmailLink(auth, email, window.location.href)
+    await signInWithEmailLink(auth, email, window.location.href);
     window.localStorage.removeItem('emailForSignIn');
 
     setHasLogged(true);
