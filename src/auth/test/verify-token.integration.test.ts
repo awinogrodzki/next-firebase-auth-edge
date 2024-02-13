@@ -162,10 +162,7 @@ describe('verify token integration test', () => {
           FIREBASE_API_KEY!,
           {tenantId, appCheckToken: appCheckToken.token}
         );
-        const {decodedIdToken} = await handleTokenRefresh(
-          refreshToken,
-          FIREBASE_API_KEY!
-        );
+        const {decodedIdToken} = await handleTokenRefresh(refreshToken);
 
         expect(decodedIdToken.uid).toEqual(userId);
         expect(decodedIdToken.customClaim).toEqual('customClaimValue');
@@ -186,9 +183,9 @@ describe('verify token integration test', () => {
 
         await deleteUser(userId);
 
-        return expect(() =>
-          handleTokenRefresh(refreshToken, FIREBASE_API_KEY!)
-        ).rejects.toEqual(new AuthError(AuthErrorCode.USER_NOT_FOUND));
+        return expect(() => handleTokenRefresh(refreshToken)).rejects.toEqual(
+          new AuthError(AuthErrorCode.USER_NOT_FOUND)
+        );
       });
 
       it('should be able to catch "user not found" error and return null', async () => {
@@ -199,7 +196,7 @@ describe('verify token integration test', () => {
 
         async function customGetToken() {
           try {
-            return await handleTokenRefresh(refreshToken, FIREBASE_API_KEY!);
+            return await handleTokenRefresh(refreshToken);
           } catch (e: unknown) {
             if (isUserNotFoundError(e)) {
               return null;

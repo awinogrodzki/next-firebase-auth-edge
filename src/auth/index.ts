@@ -215,11 +215,10 @@ export function getFirebaseAuth(
   const tokenGenerator = createFirebaseTokenGenerator(credential, tenantId);
 
   const handleTokenRefresh = async (
-    refreshToken: string,
-    firebaseApiKey: string
+    refreshToken: string
   ): Promise<VerifyTokenResult> => {
     const {idToken, refreshToken: newRefreshToken} =
-      await refreshExpiredIdToken(refreshToken, firebaseApiKey);
+      await refreshExpiredIdToken(refreshToken, apiKey);
     const decodedIdToken = await verifyIdToken(idToken);
 
     return {
@@ -316,7 +315,7 @@ export function getFirebaseAuth(
       },
       async () => {
         if (refreshToken) {
-          return handleTokenRefresh(refreshToken, apiKey);
+          return handleTokenRefresh(refreshToken);
         }
 
         return null;
@@ -336,13 +335,12 @@ export function getFirebaseAuth(
 
   async function getCustomIdAndRefreshTokens(
     idToken: string,
-    firebaseApiKey: string,
     appCheckToken?: string
   ) {
     const tenant = await verifyIdToken(idToken);
     const customToken = await createCustomToken(tenant.uid);
 
-    return customTokenToIdAndRefreshTokens(customToken, firebaseApiKey, {
+    return customTokenToIdAndRefreshTokens(customToken, apiKey, {
       tenantId,
       appCheckToken
     });

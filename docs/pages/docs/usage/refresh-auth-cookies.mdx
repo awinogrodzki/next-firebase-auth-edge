@@ -161,3 +161,44 @@ export default async function handler(
   res.status(200).json({ example: true });
 }
 ```
+
+
+## Refresh auth cookies in Server Actions
+
+Use `refreshServerCookies` from `next-firebase-auth-edge/lib/next/cookies` to refresh authentication cookies after updating user credential in [Server Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations)
+
+```tsx
+'use server';
+
+import {cookies} from 'next/headers';
+import {getTokens} from 'next-firebase-auth-edge';
+import {refreshServerCookies} from 'next-firebase-auth-edge/lib/next/cookies';
+
+const commonOptions = {
+  apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
+  cookieName: "AuthToken",
+  cookieSignatureKeys: ["secret1", "secret2"],
+  cookieSerializeOptions: {
+    path: "/",
+    httpOnly: true,
+    secure: false, // Set this to true on HTTPS environments
+    sameSite: "strict" as const,
+    maxAge: 12 * 60 * 60 * 24, // twelve days
+  },
+  serviceAccount: {
+    projectId: 'your-firebase-project-id',
+    clientEmail: 'firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com',
+    privateKey: '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
+  }
+};
+
+export async function performServerAction() {
+  const tokens = await getTokens(cookies(), commonOptions);
+
+  if (!tokens) {
+    throw new Error('Unauthenticated');
+  }
+
+  await refreshServerCookies(cookies(), commonOptions);
+}
+```

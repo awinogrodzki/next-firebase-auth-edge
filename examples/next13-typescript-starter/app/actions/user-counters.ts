@@ -1,7 +1,7 @@
 'use server';
 
 import {getFirestore} from 'firebase-admin/firestore';
-import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
+import {getTokens} from 'next-firebase-auth-edge';
 import {revalidatePath} from 'next/cache';
 import {cookies} from 'next/headers';
 import {getFirebaseAdminApp} from '../firebase';
