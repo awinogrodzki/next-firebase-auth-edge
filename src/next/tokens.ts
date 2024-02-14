@@ -16,6 +16,7 @@ import {
   CookiesObject,
   isCookiesObjectVerifiedByMiddleware
 } from './cookies';
+import {debug} from '../debug';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   serviceAccount: ServiceAccount;
@@ -43,6 +44,13 @@ export async function getRequestCookiesTokens(
   const signature = cookies.get(getSignatureCookieName(options.cookieName));
 
   if (!signed || !signature) {
+    debug('Missing authentication cookies', {
+      hasSignedCookie: String(Boolean(signed)),
+      hasSignatureCookie: String(Boolean(signature)),
+      signedCookieName: options.cookieName,
+      signatureCookieName: getSignatureCookieName(options.cookieName)
+    });
+
     return null;
   }
 
@@ -52,9 +60,11 @@ export async function getRequestCookiesTokens(
   });
 
   if (!cookie?.value) {
+    debug('Authentication cookies are present, but cannot be verified');
     return null;
   }
 
+  debug('Authentication cookies are present and valid');
   return JSON.parse(cookie.value) as IdAndRefreshTokens;
 }
 

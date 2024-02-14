@@ -8,6 +8,7 @@ import {getSignatureCookieName} from '../auth/cookies';
 import {sign, SignedCookies} from '../auth/cookies/sign';
 import {ServiceAccount} from '../auth/credential';
 import {getCookiesTokens, getRequestCookiesTokens} from './tokens';
+import {debug} from '../debug';
 
 export interface SetAuthCookiesOptions {
   cookieName: string;
@@ -143,6 +144,11 @@ export async function appendAuthCookies(
 ) {
   const signedCookies = await toSignedCookies(tokens, options);
 
+  debug('Updating response headers with authenticated cookies', {
+    signedCookieName: signedCookies.signed.name,
+    signatureCookieName: signedCookies.signature.name
+  });
+
   return updateResponseAuthCookies(
     response,
     signedCookies,
@@ -190,6 +196,8 @@ export async function setAuthCookies(
     appCheckToken
   );
 
+  debug('Successfully generated custom tokens');
+
   const response = new NextResponse(JSON.stringify({success: true}), {
     status: 200,
     headers: {'content-type': 'application/json'}
@@ -204,7 +212,7 @@ export interface RemoveAuthCookiesOptions {
 }
 
 export function removeAuthCookies(
-  headers: Headers,
+  _headers: Headers,
   options: RemoveAuthCookiesOptions
 ): NextResponse {
   const response = new NextResponse(JSON.stringify({success: true}), {
@@ -229,6 +237,11 @@ export function removeAuthCookies(
       expires: new Date(0)
     })
   );
+
+  debug('Updating response with empty authentication cookie headers', {
+    signedCookieName: options.cookieName,
+    signatureCookieName: getSignatureCookieName(options.cookieName)
+  });
 
   return response;
 }
