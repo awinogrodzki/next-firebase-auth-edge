@@ -1,22 +1,21 @@
-import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
+import {decodeJwt} from 'jose';
 import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
-import {ServiceAccount} from '../auth/credential';
-import {getSignatureCookieName} from '../auth/cookies';
+import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {
   getFirebaseAuth,
   IdAndRefreshTokens,
   Tokens,
   VerifyTokenResult
 } from '../auth';
-import {get} from '../auth/cookies/get';
-import {decodeJwt} from 'jose';
+import {parseTokens} from '../auth/cookies/sign';
+import {ServiceAccount} from '../auth/credential';
 import {mapJwtPayloadToDecodedIdToken} from '../auth/utils';
+import {debug} from '../debug';
 import {
   areCookiesVerifiedByMiddleware,
   CookiesObject,
   isCookiesObjectVerifiedByMiddleware
 } from './cookies';
-import {debug} from '../debug';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   serviceAccount: ServiceAccount;
@@ -40,32 +39,26 @@ export async function getRequestCookiesTokens(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetCookiesTokensOptions
 ): Promise<IdAndRefreshTokens | null> {
-  const signed = cookies.get(options.cookieName);
-  const signature = cookies.get(getSignatureCookieName(options.cookieName));
+  const signedCookie = cookies.get(options.cookieName);
 
-  if (!signed || !signature) {
-    debug('Missing authentication cookies', {
-      hasSignedCookie: String(Boolean(signed)),
-      hasSignatureCookie: String(Boolean(signature)),
-      signedCookieName: options.cookieName,
-      signatureCookieName: getSignatureCookieName(options.cookieName)
-    });
+  if (!signedCookie) {
+    debug('Missing authentication cookies');
 
     return null;
   }
 
-  const cookie = await get(options.cookieSignatureKeys)({
-    signed,
-    signature
-  });
+  const tokens = await parseTokens(
+    signedCookie.value,
+    options.cookieSignatureKeys
+  );
 
-  if (!cookie?.value) {
+  if (!tokens) {
     debug('Authentication cookies are present, but cannot be verified');
     return null;
   }
 
   debug('Authentication cookies are present and valid');
-  return JSON.parse(cookie.value) as IdAndRefreshTokens;
+  return tokens;
 }
 
 function toTokens(result: VerifyTokenResult | null): Tokens | null {
@@ -115,28 +108,18 @@ export async function getCookiesTokens(
   options: GetCookiesTokensOptions
 ): Promise<IdAndRefreshTokens | null> {
   const signedCookie = cookies[options.cookieName];
-  const signatureCookie = cookies[getSignatureCookieName(options.cookieName)];
 
-  if (!signedCookie || !signatureCookie) {
+  if (!signedCookie) {
     return null;
   }
 
-  const cookie = await get(options.cookieSignatureKeys)({
-    signed: {
-      name: options.cookieName,
-      value: signedCookie
-    },
-    signature: {
-      name: getSignatureCookieName(options.cookieName),
-      value: signatureCookie
-    }
-  });
+  const tokens = await parseTokens(signedCookie, options.cookieSignatureKeys);
 
-  if (!cookie?.value) {
+  if (!tokens) {
     return null;
   }
 
-  return JSON.parse(cookie.value) as IdAndRefreshTokens;
+  return tokens;
 }
 
 export async function getTokensFromObject(

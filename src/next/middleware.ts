@@ -1,4 +1,4 @@
-import {CookieSerializeOptions} from 'cookie';
+import {CookieSerializeOptions, serialize} from 'cookie';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
 import {
@@ -7,6 +7,7 @@ import {
   getFirebaseAuth,
   handleExpiredToken
 } from '../auth';
+import {signTokens} from '../auth/cookies/sign';
 import {ServiceAccount} from '../auth/credential';
 import {debug, enableDebugMode} from '../debug';
 import {
@@ -16,9 +17,6 @@ import {
   removeAuthCookies,
   removeInternalVerifiedCookieIfExists,
   setAuthCookies,
-  toSignedCookies,
-  updateRequestAuthCookies,
-  updateResponseAuthCookies,
   wasResponseDecoratedWithModifiedRequestHeaders
 } from './cookies';
 import {GetTokensOptions, getRequestCookiesTokens} from './tokens';
@@ -195,8 +193,12 @@ export async function authMiddleware(
 
   if (!idAndRefreshTokens) {
     debug(
-      'Authentication cookies could not be verified. Proceed to handleInvalidToken.'
+      'Authentication cookies could not be verified. Proceed to handleInvalidToken.',
+      {
+        cookieHeader: request.headers.get('cookie')
+      }
     );
+
     return handleInvalidToken();
   }
 
@@ -239,15 +241,16 @@ export async function authMiddleware(
         'Token refreshed successfully. Updating response cookie headers...'
       );
 
-      const signedCookies = await toSignedCookies(
+      const signedTokens = await signTokens(
         {
           idToken,
           refreshToken
         },
-        options
+        options.cookieSignatureKeys
       );
 
-      updateRequestAuthCookies(request, signedCookies);
+      request.cookies.set(options.cookieName, signedTokens);
+
       markCookiesAsVerified(request.cookies);
       const response = await handleValidToken(
         {token: idToken, decodedToken: decodedIdToken},
@@ -258,11 +261,16 @@ export async function authMiddleware(
 
       validateResponse(response);
 
-      return updateResponseAuthCookies(
-        response,
-        signedCookies,
-        options.cookieSerializeOptions
+      response.headers.append(
+        'Set-Cookie',
+        serialize(
+          options.cookieName,
+          signedTokens,
+          options.cookieSerializeOptions
+        )
       );
+
+      return response;
     },
     async (e) => {
       debug('Authentication failed with error', {error: e});

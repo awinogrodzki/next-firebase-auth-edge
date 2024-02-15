@@ -3,12 +3,11 @@ import {NextApiRequest, NextApiResponse} from 'next';
 import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {NextRequest, NextResponse} from 'next/server';
-import {getFirebaseAuth, IdAndRefreshTokens, VerifyTokenResult} from '../auth';
-import {getSignatureCookieName} from '../auth/cookies';
-import {sign, SignedCookies} from '../auth/cookies/sign';
+import {IdAndRefreshTokens, VerifyTokenResult, getFirebaseAuth} from '../auth';
+import {signTokens} from '../auth/cookies/sign';
 import {ServiceAccount} from '../auth/credential';
-import {getCookiesTokens, getRequestCookiesTokens} from './tokens';
 import {debug} from '../debug';
+import {getCookiesTokens, getRequestCookiesTokens} from './tokens';
 
 export interface SetAuthCookiesOptions {
   cookieName: string;
@@ -79,62 +78,11 @@ export async function appendAuthCookiesApi(
   tokens: IdAndRefreshTokens,
   options: SetAuthCookiesOptions
 ) {
-  const value = JSON.stringify(tokens);
-  const signedCookie = await sign(options.cookieSignatureKeys)({
-    name: options.cookieName,
-    value
-  });
+  const signedTokens = await signTokens(tokens, options.cookieSignatureKeys);
 
   response.setHeader('Set-Cookie', [
-    serialize(
-      signedCookie.signature.name,
-      signedCookie.signature.value,
-      options.cookieSerializeOptions
-    ),
-    serialize(
-      signedCookie.signed.name,
-      signedCookie.signed.value,
-      options.cookieSerializeOptions
-    )
+    serialize(options.cookieName, signedTokens, options.cookieSerializeOptions)
   ]);
-}
-
-export function updateRequestAuthCookies(
-  request: NextRequest,
-  cookies: SignedCookies
-) {
-  request.cookies.set(cookies.signed.name, cookies.signed.value);
-  request.cookies.set(cookies.signature.name, cookies.signature.value);
-}
-
-export function updateResponseAuthCookies(
-  response: NextResponse,
-  cookies: SignedCookies,
-  options: CookieSerializeOptions
-) {
-  response.headers.append(
-    'Set-Cookie',
-    serialize(cookies.signature.name, cookies.signature.value, options)
-  );
-
-  response.headers.append(
-    'Set-Cookie',
-    serialize(cookies.signed.name, cookies.signed.value, options)
-  );
-
-  return response;
-}
-
-export function toSignedCookies(
-  tokens: IdAndRefreshTokens,
-  options: SetAuthCookiesOptions
-) {
-  const value = JSON.stringify(tokens);
-
-  return sign(options.cookieSignatureKeys)({
-    name: options.cookieName,
-    value
-  });
 }
 
 export async function appendAuthCookies(
@@ -142,17 +90,13 @@ export async function appendAuthCookies(
   tokens: IdAndRefreshTokens,
   options: SetAuthCookiesOptions
 ) {
-  const signedCookies = await toSignedCookies(tokens, options);
+  const signedTokens = await signTokens(tokens, options.cookieSignatureKeys);
 
-  debug('Updating response headers with authenticated cookies', {
-    signedCookieName: signedCookies.signed.name,
-    signatureCookieName: signedCookies.signature.name
-  });
+  debug('Updating response headers with authenticated cookies');
 
-  return updateResponseAuthCookies(
-    response,
-    signedCookies,
-    options.cookieSerializeOptions
+  response.headers.append(
+    'Set-Cookie',
+    serialize(options.cookieName, signedTokens, options.cookieSerializeOptions)
   );
 }
 
@@ -203,7 +147,9 @@ export async function setAuthCookies(
     headers: {'content-type': 'application/json'}
   });
 
-  return appendAuthCookies(response, idAndRefreshTokens, options);
+  await appendAuthCookies(response, idAndRefreshTokens, options);
+
+  return response;
 }
 
 export interface RemoveAuthCookiesOptions {
@@ -230,17 +176,8 @@ export function removeAuthCookies(
     })
   );
 
-  response.headers.append(
-    'Set-Cookie',
-    serialize(getSignatureCookieName(options.cookieName), '', {
-      ...cookieOptions,
-      expires: new Date(0)
-    })
-  );
-
   debug('Updating response with empty authentication cookie headers', {
-    signedCookieName: options.cookieName,
-    signatureCookieName: getSignatureCookieName(options.cookieName)
+    cookieName: options.cookieName
   });
 
   return response;
@@ -398,16 +335,10 @@ export async function refreshServerCookies(
     return;
   }
 
-  const signedCookies = await toSignedCookies(verifyTokenResult, options);
+  const signedTokens = await signTokens(
+    verifyTokenResult,
+    options.cookieSignatureKeys
+  );
 
-  cookies.set(
-    signedCookies.signed.name,
-    signedCookies.signed.value,
-    options.cookieSerializeOptions
-  );
-  cookies.set(
-    signedCookies.signature.name,
-    signedCookies.signature.value,
-    options.cookieSerializeOptions
-  );
+  cookies.set(options.cookieName, signedTokens, options.cookieSerializeOptions);
 }

@@ -1,25 +1,34 @@
-import {RotatingCredential} from '../rotating-credential';
-import {Cookie, getSignatureCookieName} from './index';
 import {base64url} from 'jose';
+import {IdAndRefreshTokens} from '..';
+import {RotatingCredential} from '../rotating-credential';
 
-export interface SignedCookies {
-  signature: Cookie;
-  signed: Cookie;
+export async function signTokens(
+  tokens: IdAndRefreshTokens,
+  keys: string[]
+): Promise<string> {
+  const credential = new RotatingCredential(keys);
+  const signature = await credential.sign(
+    `${tokens.idToken}.${tokens.refreshToken}`
+  );
+
+  return base64url.encode(JSON.stringify({tokens, signature}));
 }
 
-export const sign = (keys: string[]) => {
+export async function parseTokens(
+  value: string,
+  keys: string[]
+): Promise<IdAndRefreshTokens | null> {
   const credential = new RotatingCredential(keys);
+  const decoded = new TextDecoder().decode(base64url.decode(value));
+  const {tokens, signature} = JSON.parse(decoded);
+  const result = await credential.verify(
+    `${tokens.idToken}.${tokens.refreshToken}`,
+    signature
+  );
 
-  return async (cookie: Cookie): Promise<SignedCookies> => {
-    const value = base64url.encode(cookie.value);
-    const hash = await credential.sign(value);
+  if (!result) {
+    return null;
+  }
 
-    return {
-      signature: {name: cookie.name, value},
-      signed: {
-        name: getSignatureCookieName(cookie.name),
-        value: hash
-      }
-    };
-  };
-};
+  return tokens as IdAndRefreshTokens;
+}

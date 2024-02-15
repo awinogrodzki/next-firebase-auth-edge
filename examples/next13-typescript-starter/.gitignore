@@ -16,3 +16,4 @@ webpack-stats.json
 .idea
 *.log
 dist
+.firebase

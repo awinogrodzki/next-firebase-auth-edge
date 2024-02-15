@@ -4,7 +4,6 @@ import * as React from 'react';
 import {useAuth} from '../../auth/AuthContext';
 import styles from './UserProfile.module.css';
 import {useLoadingCallback} from 'react-loading-hook';
-import {clientConfig} from '../../../config/client-config';
 import {Button} from '../../../ui/Button';
 import {LoadingIcon} from '../../../ui/icons';
 import {useRouter} from 'next/navigation';
@@ -83,12 +82,6 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
       router.refresh();
     });
 
-  function handleRedirect() {
-    router.push(
-      `${clientConfig.redirectUrl}?redirect_url=${window.location.href}`
-    );
-  }
-
   let [isIncrementCounterActionPending, startTransition] =
     React.useTransition();
 
@@ -154,7 +147,6 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
           >
             Log out
           </Button>
-          <Button onClick={handleRedirect}>Redirect</Button>
         </ButtonGroup>
       </Card>
       <Card className={styles.section}>
