@@ -1,16 +1,16 @@
-import { CLIENT_CERT_URL, FIREBASE_AUDIENCE, useEmulator } from './firebase';
+import {CLIENT_CERT_URL, FIREBASE_AUDIENCE, useEmulator} from './firebase';
 import {
   ALGORITHM_RS256,
   DecodedToken,
   PublicKeySignatureVerifier,
   SignatureVerifier
 } from './signature-verifier';
-import { isURL } from './validator';
-import { decodeJwt, decodeProtectedHeader, errors } from 'jose';
-import { JOSEError } from 'jose/dist/types/util/errors';
-import { AuthError, AuthErrorCode } from './error';
-import { VerifyOptions } from './jwt/verify';
-import { mapJwtPayloadToDecodedIdToken } from './utils';
+import {isURL} from './validator';
+import {decodeJwt, decodeProtectedHeader, errors} from 'jose';
+import {JOSEError} from 'jose/dist/types/util/errors';
+import {AuthError, AuthErrorCode} from './error';
+import {VerifyOptions} from './jwt/verify';
+import {mapJwtPayloadToDecodedIdToken} from './utils';
 
 export interface FirebaseClaims {
   identities: {
@@ -80,10 +80,10 @@ export class FirebaseTokenVerifier {
     const header = decodeProtectedHeader(token);
     const payload = decodeJwt(token);
 
-    this.verifyContent({ header, payload }, projectId);
+    this.verifyContent({header, payload}, projectId);
     await this.verifySignature(token, options);
 
-    return { header, payload };
+    return {header, payload};
   }
 
   private verifyContent(

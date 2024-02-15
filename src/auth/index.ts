@@ -3,13 +3,13 @@ import {
   CreateRequest,
   UpdateRequest
 } from './auth-request-handler';
-import { ServiceAccount, ServiceAccountCredential } from './credential';
-import { AuthError, AuthErrorCode } from './error';
-import { useEmulator } from './firebase';
-import { VerifyOptions } from './jwt/verify';
-import { createFirebaseTokenGenerator } from './token-generator';
-import { createIdTokenVerifier, DecodedIdToken } from './token-verifier';
-import { UserRecord } from './user-record';
+import {ServiceAccount, ServiceAccountCredential} from './credential';
+import {AuthError, AuthErrorCode} from './error';
+import {useEmulator} from './firebase';
+import {VerifyOptions} from './jwt/verify';
+import {createFirebaseTokenGenerator} from './token-generator';
+import {createIdTokenVerifier, DecodedIdToken} from './token-verifier';
+import {UserRecord} from './user-record';
 
 const getCustomTokenEndpoint = (apiKey: string) => {
   if (useEmulator() && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
@@ -217,7 +217,7 @@ export function getFirebaseAuth(
   const handleTokenRefresh = async (
     refreshToken: string
   ): Promise<VerifyTokenResult> => {
-    const { idToken, refreshToken: newRefreshToken } =
+    const {idToken, refreshToken: newRefreshToken} =
       await refreshExpiredIdToken(refreshToken, apiKey);
     const decodedIdToken = await verifyIdToken(idToken);
 
@@ -311,7 +311,7 @@ export function getFirebaseAuth(
     return await handleExpiredToken(
       async () => {
         const decodedIdToken = await verifyIdToken(idToken, false, options);
-        return { idToken, decodedIdToken, refreshToken };
+        return {idToken, decodedIdToken, refreshToken};
       },
       async () => {
         if (refreshToken) {

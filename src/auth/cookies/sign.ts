@@ -1,6 +1,6 @@
-import { base64url } from 'jose';
-import { IdAndRefreshTokens } from '..';
-import { RotatingCredential } from '../rotating-credential';
+import {base64url} from 'jose';
+import {IdAndRefreshTokens} from '..';
+import {RotatingCredential} from '../rotating-credential';
 
 export async function signTokens(
   tokens: IdAndRefreshTokens,
@@ -8,10 +8,15 @@ export async function signTokens(
 ): Promise<string> {
   const credential = new RotatingCredential(keys);
   const signature = await credential.sign(
-    `${tokens.idToken}.${tokens.refreshToken}`
+    base64url.encode(`${tokens.idToken}.${tokens.refreshToken}`)
   );
 
-  return base64url.encode(JSON.stringify({ tokens: { idToken: tokens.idToken, refreshToken: tokens.refreshToken }, signature }));
+  return base64url.encode(
+    JSON.stringify({
+      tokens: {idToken: tokens.idToken, refreshToken: tokens.refreshToken},
+      signature
+    })
+  );
 }
 
 export async function parseTokens(
@@ -25,14 +30,14 @@ export async function parseTokens(
     return null;
   }
 
-  const { tokens, signature } = JSON.parse(decoded);
+  const {tokens, signature} = JSON.parse(decoded);
 
   if (!tokens || !signature) {
     return null;
   }
 
   const result = await credential.verify(
-    `${tokens.idToken}.${tokens.refreshToken}`,
+    base64url.encode(`${tokens.idToken}.${tokens.refreshToken}`),
     signature
   );
 
