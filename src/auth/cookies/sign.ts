@@ -20,7 +20,17 @@ export async function parseTokens(
 ): Promise<IdAndRefreshTokens | null> {
   const credential = new RotatingCredential(keys);
   const decoded = new TextDecoder().decode(base64url.decode(value));
+
+  if (!decoded) {
+    return null;
+  }
+
   const {tokens, signature} = JSON.parse(decoded);
+
+  if (!tokens || !signature) {
+    return null;
+  }
+
   const result = await credential.verify(
     `${tokens.idToken}.${tokens.refreshToken}`,
     signature
