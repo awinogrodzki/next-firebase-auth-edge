@@ -1,23 +1,24 @@
-import { NextRequest, NextResponse } from "next/server";
+import {NextRequest, NextResponse} from 'next/server';
 import {
   authMiddleware,
   redirectToHome,
-  redirectToLogin,
-} from "next-firebase-auth-edge";
-import { authConfig } from "./config/server-config";
+  redirectToLogin
+} from 'next-firebase-auth-edge';
+import {authConfig} from './config/server-config';
 
-const PUBLIC_PATHS = ["/register", "/login", "/reset-password"];
+const PUBLIC_PATHS = ['/register', '/login', '/reset-password'];
 
 export async function middleware(request: NextRequest) {
   return authMiddleware(request, {
-    loginPath: "/api/login",
-    logoutPath: "/api/logout",
+    debug: true,
+    loginPath: '/api/login',
+    logoutPath: '/api/logout',
     apiKey: authConfig.apiKey,
     cookieName: authConfig.cookieName,
     cookieSerializeOptions: authConfig.cookieSerializeOptions,
     cookieSignatureKeys: authConfig.cookieSignatureKeys,
     serviceAccount: authConfig.serviceAccount,
-    handleValidToken: async ({ token, decodedToken }, headers) => {
+    handleValidToken: async ({token, decodedToken}, headers) => {
       // Authenticated user should not be able to access /login, /register and /reset-password routes
       if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
         return redirectToHome(request);
@@ -25,31 +26,31 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.next({
         request: {
-          headers,
-        },
+          headers
+        }
       });
     },
     handleInvalidToken: async () => {
       return redirectToLogin(request, {
-        path: "/login",
-        publicPaths: PUBLIC_PATHS,
+        path: '/login',
+        publicPaths: PUBLIC_PATHS
       });
     },
     handleError: async (error) => {
-      console.error("Unhandled authentication error", { error });
+      console.error('Unhandled authentication error', {error});
       return redirectToLogin(request, {
-        path: "/login",
-        publicPaths: PUBLIC_PATHS,
+        path: '/login',
+        publicPaths: PUBLIC_PATHS
       });
-    },
+    }
   });
 }
 
 export const config = {
   matcher: [
-    "/",
-    "/((?!_next|favicon.ico|api|.*\\.).*)",
-    "/api/login",
-    "/api/logout",
-  ],
+    '/',
+    '/((?!_next|favicon.ico|api|.*\\.).*)',
+    '/api/login',
+    '/api/logout'
+  ]
 };

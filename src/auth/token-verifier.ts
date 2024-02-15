@@ -1,16 +1,27 @@
-import {CLIENT_CERT_URL, FIREBASE_AUDIENCE, useEmulator} from './firebase';
+import { CLIENT_CERT_URL, FIREBASE_AUDIENCE, useEmulator } from './firebase';
 import {
   ALGORITHM_RS256,
   DecodedToken,
   PublicKeySignatureVerifier,
   SignatureVerifier
 } from './signature-verifier';
-import {isURL} from './validator';
-import {decodeJwt, decodeProtectedHeader, errors} from 'jose';
-import {JOSEError} from 'jose/dist/types/util/errors';
-import {AuthError, AuthErrorCode} from './error';
-import {VerifyOptions} from './jwt/verify';
-import {mapJwtPayloadToDecodedIdToken} from './utils';
+import { isURL } from './validator';
+import { decodeJwt, decodeProtectedHeader, errors } from 'jose';
+import { JOSEError } from 'jose/dist/types/util/errors';
+import { AuthError, AuthErrorCode } from './error';
+import { VerifyOptions } from './jwt/verify';
+import { mapJwtPayloadToDecodedIdToken } from './utils';
+
+export interface FirebaseClaims {
+  identities: {
+    [key: string]: any;
+  };
+  sign_in_provider: string;
+  sign_in_second_factor?: string;
+  second_factor_identifier?: string;
+  tenant?: string;
+  [key: string]: any;
+}
 
 export interface DecodedIdToken {
   aud: string;
@@ -18,16 +29,8 @@ export interface DecodedIdToken {
   email?: string;
   email_verified?: boolean;
   exp: number;
-  firebase: {
-    identities: {
-      [key: string]: any;
-    };
-    sign_in_provider: string;
-    sign_in_second_factor?: string;
-    second_factor_identifier?: string;
-    tenant?: string;
-    [key: string]: any;
-  };
+  firebase: FirebaseClaims;
+  source_sign_in_provider: string;
   iat: number;
   iss: string;
   phone_number?: string;
@@ -77,10 +80,10 @@ export class FirebaseTokenVerifier {
     const header = decodeProtectedHeader(token);
     const payload = decodeJwt(token);
 
-    this.verifyContent({header, payload}, projectId);
+    this.verifyContent({ header, payload }, projectId);
     await this.verifySignature(token, options);
 
-    return {header, payload};
+    return { header, payload };
   }
 
   private verifyContent(

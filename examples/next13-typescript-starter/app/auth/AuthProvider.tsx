@@ -19,8 +19,15 @@ export interface AuthProviderProps {
 function toUser(user: FirebaseUser, idTokenResult: IdTokenResult): User {
   return {
     ...user,
-    customClaims: filterStandardClaims(idTokenResult.claims)
+    emailVerified:
+      user.emailVerified || (idTokenResult.claims.email_verified as boolean),
+    customClaims: filterStandardClaims(idTokenResult.claims),
+    authTime: toAuthTime(idTokenResult.issuedAtTime)
   };
+}
+
+function toAuthTime(date: string) {
+  return new Date(date).getTime() / 1000;
 }
 
 export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
@@ -29,22 +36,49 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
 }) => {
   const [user, setUser] = React.useState(serverUser);
 
-  const handleIdTokenChanged = async (firebaseUser: FirebaseUser | null) => {
-    if (firebaseUser) {
-      const tokenResult = await firebaseUser.getIdTokenResult();
+  React.useEffect(() => {
+    if (user === serverUser) {
+      return;
+    }
 
-      await login(tokenResult.token);
-      setUser(toUser(firebaseUser, tokenResult));
+    setUser(serverUser);
+  }, [serverUser]);
+
+  const handleLogout = async () => {
+    if (!user) {
       return;
     }
 
     await logout();
-    setUser(null);
+    window.location.reload();
+  };
+
+  const handleLogin = async (firebaseUser: FirebaseUser) => {
+    const idTokenResult = await firebaseUser.getIdTokenResult();
+
+    if (
+      user?.authTime &&
+      user.authTime >= toAuthTime(idTokenResult.issuedAtTime)
+    ) {
+      return;
+    }
+
+    await login(idTokenResult.token);
+    setUser(toUser(firebaseUser, idTokenResult));
+  };
+
+  const handleIdTokenChanged = async (firebaseUser: FirebaseUser | null) => {
+    if (!firebaseUser) {
+      await handleLogout();
+      return;
+    }
+
+    await handleLogin(firebaseUser);
   };
 
   React.useEffect(() => {
     return onIdTokenChanged(getFirebaseAuth(), handleIdTokenChanged);
-  }, []);
+  }, [user]);
 
   return (
     <AuthContext.Provider

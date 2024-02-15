@@ -1,6 +1,6 @@
-import {base64url} from 'jose';
-import {IdAndRefreshTokens} from '..';
-import {RotatingCredential} from '../rotating-credential';
+import { base64url } from 'jose';
+import { IdAndRefreshTokens } from '..';
+import { RotatingCredential } from '../rotating-credential';
 
 export async function signTokens(
   tokens: IdAndRefreshTokens,
@@ -11,7 +11,7 @@ export async function signTokens(
     `${tokens.idToken}.${tokens.refreshToken}`
   );
 
-  return base64url.encode(JSON.stringify({tokens, signature}));
+  return base64url.encode(JSON.stringify({ tokens: { idToken: tokens.idToken, refreshToken: tokens.refreshToken }, signature }));
 }
 
 export async function parseTokens(
@@ -25,7 +25,7 @@ export async function parseTokens(
     return null;
   }
 
-  const {tokens, signature} = JSON.parse(decoded);
+  const { tokens, signature } = JSON.parse(decoded);
 
   if (!tokens || !signature) {
     return null;

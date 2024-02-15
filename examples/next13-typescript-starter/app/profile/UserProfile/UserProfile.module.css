@@ -33,6 +33,10 @@
   margin-bottom: 1.5rem;
 }
 
+.contentButton {
+  max-width: 160px;
+}
+
 .avatar {
   width: 32px;
   height: 32px;
