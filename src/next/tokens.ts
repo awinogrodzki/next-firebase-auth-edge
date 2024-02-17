@@ -18,7 +18,7 @@ import {
 } from './cookies';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
-  serviceAccount: ServiceAccount;
+  serviceAccount?: ServiceAccount;
   apiKey: string;
 }
 
@@ -75,10 +75,10 @@ export async function getTokens(
 ): Promise<Tokens | null> {
   validateOptions(options);
 
-  const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth(
-    options.serviceAccount,
-    options.apiKey
-  );
+  const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
+    serviceAccount: options.serviceAccount,
+    apiKey: options.apiKey
+  });
 
   const tokens = await getRequestCookiesTokens(cookies, options);
 
@@ -126,10 +126,10 @@ export async function getTokensFromObject(
   cookies: CookiesObject,
   options: GetTokensOptions
 ): Promise<Tokens | null> {
-  const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth(
-    options.serviceAccount,
-    options.apiKey
-  );
+  const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
+    serviceAccount: options.serviceAccount,
+    apiKey: options.apiKey
+  });
 
   const tokens = await getCookiesTokens(cookies, options);
 

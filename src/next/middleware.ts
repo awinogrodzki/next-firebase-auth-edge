@@ -27,7 +27,7 @@ export interface CreateAuthMiddlewareOptions {
   cookieName: string;
   cookieSignatureKeys: string[];
   cookieSerializeOptions: CookieSerializeOptions;
-  serviceAccount: ServiceAccount;
+  serviceAccount?: ServiceAccount;
   apiKey: string;
   tenantId?: string;
 }
@@ -121,11 +121,11 @@ export async function refreshAuthCookies(
   response: NextResponse,
   options: SetAuthCookiesOptions
 ): Promise<IdAndRefreshTokens> {
-  const {getCustomIdAndRefreshTokens} = getFirebaseAuth(
-    options.serviceAccount,
-    options.apiKey,
-    options.tenantId
-  );
+  const {getCustomIdAndRefreshTokens} = getFirebaseAuth({
+    serviceAccount: options.serviceAccount,
+    apiKey: options.apiKey,
+    tenantId: options.tenantId
+  });
   const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
     idToken,
     options.appCheckToken
@@ -180,11 +180,11 @@ export async function authMiddleware(
     return createAuthMiddlewareResponse(request, options);
   }
 
-  const {verifyIdToken, handleTokenRefresh} = getFirebaseAuth(
-    options.serviceAccount,
-    options.apiKey,
-    options.tenantId
-  );
+  const {verifyIdToken, handleTokenRefresh} = getFirebaseAuth({
+    serviceAccount: options.serviceAccount,
+    apiKey: options.apiKey,
+    tenantId: options.tenantId
+  });
 
   const idAndRefreshTokens = await getRequestCookiesTokens(
     request.cookies,

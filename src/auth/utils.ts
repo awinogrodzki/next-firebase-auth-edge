@@ -12,6 +12,40 @@ export function formatString(str: string, params?: object): string {
   return formatted;
 }
 
+async function getDetailFromResponse(response: Response): Promise<string> {
+  const json = await response.json();
+
+  if (!json) {
+    return 'Missing error payload';
+  }
+
+  let detail = json.error;
+
+  if (json.error_description) {
+    detail += ' (' + json.error_description + ')';
+  }
+
+  return detail;
+}
+
+export async function fetchJson(url: string, init: RequestInit) {
+  return (await fetchAny(url, init)).json();
+}
+
+export async function fetchText(url: string, init: RequestInit) {
+  return (await fetchAny(url, init)).text();
+}
+
+export async function fetchAny(url: string, init: RequestInit) {
+  const response = await fetch(url, init);
+
+  if (!response.ok) {
+    throw new Error(await getDetailFromResponse(response));
+  }
+
+  return response;
+}
+
 export function mapJwtPayloadToDecodedIdToken(payload: JWTPayload) {
   const decodedIdToken = payload as DecodedIdToken;
   decodedIdToken.uid = decodedIdToken.sub;

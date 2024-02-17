@@ -1,8 +1,12 @@
-import {CryptoSigner, ServiceAccountSigner} from './jwt/crypto-signer';
-import {isNonNullObject} from './validator';
-import {ServiceAccountCredential} from './credential';
 import {JWTPayload} from 'jose';
+import {Credential, ServiceAccountCredential} from './credential';
 import {AuthError, AuthErrorCode} from './error';
+import {
+  CryptoSigner,
+  IAMSigner,
+  ServiceAccountSigner
+} from './jwt/crypto-signer';
+import {isNonNullObject} from './validator';
 
 const ONE_HOUR_IN_SECONDS = 60 * 60;
 
@@ -93,10 +97,28 @@ export class FirebaseTokenGenerator {
   }
 }
 
+export function cryptoSignerFromCredential(
+  credential: Credential,
+  tenantId?: string,
+  serviceAccountId?: string
+): CryptoSigner {
+  if (credential instanceof ServiceAccountCredential) {
+    return new ServiceAccountSigner(credential, tenantId);
+  }
+
+  return new IAMSigner(credential, tenantId, serviceAccountId);
+}
+
 export function createFirebaseTokenGenerator(
-  credential: ServiceAccountCredential,
-  tenantId?: string
+  credential: Credential,
+  tenantId?: string,
+  serviceAccountId?: string
 ): FirebaseTokenGenerator {
-  const signer = new ServiceAccountSigner(credential, tenantId);
+  const signer = cryptoSignerFromCredential(
+    credential,
+    tenantId,
+    serviceAccountId
+  );
+
   return new FirebaseTokenGenerator(signer);
 }

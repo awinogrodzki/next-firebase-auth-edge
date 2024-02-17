@@ -1,13 +1,13 @@
+import {getFirebaseAuth} from 'next-firebase-auth-edge/lib/auth';
+import {refreshNextResponseCookies} from 'next-firebase-auth-edge/lib/next/cookies';
+import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
 import {NextRequest, NextResponse} from 'next/server';
 import {authConfig} from '../../../config/server-config';
-import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
-import {refreshNextResponseCookies} from 'next-firebase-auth-edge/lib/next/cookies';
-import {getFirebaseAuth} from 'next-firebase-auth-edge/lib/auth';
 
-const {setCustomUserClaims, getUser} = getFirebaseAuth(
-  authConfig.serviceAccount,
-  authConfig.apiKey
-);
+const {setCustomUserClaims, getUser} = getFirebaseAuth({
+  serviceAccount: authConfig.serviceAccount,
+  apiKey: authConfig.apiKey
+});
 
 export async function POST(request: NextRequest) {
   const tokens = await getTokens(request.cookies, authConfig);

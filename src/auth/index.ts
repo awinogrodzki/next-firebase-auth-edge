@@ -3,7 +3,12 @@ import {
   CreateRequest,
   UpdateRequest
 } from './auth-request-handler';
-import {ServiceAccount, ServiceAccountCredential} from './credential';
+import {
+  ServiceAccount,
+  ServiceAccountCredential,
+  Credential
+} from './credential';
+import {getApplicationDefault} from './default-credential';
 import {AuthError, AuthErrorCode} from './error';
 import {useEmulator} from './firebase';
 import {VerifyOptions} from './jwt/verify';
@@ -203,22 +208,30 @@ export interface VerifyTokenResult {
   refreshToken: string;
 }
 
-export function getFirebaseAuth(
-  serviceAccount: ServiceAccount,
-  apiKey: string,
-  tenantId?: string
-) {
-  const authRequestHandler = new AuthRequestHandler(serviceAccount, {
-    tenantId
+interface AuthOptions {
+  credential: Credential;
+  apiKey: string;
+  tenantId?: string;
+  serviceAccountId?: string;
+}
+
+export type Auth = ReturnType<typeof getAuth>;
+
+function getAuth(options: AuthOptions) {
+  const credential = options.credential ?? getApplicationDefault();
+  const authRequestHandler = new AuthRequestHandler(credential, {
+    tenantId: options.tenantId
   });
-  const credential = new ServiceAccountCredential(serviceAccount);
-  const tokenGenerator = createFirebaseTokenGenerator(credential, tenantId);
+  const tokenGenerator = createFirebaseTokenGenerator(
+    credential,
+    options.tenantId
+  );
 
   const handleTokenRefresh = async (
     refreshToken: string
   ): Promise<VerifyTokenResult> => {
     const {idToken, refreshToken: newRefreshToken} =
-      await refreshExpiredIdToken(refreshToken, apiKey);
+      await refreshExpiredIdToken(refreshToken, options.apiKey);
     const decodedIdToken = await verifyIdToken(idToken);
 
     return {
@@ -293,7 +306,8 @@ export function getFirebaseAuth(
     checkRevoked = false,
     options?: VerifyOptions
   ): Promise<DecodedIdToken> {
-    const idTokenVerifier = createIdTokenVerifier(serviceAccount.projectId);
+    const projectId = await credential.getProjectId();
+    const idTokenVerifier = createIdTokenVerifier(projectId);
     const decodedIdToken = await idTokenVerifier.verifyJWT(idToken, options);
 
     if (checkRevoked) {
@@ -343,8 +357,8 @@ export function getFirebaseAuth(
       source_sign_in_provider: decodedToken.firebase.sign_in_provider
     });
 
-    return customTokenToIdAndRefreshTokens(customToken, apiKey, {
-      tenantId,
+    return customTokenToIdAndRefreshTokens(customToken, options.apiKey, {
+      tenantId: options.tenantId,
       appCheckToken
     });
   }
@@ -408,4 +422,52 @@ export function getFirebaseAuth(
     createUser,
     listUsers
   };
+}
+
+function isFirebaseAuthOptions(
+  options: FirebaseAuthOptions | ServiceAccount
+): options is FirebaseAuthOptions {
+  const serviceAccount = options as ServiceAccount;
+
+  return (
+    !serviceAccount.privateKey ||
+    !serviceAccount.projectId ||
+    !serviceAccount.clientEmail
+  );
+}
+
+export interface FirebaseAuthOptions {
+  serviceAccount?: ServiceAccount;
+  apiKey: string;
+  tenantId?: string;
+  serviceAccountId?: string;
+}
+export function getFirebaseAuth(options: FirebaseAuthOptions): Auth;
+/** @deprecated Use `FirebaseAuthOptions` configuration object instead */
+export function getFirebaseAuth(
+  serviceAccount: ServiceAccount,
+  apiKey: string,
+  tenantId?: string
+): Auth;
+export function getFirebaseAuth(
+  serviceAccount: ServiceAccount | FirebaseAuthOptions,
+  apiKey?: string,
+  tenantId?: string
+): Auth {
+  if (!isFirebaseAuthOptions(serviceAccount)) {
+    const credential = new ServiceAccountCredential(serviceAccount);
+
+    return getAuth({credential, apiKey: apiKey!, tenantId});
+  }
+
+  const options = serviceAccount;
+
+  return getAuth({
+    credential: options.serviceAccount
+      ? new ServiceAccountCredential(options.serviceAccount)
+      : getApplicationDefault(),
+    apiKey: options.apiKey,
+    tenantId: options.tenantId,
+    serviceAccountId: options.serviceAccountId
+  });
 }
