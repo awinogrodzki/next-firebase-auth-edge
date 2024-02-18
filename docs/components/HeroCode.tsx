@@ -375,8 +375,7 @@ const files = [
       >
         <span className="line">
           <span style={{color: 'var(--shiki-token-keyword)'}}>import</span>
-          <span style={{color: 'var(--shiki-color-text)'}}> {'{'} Tokens</span>
-          <span style={{color: 'var(--shiki-token-punctuation)'}}>,</span>
+          <span style={{color: 'var(--shiki-color-text)'}}> {'{'}</span>
           <span style={{color: 'var(--shiki-color-text)'}}>
             {' '}
             getTokens {'}'}{' '}
