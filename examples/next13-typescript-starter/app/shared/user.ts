@@ -10,7 +10,8 @@ export const toUser = ({decodedToken}: Tokens): User => {
     email_verified: emailVerified,
     phone_number: phoneNumber,
     name: displayName,
-    auth_time: authTime
+    auth_time: authTime,
+    source_sign_in_provider: signInProvider,
   } = decodedToken;
 
   const customClaims = filterStandardClaims(decodedToken);
@@ -22,6 +23,7 @@ export const toUser = ({decodedToken}: Tokens): User => {
     photoURL: photoURL ?? null,
     phoneNumber: phoneNumber ?? null,
     emailVerified: emailVerified ?? false,
+    providerId: signInProvider,
     customClaims,
     authTime
   };
