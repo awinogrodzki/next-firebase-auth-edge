@@ -1,5 +1,13 @@
 # next-firebase-auth-edge
 
+## 1.3.0
+
+### Minor Changes
+
+- The library now stores tokens and signature in a single cookie, allowing to run in Firebase Hosting environment
+- Use the library without service account in authenticated Google Cloud Run environment
+- Added debug mode option
+
 ## 1.2.0
 
 ### Minor Changes
