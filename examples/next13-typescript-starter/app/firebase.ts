@@ -2,6 +2,10 @@ import admin from 'firebase-admin';
 import {authConfig} from '../config/server-config';
 
 const initializeApp = () => {
+  if (!authConfig.serviceAccount) {
+    return admin.initializeApp();
+  }
+
   return admin.initializeApp({
     credential: admin.credential.cert(authConfig.serviceAccount)
   });

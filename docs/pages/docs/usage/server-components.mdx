@@ -39,9 +39,9 @@ export default async function ServerComponentExample() {
 
 ### Required options
 
-| Name                   | Description                                                                                                                                                                                      |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| apiKey                 | Firebase project API key used to fetch firebase id and refresh tokens                                                                                                                            |
-| cookieName             | The name for cookie set by `loginPath` api route.                                                                                                                                                |
-| cookieSignatureKeys    | [Rotating keys](https://developer.okta.com/docs/concepts/key-rotation/#:~:text=Key%20rotation%20is%20when%20a,and%20follows%20cryptographic%20best%20practices.) the cookie is validated against |
-| serviceAccount         | Firebase project service account                                                                                                                                                                 |
+| Name                   |   | Description                                                                                                                                                                                      |
+| ---------------------- | - | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| apiKey           | **Required**                                                                                                           | Firebase Web API Key retrieved from Firebase Project settings overview page. Please note that this API Key will be visible only after you enable Firebase Authentication in your Firebase project |
+| serviceAccount   | Optional in authenticated [Google Cloud Run](https://cloud.google.com/run) environment. Otherwise **required**                                                                                                            |  Firebase Service Account credentials |
+| cookieName          | **Required**   | The name for cookie set by `loginPath` api route.                                                                                                                                                |
+| cookieSignatureKeys   | **Required**    | [Rotating keys](https://developer.okta.com/docs/concepts/key-rotation/#:~:text=Key%20rotation%20is%20when%20a,and%20follows%20cryptographic%20best%20practices.) the cookie is validated against |

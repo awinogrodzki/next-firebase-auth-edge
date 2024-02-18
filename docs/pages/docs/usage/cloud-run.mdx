@@ -1,0 +1,46 @@
+# Usage in Google Cloud Run environment
+
+Before running `next-firebase-auth-edge` in Google Cloud Environment, make sure to:
+
+1. [Enable IAM Service Account Credentials API](https://console.cloud.google.com/apis/api/iamcredentials.googleapis.com)
+2. Assign `iam.serviceAccounts.signBlob` permission to IAM role attached to [default compute service account](https://console.cloud.google.com/iam-admin/iam)
+
+You can now omit `serviceAccount` option in `authMiddleware`, `getTokens` and other functions. When `serviceAccount` is `undefined`, `next-firebase-auth-edge` will extract credentials from authenticated [Google Cloud Run](https://cloud.google.com/run) environment.
+
+Please note that you still have to supply firebase `apiKey`.
+
+Example [authMiddleware](/docs/usage/middleware) usage:
+
+```tsx filename="middleware.ts"
+import { NextRequest, NextResponse } from "next/server";
+import { authMiddleware } from "next-firebase-auth-edge";
+
+export async function middleware(request: NextRequest) {
+  return authMiddleware(request, {
+    loginPath: "/api/login",
+    logoutPath: "/api/logout",
+    apiKey: "XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX",
+    cookieName: "AuthToken",
+    cookieSignatureKeys: ["secret1", "secret2"],
+    cookieSerializeOptions: {
+      path: "/",
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax" as const,
+      maxAge: 12 * 60 * 60 * 24,
+    },
+  });
+}
+```
+
+Example [getTokens](/docs/usage/server-components) usage:
+
+```tsx
+import { getTokens } from "next-firebase-auth-edge";
+
+const tokens = await getTokens(context.req.cookies, {
+    apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
+    cookieName: 'AuthToken',
+    cookieSignatureKeys: ['secret1', 'secret2'],
+});
+```

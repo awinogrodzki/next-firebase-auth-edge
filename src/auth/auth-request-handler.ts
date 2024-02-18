@@ -1,13 +1,13 @@
-import {emulatorHost, useEmulator} from './firebase';
-import {formatString} from './utils';
-import {isEmail, isNonNullObject} from './validator';
 import {
+  Credential,
   FirebaseAccessToken,
-  getFirebaseAdminTokenProvider,
-  ServiceAccount
+  getFirebaseAdminTokenProvider
 } from './credential';
 import {AuthError, AuthErrorCode} from './error';
+import {emulatorHost, useEmulator} from './firebase';
 import {GetAccountInfoUserResponse} from './user-record';
+import {formatString} from './utils';
+import {isEmail, isNonNullObject} from './validator';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD';
 
@@ -48,7 +48,10 @@ const FIREBASE_AUTH_EMULATOR_BASE_URL_FORMAT =
 class AuthResourceUrlBuilder {
   protected urlFormat: string;
 
-  constructor(protected version: string = 'v1', private projectId: string) {
+  constructor(
+    protected version: string = 'v1',
+    private credential: Credential
+  ) {
     if (useEmulator()) {
       this.urlFormat = formatString(FIREBASE_AUTH_EMULATOR_BASE_URL_FORMAT, {
         host: emulatorHost()
@@ -61,7 +64,7 @@ class AuthResourceUrlBuilder {
   public async getUrl(api?: string, params?: object): Promise<string> {
     const baseParams = {
       version: this.version,
-      projectId: this.projectId,
+      projectId: await this.credential.getProjectId(),
       api: api || ''
     };
     const baseUrl = formatString(this.urlFormat, baseParams);
@@ -124,10 +127,10 @@ export abstract class AbstractAuthRequestHandler {
   }
 
   constructor(
-    serviceAccount: ServiceAccount,
+    credential: Credential,
     protected options: AuthRequestHandlerOptions = {}
   ) {
-    this.getToken = getFirebaseAdminTokenProvider(serviceAccount).getToken;
+    this.getToken = getFirebaseAdminTokenProvider(credential).getToken;
   }
 
   private prepareRequest(request: object) {
@@ -469,18 +472,15 @@ export class AuthRequestHandler extends AbstractAuthRequestHandler {
   protected readonly authResourceUrlBuilder: AuthResourceUrlBuilder;
 
   constructor(
-    private serviceAccount: ServiceAccount,
+    private credential: Credential,
     options?: AuthRequestHandlerOptions
   ) {
-    super(serviceAccount, options);
-    this.authResourceUrlBuilder = new AuthResourceUrlBuilder(
-      'v2',
-      serviceAccount.projectId
-    );
+    super(credential, options);
+    this.authResourceUrlBuilder = new AuthResourceUrlBuilder('v2', credential);
   }
 
   protected newAuthUrlBuilder(): AuthResourceUrlBuilder {
-    return new AuthResourceUrlBuilder('v1', this.serviceAccount.projectId);
+    return new AuthResourceUrlBuilder('v1', this.credential);
   }
 }
 

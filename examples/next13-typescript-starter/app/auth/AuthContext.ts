@@ -5,6 +5,7 @@ import {Claims} from 'next-firebase-auth-edge/lib/auth/claims';
 export interface User extends Omit<UserInfo, 'providerId'> {
   emailVerified: boolean;
   customClaims: Claims;
+  authTime: number;
 }
 
 export interface AuthContextValue {

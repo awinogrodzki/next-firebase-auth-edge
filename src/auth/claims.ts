@@ -7,6 +7,7 @@ export const STANDARD_CLAIMS = [
   'email_verified',
   'exp',
   'firebase',
+  'source_sign_in_provider',
   'iat',
   'iss',
   'name',

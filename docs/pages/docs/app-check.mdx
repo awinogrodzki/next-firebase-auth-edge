@@ -5,6 +5,9 @@ Library provides [Firebase App Check](https://firebase.google.com/docs/app-check
 In order to make `next-firebase-auth-edge` work with App Check, you need to send `X-Firebase-AppCheck` header with App Check token when making a call to `/api/login` endpoint, as in [this example](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next13-typescript-starter/api/index.ts#L10-L14)
 
 ```tsx
+import { getToken } from "@firebase/app-check";
+import { getAppCheck } from "../app-check";
+
 const appCheckTokenResponse = await getToken(getAppCheck(), false);
 
 await fetch("/api/login", {
@@ -23,7 +26,7 @@ You can use `getAppCheck` from `next-firebase-auth-edge/lib/app-check` if you ne
 ```tsx
 import { getAppCheck } from "next-firebase-auth-edge/lib/app-check";
 
-// Usually defined in shared location
+// Optional in authenticated Google Cloud Run environment. Otherwise required.
 const serviceAccount = {
   projectId: "firebase-project-id",
   privateKey: "firebase service account private key",
@@ -34,7 +37,7 @@ const serviceAccount = {
 // https://cloud.google.com/identity-platform/docs/multi-tenancy-authentication
 const tenantId = "You tenant id";
 
-const { createToken, verifyToken } = getAppCheck(serviceAccount, tenantId);
+const { createToken, verifyToken } = getAppCheck({ serviceAccount, tenantId });
 ```
 
 ```tsx

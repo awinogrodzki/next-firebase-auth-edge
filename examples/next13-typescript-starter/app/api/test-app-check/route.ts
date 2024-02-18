@@ -4,7 +4,9 @@ import {getAppCheck} from 'next-firebase-auth-edge/lib/app-check';
 
 export async function POST(request: NextRequest) {
   const appCheckToken = request.headers.get('X-Firebase-AppCheck');
-  const {verifyToken} = getAppCheck(serverConfig.serviceAccount);
+  const {verifyToken} = getAppCheck({
+    serviceAccount: serverConfig.serviceAccount
+  });
 
   if (!appCheckToken) {
     return new NextResponse(

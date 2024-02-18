@@ -4,9 +4,7 @@ import * as React from 'react';
 import {useAuth} from '../../auth/AuthContext';
 import styles from './UserProfile.module.css';
 import {useLoadingCallback} from 'react-loading-hook';
-import {clientConfig} from '../../../config/client-config';
 import {Button} from '../../../ui/Button';
-import {LoadingIcon} from '../../../ui/icons';
 import {useRouter} from 'next/navigation';
 import {signOut} from 'firebase/auth';
 import {ButtonGroup} from '../../../ui/ButtonGroup';
@@ -14,7 +12,6 @@ import {Card} from '../../../ui/Card';
 import {Badge} from '../../../ui/Badge';
 import {getToken} from '@firebase/app-check';
 import {getAppCheck} from '../../../app-check';
-import {logout} from '../../../api';
 import {getFirebaseAuth} from '../../auth/firebase';
 
 interface UserProfileProps {
@@ -30,9 +27,6 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
     const auth = getFirebaseAuth();
     await signOut(auth);
     setHasLoggedOut(true);
-
-    await logout();
-    window.location.reload();
   });
 
   const [handleClaims, isClaimsLoading] = useLoadingCallback(async () => {
@@ -50,7 +44,7 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
       headers
     });
 
-    await getFirebaseAuth().currentUser?.getIdTokenResult(true);
+    router.refresh();
   });
 
   const [handleAppCheck, isAppCheckLoading] = useLoadingCallback(async () => {
@@ -83,27 +77,12 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
       router.refresh();
     });
 
-  function handleRedirect() {
-    router.push(
-      `${clientConfig.redirectUrl}?redirect_url=${window.location.href}`
-    );
-  }
+  const [handleReCheck, isReCheckLoading] = useLoadingCallback(async () => {
+    await getFirebaseAuth().currentUser?.getIdTokenResult(true);
+  });
 
   let [isIncrementCounterActionPending, startTransition] =
     React.useTransition();
-
-  if (!user && hasLoggedOut) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.section}>
-          <h3 className={styles.title}>
-            <span>You are being logged out...</span>
-            <LoadingIcon />
-          </h3>
-        </div>
-      </div>
-    );
-  }
 
   if (!user) {
     return null;
@@ -123,6 +102,14 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
         {!user.emailVerified && (
           <div className={styles.content}>
             <Badge>Email not verified.</Badge>
+            <Button
+              className={styles.contentButton}
+              loading={isReCheckLoading}
+              disabled={isReCheckLoading}
+              onClick={handleReCheck}
+            >
+              Re-check
+            </Button>
           </div>
         )}
 
@@ -148,13 +135,12 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
             </Button>
           )}
           <Button
-            loading={isLogoutLoading}
-            disabled={isLogoutLoading}
+            loading={isLogoutLoading || hasLoggedOut}
+            disabled={isLogoutLoading || hasLoggedOut}
             onClick={handleLogout}
           >
             Log out
           </Button>
-          <Button onClick={handleRedirect}>Redirect</Button>
         </ButtonGroup>
       </Card>
       <Card className={styles.section}>

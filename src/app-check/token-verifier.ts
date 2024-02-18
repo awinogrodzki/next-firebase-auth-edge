@@ -9,6 +9,7 @@ import {decodeJwt, decodeProtectedHeader, errors} from 'jose';
 import {VerifyOptions} from '../auth/jwt/verify';
 import {JOSEError} from 'jose/dist/types/util/errors';
 import {FirebaseAppCheckError} from './api-client';
+import {Credential} from '../auth/credential';
 
 const APP_CHECK_ISSUER = 'https://firebaseappcheck.googleapis.com/';
 const JWKS_URL = 'https://firebaseappcheck.googleapis.com/v1/jwks';
@@ -16,7 +17,7 @@ const JWKS_URL = 'https://firebaseappcheck.googleapis.com/v1/jwks';
 export class AppCheckTokenVerifier {
   private readonly signatureVerifier: SignatureVerifier;
 
-  constructor(private readonly projectId: string) {
+  constructor(private readonly credential: Credential) {
     this.signatureVerifier = new JWKSSignatureVerifier(JWKS_URL);
   }
 
@@ -24,7 +25,8 @@ export class AppCheckTokenVerifier {
     token: string,
     options?: VerifyOptions
   ): Promise<DecodedAppCheckToken> {
-    const decoded = await this.decodeAndVerify(token, this.projectId, options);
+    const projectId = await this.credential.getProjectId();
+    const decoded = await this.decodeAndVerify(token, projectId, options);
 
     const decodedAppCheckToken = decoded.payload as DecodedAppCheckToken;
     decodedAppCheckToken.app_id = decodedAppCheckToken.sub;

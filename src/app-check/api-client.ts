@@ -1,7 +1,7 @@
 import {getSdkVersion} from '../auth/auth-request-handler';
-import {AppCheckToken} from './types';
+import {Credential} from '../auth/credential';
 import {formatString} from '../auth/utils';
-import {ServiceAccountCredential} from '../auth/credential';
+import {AppCheckToken} from './types';
 
 const FIREBASE_APP_CHECK_V1_API_URL_FORMAT =
   'https://firebaseappcheck.googleapis.com/v1/projects/{projectId}/apps/{appId}:exchangeCustomToken';
@@ -11,13 +11,13 @@ const FIREBASE_APP_CHECK_CONFIG_HEADERS = {
 };
 
 export class AppCheckApiClient {
-  constructor(private credential: ServiceAccountCredential) {}
+  constructor(private credential: Credential) {}
 
   public async exchangeToken(
     customToken: string,
     appId: string
   ): Promise<AppCheckToken> {
-    const url = this.getUrl(appId);
+    const url = await this.getUrl(appId);
     const token = await this.credential.getAccessToken(false);
 
     const response = await fetch(url, {
@@ -36,9 +36,10 @@ export class AppCheckApiClient {
     throw await this.toFirebaseError(response);
   }
 
-  private getUrl(appId: string): string {
+  private async getUrl(appId: string): Promise<string> {
+    const projectId = await this.credential.getProjectId();
     const urlParams = {
-      projectId: this.credential.projectId,
+      projectId,
       appId
     };
     const baseUrl = formatString(

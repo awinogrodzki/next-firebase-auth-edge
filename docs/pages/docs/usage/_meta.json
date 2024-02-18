@@ -6,5 +6,8 @@
   "pages-router-api-routes": "Pages Router API Routes",
   "get-server-side-props": "Usage in getServerSideProps",
   "refresh-auth-cookies": "Refresh authentication cookies",
-  "advanced-usage": "Advanced usage"
+  "advanced-usage": "Advanced usage",
+  "cloud-run": "Usage in Google Cloud Run",
+  "firebase-hosting": "Usage in Firebase Hosting",
+  "debug-mode": "Debug mode"
 }

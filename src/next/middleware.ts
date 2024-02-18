@@ -1,26 +1,25 @@
+import {CookieSerializeOptions, serialize} from 'cookie';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
-import {CookieSerializeOptions} from 'cookie';
-import {ServiceAccount} from '../auth/credential';
 import {
+  IdAndRefreshTokens,
+  Tokens,
+  getFirebaseAuth,
+  handleExpiredToken
+} from '../auth';
+import {signTokens} from '../auth/cookies/sign';
+import {ServiceAccount} from '../auth/credential';
+import {debug, enableDebugMode} from '../debug';
+import {
+  SetAuthCookiesOptions,
   appendAuthCookies,
   markCookiesAsVerified,
   removeAuthCookies,
-  setAuthCookies,
-  SetAuthCookiesOptions,
-  toSignedCookies,
-  updateRequestAuthCookies,
-  updateResponseAuthCookies,
   removeInternalVerifiedCookieIfExists,
+  setAuthCookies,
   wasResponseDecoratedWithModifiedRequestHeaders
 } from './cookies';
-import {getRequestCookiesTokens, GetTokensOptions} from './tokens';
-import {
-  getFirebaseAuth,
-  handleExpiredToken,
-  IdAndRefreshTokens,
-  Tokens
-} from '../auth';
+import {GetTokensOptions, getRequestCookiesTokens} from './tokens';
 
 export interface CreateAuthMiddlewareOptions {
   loginPath: string;
@@ -28,7 +27,7 @@ export interface CreateAuthMiddlewareOptions {
   cookieName: string;
   cookieSignatureKeys: string[];
   cookieSerializeOptions: CookieSerializeOptions;
-  serviceAccount: ServiceAccount;
+  serviceAccount?: ServiceAccount;
   apiKey: string;
   tenantId?: string;
 }
@@ -97,14 +96,21 @@ export type HandleValidToken = (
 ) => Promise<NextResponse>;
 export type HandleError = (e: unknown) => Promise<NextResponse>;
 
-export interface AuthenticationOptions
+export interface AuthMiddlewareOptions
   extends CreateAuthMiddlewareOptions,
     GetTokensOptions {
   checkRevoked?: boolean;
   handleInvalidToken?: HandleInvalidToken;
   handleValidToken?: HandleValidToken;
   handleError?: HandleError;
+  debug?: boolean;
 }
+
+/**
+ * @deprecated
+ * Use `AuthMiddlewareOptions` interface instead
+ */
+export type AuthenticationOptions = AuthMiddlewareOptions;
 
 /**
  * @deprecated
@@ -115,11 +121,11 @@ export async function refreshAuthCookies(
   response: NextResponse,
   options: SetAuthCookiesOptions
 ): Promise<IdAndRefreshTokens> {
-  const {getCustomIdAndRefreshTokens} = getFirebaseAuth(
-    options.serviceAccount,
-    options.apiKey,
-    options.tenantId
-  );
+  const {getCustomIdAndRefreshTokens} = getFirebaseAuth({
+    serviceAccount: options.serviceAccount,
+    apiKey: options.apiKey,
+    tenantId: options.tenantId
+  });
   const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
     idToken,
     options.appCheckToken
@@ -152,27 +158,33 @@ function validateResponse(response: NextResponse) {
 
 export async function authMiddleware(
   request: NextRequest,
-  options: AuthenticationOptions
+  options: AuthMiddlewareOptions
 ): Promise<NextResponse> {
+  if (options.debug) {
+    enableDebugMode();
+  }
+
   const handleValidToken = options.handleValidToken ?? defaultValidTokenHandler;
   const handleError = options.handleError ?? defaultInvalidTokenHandler;
-
   const handleInvalidToken =
     options.handleInvalidToken ?? defaultInvalidTokenHandler;
 
   removeInternalVerifiedCookieIfExists(request.cookies);
 
+  debug('Handle request', {path: request.nextUrl.pathname});
+
   if (
     [options.loginPath, options.logoutPath].includes(request.nextUrl.pathname)
   ) {
+    debug('Handle authentication API route');
     return createAuthMiddlewareResponse(request, options);
   }
 
-  const {verifyIdToken, handleTokenRefresh} = getFirebaseAuth(
-    options.serviceAccount,
-    options.apiKey,
-    options.tenantId
-  );
+  const {verifyIdToken, handleTokenRefresh} = getFirebaseAuth({
+    serviceAccount: options.serviceAccount,
+    apiKey: options.apiKey,
+    tenantId: options.tenantId
+  });
 
   const idAndRefreshTokens = await getRequestCookiesTokens(
     request.cookies,
@@ -180,15 +192,26 @@ export async function authMiddleware(
   );
 
   if (!idAndRefreshTokens) {
+    debug(
+      'Authentication cookies could not be verified. Proceed to handleInvalidToken.',
+      {
+        cookieHeader: request.headers.get('cookie')
+      }
+    );
+
     return handleInvalidToken();
   }
 
   return handleExpiredToken(
     async () => {
+      debug('Verifying user credentials...');
+
       const decodedToken = await verifyIdToken(
         idAndRefreshTokens.idToken,
         options.checkRevoked
       );
+
+      debug('Credentials verified successfully');
 
       markCookiesAsVerified(request.cookies);
       const response = await handleValidToken(
@@ -199,6 +222,8 @@ export async function authMiddleware(
         request.headers
       );
 
+      debug('Successfully handled authenticated response');
+
       if (!response.headers.has('location')) {
         validateResponse(response);
       }
@@ -206,34 +231,50 @@ export async function authMiddleware(
       return response;
     },
     async () => {
+      debug('Token has expired. Refreshing token...');
+
       const {idToken, decodedIdToken, refreshToken} = await handleTokenRefresh(
         idAndRefreshTokens.refreshToken
       );
 
-      const signedCookies = await toSignedCookies(
+      debug(
+        'Token refreshed successfully. Updating response cookie headers...'
+      );
+
+      const signedTokens = await signTokens(
         {
           idToken,
           refreshToken
         },
-        options
+        options.cookieSignatureKeys
       );
 
-      updateRequestAuthCookies(request, signedCookies);
+      request.cookies.set(options.cookieName, signedTokens);
+
       markCookiesAsVerified(request.cookies);
       const response = await handleValidToken(
         {token: idToken, decodedToken: decodedIdToken},
         request.headers
       );
 
+      debug('Successfully handled authenticated response');
+
       validateResponse(response);
 
-      return updateResponseAuthCookies(
-        response,
-        signedCookies,
-        options.cookieSerializeOptions
+      response.headers.append(
+        'Set-Cookie',
+        serialize(
+          options.cookieName,
+          signedTokens,
+          options.cookieSerializeOptions
+        )
       );
+
+      return response;
     },
     async (e) => {
+      debug('Authentication failed with error', {error: e});
+
       return handleError(e);
     }
   );
