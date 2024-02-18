@@ -6,8 +6,6 @@ Authentication middleware might not fully support every use-case. To help you wi
 
 `getFirebaseAuth` function provides a number of server-side methods to handle more complex authentication flows.
 
-It should be called with service account credentials as first parameter and Firebase API key as second parameter
-
 ```tsx
 import { getFirebaseAuth } from "next-firebase-auth-edge";
 
@@ -23,15 +21,25 @@ const {
   deleteUser,
   verifyAndRefreshExpiredIdToken,
   setCustomUserClaims,
-} = getFirebaseAuth(
-  {
+} = getFirebaseAuth({
+  apiKey: 'YOUR FIREBASE API KEY',
+  serviceAccount: {
     projectId: 'your-firebase-project-id',
     clientEmail: 'firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com',
     privateKey: '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
-  },
-  'YOUR FIREBASE API KEY',
-);
+  }
+});
 ```
+
+### Options
+
+| Name               | Type                |                                                                                                                            | Description                                                                                                                                                                                                                                                                                                                                                                          |
+| ------------------ | --------------------|--------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| apiKey           | `string` | **Required**                                                                                                           | Firebase Web API Key retrieved from Firebase Project settings overview page. Please note that this API Key will be visible only after you enable Firebase Authentication in your Firebase project |
+| serviceAccount       | `{ projectId: string; clientEmail: string; privateKey: string }`    | Optional in authenticated [Google Cloud Run](https://cloud.google.com/run) environment. Otherwise **required**                                                                                                            |  Firebase Service Account credentials |
+| tenantId   | `string` | Optional | Specify if your project supports [multi-tenancy](https://cloud.google.com/identity-platform/docs/multi-tenancy-authentication) |
+| serviceAccountId | `string` | Optional                                                                          | Forces specific service account ID inside authenticated [Google Cloud Run](https://cloud.google.com/run) environment |
+
 
 ### Methods
 

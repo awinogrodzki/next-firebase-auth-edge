@@ -29,10 +29,10 @@ const commonOptions = {
   }
 };
 
-const { setCustomUserClaims, getUser } = getFirebaseAuth(
-  commonOptions.serviceAccount,
-  commonOptions.apiKey
-);
+const { setCustomUserClaims, getUser } = getFirebaseAuth({
+  serviceAccount: commonOptions.serviceAccount,
+  apiKey: commonOptions.apiKey
+});
 
 export async function middleware(request: NextRequest) {
   return authMiddleware(request, {
@@ -93,10 +93,10 @@ const commonOptions = {
   }
 };
 
-const { setCustomUserClaims, getUser } = getFirebaseAuth(
-  commonOptions.serviceAccount,
-  commonOptions.apiKey
-);
+const { setCustomUserClaims, getUser } = getFirebaseAuth({
+  serviceAccount: commonOptions.serviceAccount,
+  apiKey: commonOptions.apiKey
+});
 
 export async function POST(request: NextRequest) {
   const tokens = await getTokens(request.cookies, commonOptions);
