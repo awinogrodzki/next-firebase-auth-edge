@@ -2,18 +2,12 @@ import admin from 'firebase-admin';
 import {authConfig} from '../config/server-config';
 
 const initializeApp = () => {
-  // Service account credentials are empty in Google Cloud Run environment
-  const hasServiceAccountCredentials =
-    authConfig.serviceAccount?.projectId &&
-    authConfig.serviceAccount?.clientEmail &&
-    authConfig.serviceAccount?.privateKey;
-
-  if (!hasServiceAccountCredentials) {
+  if (!authConfig.serviceAccount) {
     return admin.initializeApp();
   }
 
   return admin.initializeApp({
-    credential: admin.credential.cert(authConfig.serviceAccount!)
+    credential: admin.credential.cert(authConfig.serviceAccount)
   });
 };
 

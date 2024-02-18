@@ -1,3 +1,4 @@
+import {debug} from '../debug';
 import {
   AuthRequestHandler,
   CreateRequest,
@@ -356,6 +357,8 @@ function getAuth(options: AuthOptions) {
       email_verified: decodedToken.email_verified,
       source_sign_in_provider: decodedToken.firebase.sign_in_provider
     });
+
+    debug('Generated custom token based on provided idToken', {customToken});
 
     return customTokenToIdAndRefreshTokens(customToken, options.apiKey, {
       tenantId: options.tenantId,

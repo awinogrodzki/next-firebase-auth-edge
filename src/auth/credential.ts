@@ -1,6 +1,5 @@
-import {sign} from './jwt/sign';
 import {JWTPayload} from 'jose';
-import fs from 'fs';
+import {sign} from './jwt/sign';
 import {fetchJson, fetchText} from './utils';
 
 export interface GoogleOAuthAccessToken {
@@ -26,92 +25,14 @@ export interface ServiceAccount {
   clientEmail: string;
 }
 
-export interface RefreshToken {
-  clientId: string;
-  clientSecret: string;
-  refreshToken: string;
-  type: string;
-}
-
-export interface ImpersonatedServiceAccount {
-  clientId: string;
-  clientSecret: string;
-  refreshToken: string;
-  type: string;
-}
-
 const accessTokenCache: Map<string, FirebaseAccessToken> = new Map();
-
-function serviceAccountFromPath(filePath: string): ServiceAccount {
-  try {
-    const {
-      project_id: projectId,
-      private_key: privateKey,
-      client_email: clientEmail
-    } = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-
-    return {projectId, privateKey, clientEmail};
-  } catch (error) {
-    // Throw a nicely formed error message if the file contents cannot be parsed
-    throw new Error('Failed to parse service account json file: ' + error);
-  }
-}
-
-function refreshTokenFromPath(filePath: string): RefreshToken {
-  try {
-    const {
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-      type
-    } = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-
-    return {
-      clientId,
-      clientSecret,
-      refreshToken,
-      type
-    };
-  } catch (error) {
-    // Throw a nicely formed error message if the file contents cannot be parsed
-    throw new Error('Failed to parse refresh token file: ' + error);
-  }
-}
-
-function impersonatedServiceAccountFromPath(
-  filePath: string
-): ImpersonatedServiceAccount {
-  try {
-    const {
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-      type
-    } = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-
-    return {
-      clientId,
-      clientSecret,
-      refreshToken,
-      type
-    };
-  } catch (error) {
-    throw new Error(
-      'Failed to parse impersonated service account file: ' + error
-    );
-  }
-}
 
 export class ServiceAccountCredential implements Credential {
   public readonly projectId: string;
   public readonly privateKey: string;
   public readonly clientEmail: string;
 
-  constructor(serviceAccountPathOrObject: ServiceAccount | string) {
-    const serviceAccount =
-      typeof serviceAccountPathOrObject === 'string'
-        ? serviceAccountFromPath(serviceAccountPathOrObject)
-        : serviceAccountPathOrObject;
+  constructor(serviceAccount: ServiceAccount) {
     this.projectId = serviceAccount.projectId;
     this.privateKey = serviceAccount.privateKey;
     this.clientEmail = serviceAccount.clientEmail;
@@ -213,9 +134,6 @@ async function requestAccessToken(
   };
 }
 
-const REFRESH_TOKEN_HOST = 'www.googleapis.com';
-const REFRESH_TOKEN_PATH = '/oauth2/v4/token';
-
 export function getExplicitProjectId(): string | null {
   const projectId =
     process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT;
@@ -223,142 +141,6 @@ export function getExplicitProjectId(): string | null {
     return projectId;
   }
   return null;
-}
-
-export class RefreshTokenCredential implements Credential {
-  private readonly refreshToken: RefreshToken;
-  private cachedToken?: FirebaseAccessToken;
-
-  constructor(refreshTokenPathOrObject: string | RefreshToken) {
-    this.refreshToken =
-      typeof refreshTokenPathOrObject === 'string'
-        ? refreshTokenFromPath(refreshTokenPathOrObject)
-        : refreshTokenPathOrObject;
-  }
-
-  getProjectId(): Promise<string> {
-    const projectIdFromEnv = getExplicitProjectId();
-
-    if (!projectIdFromEnv) {
-      throw new Error(
-        'In order to use RefreshTokenCredential you need to have GOOGLE_CLOUD_PROJECT or GCLOUD_PROJECT environment variable defined'
-      );
-    }
-
-    return Promise.resolve(projectIdFromEnv);
-  }
-
-  getServiceAccountEmail(): Promise<string | null> {
-    return Promise.resolve(null);
-  }
-
-  public async getAccessToken(
-    forceRefresh: boolean = false
-  ): Promise<FirebaseAccessToken> {
-    if (
-      this.cachedToken &&
-      !forceRefresh &&
-      this.cachedToken.expirationTime - Date.now() <=
-        TOKEN_EXPIRY_THRESHOLD_MILLIS
-    ) {
-      return this.cachedToken;
-    }
-
-    const postData =
-      'client_id=' +
-      this.refreshToken.clientId +
-      '&' +
-      'client_secret=' +
-      this.refreshToken.clientSecret +
-      '&' +
-      'refresh_token=' +
-      this.refreshToken.refreshToken +
-      '&' +
-      'grant_type=refresh_token';
-    const request: RequestInit = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json'
-      },
-      body: postData
-    };
-
-    return (this.cachedToken = await requestAccessToken(
-      `https://${REFRESH_TOKEN_HOST}${REFRESH_TOKEN_PATH}`,
-      request
-    ));
-  }
-}
-
-export class ImpersonatedServiceAccountCredential implements Credential {
-  private readonly impersonatedServiceAccount: ImpersonatedServiceAccount;
-  private cachedToken?: FirebaseAccessToken;
-
-  constructor(
-    impersonatedServiceAccountPathOrObject: string | ImpersonatedServiceAccount
-  ) {
-    this.impersonatedServiceAccount =
-      typeof impersonatedServiceAccountPathOrObject === 'string'
-        ? impersonatedServiceAccountFromPath(
-            impersonatedServiceAccountPathOrObject
-          )
-        : impersonatedServiceAccountPathOrObject;
-  }
-
-  getProjectId(): Promise<string> {
-    const projectIdFromEnv = getExplicitProjectId();
-
-    if (!projectIdFromEnv) {
-      throw new Error(
-        'In order to use ImpersonatedServiceAccountCredential you need to have GOOGLE_CLOUD_PROJECT or GCLOUD_PROJECT environment variable defined'
-      );
-    }
-
-    return Promise.resolve(projectIdFromEnv);
-  }
-
-  getServiceAccountEmail(): Promise<string | null> {
-    return Promise.resolve(null);
-  }
-
-  public async getAccessToken(
-    forceRefresh: boolean = false
-  ): Promise<FirebaseAccessToken> {
-    if (
-      this.cachedToken &&
-      !forceRefresh &&
-      this.cachedToken.expirationTime - Date.now() <=
-        TOKEN_EXPIRY_THRESHOLD_MILLIS
-    ) {
-      return this.cachedToken;
-    }
-
-    const postData =
-      'client_id=' +
-      this.impersonatedServiceAccount.clientId +
-      '&' +
-      'client_secret=' +
-      this.impersonatedServiceAccount.clientSecret +
-      '&' +
-      'refresh_token=' +
-      this.impersonatedServiceAccount.refreshToken +
-      '&' +
-      'grant_type=refresh_token';
-    const request: RequestInit = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json'
-      },
-      body: postData
-    };
-
-    return (this.cachedToken = await requestAccessToken(
-      `https://${REFRESH_TOKEN_HOST}${REFRESH_TOKEN_PATH}`,
-      request
-    ));
-  }
 }
 
 const GOOGLE_METADATA_SERVICE_HOST = 'metadata.google.internal';

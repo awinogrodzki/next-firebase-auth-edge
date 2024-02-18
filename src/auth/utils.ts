@@ -19,7 +19,10 @@ async function getDetailFromResponse(response: Response): Promise<string> {
     return 'Missing error payload';
   }
 
-  let detail = json.error;
+  let detail =
+    typeof json.error === 'string'
+      ? json.error
+      : json.error?.message ?? 'Missing error payload';
 
   if (json.error_description) {
     detail += ' (' + json.error_description + ')';

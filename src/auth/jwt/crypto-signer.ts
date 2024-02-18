@@ -1,8 +1,8 @@
-import {ServiceAccountCredential, Credential} from '../credential';
+import {JWTPayload} from 'jose';
+import {Credential, ServiceAccountCredential} from '../credential';
 import {ALGORITHM_RS256} from '../signature-verifier';
-import {fetchAny, fetchText} from '../utils';
-import {sign} from './sign';
-import {JWTPayload, base64url} from 'jose';
+import {fetchText} from '../utils';
+import {sign, signBlob} from './sign';
 
 export interface CryptoSigner {
   sign(payload: JWTPayload): Promise<string>;
@@ -51,15 +51,13 @@ export class IAMSigner implements CryptoSigner {
     }
 
     const serviceAccount = await this.getAccountId();
-    const url = `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${serviceAccount}:signBlob`;
-    const request: RequestInit = {
-      method: 'POST',
-      body: JSON.stringify({payload: base64url.encode(JSON.stringify(payload))})
-    };
-    const response = await fetchAny(url, request);
-    const blob = await response.blob();
+    const accessToken = await this.credential.getAccessToken();
 
-    return new TextDecoder().decode(base64url.decode(blob.toString()));
+    return signBlob({
+      accessToken: accessToken.accessToken,
+      serviceAccountId: serviceAccount,
+      payload
+    });
   }
 
   public async getAccountId(): Promise<string> {

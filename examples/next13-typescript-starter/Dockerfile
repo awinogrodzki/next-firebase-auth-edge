@@ -6,6 +6,8 @@ COPY . .
 
 RUN yarn install --production
 
+RUN printenv
+
 RUN yarn build
 
 CMD [ "yarn", "start" ]
