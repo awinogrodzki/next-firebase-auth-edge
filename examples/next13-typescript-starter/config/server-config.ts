@@ -1,3 +1,6 @@
+import { GetTokensOptions } from "next-firebase-auth-edge/lib/next/tokens";
+import { SetAuthCookiesOptions } from "next-firebase-auth-edge/lib/next/cookies";
+
 export const serverConfig = {
   useSecureCookies: process.env.USE_SECURE_COOKIES === "true",
   firebaseApiKey: process.env.FIREBASE_API_KEY!,
@@ -8,7 +11,7 @@ export const serverConfig = {
   } : undefined,
 };
 
-export const authConfig = {
+export const authConfig: GetTokensOptions & SetAuthCookiesOptions = {
   apiKey: serverConfig.firebaseApiKey,
   cookieName: "AuthToken",
   cookieSignatureKeys: ["secret1", "secret2"],
@@ -20,4 +23,5 @@ export const authConfig = {
     maxAge: 12 * 60 * 60 * 24, // twelve days
   },
   serviceAccount: serverConfig.serviceAccount,
+  UNSAFE_expireTokenOnInvalidKidHeader: true
 };

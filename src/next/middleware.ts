@@ -104,6 +104,7 @@ export interface AuthMiddlewareOptions
   handleValidToken?: HandleValidToken;
   handleError?: HandleError;
   debug?: boolean;
+  UNSAFE_expireTokenOnInvalidKidHeader?: boolean;
 }
 
 /**
@@ -183,7 +184,9 @@ export async function authMiddleware(
   const {verifyIdToken, handleTokenRefresh} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
-    tenantId: options.tenantId
+    tenantId: options.tenantId,
+    UNSAFE_expireTokenOnInvalidKidHeader:
+      options.UNSAFE_expireTokenOnInvalidKidHeader
   });
 
   const idAndRefreshTokens = await getRequestCookiesTokens(
@@ -208,7 +211,11 @@ export async function authMiddleware(
 
       const decodedToken = await verifyIdToken(
         idAndRefreshTokens.idToken,
-        options.checkRevoked
+        options.checkRevoked,
+        {
+          UNSAFE_expireTokenOnInvalidKidHeader:
+            options.UNSAFE_expireTokenOnInvalidKidHeader
+        }
       );
 
       debug('Credentials verified successfully');

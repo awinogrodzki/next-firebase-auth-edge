@@ -12,6 +12,7 @@ import {DecodedIdToken} from '../token-verifier';
 
 export interface VerifyOptions {
   currentDate?: Date;
+  UNSAFE_expireTokenOnInvalidKidHeader?: boolean;
 }
 
 const keyMap: Map<string, KeyLike> = new Map();

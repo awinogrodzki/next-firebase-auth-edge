@@ -214,6 +214,7 @@ interface AuthOptions {
   apiKey: string;
   tenantId?: string;
   serviceAccountId?: string;
+  UNSAFE_expireTokenOnInvalidKidHeader?: boolean;
 }
 
 export type Auth = ReturnType<typeof getAuth>;
@@ -444,6 +445,7 @@ export interface FirebaseAuthOptions {
   apiKey: string;
   tenantId?: string;
   serviceAccountId?: string;
+  UNSAFE_expireTokenOnInvalidKidHeader?: boolean;
 }
 export function getFirebaseAuth(options: FirebaseAuthOptions): Auth;
 /** @deprecated Use `FirebaseAuthOptions` configuration object instead */
@@ -471,6 +473,8 @@ export function getFirebaseAuth(
       : getApplicationDefault(),
     apiKey: options.apiKey,
     tenantId: options.tenantId,
-    serviceAccountId: options.serviceAccountId
+    serviceAccountId: options.serviceAccountId,
+    UNSAFE_expireTokenOnInvalidKidHeader:
+      options.UNSAFE_expireTokenOnInvalidKidHeader
   });
 }

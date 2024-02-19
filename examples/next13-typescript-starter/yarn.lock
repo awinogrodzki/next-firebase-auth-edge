@@ -2667,10 +2667,10 @@ nanoid@^3.3.6:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.6.tgz#443380c856d6e9f9824267d960b4236ad583ea4c"
   integrity sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==
 
-next-firebase-auth-edge@1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-1.3.0.tgz#06862411e38141b12320f06d0ef4b93fbaaf87a9"
-  integrity sha512-Bb1k0cvLE3JotZZ+juRmmrETZCacOF7jnEDiZWCVi/XKBJbrp1AVDLzA5YnGQ7pMBs2UJqNs6NmO0Ps85ObCQA==
+next-firebase-auth-edge@1.3.1-unstable.1:
+  version "1.3.1-unstable.1"
+  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-1.3.1-unstable.1.tgz#b1cc89697b58f65782048c3b853255ac351fe522"
+  integrity sha512-IdHS2Rf6gPMusT1eteeDITg4+irtQN5K8SZ1eCXyNEdAdTFihBXW+ppb6MgGevc9p2/uXnSZKrFEaIm00GHyoQ==
   dependencies:
     "@changesets/cli" "^2.25.2"
     cookie "^0.5.0"

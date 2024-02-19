@@ -20,6 +20,7 @@ import {
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   serviceAccount?: ServiceAccount;
   apiKey: string;
+  UNSAFE_expireTokenOnInvalidKidHeader?: boolean;
 }
 
 export function validateOptions(options: GetTokensOptions) {
@@ -97,7 +98,11 @@ export async function getTokens(
 
   const result = await verifyAndRefreshExpiredIdToken(
     tokens.idToken,
-    tokens.refreshToken
+    tokens.refreshToken,
+    {
+      UNSAFE_expireTokenOnInvalidKidHeader:
+        options.UNSAFE_expireTokenOnInvalidKidHeader
+    }
   );
 
   return toTokens(result);

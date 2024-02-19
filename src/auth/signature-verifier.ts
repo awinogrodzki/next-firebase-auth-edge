@@ -182,23 +182,39 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
   }
 
   private async getPublicKey(
-    header: ProtectedHeaderParameters
+    header: ProtectedHeaderParameters,
+    UNSAFE_expireOnInvalidKid: boolean
   ): Promise<KeyLike> {
     if (useEmulator()) {
       return {type: 'none'};
     }
 
-    return fetchPublicKey(this.keyFetcher, header).then(getPublicCryptoKey);
+    return fetchPublicKey(
+      this.keyFetcher,
+      header,
+      UNSAFE_expireOnInvalidKid
+    ).then(getPublicCryptoKey);
   }
 
   public async verify(token: string, options?: VerifyOptions): Promise<void> {
     const header = decodeProtectedHeader(token);
 
     try {
-      await verify(token, () => this.getPublicKey(header), options);
+      await verify(
+        token,
+        () =>
+          this.getPublicKey(
+            header,
+            options?.UNSAFE_expireTokenOnInvalidKidHeader ?? false
+          ),
+        options
+      );
     } catch (e) {
       if (e instanceof AuthError && e.code === AuthErrorCode.NO_KID_IN_HEADER) {
-        await this.verifyWithoutKid(token);
+        await this.verifyWithoutKid(
+          token,
+          options?.UNSAFE_expireTokenOnInvalidKidHeader ?? false
+        );
         return;
       }
 
@@ -206,15 +222,19 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
     }
   }
 
-  private async verifyWithoutKid(token: string): Promise<void> {
+  private async verifyWithoutKid(
+    token: string,
+    UNSAFE_expireOnInvalidKid: boolean
+  ): Promise<void> {
     const publicKeys = await this.keyFetcher.fetchPublicKeys();
 
-    return this.verifyWithAllKeys(token, publicKeys);
+    return this.verifyWithAllKeys(token, publicKeys, UNSAFE_expireOnInvalidKid);
   }
 
   private async verifyWithAllKeys(
     token: string,
-    keys: {[key: string]: string}
+    keys: {[key: string]: string},
+    UNSAFE_expireOnInvalidKid: boolean
   ): Promise<void> {
     const promises: Promise<boolean>[] = [];
 
@@ -231,17 +251,23 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
       promises.push(promise);
     });
 
-    return Promise.all(promises).then((result) => {
-      if (result.every((r) => r === false)) {
-        throw new AuthError(AuthErrorCode.INVALID_SIGNATURE);
-      }
-    });
+    const results = await Promise.all(promises);
+    const hasNoValidKey = results.every((r) => r === false);
+
+    if (hasNoValidKey && UNSAFE_expireOnInvalidKid) {
+      throw new AuthError(AuthErrorCode.TOKEN_EXPIRED);
+    }
+
+    if (hasNoValidKey) {
+      throw new AuthError(AuthErrorCode.INVALID_SIGNATURE);
+    }
   }
 }
 
 export async function fetchPublicKey(
   fetcher: KeyFetcher,
-  header: ProtectedHeaderParameters
+  header: ProtectedHeaderParameters,
+  UNSAFE_expireOnInvalidKid: boolean
 ): Promise<string> {
   if (!header.kid) {
     throw new AuthError(AuthErrorCode.NO_KID_IN_HEADER);
@@ -249,8 +275,16 @@ export async function fetchPublicKey(
 
   const kid = header.kid;
   const publicKeys = await fetcher.fetchPublicKeys();
+  const hasNoMatchingKid = !Object.prototype.hasOwnProperty.call(
+    publicKeys,
+    kid
+  );
 
-  if (!Object.prototype.hasOwnProperty.call(publicKeys, kid)) {
+  if (hasNoMatchingKid && UNSAFE_expireOnInvalidKid) {
+    throw new AuthError(AuthErrorCode.TOKEN_EXPIRED);
+  }
+
+  if (hasNoMatchingKid) {
     throw new AuthError(AuthErrorCode.NO_MATCHING_KID);
   }
 
