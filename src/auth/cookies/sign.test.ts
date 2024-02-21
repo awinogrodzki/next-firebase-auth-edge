@@ -1,3 +1,4 @@
+import {InvalidTokenError, InvalidTokenReason} from '../error';
 import {parseTokens, signTokens} from './sign';
 
 describe('signTokens', () => {
@@ -29,12 +30,14 @@ describe('parseTokens', () => {
     });
   });
 
-  it('should return null if signature is invalid', async () => {
-    const value = await parseTokens(
-      'eyJ0b2tlbnMiOnsiaWRUb2tlbiI6ImV4YW1wbGVfaWRfdG9rZW4iLCJyZWZyZXNoVG9rZW4iOiJleGFtcGxlX3JlZnJlc2hfdG9rZW4ifSwic2lnbmF0dXJlIjoia1hsUTZVVlIwbzY0cHpuQXBzdUxPOGdVQm1VUnVmNXZ6R2EycmMwRGo0WSJ9',
-      ['foobar']
+  it('should return throw invalid error if result is invalid', async () => {
+    return expect(() =>
+      parseTokens(
+        'eyJ0b2tlbnMiOnsiaWRUb2tlbiI6ImV4YW1wbGVfaWRfdG9rZW4iLCJyZWZyZXNoVG9rZW4iOiJleGFtcGxlX3JlZnJlc2hfdG9rZW4ifSwic2lnbmF0dXJlIjoia1hsUTZVVlIwbzY0cHpuQXBzdUxPOGdVQm1VUnVmNXZ6R2EycmMwRGo0WSJ9',
+        ['foobar']
+      )
+    ).rejects.toEqual(
+      new InvalidTokenError(InvalidTokenReason.INVALID_SIGNATURE)
     );
-
-    expect(value).toEqual(null);
   });
 });

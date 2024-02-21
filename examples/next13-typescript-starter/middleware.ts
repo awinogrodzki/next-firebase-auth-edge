@@ -10,7 +10,6 @@ const PUBLIC_PATHS = ['/register', '/login', '/reset-password'];
 
 export async function middleware(request: NextRequest) {
   return authMiddleware(request, {
-    debug: true,
     loginPath: '/api/login',
     logoutPath: '/api/logout',
     apiKey: authConfig.apiKey,
@@ -30,7 +29,9 @@ export async function middleware(request: NextRequest) {
         }
       });
     },
-    handleInvalidToken: async () => {
+    handleInvalidToken: async (reason) => {
+      console.info('Missing or malformed credentials', {reason});
+
       return redirectToLogin(request, {
         path: '/login',
         publicPaths: PUBLIC_PATHS

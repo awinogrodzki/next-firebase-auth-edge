@@ -10,7 +10,12 @@ import {
   Credential
 } from './credential';
 import {getApplicationDefault} from './default-credential';
-import {AuthError, AuthErrorCode} from './error';
+import {
+  AuthError,
+  AuthErrorCode,
+  InvalidTokenError,
+  InvalidTokenReason
+} from './error';
 import {useEmulator} from './firebase';
 import {VerifyOptions} from './jwt/verify';
 import {createFirebaseTokenGenerator} from './token-generator';
@@ -322,7 +327,7 @@ function getAuth(options: AuthOptions) {
     idToken: string,
     refreshToken: string,
     options?: VerifyOptions
-  ): Promise<VerifyTokenResult | null> {
+  ): Promise<VerifyTokenResult> {
     return await handleExpiredToken(
       async () => {
         const decodedIdToken = await verifyIdToken(idToken, false, options);
@@ -333,10 +338,10 @@ function getAuth(options: AuthOptions) {
           return handleTokenRefresh(refreshToken);
         }
 
-        return null;
+        throw new InvalidTokenError(InvalidTokenReason.MISSING_REFRESH_TOKEN);
       },
       async () => {
-        return null;
+        throw new InvalidTokenError(InvalidTokenReason.INVALID_CREDENTIALS);
       }
     );
   }

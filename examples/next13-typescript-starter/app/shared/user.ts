@@ -11,7 +11,7 @@ export const toUser = ({decodedToken}: Tokens): User => {
     phone_number: phoneNumber,
     name: displayName,
     auth_time: authTime,
-    source_sign_in_provider: signInProvider,
+    source_sign_in_provider: signInProvider
   } = decodedToken;
 
   const customClaims = filterStandardClaims(decodedToken);
