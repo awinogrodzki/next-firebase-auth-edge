@@ -1,0 +1,41 @@
+# Handling errors
+
+## handleInvalidToken
+
+[Auth middleware](/docs/usage/middleware)'s `handleInvalidToken` function is called with `InvalidTokenReason` as the first argument. 
+
+The role of `InvalidTokenReason` is mostly informative. `handleInvalidToken` is usually called when something **expected** happens and we can safely redirect user to the login page. One of those **expected** events might be a user visiting your app for the first time.
+
+### InvalidTokenReason
+
+Following table describes different types of `InvalidTokenReason`
+
+| Name | Description |
+| ---- | ----------- |
+| `MISSING_CREDENTIALS` | Request does not contain authentication cookie |
+| `MISSING_REFRESH_TOKEN` | Credentials have expired, but refresh token is not available |
+| `MALFORMED_CREDENTIALS` | Cookies cannot be parsed or the structure has changed |
+| `INVALID_SIGNATURE` | Cookie signature cannot be verified or cookie signature keys have changed |
+| `INVALID_CREDENTIALS` | Cookies have valid structure, but `idToken` cannot be verified |
+
+
+## handleError
+
+Contrary to [handleInvalidToken](/docs/errors#handleinvalidtoken), `handleError` is called when something **unexpected** happens. Something a developer should take a closer look at.
+
+`handleError` is called with `AuthError` as the first argument. `AuthError` has `code` and `message` properties that describe the type and meaning of the error
+
+It can be divided into following types
+
+| Code | Description |
+| ---- | ----------- |
+| `USER_NOT_FOUND` | User cannot be found. Most likely was removed between generating and refreshing custom token |
+| `INVALID_CREDENTIAL` | Token could not be refreshed due to invalid refresh token or service account credentials |
+| `TOKEN_EXPIRED` | Handled internally to refresh the token. Happens when custom `idToken` has expired  |
+| `USER_DISABLED` | Thrown when `authMiddleware` is called with `checkRevoked: true` and the user has been disabled |
+| `TOKEN_REVOKED` | Thrown when `authMiddleware` is called with `checkRevoked: true` and the token has been revoked |
+| `INVALID_ARGUMENT` | Token has incorrect structure or certificate this token was signed with has expired |
+| `INTERNAL_ERROR` | Internal error. Check error message for details |
+| `NO_KID_IN_HEADER` | Handled internally to verify token against all public certificates. Re-throws `INVALID_SIGNATURE` if none of the public keys match token signature. |
+| `NO_MATCHING_KID` | Handled internally to re-throw as `INVALID_ARGUMENT`. Usually indicates that certificate this token has been signed with has expired. This is **expected**. Google uses key rotation and refreshes certificates periodically. |
+| `INVALID_SIGNATURE` | Token signature cannot be verified |
