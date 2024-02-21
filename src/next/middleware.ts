@@ -20,6 +20,7 @@ import {
   wasResponseDecoratedWithModifiedRequestHeaders
 } from './cookies';
 import {GetTokensOptions, getRequestCookiesTokens} from './tokens';
+import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
 
 export interface CreateAuthMiddlewareOptions {
   loginPath: string;
@@ -89,7 +90,9 @@ export async function createAuthMiddlewareResponse(
   return NextResponse.next();
 }
 
-export type HandleInvalidToken = () => Promise<NextResponse>;
+export type HandleInvalidToken = (
+  reason: InvalidTokenReason
+) => Promise<NextResponse>;
 export type HandleValidToken = (
   tokens: Tokens,
   headers: Headers
@@ -186,98 +189,100 @@ export async function authMiddleware(
     tenantId: options.tenantId
   });
 
-  const idAndRefreshTokens = await getRequestCookiesTokens(
-    request.cookies,
-    options
-  );
-
-  if (!idAndRefreshTokens) {
-    debug(
-      'Authentication cookies could not be verified. Proceed to handleInvalidToken.',
-      {
-        cookieHeader: request.headers.get('cookie')
-      }
+  try {
+    const idAndRefreshTokens = await getRequestCookiesTokens(
+      request.cookies,
+      options
     );
 
-    return handleInvalidToken();
-  }
+    return await handleExpiredToken(
+      async () => {
+        debug('Verifying user credentials...');
 
-  return handleExpiredToken(
-    async () => {
-      debug('Verifying user credentials...');
+        const decodedToken = await verifyIdToken(
+          idAndRefreshTokens.idToken,
+          options.checkRevoked
+        );
 
-      const decodedToken = await verifyIdToken(
-        idAndRefreshTokens.idToken,
-        options.checkRevoked
-      );
+        debug('Credentials verified successfully');
 
-      debug('Credentials verified successfully');
+        markCookiesAsVerified(request.cookies);
+        const response = await handleValidToken(
+          {
+            token: idAndRefreshTokens.idToken,
+            decodedToken
+          },
+          request.headers
+        );
 
-      markCookiesAsVerified(request.cookies);
-      const response = await handleValidToken(
-        {
-          token: idAndRefreshTokens.idToken,
-          decodedToken
-        },
-        request.headers
-      );
+        debug('Successfully handled authenticated response');
 
-      debug('Successfully handled authenticated response');
+        if (!response.headers.has('location')) {
+          validateResponse(response);
+        }
 
-      if (!response.headers.has('location')) {
+        return response;
+      },
+      async () => {
+        debug('Token has expired. Refreshing token...');
+
+        const {idToken, decodedIdToken, refreshToken} =
+          await handleTokenRefresh(idAndRefreshTokens.refreshToken);
+
+        debug(
+          'Token refreshed successfully. Updating response cookie headers...'
+        );
+
+        const signedTokens = await signTokens(
+          {
+            idToken,
+            refreshToken
+          },
+          options.cookieSignatureKeys
+        );
+
+        request.cookies.set(options.cookieName, signedTokens);
+
+        markCookiesAsVerified(request.cookies);
+        const response = await handleValidToken(
+          {token: idToken, decodedToken: decodedIdToken},
+          request.headers
+        );
+
+        debug('Successfully handled authenticated response');
+
         validateResponse(response);
+
+        response.headers.append(
+          'Set-Cookie',
+          serialize(
+            options.cookieName,
+            signedTokens,
+            options.cookieSerializeOptions
+          )
+        );
+
+        return response;
+      },
+      async (e) => {
+        debug('Authentication failed with error', {error: e});
+
+        return handleError(e);
       }
-
-      return response;
-    },
-    async () => {
-      debug('Token has expired. Refreshing token...');
-
-      const {idToken, decodedIdToken, refreshToken} = await handleTokenRefresh(
-        idAndRefreshTokens.refreshToken
-      );
-
+    );
+  } catch (error: unknown) {
+    if (error instanceof InvalidTokenError) {
       debug(
-        'Token refreshed successfully. Updating response cookie headers...'
-      );
-
-      const signedTokens = await signTokens(
+        `Token is missing or has incorrect formatting. This is expected and usually means that user has not yet logged in`,
         {
-          idToken,
-          refreshToken
-        },
-        options.cookieSignatureKeys
+          reason: error.reason
+        }
       );
-
-      request.cookies.set(options.cookieName, signedTokens);
-
-      markCookiesAsVerified(request.cookies);
-      const response = await handleValidToken(
-        {token: idToken, decodedToken: decodedIdToken},
-        request.headers
-      );
-
-      debug('Successfully handled authenticated response');
-
-      validateResponse(response);
-
-      response.headers.append(
-        'Set-Cookie',
-        serialize(
-          options.cookieName,
-          signedTokens,
-          options.cookieSerializeOptions
-        )
-      );
-
-      return response;
-    },
-    async (e) => {
-      debug('Authentication failed with error', {error: e});
-
-      return handleError(e);
+      return handleInvalidToken(error.reason);
     }
-  );
+
+    throw error;
+  }
 }
 
 /**

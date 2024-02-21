@@ -188,13 +188,8 @@ export async function verifyApiCookies(
     [key: string]: string;
   }>,
   options: SetAuthCookiesOptions
-): Promise<VerifyTokenResult | null> {
+): Promise<VerifyTokenResult> {
   const tokens = await getCookiesTokens(cookies, options);
-
-  if (!tokens) {
-    return null;
-  }
-
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
@@ -206,10 +201,6 @@ export async function verifyApiCookies(
     tokens.refreshToken
   );
 
-  if (!verifyTokenResult) {
-    return null;
-  }
-
   return verifyTokenResult;
 }
 
@@ -218,13 +209,8 @@ export async function refreshApiCookies(
     [key: string]: string;
   }>,
   options: SetAuthCookiesOptions
-): Promise<VerifyTokenResult | null> {
+): Promise<VerifyTokenResult> {
   const tokens = await getCookiesTokens(cookies, options);
-
-  if (!tokens) {
-    return null;
-  }
-
   const {handleTokenRefresh} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
@@ -232,10 +218,6 @@ export async function refreshApiCookies(
   });
 
   const verifyTokenResult = await handleTokenRefresh(tokens.refreshToken);
-
-  if (!verifyTokenResult) {
-    return null;
-  }
 
   return verifyTokenResult;
 }
@@ -246,11 +228,6 @@ export async function refreshApiResponseCookies(
   options: SetAuthCookiesOptions
 ): Promise<NextApiResponse> {
   const verifyTokenResult = await refreshApiCookies(request.cookies, options);
-
-  if (!verifyTokenResult) {
-    return response;
-  }
-
   await appendAuthCookiesApi(response, verifyTokenResult, options);
 
   return response;
@@ -259,7 +236,7 @@ export async function refreshApiResponseCookies(
 export async function verifyNextCookies(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: SetAuthCookiesOptions
-): Promise<VerifyTokenResult | null> {
+): Promise<VerifyTokenResult> {
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
@@ -267,19 +244,10 @@ export async function verifyNextCookies(
   });
 
   const tokens = await getRequestCookiesTokens(cookies, options);
-
-  if (!tokens) {
-    return null;
-  }
-
   const verifyTokenResult = await verifyAndRefreshExpiredIdToken(
     tokens.idToken,
     tokens.refreshToken
   );
-
-  if (!verifyTokenResult) {
-    return null;
-  }
 
   return verifyTokenResult;
 }
@@ -287,7 +255,7 @@ export async function verifyNextCookies(
 export async function refreshNextCookies(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: SetAuthCookiesOptions
-): Promise<VerifyTokenResult | null> {
+): Promise<VerifyTokenResult> {
   const {handleTokenRefresh} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
@@ -295,16 +263,7 @@ export async function refreshNextCookies(
   });
 
   const tokens = await getRequestCookiesTokens(cookies, options);
-
-  if (!tokens) {
-    return null;
-  }
-
   const verifyTokenResult = await handleTokenRefresh(tokens.refreshToken);
-
-  if (!verifyTokenResult) {
-    return null;
-  }
 
   return verifyTokenResult;
 }
@@ -315,11 +274,6 @@ export async function refreshNextResponseCookies(
   options: SetAuthCookiesOptions
 ): Promise<NextResponse> {
   const verifyTokenResult = await refreshNextCookies(request.cookies, options);
-
-  if (!verifyTokenResult) {
-    return response;
-  }
-
   await appendAuthCookies(response, verifyTokenResult, options);
 
   return response;
@@ -330,11 +284,6 @@ export async function refreshServerCookies(
   options: SetAuthCookiesOptions
 ): Promise<void> {
   const verifyTokenResult = await refreshNextCookies(cookies, options);
-
-  if (!verifyTokenResult) {
-    return;
-  }
-
   const signedTokens = await signTokens(
     verifyTokenResult,
     options.cookieSignatureKeys

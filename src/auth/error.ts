@@ -45,3 +45,27 @@ export class AuthError extends Error {
     };
   }
 }
+
+export enum InvalidTokenReason {
+  MISSING_CREDENTIALS = 'MISSING_CREDENTIALS',
+  MISSING_REFRESH_TOKEN = 'MISSING_REFRESH_TOKEN',
+  MALFORMED_CREDENTIALS = 'MALFORMED_CREDENTIALS',
+  INVALID_SIGNATURE = 'INVALID_SIGNATURE',
+  INVALID_CREDENTIALS = 'INVALID_CREDENTIALS'
+}
+
+const InvalidTokenMessages: Record<InvalidTokenReason, string> = {
+  [InvalidTokenReason.MISSING_CREDENTIALS]: 'Missing credentials',
+  [InvalidTokenReason.MALFORMED_CREDENTIALS]:
+    'Credentials are incorrectly formatted',
+  [InvalidTokenReason.INVALID_SIGNATURE]: 'Credentials have invalid signature',
+  [InvalidTokenReason.MISSING_REFRESH_TOKEN]: 'Refresh token is missing',
+  [InvalidTokenReason.INVALID_CREDENTIALS]: 'Invalid credentials'
+};
+
+export class InvalidTokenError extends Error {
+  constructor(public readonly reason: InvalidTokenReason) {
+    super(`${reason}: ${InvalidTokenMessages[reason]}`);
+    Object.setPrototypeOf(this, InvalidTokenError.prototype);
+  }
+}

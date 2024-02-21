@@ -16,6 +16,7 @@ import {
   CookiesObject,
   isCookiesObjectVerifiedByMiddleware
 } from './cookies';
+import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   serviceAccount?: ServiceAccount;
@@ -38,13 +39,13 @@ export interface GetCookiesTokensOptions {
 export async function getRequestCookiesTokens(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetCookiesTokensOptions
-): Promise<IdAndRefreshTokens | null> {
+): Promise<IdAndRefreshTokens> {
   const signedCookie = cookies.get(options.cookieName);
 
   if (!signedCookie) {
     debug('Missing authentication cookies');
 
-    return null;
+    throw new InvalidTokenError(InvalidTokenReason.MISSING_CREDENTIALS);
   }
 
   const tokens = await parseTokens(
@@ -52,12 +53,8 @@ export async function getRequestCookiesTokens(
     options.cookieSignatureKeys
   );
 
-  if (!tokens) {
-    debug('Authentication cookies are present, but cannot be verified');
-    return null;
-  }
-
   debug('Authentication cookies are present and valid');
+
   return tokens;
 }
 
@@ -80,46 +77,50 @@ export async function getTokens(
     apiKey: options.apiKey
   });
 
-  const tokens = await getRequestCookiesTokens(cookies, options);
+  try {
+    const tokens = await getRequestCookiesTokens(cookies, options);
 
-  if (!tokens) {
-    return null;
+    if (areCookiesVerifiedByMiddleware(cookies)) {
+      const payload = decodeJwt(tokens.idToken);
+
+      return {
+        token: tokens.idToken,
+        decodedToken: mapJwtPayloadToDecodedIdToken(payload)
+      };
+    }
+
+    const result = await verifyAndRefreshExpiredIdToken(
+      tokens.idToken,
+      tokens.refreshToken
+    );
+
+    return toTokens(result);
+  } catch (error: unknown) {
+    if (error instanceof InvalidTokenError) {
+      debug(
+        `Token is missing or has incorrect formatting. This is expected and usually means that user has not yet logged in`,
+        {
+          reason: error.reason
+        }
+      );
+      return null;
+    }
+
+    throw error;
   }
-
-  if (areCookiesVerifiedByMiddleware(cookies)) {
-    const payload = decodeJwt(tokens.idToken);
-
-    return {
-      token: tokens.idToken,
-      decodedToken: mapJwtPayloadToDecodedIdToken(payload)
-    };
-  }
-
-  const result = await verifyAndRefreshExpiredIdToken(
-    tokens.idToken,
-    tokens.refreshToken
-  );
-
-  return toTokens(result);
 }
 
 export async function getCookiesTokens(
   cookies: Partial<{[K in string]: string}>,
   options: GetCookiesTokensOptions
-): Promise<IdAndRefreshTokens | null> {
+): Promise<IdAndRefreshTokens> {
   const signedCookie = cookies[options.cookieName];
 
   if (!signedCookie) {
-    return null;
+    throw new InvalidTokenError(InvalidTokenReason.MISSING_CREDENTIALS);
   }
 
-  const tokens = await parseTokens(signedCookie, options.cookieSignatureKeys);
-
-  if (!tokens) {
-    return null;
-  }
-
-  return tokens;
+  return await parseTokens(signedCookie, options.cookieSignatureKeys);
 }
 
 export async function getTokensFromObject(
@@ -131,22 +132,26 @@ export async function getTokensFromObject(
     apiKey: options.apiKey
   });
 
-  const tokens = await getCookiesTokens(cookies, options);
+  try {
+    const tokens = await getCookiesTokens(cookies, options);
 
-  if (!tokens) {
-    return null;
+    if (isCookiesObjectVerifiedByMiddleware(cookies)) {
+      const payload = decodeJwt(tokens.idToken);
+
+      return {
+        token: tokens.idToken,
+        decodedToken: mapJwtPayloadToDecodedIdToken(payload)
+      };
+    }
+
+    return toTokens(
+      await verifyAndRefreshExpiredIdToken(tokens.idToken, tokens.refreshToken)
+    );
+  } catch (error: unknown) {
+    if (error instanceof InvalidTokenError) {
+      return null;
+    }
+
+    throw error;
   }
-
-  if (isCookiesObjectVerifiedByMiddleware(cookies)) {
-    const payload = decodeJwt(tokens.idToken);
-
-    return {
-      token: tokens.idToken,
-      decodedToken: mapJwtPayloadToDecodedIdToken(payload)
-    };
-  }
-
-  return toTokens(
-    await verifyAndRefreshExpiredIdToken(tokens.idToken, tokens.refreshToken)
-  );
 }
