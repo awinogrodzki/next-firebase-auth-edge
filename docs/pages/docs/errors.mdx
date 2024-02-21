@@ -37,5 +37,5 @@ It can be divided into following types
 | `INVALID_ARGUMENT` | Token has incorrect structure or certificate this token was signed with has expired |
 | `INTERNAL_ERROR` | Internal error. Check error message for details |
 | `NO_KID_IN_HEADER` | Handled internally to verify token against all public certificates. Re-throws `INVALID_SIGNATURE` if none of the public keys match token signature. |
-| `NO_MATCHING_KID` | Handled internally to re-throw as `INVALID_ARGUMENT`. Usually indicates that certificate this token has been signed with has expired. This is **expected**. Google uses key rotation and refreshes certificates periodically. |
+| `NO_MATCHING_KID` | Handled internally to re-throw as `INVALID_ARGUMENT`. Usually indicates that certificate this token has been signed with has expired. This is **expected**. Google refreshes certificates periodically, which is a form of [key rotation](https://developer.okta.com/docs/concepts/key-rotation/) |
 | `INVALID_SIGNATURE` | Token signature cannot be verified |
