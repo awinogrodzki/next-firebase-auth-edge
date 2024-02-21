@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 1.4.0
+
+### Minor Changes
+
+- `handleInvalidToken` is now called with `InvalidTokenReason` as the first argument. It gives developers more inslight and control over authentication flow
+
 ## 1.3.0
 
 ### Minor Changes

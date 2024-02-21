@@ -33,8 +33,8 @@ To allow gradual adoption of latest Next.js features, `next-firebase-auth-edge` 
 * **Minimal configuration**: In contrary to other libraries, you don't have to define your own API routes or update your `next.config.js` file. All heavy lifting is done by [the middleware](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware).
 * **Secure**: Uses [jose](https://github.com/panva/jose) for JWT validation. Signs user cookies with rotating keys to mitigate the risk of cryptanalysis attacks
 
-### What's new in v1.3
-
+### What's new in v1.4
+* `handleInvalidToken` is now being called with `InvalidTokenReason` to give developer more control over authentication flow
 * You can now use the library without providing service account credentials in authenticated [Google Cloud Run environment](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/cloud-run)
 * You can now use the library in [Firebase Hosting](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/firebase-hosting) environment by changing `cookieName` to `__session`
 * You can enable [**debug mode**](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/debug-mode) in authentication middleware
