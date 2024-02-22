@@ -56,7 +56,8 @@ export enum InvalidTokenReason {
 
 const InvalidTokenMessages: Record<InvalidTokenReason, string> = {
   [InvalidTokenReason.MISSING_CREDENTIALS]: 'Missing credentials',
-  [InvalidTokenReason.MALFORMED_CREDENTIALS]: 'Credentials are incorrectly formatted',
+  [InvalidTokenReason.MALFORMED_CREDENTIALS]:
+    'Credentials are incorrectly formatted',
   [InvalidTokenReason.INVALID_SIGNATURE]: 'Credentials have invalid signature',
   [InvalidTokenReason.MISSING_REFRESH_TOKEN]: 'Refresh token is missing',
   [InvalidTokenReason.INVALID_CREDENTIALS]: 'Invalid credentials'
