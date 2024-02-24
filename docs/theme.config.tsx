@@ -280,21 +280,8 @@ export default {
       <meta content="#da532c" name="msapplication-TileColor" />
       <meta content="#ffffff" name="theme-color" />
 
-      <meta content="next-intl" name="og:title" />
-      <meta content="next-intl" name="twitter:title" />
-
-      <meta
-        content="Internationalization (i18n) for Next.js that gets out of your way."
-        name="description"
-      />
-      <meta
-        content="Internationalization (i18n) for Next.js that gets out of your way."
-        name="og:description"
-      />
-      <meta
-        content="Internationalization (i18n) for Next.js that gets out of your way."
-        name="twitter:description"
-      />
+      <meta content="next-firebase-auth-edge" name="og:title" />
+      <meta content="next-firebase-auth-edge" name="twitter:title" />
 
       <meta content="summary_large_image" name="twitter:card" />
 
