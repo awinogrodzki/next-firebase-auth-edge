@@ -64,7 +64,7 @@ export async function middleware(request: NextRequest) {
     },
     handleError: async (error) => {
       console.error("Unhandled authentication error", { error });
-      
+
       return redirectToLogin(request, {
         path: "/login",
         publicPaths: PUBLIC_PATHS,
@@ -125,7 +125,7 @@ export async function middleware(request: NextRequest) {
 }
 ```
 
-**Please note** that you don't need to pass `headers` as in [middleware token verification caching](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#middleware-token-verification-caching) when using `next-intl` middleware. `request` is already updated with modified headers by the time we call `i18nMiddleware`. `next-intl` will pass modified headers for us.
+**Please note** that you don't need to pass `headers` as in [middleware token verification caching](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#middleware-token-verification-caching) when using `next-intl` middleware. `request` is already updated with modified headers by the time we call `intlMiddleware`. `next-intl` will pass modified headers for us.
 
 ## Options
 
