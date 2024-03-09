@@ -19,7 +19,11 @@ import {
   setAuthCookies,
   wasResponseDecoratedWithModifiedRequestHeaders
 } from './cookies';
-import {GetTokensOptions, getRequestCookiesTokens, validateOptions} from './tokens';
+import {
+  GetTokensOptions,
+  getRequestCookiesTokens,
+  validateOptions
+} from './tokens';
 import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
 
 export interface CreateAuthMiddlewareOptions {
