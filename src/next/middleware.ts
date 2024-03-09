@@ -19,7 +19,7 @@ import {
   setAuthCookies,
   wasResponseDecoratedWithModifiedRequestHeaders
 } from './cookies';
-import {GetTokensOptions, getRequestCookiesTokens} from './tokens';
+import {GetTokensOptions, getRequestCookiesTokens, validateOptions} from './tokens';
 import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
 
 export interface CreateAuthMiddlewareOptions {
@@ -166,6 +166,8 @@ export async function authMiddleware(
   if (options.debug) {
     enableDebugMode();
   }
+
+  validateOptions(options);
 
   const handleValidToken = options.handleValidToken ?? defaultValidTokenHandler;
   const handleError = options.handleError ?? defaultInvalidTokenHandler;

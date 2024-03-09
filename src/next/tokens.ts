@@ -24,9 +24,11 @@ export interface GetTokensOptions extends GetCookiesTokensOptions {
 }
 
 export function validateOptions(options: GetTokensOptions) {
-  if (!options.cookieSignatureKeys.length) {
+  if (!options.cookieSignatureKeys.length || !options.cookieSignatureKeys[0]) {
     throw new Error(
-      'You should provide at least one cookie signature encryption key'
+      `Expected cookieSignatureKeys to contain at least one signature key. Received: ${JSON.stringify(
+        options.cookieSignatureKeys
+      )}`
     );
   }
 }
