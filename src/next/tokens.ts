@@ -10,7 +10,7 @@ import {
 import {parseTokens} from '../auth/cookies/sign';
 import {ServiceAccount} from '../auth/credential';
 import {mapJwtPayloadToDecodedIdToken} from '../auth/utils';
-import {debug} from '../debug';
+import {debug, enableDebugMode} from '../debug';
 import {
   areCookiesVerifiedByMiddleware,
   CookiesObject,
@@ -21,6 +21,7 @@ import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   serviceAccount?: ServiceAccount;
   apiKey: string;
+  debug?: boolean;
 }
 
 export function validateOptions(options: GetTokensOptions) {
@@ -55,8 +56,6 @@ export async function getRequestCookiesTokens(
     options.cookieSignatureKeys
   );
 
-  debug('Authentication cookies are present and valid');
-
   return tokens;
 }
 
@@ -72,6 +71,10 @@ export async function getTokens(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetTokensOptions
 ): Promise<Tokens | null> {
+  if (options.debug) {
+    enableDebugMode();
+  }
+
   validateOptions(options);
 
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
