@@ -65,7 +65,9 @@ export class UrlKeyFetcher implements KeyFetcher {
   }
 
   private async fetchPublicKeysResponse(url: URL): Promise<PublicKeysResponse> {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      cache: 'no-store'
+    });
 
     if (!res.ok) {
       let errorMessage = 'Error fetching public keys for Google certs: ';
