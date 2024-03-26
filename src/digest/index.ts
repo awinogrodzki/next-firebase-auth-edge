@@ -1,4 +1,4 @@
-import { base64url, cryptoRuntime } from 'jose';
+import {base64url, cryptoRuntime} from 'jose';
 
 function getRuntimeDigest() {
   if (cryptoRuntime === 'WebCryptoAPI') {

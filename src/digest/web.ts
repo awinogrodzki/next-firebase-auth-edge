@@ -1,9 +1,9 @@
-import { DigestFunction } from "./types"
+import {DigestFunction} from './types';
 
 export const digest: DigestFunction = async (
   algorithm: 'sha256' | 'sha384' | 'sha512',
-  data: Uint8Array,
+  data: Uint8Array
 ): Promise<Uint8Array> => {
-  const subtleDigest = `SHA-${algorithm.slice(-3)}`
-  return new Uint8Array(await crypto.subtle.digest(subtleDigest, data))
-}
+  const subtleDigest = `SHA-${algorithm.slice(-3)}`;
+  return new Uint8Array(await crypto.subtle.digest(subtleDigest, data));
+};
