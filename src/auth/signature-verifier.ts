@@ -30,7 +30,10 @@ export type DecodedToken = {
 };
 
 export async function keyDigest(keys: PublicKeys): Promise<string> {
-  return digest('sha256', JSON.stringify(keys));
+  const kids = Object.keys(keys);
+  kids.sort((a, b) => a.localeCompare(b));
+
+  return digest('sha256', JSON.stringify(kids));
 }
 
 export interface SignatureVerifier {
