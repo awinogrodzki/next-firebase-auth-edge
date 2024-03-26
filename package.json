@@ -1,6 +1,6 @@
 {
   "name": "next-firebase-auth-edge",
-  "version": "1.4.1-debug.5",
+  "version": "1.4.1-debug.6",
   "description": "Next.js Firebase Authentication for Edge and server runtimes. Compatible with latest Next.js features.",
   "main": "lib/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "lint": "eslint ./src --ext .ts,.tsx"
   },
   "peerDependencies": {
-    "next": "^13.5.0"
+    "next": "^13.5.0 || ^14.0.0"
   },
   "dependencies": {
     "@changesets/cli": "^2.25.2",
