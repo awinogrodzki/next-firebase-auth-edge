@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 1.4.2
+
+### Patch Changes
+
+- Fetch Google public keys with cache: "no-store" to fix #159
+
 ## 1.4.1
 
 ### Patch Changes
