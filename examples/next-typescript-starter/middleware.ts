@@ -50,7 +50,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/',
-    '/((?!_next|favicon.ico|api|.*\\.).*)',
+    '/((?!_next|favicon.ico|__/auth|__/firebase|api|.*\\.).*)',
     '/api/login',
     '/api/logout'
   ]
