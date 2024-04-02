@@ -76,7 +76,7 @@ export class UrlKeyFetcher implements KeyFetcher {
 
   private async fetchPublicKeysResponse(url: URL): Promise<PublicKeysResponse> {
     const res = await fetch(url, {
-      cache: "no-store"
+      cache: 'no-store'
     });
 
     const headers = {};
