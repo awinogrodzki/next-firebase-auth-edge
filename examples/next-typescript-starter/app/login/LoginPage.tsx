@@ -2,7 +2,11 @@
 
 import * as React from 'react';
 import {useLoadingCallback} from 'react-loading-hook';
-import {getGoogleProvider, loginWithProvider} from './firebase';
+import {
+  getGoogleProvider,
+  loginWithProvider,
+  loginWithProviderUsingRedirect
+} from './firebase';
 import styles from './login.module.css';
 import {Button} from '../../ui/Button';
 import {LoadingIcon} from '../../ui/icons';
@@ -12,6 +16,7 @@ import {MainTitle} from '../../ui/MainTitle';
 import {PasswordForm} from '../../ui/PasswordForm';
 import {PasswordFormValue} from '../../ui/PasswordForm/PasswordForm';
 import {
+  getRedirectResult,
   isSignInWithEmailLink,
   sendSignInLinkToEmail,
   signInWithEmailAndPassword,
@@ -21,10 +26,12 @@ import {getFirebaseAuth} from '../auth/firebase';
 import {appendRedirectParam} from '../shared/redirect';
 import {useRedirect} from '../shared/useRedirect';
 import {useRedirectParam} from '../shared/useRedirectParam';
+import {useAuth} from '../auth/AuthContext';
 
 export function LoginPage() {
   const [hasLogged, setHasLogged] = React.useState(false);
   const redirect = useRedirectParam();
+  const {hasLoaded} = useAuth();
 
   useRedirect();
 
@@ -47,6 +54,32 @@ export function LoginPage() {
 
       setHasLogged(true);
     });
+
+  const [
+    handleLoginWithGoogleUsingRedirect,
+    isGoogleUsingRedirectLoading,
+    googleUsingRedirectError
+  ] = useLoadingCallback(async () => {
+    setHasLogged(false);
+
+    const auth = getFirebaseAuth();
+    await loginWithProviderUsingRedirect(auth, getGoogleProvider(auth));
+
+    setHasLogged(true);
+  });
+
+  async function handleLoginWithRedirect() {
+    const auth = getFirebaseAuth();
+    const credential = await getRedirectResult(auth);
+
+    if (credential?.user) {
+      setHasLogged(true);
+    }
+  }
+
+  React.useEffect(() => {
+    handleLoginWithRedirect();
+  }, []);
 
   const [handleLoginWithEmailLink, isEmailLinkLoading, emailLinkError] =
     useLoadingCallback(async () => {
@@ -94,7 +127,9 @@ export function LoginPage() {
 
   return (
     <div className={styles.page}>
-      <MainTitle>Login</MainTitle>
+      <MainTitle>
+        Login {!hasLoaded && <LoadingIcon className={styles.titleIcon} />}
+      </MainTitle>
       {hasLogged && (
         <div className={styles.info}>
           <span>
@@ -105,9 +140,15 @@ export function LoginPage() {
       )}
       {!hasLogged && (
         <PasswordForm
+          disabled={!hasLoaded}
           loading={isEmailLoading}
           onSubmit={handleLoginWithEmailAndPassword}
-          error={emailPasswordError || googleError || emailLinkError}
+          error={
+            emailPasswordError ||
+            googleError ||
+            emailLinkError ||
+            googleUsingRedirectError
+          }
         >
           <ButtonGroup>
             <Link
@@ -117,18 +158,25 @@ export function LoginPage() {
               Reset password
             </Link>
             <Link href={appendRedirectParam('/register', redirect)}>
-              <Button>Register</Button>
+              <Button disabled={!hasLoaded}>Register</Button>
             </Link>
             <Button
               loading={isGoogleLoading}
-              disabled={isGoogleLoading}
+              disabled={isGoogleLoading || !hasLoaded}
               onClick={handleLoginWithGoogle}
             >
-              Log in with Google
+              Log in with Google (Popup)
+            </Button>
+            <Button
+              loading={isGoogleUsingRedirectLoading}
+              disabled={isGoogleUsingRedirectLoading || !hasLoaded}
+              onClick={handleLoginWithGoogleUsingRedirect}
+            >
+              Log in with Google (Redirect)
             </Button>
             <Button
               loading={isEmailLinkLoading}
-              disabled={isEmailLinkLoading}
+              disabled={isEmailLinkLoading || !hasLoaded}
               onClick={handleLoginWithEmailLink}
             >
               Log in with Email Link

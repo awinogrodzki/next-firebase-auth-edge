@@ -10,10 +10,12 @@ export interface User extends UserInfo {
 
 export interface AuthContextValue {
   user: User | null;
+  hasLoaded: boolean;
 }
 
 export const AuthContext = createContext<AuthContextValue>({
-  user: null
+  user: null,
+  hasLoaded: false
 });
 
 export const useAuth = () => useContext(AuthContext);

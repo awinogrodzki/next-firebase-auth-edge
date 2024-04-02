@@ -35,6 +35,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   children
 }) => {
   const [user, setUser] = React.useState(serverUser);
+  const [hasLoaded, setHasLoaded] = React.useState(false);
 
   React.useEffect(() => {
     if (user === serverUser) {
@@ -70,10 +71,12 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   const handleIdTokenChanged = async (firebaseUser: FirebaseUser | null) => {
     if (!firebaseUser) {
       await handleLogout();
+      setHasLoaded(true);
       return;
     }
 
     await handleLogin(firebaseUser);
+    setHasLoaded(true);
   };
 
   React.useEffect(() => {
@@ -83,7 +86,8 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({
   return (
     <AuthContext.Provider
       value={{
-        user
+        user,
+        hasLoaded
       }}
     >
       {children}

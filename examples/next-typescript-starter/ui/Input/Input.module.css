@@ -11,3 +11,7 @@
   max-width: 100%;
   width: 280px;
 }
+
+.input:disabled {
+  opacity: 0.5;
+}

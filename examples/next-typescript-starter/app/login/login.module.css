@@ -23,3 +23,10 @@
   font-size: 0.675rem;
   text-decoration: underline;
 }
+
+.titleIcon {
+  position: absolute;
+  top: 50%;
+  right: -32px;
+  transform: translateY(-50%);
+}

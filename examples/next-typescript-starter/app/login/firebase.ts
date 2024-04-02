@@ -3,6 +3,7 @@ import {
   browserPopupRedirectResolver,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
   signOut,
   useDeviceLanguage
 } from 'firebase/auth';
@@ -38,4 +39,11 @@ export const loginWithProvider = async (
   );
 
   return result.user;
+};
+
+export const loginWithProviderUsingRedirect = async (
+  auth: Auth,
+  provider: AuthProvider
+): Promise<void> => {
+  const result = await signInWithRedirect(auth, provider);
 };
