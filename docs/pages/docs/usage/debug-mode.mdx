@@ -1,6 +1,6 @@
 # Debug mode
 
-You can enable `debug mode` by providing `debug: true` option to `authMiddleware`.
+You can enable `debug mode` by providing `debug: true` option to `authMiddleware` and `getTokens`.
 
 When in debug mode, middleware logs additional information about authentication process to the console.
 
@@ -37,3 +37,25 @@ export const config = {
 };
 ```
 
+
+
+```tsx
+import { getTokens } from "next-firebase-auth-edge";
+import { cookies } from "next/headers";
+```
+
+```tsx
+const tokens = await getTokens(cookies(), {
+  debug: true,
+  apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
+  cookieName: 'AuthToken',
+  cookieSignatureKeys: ['secret1', 'secret2'],
+  serviceAccount: {
+    projectId: 'your-firebase-project-id',
+    clientEmail:
+      'firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com',
+    privateKey:
+      '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
+  }
+});
+```

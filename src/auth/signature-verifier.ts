@@ -1,16 +1,19 @@
-import {isNonNullObject, isURL} from './validator';
-import {getPublicCryptoKey, verify, VerifyOptions} from './jwt/verify';
 import {
-  createRemoteJWKSet,
-  decodeProtectedHeader,
-  errors,
   JWTPayload,
   KeyLike,
-  ProtectedHeaderParameters
+  ProtectedHeaderParameters,
+  createRemoteJWKSet,
+  cryptoRuntime,
+  decodeProtectedHeader,
+  errors
 } from 'jose';
-import {useEmulator} from './firebase';
-import {AuthError, AuthErrorCode} from './error';
 import {RemoteJWKSetOptions} from 'jose/dist/types/jwks/remote';
+import {debug} from '../debug';
+import {AuthError, AuthErrorCode} from './error';
+import {useEmulator} from './firebase';
+import {VerifyOptions, getPublicCryptoKey, verify} from './jwt/verify';
+import {isNonNullObject, isURL} from './validator';
+import {digest} from '../digest';
 
 export const ALGORITHM_RS256 = 'RS256' as const;
 
@@ -25,6 +28,13 @@ export type DecodedToken = {
   header: ProtectedHeaderParameters;
   payload: JWTPayload;
 };
+
+export async function keyDigest(keys: PublicKeys): Promise<string> {
+  const kids = Object.keys(keys);
+  kids.sort((a, b) => a.localeCompare(b));
+
+  return digest('sha256', JSON.stringify(kids));
+}
 
 export interface SignatureVerifier {
   verify(token: string, options?: VerifyOptions): Promise<void>;
@@ -65,7 +75,20 @@ export class UrlKeyFetcher implements KeyFetcher {
   }
 
   private async fetchPublicKeysResponse(url: URL): Promise<PublicKeysResponse> {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      cache: 'no-store'
+    });
+
+    const headers = {};
+
+    res.headers.forEach((value, key) => {
+      headers[key] = value;
+    });
+
+    debug('Public keys fetched', {
+      responseHeaders: headers,
+      cryptoRuntime
+    });
 
     if (!res.ok) {
       let errorMessage = 'Error fetching public keys for Google certs: ';
@@ -98,8 +121,23 @@ export class UrlKeyFetcher implements KeyFetcher {
   }
 
   private async fetchAndCachePublicKeys(url: URL): Promise<PublicKeys> {
+    debug(
+      'No public keys found in cache. Fetching public keys from Google...',
+      {
+        cryptoRuntime
+      }
+    );
+
     const response = await this.fetchPublicKeysResponse(url);
+
     keyResponseCache.set(url.toString(), response);
+
+    debug('Public keys cached', {
+      cacheKey: url.toString(),
+      expiresAt: response.expiresAt,
+      digest: await keyDigest(response.keys),
+      cryptoRuntime
+    });
 
     return response.keys;
   }
@@ -114,6 +152,13 @@ export class UrlKeyFetcher implements KeyFetcher {
 
     const {keys, expiresAt} = cachedResponse;
     const now = Date.now();
+
+    debug('Get public keys from cache', {
+      expiresAt,
+      now,
+      digest: await keyDigest(keys),
+      cryptoRuntime
+    });
 
     if (expiresAt <= now) {
       return this.fetchAndCachePublicKeys(url);
