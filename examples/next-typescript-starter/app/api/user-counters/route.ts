@@ -5,7 +5,7 @@ import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
 import {getFirebaseAdminApp} from '../../firebase';
 
 export async function POST(request: NextRequest) {
-  const tokens = await getTokens(request.cookies, {...authConfig, debug: true});
+  const tokens = await getTokens(request.cookies, authConfig);
 
   if (!tokens) {
     throw new Error('Cannot update counter of unauthenticated user');

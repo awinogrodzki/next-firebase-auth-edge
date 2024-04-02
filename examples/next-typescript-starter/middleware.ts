@@ -10,7 +10,6 @@ const PUBLIC_PATHS = ['/register', '/login', '/reset-password'];
 
 export async function middleware(request: NextRequest) {
   return authMiddleware(request, {
-    debug: true,
     loginPath: '/api/login',
     logoutPath: '/api/logout',
     apiKey: authConfig.apiKey,
