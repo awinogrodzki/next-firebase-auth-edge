@@ -10,7 +10,6 @@ export const toUser = ({decodedToken}: Tokens): User => {
     email_verified: emailVerified,
     phone_number: phoneNumber,
     name: displayName,
-    auth_time: authTime,
     source_sign_in_provider: signInProvider
   } = decodedToken;
 
@@ -24,7 +23,6 @@ export const toUser = ({decodedToken}: Tokens): User => {
     phoneNumber: phoneNumber ?? null,
     emailVerified: emailVerified ?? false,
     providerId: signInProvider,
-    customClaims,
-    authTime
+    customClaims
   };
 };
