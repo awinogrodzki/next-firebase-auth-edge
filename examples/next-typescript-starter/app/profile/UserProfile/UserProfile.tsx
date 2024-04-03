@@ -13,6 +13,7 @@ import {Badge} from '../../../ui/Badge';
 import {getToken} from '@firebase/app-check';
 import {getAppCheck} from '../../../app-check';
 import {getFirebaseAuth} from '../../auth/firebase';
+import {logout, refreshToken} from '../../../api';
 
 interface UserProfileProps {
   count: number;
@@ -26,6 +27,10 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
   const [handleLogout, isLogoutLoading] = useLoadingCallback(async () => {
     const auth = getFirebaseAuth();
     await signOut(auth);
+    await logout();
+
+    router.refresh();
+
     setHasLoggedOut(true);
   });
 
@@ -78,7 +83,8 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
     });
 
   const [handleReCheck, isReCheckLoading] = useLoadingCallback(async () => {
-    await getFirebaseAuth().currentUser?.getIdTokenResult(true);
+    await refreshToken();
+    router.refresh();
   });
 
   let [isIncrementCounterActionPending, startTransition] =

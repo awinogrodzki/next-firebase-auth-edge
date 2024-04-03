@@ -21,7 +21,7 @@ export default async function RootLayout({
       <body>
         <div className={styles.container}>
           <main className={styles.main}>
-            <AuthProvider serverUser={user}>{children}</AuthProvider>
+            <AuthProvider user={user}>{children}</AuthProvider>
           </main>
           <footer className={styles.footer}>
             <a
