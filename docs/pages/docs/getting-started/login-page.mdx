@@ -9,20 +9,37 @@ See [starter example](/examples#starter) for more complete examples, including l
 A very basic login page client component that allows users to sign in using `email` and `password`:
 
 ```tsx filename="page.tsx"
-"use client";
+'use client';
 
-import * as React from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import * as React from 'react';
+import {getAuth, signInWithEmailAndPassword} from 'firebase/auth';
+import {useRouter} from 'next/navigation';
 
 export default function LoginPage() {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const router = useRouter();
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     event.stopPropagation();
 
-    await signInWithEmailAndPassword(getAuth(), email, password);
+    const credential = await signInWithEmailAndPassword(
+      getAuth(),
+      email,
+      password
+    );
+    const idToken = await credential.user.getIdToken();
+
+    // Sets authenticated browser cookies
+    await fetch('/api/login', {
+      headers: {
+        Authorization: `Bearer ${idToken}`
+      }
+    });
+
+    // Refresh page after updating browser cookies
+    router.refresh();
   }
 
   return (
@@ -37,7 +54,7 @@ export default function LoginPage() {
           type="email"
           placeholder="Email address"
         />
-        <br/>
+        <br />
         <input
           required
           name="password"
@@ -47,13 +64,40 @@ export default function LoginPage() {
           placeholder="Password"
           minLength={8}
         />
-        <button
-          type="submit"
-        >
-          Submit
-        </button>
+        <button type="submit">Submit</button>
       </form>
     </div>
   );
 }
 ```
+
+Let's focus on the form submission handler:
+```tsx
+async function handleSubmit(event: React.FormEvent) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  const credential = await signInWithEmailAndPassword(
+    getAuth(),
+    email,
+    password
+  );
+  const idToken = await credential.user.getIdToken();
+
+  // Sets authenticated browser cookies
+  await fetch('/api/login', {
+    headers: {
+      Authorization: `Bearer ${idToken}`
+    }
+  });
+
+  // Refresh page after updating browser cookies
+  router.refresh();
+}
+```
+
+It can be broken down to following actions:
+1. We sign user in using email and password using `signInWithEmailAndPassword` from Firebase Client SDK
+2. We extract `idToken` using `credential` returned by `signInWithEmailAndPassword`
+3. We call `/api/login` endpoint exposed by the middleware to update browser cookies with authentication token
+4. We call `router.refresh()` to re-render server components with updated credentials

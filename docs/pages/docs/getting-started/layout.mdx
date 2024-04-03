@@ -66,7 +66,7 @@ export default async function RootLayout({
       <head />
       <body>
         <main>
-          <AuthProvider serverUser={user}>{children}</AuthProvider>
+          <AuthProvider user={user}>{children}</AuthProvider>
         </main>
       </body>
     </html>

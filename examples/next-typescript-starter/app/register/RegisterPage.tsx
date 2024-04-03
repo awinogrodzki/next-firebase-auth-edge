@@ -16,13 +16,13 @@ import {LoadingIcon} from '../../ui/icons';
 import {appendRedirectParam} from '../shared/redirect';
 import {useRedirectParam} from '../shared/useRedirectParam';
 import styles from './register.module.css';
-import {useRedirect} from '../shared/useRedirect';
+import {useRedirectAfterLogin} from '../shared/useRedirectAfterLogin';
+import {loginWithCredential} from '../../api';
 
 export function RegisterPage() {
   const [hasLogged, setHasLogged] = React.useState(false);
   const redirect = useRedirectParam();
-
-  useRedirect();
+  const redirectAfterLogin = useRedirectAfterLogin();
 
   const [registerWithEmailAndPassword, isRegisterLoading, error] =
     useLoadingCallback(async ({email, password}: PasswordFormValue) => {
@@ -33,7 +33,10 @@ export function RegisterPage() {
         email,
         password
       );
+
+      await loginWithCredential(credential);
       await sendEmailVerification(credential.user);
+      redirectAfterLogin();
 
       setHasLogged(true);
     });
