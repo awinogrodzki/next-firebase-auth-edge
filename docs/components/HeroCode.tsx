@@ -40,12 +40,7 @@ const files = [
           <span style={{color: 'var(--shiki-token-keyword)'}}>import</span>
           <span style={{color: 'var(--shiki-color-text)'}}>
             {' '}
-            {'{'} NextRequest
-          </span>
-          <span style={{color: 'var(--shiki-token-punctuation)'}}>,</span>
-          <span style={{color: 'var(--shiki-color-text)'}}>
-            {' '}
-            NextResponse {'}'}{' '}
+            {'{'} NextRequest {'}'}{' '}
           </span>
           <span style={{color: 'var(--shiki-token-keyword)'}}>from</span>
           <span style={{color: 'var(--shiki-color-text)'}}> </span>
