@@ -7,17 +7,16 @@ import {
   decodeProtectedHeader,
   errors
 } from 'jose';
-import {RemoteJWKSetOptions} from 'jose/dist/types/jwks/remote';
-import {debug} from '../debug';
-import {AuthError, AuthErrorCode} from './error';
-import {useEmulator} from './firebase';
-import {VerifyOptions, getPublicCryptoKey, verify} from './jwt/verify';
-import {isNonNullObject, isURL} from './validator';
-import {digest} from '../digest';
+import { RemoteJWKSetOptions } from 'jose/dist/types/jwks/remote';
+import { debug } from '../debug';
+import { AuthError, AuthErrorCode } from './error';
+import { useEmulator } from './firebase';
+import { VerifyOptions, getPublicCryptoKey, verify } from './jwt/verify';
+import { isNonNullObject, isURL } from './validator';
 
 export const ALGORITHM_RS256 = 'RS256' as const;
 
-type PublicKeys = {[key: string]: string};
+export type PublicKeys = {[key: string]: string};
 
 interface PublicKeysResponse {
   keys: PublicKeys;
@@ -28,13 +27,6 @@ export type DecodedToken = {
   header: ProtectedHeaderParameters;
   payload: JWTPayload;
 };
-
-export async function keyDigest(keys: PublicKeys): Promise<string> {
-  const kids = Object.keys(keys);
-  kids.sort((a, b) => a.localeCompare(b));
-
-  return digest('sha256', JSON.stringify(kids));
-}
 
 export interface SignatureVerifier {
   verify(token: string, options?: VerifyOptions): Promise<void>;
@@ -135,7 +127,6 @@ export class UrlKeyFetcher implements KeyFetcher {
     debug('Public keys cached', {
       cacheKey: url.toString(),
       expiresAt: response.expiresAt,
-      digest: await keyDigest(response.keys),
       cryptoRuntime
     });
 
@@ -156,7 +147,6 @@ export class UrlKeyFetcher implements KeyFetcher {
     debug('Get public keys from cache', {
       expiresAt,
       now,
-      digest: await keyDigest(keys),
       cryptoRuntime
     });
 

@@ -1,5 +1,11 @@
 # next-firebase-auth-edge
 
+## 1.4.3
+
+### Patch Changes
+
+- Remove digest from debug logs
+
 ## 1.4.2
 
 ### Patch Changes
