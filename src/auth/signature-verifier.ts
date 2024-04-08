@@ -7,12 +7,12 @@ import {
   decodeProtectedHeader,
   errors
 } from 'jose';
-import { RemoteJWKSetOptions } from 'jose/dist/types/jwks/remote';
-import { debug } from '../debug';
-import { AuthError, AuthErrorCode } from './error';
-import { useEmulator } from './firebase';
-import { VerifyOptions, getPublicCryptoKey, verify } from './jwt/verify';
-import { isNonNullObject, isURL } from './validator';
+import {RemoteJWKSetOptions} from 'jose/dist/types/jwks/remote';
+import {debug} from '../debug';
+import {AuthError, AuthErrorCode} from './error';
+import {useEmulator} from './firebase';
+import {VerifyOptions, getPublicCryptoKey, verify} from './jwt/verify';
+import {isNonNullObject, isURL} from './validator';
 
 export const ALGORITHM_RS256 = 'RS256' as const;
 

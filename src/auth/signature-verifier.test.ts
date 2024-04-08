@@ -1,10 +1,7 @@
-import { errors } from 'jose';
-import { AuthError, AuthErrorCode } from './error';
-import { sign } from './jwt/sign';
-import {
-  KeyFetcher,
-  PublicKeySignatureVerifier,
-} from './signature-verifier';
+import {errors} from 'jose';
+import {AuthError, AuthErrorCode} from './error';
+import {sign} from './jwt/sign';
+import {KeyFetcher, PublicKeySignatureVerifier} from './signature-verifier';
 
 const privateKey = `-----BEGIN PRIVATE KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDHDTErwJZxwJQH
