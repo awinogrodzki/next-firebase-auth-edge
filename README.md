@@ -18,9 +18,13 @@ You can find source code for the demo in [examples/next-typescript-starter](http
 
 ## Guide
 
-If you're new to Firebase or Next.js, you can follow this comprehensive, step-by-step guide on integrating Firebase Authentication with Next.js using **next-firebase-auth-edge** library: https://hackernoon.com/using-firebase-authentication-with-the-latest-nextjs-features
+If you're new to Firebase or Next.js, you can follow this comprehensive, step-by-step guide on integrating Firebase Authentication with Next.js using **next-firebase-auth-edge** library: 
 
-## [Docs](https://next-firebase-auth-edge-docs.vercel.app/)
+https://hackernoon.com/using-firebase-authentication-with-the-latest-nextjs-features
+
+## Docs
+
+Official library documentation can be found at https://next-firebase-auth-edge-docs.vercel.app
 
 ## Why
 
