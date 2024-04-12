@@ -30,7 +30,7 @@ Official library documentation can be found at https://next-firebase-auth-edge-d
 
 Official `firebase-admin` library relies heavily on Node.js internal `crypto` library and primitives that are unavailable inside [Next.js Edge Runtime](https://nextjs.org/docs/api-reference/edge-runtime).
 
-This library aims to solve the problem of creating and verifying custom JWT tokens provided by **Firebase Authentication** using Web Crypto API available inside Edge runtimes.
+This library aims to solve the problem of creating and verifying [Custom ID Tokens](https://firebase.google.com/docs/auth/admin/verify-id-tokens) using Web Crypto API available inside Edge runtimes.
 
 ## Features
 
