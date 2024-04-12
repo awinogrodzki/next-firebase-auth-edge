@@ -16,6 +16,12 @@ The starter demo is available at [next-firebase-auth-edge-starter.vercel.app](ht
 
 You can find source code for the demo in [examples/next-typescript-starter](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next-typescript-starter)
 
+## Guide
+
+If you're new to Firebase or Next.js, you can follow this comprehensive, step-by-step guide on integrating Firebase Authentication with Next.js using **next-firebase-auth-edge** library: https://hackernoon.com/using-firebase-authentication-with-the-latest-nextjs-features
+
+## [Docs]((https://next-firebase-auth-edge-docs.vercel.app/))
+
 ## Why
 
 Official `firebase-admin` library relies heavily on Node.js internal `crypto` library and primitives that are unavailable inside [Next.js Edge Runtime](https://nextjs.org/docs/api-reference/edge-runtime).
