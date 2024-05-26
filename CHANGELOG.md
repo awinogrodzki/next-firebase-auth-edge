@@ -1,3 +1,10 @@
+## [1.4.5-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5-canary.1...v1.4.5-canary.2) (2024-05-26)
+
+
+### Bug Fixes
+
+* remove .env.dist from npm package ([5c136f9](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/5c136f9e2e7d2f3bc0427f21a91c7ff36a87d0d0))
+
 ## [1.4.5-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.4...v1.4.5-canary.1) (2024-05-26)
 
 
