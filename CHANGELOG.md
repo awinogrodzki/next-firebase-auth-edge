@@ -1,3 +1,10 @@
+## [1.4.4-semantic-release-test.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.4-semantic-release-test.1...v1.4.4-semantic-release-test.2) (2024-05-26)
+
+
+### Bug Fixes
+
+* semantic release publish step authorization ([232f624](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/232f6244e0126b0112cc4a0255780b070049910d))
+
 ## [1.4.4-semantic-release-test.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.3...v1.4.4-semantic-release-test.1) (2024-05-26)
 
 
