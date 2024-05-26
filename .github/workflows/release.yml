@@ -129,5 +129,8 @@ jobs:
       - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
       - name: Publish package
         if: steps.semantic.outputs.new_release_published == 'true'
-        run: yarn publish --new-version ${{ steps.semantic.outputs.new_release_version }}
+        run: |
+          git config user.name "$(git log -n 1 --pretty=format:%an)"
+          git config user.email "$(git log -n 1 --pretty=format:%ae)"
+          yarn publish --new-version ${{ steps.semantic.outputs.new_release_version }}
 
