@@ -1,3 +1,11 @@
+## [1.4.5-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.4...v1.4.5-canary.1) (2024-05-26)
+
+
+### Bug Fixes
+
+* /api/login endpoint now fails with 400: Missing Token error when called without credentials ([2997fc5](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/2997fc51c503400fb9068750374797993f4a61d8))
+* semantic release npm publish initialization ([3ed6ef5](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/3ed6ef591ced2613d3936aea7dd28140605ca167))
+
 ## [1.4.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.3...v1.4.4) (2024-05-26)
 
 
