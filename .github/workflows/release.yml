@@ -126,7 +126,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Do something when a new release published
+      - name: Publish package
+        run: yarn publish --new-version ${{ steps.semantic.outputs.new_release_version }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Semantic release output
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
           echo ${{ steps.semantic.outputs.new_release_version }}
