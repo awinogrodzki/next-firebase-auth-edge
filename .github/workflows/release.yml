@@ -130,7 +130,7 @@ jobs:
       - name: Publish package
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
-          git config user.name "$(git log -n 1 --pretty=format:%an)"
-          git config user.email "$(git log -n 1 --pretty=format:%ae)"
+          yarn config set version-git-tag false
+          yarn config set version-tag-prefix ""
           yarn publish --new-version ${{ steps.semantic.outputs.new_release_version }}
 
