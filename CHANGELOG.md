@@ -1,3 +1,10 @@
+## [1.4.5-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5-canary.4...v1.4.5-canary.5) (2024-05-26)
+
+
+### Bug Fixes
+
+* remove tests and lint steps from semantic release pipeline ([160662d](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/160662d53077e7cfdd69f194eb1d89e31a7e8d55))
+
 ## [1.4.5-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5-canary.3...v1.4.5-canary.4) (2024-05-26)
 
 
