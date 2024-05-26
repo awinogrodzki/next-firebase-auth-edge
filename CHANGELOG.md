@@ -1,3 +1,10 @@
+# [1.5.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.0-canary.1...v1.5.0-canary.2) (2024-05-26)
+
+
+### Bug Fixes
+
+* remove fetch `cache: no-store` due to https://github.com/awinogrodzki/next-firebase-auth-edge/issues/173 ([6fb8143](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/6fb81430b580b586f5a27c5b36624a441aa68e82))
+
 # [1.5.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5...v1.5.0-canary.1) (2024-05-26)
 
 
