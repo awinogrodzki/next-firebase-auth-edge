@@ -1,3 +1,17 @@
+## [1.4.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.4...v1.4.5) (2024-05-26)
+
+
+### Bug Fixes
+
+* /api/login endpoint now fails with 400: Missing Token error when called without credentials ([2997fc5](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/2997fc51c503400fb9068750374797993f4a61d8))
+* exclude lib folder from npmignore file ([f7ef2d5](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/f7ef2d5249d7183f3f1204a34c540e03392943a4))
+* fix build cache path in github workflows ([df4c98d](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/df4c98dfe7176029743a04513aa5b67c60a453a3))
+* remove .env.dist from npm package ([5c136f9](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/5c136f9e2e7d2f3bc0427f21a91c7ff36a87d0d0))
+* remove tests and lint steps from semantic release pipeline ([160662d](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/160662d53077e7cfdd69f194eb1d89e31a7e8d55))
+* semantic release npm publish initialization ([3ed6ef5](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/3ed6ef591ced2613d3936aea7dd28140605ca167))
+* semantic release package configuration ([ec93cc6](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/ec93cc67ed5a8a2a624cef526de88d7601829aec))
+* set correct pkgRoot in semantic releases configuration ([9c36948](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/9c3694839088fee50e1362537cc7ad3e345d7763))
+
 ## [1.4.5-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5-canary.6...v1.4.5-canary.7) (2024-05-26)
 
 
