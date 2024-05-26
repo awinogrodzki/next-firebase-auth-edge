@@ -1,0 +1,85 @@
+name: Release
+
+env:
+  FIREBASE_API_KEY: AIzaSyAXYgJha6lO_L4qfWpnhf3KijeKYDhuFzQ
+  FIREBASE_PROJECT_ID: next-firebase-auth-edge-demo
+  FIREBASE_ADMIN_CLIENT_EMAIL: ${{ secrets.FIREBASE_ADMIN_CLIENT_EMAIL }}
+  FIREBASE_ADMIN_PRIVATE_KEY: ${{ secrets.FIREBASE_ADMIN_PRIVATE_KEY }}
+  FIREBASE_AUTH_TENANT_ID: ${{ secrets.FIREBASE_AUTH_TENANT_ID }}
+  FIREBASE_APP_CHECK_KEY: ${{ secrets.FIREBASE_APP_CHECK_KEY }}
+  FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        type: choice
+        description: "Select release version type"
+        default: patch
+        options:
+          - major
+          - minor
+          - patch
+      summary:
+        description: The summary describing the change. It will appear as a title in CHANGELOG
+        required: true
+  push:
+    branches: [chore/release-action]
+    paths:
+      - "**"
+      - "!*.md"
+      - "!**/*.md"
+      - "!.gitignore"
+jobs:
+  install:
+    name: Install dependencies
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          cache: "yarn"
+          cache-dependency-path: yarn.lock
+          node-version: 18
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles('./yarn.lock') }}-${{github.sha}}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles('./yarn.lock') }}-
+      - run: yarn install
+
+  build:
+    name: Build packages
+    timeout-minutes: 15
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles('./yarn.lock') }}-${{github.sha}}
+      - name: Cache build
+        uses: actions/cache@v3
+        with:
+          path: |
+            packages/**/lib
+          key: ${{ runner.os }}-build-cache-v1-${{ github.ref_name }}-${{github.sha}}
+          restore-keys: |
+            ${{ runner.os }}-build-cache-v1-${{ github.ref_name }}-
+      - run: yarn build
