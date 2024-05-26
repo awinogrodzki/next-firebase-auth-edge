@@ -1,3 +1,10 @@
+## [1.4.4-semantic-release-test.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.3...v1.4.4-semantic-release-test.1) (2024-05-26)
+
+
+### Bug Fixes
+
+* lint ([c703cfb](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/c703cfb9a4c5afc67165366fd1bcaa3651c67a73))
+
 # next-firebase-auth-edge
 
 ## 1.4.3
