@@ -7,5 +7,5 @@ plugins:
 
 branches:
   - main
-  - name: chore/release-action
-    prerelease: semantic-release-test
+  - name: canary
+    prerelease: true

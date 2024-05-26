@@ -14,26 +14,14 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  workflow_dispatch:
-    inputs:
-      version_bump:
-        type: choice
-        description: "Select release version type"
-        default: patch
-        options:
-          - major
-          - minor
-          - patch
-      summary:
-        description: The summary describing the change. It will appear as a title in CHANGELOG
-        required: true
   push:
-    branches: [chore/release-action]
+    branches: [main, canary]
     paths:
       - "**"
       - "!*.md"
       - "!**/*.md"
       - "!.gitignore"
+
 jobs:
   install:
     name: Install dependencies
