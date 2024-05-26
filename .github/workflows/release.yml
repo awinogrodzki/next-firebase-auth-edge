@@ -71,13 +71,59 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-cache-v1-${{ github.ref_name }}-
       - run: yarn build
+
+  lint:
+    name: Lint packages
+    timeout-minutes: 10
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles('./yarn.lock') }}-${{github.sha}}
+      - run: yarn lint
+
+  tests:
+    name: Tests
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles('./yarn.lock') }}-${{github.sha}}
+      - name: Cache build
+        uses: actions/cache@v3
+        with:
+          path: |
+            packages/**/lib
+          key: ${{ runner.os }}-build-cache-v1-${{ github.ref_name }}-${{github.sha}}
+      - run: yarn test
   
   semantic-release:
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
 
     name: Semantic Release
     runs-on: ubuntu-latest
-    needs: build
+    needs:
+      - lint
+      - tests
     permissions:
       contents: write
 

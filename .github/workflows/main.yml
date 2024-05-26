@@ -7,13 +7,6 @@ on:
       - "!*.md"
       - "!**/*.md"
       - "!.gitignore"
-  push:
-    branches: [main]
-    paths:
-      - "**"
-      - "!*.md"
-      - "!**/*.md"
-      - "!.gitignore"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
