@@ -1,3 +1,10 @@
+# [1.5.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5...v1.5.0-canary.1) (2024-05-26)
+
+
+### Features
+
+* introduced Firebase API Key domain restriction support. Introduced changes to advanced methods and removed APIs deprecated in 1.0 ([67dbb9a](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/67dbb9a2908d62d90fb40a5a154cd2a7d8b14626))
+
 ## [1.4.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.4...v1.4.5) (2024-05-26)
 
 
