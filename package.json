@@ -8,7 +8,6 @@
   ],
   "scripts": {
     "build": "rm -rf ./lib && tsc",
-    "prepublish": "yarn build",
     "test": "jest src --coverage",
     "lint": "eslint ./src --ext .ts,.tsx"
   },
