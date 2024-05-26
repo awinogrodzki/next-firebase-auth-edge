@@ -125,9 +125,9 @@ jobs:
             @semantic-release/git@9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          
+      - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
       - name: Publish package
         if: steps.semantic.outputs.new_release_published == 'true'
         run: yarn publish --new-version ${{ steps.semantic.outputs.new_release_version }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
