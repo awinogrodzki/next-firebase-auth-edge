@@ -134,6 +134,19 @@ export async function setAuthCookies(
     tenantId: options.tenantId
   });
   const token = headers.get('Authorization')?.split(' ')[1] ?? '';
+
+  if (!token) {
+    const response = new NextResponse(
+      JSON.stringify({success: false, message: 'Missing token'}),
+      {
+        status: 400,
+        headers: {'content-type': 'application/json'}
+      }
+    );
+
+    return response;
+  }
+
   const appCheckToken = headers.get('X-Firebase-AppCheck') ?? undefined;
   const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
     token,

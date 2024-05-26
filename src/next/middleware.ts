@@ -167,6 +167,7 @@ export async function authMiddleware(
   request: NextRequest,
   options: AuthMiddlewareOptions
 ): Promise<NextResponse> {
+  
   if (options.debug) {
     enableDebugMode();
   }
