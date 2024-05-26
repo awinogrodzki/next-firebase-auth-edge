@@ -1,5 +1,3 @@
-# next-firebase-auth-edge
-
 ## 1.4.3
 
 ### Patch Changes

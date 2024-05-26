@@ -13,7 +13,6 @@
     "next": "^13.5.0 || ^14.0.0"
   },
   "dependencies": {
-    "@changesets/cli": "^2.25.2",
     "cookie": "^0.5.0",
     "encoding": "^0.1.13",
     "jose": "^5.2.3"

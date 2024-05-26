@@ -1,16 +1,4 @@
-name: Main
-
-on:
-  pull_request:
-    paths:
-      - "**"
-      - "!*.md"
-      - "!**/*.md"
-      - "!.gitignore"
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+name: Release
 
 env:
   FIREBASE_API_KEY: AIzaSyAXYgJha6lO_L4qfWpnhf3KijeKYDhuFzQ
@@ -20,6 +8,20 @@ env:
   FIREBASE_AUTH_TENANT_ID: ${{ secrets.FIREBASE_AUTH_TENANT_ID }}
   FIREBASE_APP_CHECK_KEY: ${{ secrets.FIREBASE_APP_CHECK_KEY }}
   FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [main, canary]
+    paths:
+      - "**"
+      - "!*.md"
+      - "!**/*.md"
+      - "!.gitignore"
+
 jobs:
   install:
     name: Install dependencies
@@ -113,3 +115,56 @@ jobs:
             packages/**/lib
           key: ${{ runner.os }}-build-cache-v1-${{ github.ref_name }}-${{github.sha}}
       - run: yarn test
+  
+  semantic-release:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - tests
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles('./yarn.lock') }}-${{github.sha}}
+      - name: Cache build
+        uses: actions/cache@v3
+        with:
+          path: |
+            packages/**/lib
+          key: ${{ runner.os }}-build-cache-v1-${{ github.ref_name }}-${{github.sha}}
+          restore-keys: |
+            ${{ runner.os }}-build-cache-v1-${{ github.ref_name }}-
+
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v4
+        id: semantic # Need an `id` for output variables
+        with:
+          semantic_version: 17
+          extra_plugins: |
+            @semantic-release/changelog@5
+            @semantic-release/exec@5
+            @semantic-release/git@9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      - name: Publish package
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          yarn config set version-git-tag false
+          yarn config set version-tag-prefix ""
+          yarn publish --new-version ${{ steps.semantic.outputs.new_release_version }}
+
