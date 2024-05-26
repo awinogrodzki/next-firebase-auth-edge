@@ -1,11 +1,13 @@
 {
   "name": "next-firebase-auth-edge",
-  "version": "1.4.3",
+  "version": "1.4.5-canary.7",
   "description": "Next.js Firebase Authentication for Edge and server runtimes. Compatible with latest Next.js features.",
   "main": "lib/index.js",
+  "files": [
+    "/lib"
+  ],
   "scripts": {
     "build": "rm -rf ./lib && tsc",
-    "prepublish": "yarn build",
     "test": "jest src --coverage",
     "lint": "eslint ./src --ext .ts,.tsx"
   },
@@ -51,7 +53,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/awinogrodzki/next-firebase-auth-edge.git"
+    "url": "git+https://github.com/awinogrodzki/next-firebase-auth-edge.git"
   },
   "engines": {
     "node": ">=16.0.0 <22.0.0",
