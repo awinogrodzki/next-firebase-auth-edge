@@ -1,3 +1,10 @@
+## [1.4.4-semantic-release-test.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.4-semantic-release-test.3...v1.4.4-semantic-release-test.4) (2024-05-26)
+
+
+### Bug Fixes
+
+* disable default tag behavior in yarn publish ([1661468](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/1661468a501ad759ac55ce66d3eb0c8bab496b13))
+
 ## [1.4.4-semantic-release-test.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.4-semantic-release-test.2...v1.4.4-semantic-release-test.3) (2024-05-26)
 
 
