@@ -1,3 +1,10 @@
+## [1.4.5-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5-canary.6...v1.4.5-canary.7) (2024-05-26)
+
+
+### Bug Fixes
+
+* fix build cache path in github workflows ([df4c98d](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/df4c98dfe7176029743a04513aa5b67c60a453a3))
+
 ## [1.4.5-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5-canary.5...v1.4.5-canary.6) (2024-05-26)
 
 
