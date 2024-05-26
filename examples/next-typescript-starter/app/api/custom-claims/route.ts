@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     JSON.stringify({
       customClaims: user?.customClaims
     }),
-  {
+    {
       status: 200,
       headers
     }
