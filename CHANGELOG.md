@@ -1,3 +1,10 @@
+## [1.4.5-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5-canary.3...v1.4.5-canary.4) (2024-05-26)
+
+
+### Bug Fixes
+
+* set correct pkgRoot in semantic releases configuration ([9c36948](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/9c3694839088fee50e1362537cc7ad3e345d7763))
+
 ## [1.4.5-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5-canary.1...v1.4.5-canary.2) (2024-05-26)
 
 
