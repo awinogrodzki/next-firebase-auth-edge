@@ -2,14 +2,9 @@ plugins:
   - "@semantic-release/commit-analyzer"
   - "@semantic-release/release-notes-generator"
   - "@semantic-release/changelog"
-  - "@semantic-release/npm"
-  - :
-    - "@semantic-release/git"
-    - assets:
-      - "package.json"
-      - "README.md"
-      - "CHANGELOG.md"
-      - "lib/**/*"
+  - - "@semantic-release/npm"
+    - pkgRoot: lib
+  - "@semantic-release/git"
   - "@semantic-release/github"
 
 branches:
