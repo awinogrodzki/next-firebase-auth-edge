@@ -1,18 +1,18 @@
 # Pages Router API Routes
 
-To allow gradual adoption of latest Next.js features, `next-firebase-auth-edge` provides `getTokensFromObject` function designed to work with [getServerSideProps](/docs/usage/get-server-side-props) and [API Routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes)
+To allow gradual adoption of latest Next.js features, `next-firebase-auth-edge` provides `getApiRequestTokens` function designed to work with [getServerSideProps](/docs/usage/get-server-side-props) and [API Routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes)
 
-`getTokensFromObject` function works the same as `getTokens`, but allows to extract cookie information from `req.cookies` object.
+`getApiRequestTokens` function works the same as `getTokens`, but allows to extract cookie information from `req` object.
 
 ```tsx
 import { NextApiRequest, NextApiResponse } from "next";
-import { getTokensFromObject } from "next-firebase-auth-edge";
+import { getApiRequestTokens } from "next-firebase-auth-edge";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const tokens = await getTokensFromObject(req.cookies, {
+  const tokens = await getApiRequestTokens(req, {
     apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
     cookieName: 'AuthToken',
     cookieSignatureKeys: ['secret1', 'secret2'],

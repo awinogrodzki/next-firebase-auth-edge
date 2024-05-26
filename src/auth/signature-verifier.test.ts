@@ -42,6 +42,10 @@ gLvHOblVImo+TJwQ7Vxvgr0YG5E+0QlTLh3R2cdQ2MyDrT76dCTMMNtNUCZ4WbNe
 aQIDAQAB
 -----END PUBLIC KEY-----
 `;
+
+const options = {
+  referer: 'http://localhost:3000'
+};
 describe('signature verifier', () => {
   it('verifies jwt with public key', async () => {
     const mockKeyId = 'some-key-id';
@@ -55,7 +59,7 @@ describe('signature verifier', () => {
     const payload = {exp: Date.now() / 1000 + 1};
     const token = await sign({payload, privateKey, keyId: mockKeyId});
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
-    await signatureVerifier.verify(token);
+    await signatureVerifier.verify(token, options);
   });
 
   it('throws token expired error if token is expired', async () => {
@@ -71,9 +75,9 @@ describe('signature verifier', () => {
     const token = await sign({payload, privateKey, keyId: mockKeyId});
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
 
-    return expect(() => signatureVerifier.verify(token)).rejects.toBeInstanceOf(
-      errors.JWTExpired
-    );
+    return expect(() =>
+      signatureVerifier.verify(token, options)
+    ).rejects.toBeInstanceOf(errors.JWTExpired);
   });
 
   it('throws no matching kid error when non of the public keys corresponds to kid', async () => {
@@ -90,9 +94,9 @@ describe('signature verifier', () => {
     const token = await sign({payload, privateKey, keyId: mockKeyId});
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
 
-    return expect(() => signatureVerifier.verify(token)).rejects.toEqual(
-      new AuthError(AuthErrorCode.NO_MATCHING_KID)
-    );
+    return expect(() =>
+      signatureVerifier.verify(token, options)
+    ).rejects.toEqual(new AuthError(AuthErrorCode.NO_MATCHING_KID));
   });
 
   it('throws expired error if one of certificates matches, but token is expired', async () => {
@@ -108,9 +112,9 @@ describe('signature verifier', () => {
     const token = await sign({payload, privateKey, keyId: ''});
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
 
-    return expect(() => signatureVerifier.verify(token)).rejects.toBeInstanceOf(
-      errors.JWTExpired
-    );
+    return expect(() =>
+      signatureVerifier.verify(token, options)
+    ).rejects.toBeInstanceOf(errors.JWTExpired);
   });
 
   it('validates token against all public keys if key id is missing', async () => {
@@ -124,7 +128,7 @@ describe('signature verifier', () => {
     const payload = {exp: Date.now() / 1000 + 1};
     const token = await sign({payload, privateKey, keyId: ''});
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
-    await signatureVerifier.verify(token);
+    await signatureVerifier.verify(token, options);
   });
 
   it('throws invalid signature error if none of existing keys is valid against token', async () => {
@@ -148,8 +152,8 @@ describe('signature verifier', () => {
     const token = await sign({payload, privateKey, keyId: ''});
     const signatureVerifier = new PublicKeySignatureVerifier(mockFetcher);
 
-    return expect(() => signatureVerifier.verify(token)).rejects.toEqual(
-      new AuthError(AuthErrorCode.INVALID_SIGNATURE)
-    );
+    return expect(() =>
+      signatureVerifier.verify(token, options)
+    ).rejects.toEqual(new AuthError(AuthErrorCode.INVALID_SIGNATURE));
   });
 });

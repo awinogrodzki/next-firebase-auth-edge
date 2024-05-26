@@ -21,7 +21,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const response = await verifyToken(appCheckToken);
+    const response = await verifyToken(appCheckToken, {
+      referer: request.headers.get('Referer') ?? ''
+    });
 
     return new NextResponse(JSON.stringify(response.token), {
       status: 200,

@@ -39,6 +39,7 @@ export async function middleware(request: NextRequest) {
     },
     handleError: async (error) => {
       console.error('Unhandled authentication error', {error});
+
       return redirectToLogin(request, {
         path: '/login',
         publicPaths: PUBLIC_PATHS

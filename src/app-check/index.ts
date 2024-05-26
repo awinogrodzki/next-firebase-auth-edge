@@ -41,7 +41,7 @@ class AppCheck {
 
   public verifyToken = (
     appCheckToken: string,
-    options?: VerifyOptions
+    options: VerifyOptions
   ): Promise<VerifyAppCheckTokenResponse> => {
     return this.appCheckTokenVerifier
       .verifyToken(appCheckToken, options)
