@@ -10,7 +10,6 @@ export async function GET(request: NextRequest) {
     throw new Error('Cannot refresh tokens of unauthenticated user');
   }
 
-  const appCheckToken = request.headers.get('X-Firebase-AppCheck') ?? undefined;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json'
   };
@@ -25,8 +24,5 @@ export async function GET(request: NextRequest) {
     }
   );
 
-  return refreshNextResponseCookies(request, response, {
-    ...authConfig,
-    appCheckToken
-  });
+  return refreshNextResponseCookies(request, response, authConfig);
 }

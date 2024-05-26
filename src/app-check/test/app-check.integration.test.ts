@@ -36,7 +36,7 @@ describe('app check integration test', () => {
       it('should create and verify app check token', async () => {
         const {token} = await createToken(FIREBASE_APP_ID!);
 
-        await verifyToken(token);
+        await verifyToken(token, {referer: 'http://localhost:3000'});
       });
 
       it('should throw app check expired error if token is expired', async () => {
@@ -44,7 +44,8 @@ describe('app check integration test', () => {
 
         return expect(() =>
           verifyToken(token, {
-            currentDate: new Date(Date.now() + 7200 * 1000)
+            currentDate: new Date(Date.now() + 7200 * 1000),
+            referer: 'http://localhost:3000'
           })
         ).rejects.toEqual(
           new FirebaseAppCheckError(

@@ -56,15 +56,17 @@ const getRefreshTokenEndpoint = (apiKey: string) => {
 interface CustomTokenToIdAndRefreshTokensOptions {
   tenantId?: string;
   appCheckToken?: string;
+  referer?: string;
 }
 
 export async function customTokenToIdAndRefreshTokens(
   customToken: string,
   firebaseApiKey: string,
-  options: CustomTokenToIdAndRefreshTokensOptions = {}
+  options: CustomTokenToIdAndRefreshTokensOptions
 ): Promise<IdAndRefreshTokens> {
   const headers = {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    ...(options.referer ? {Referer: options.referer} : {})
   };
 
   const body: object = {
@@ -130,15 +132,21 @@ const isUserNotFoundResponse = (
   );
 };
 
+export interface TokenRefreshOptions {
+  apiKey: string;
+  referer?: string;
+}
+
 const refreshExpiredIdToken = async (
   refreshToken: string,
-  apiKey: string
+  options: TokenRefreshOptions
 ): Promise<IdAndRefreshTokens> => {
   // https://firebase.google.com/docs/reference/rest/auth/#section-refresh-token
-  const response = await fetch(getRefreshTokenEndpoint(apiKey), {
+  const response = await fetch(getRefreshTokenEndpoint(options.apiKey), {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
+      ...(options.referer ? {Referer: options.referer} : {})
     },
     body: `grant_type=refresh_token&refresh_token=${refreshToken}`
   });
@@ -214,6 +222,11 @@ export interface VerifyTokenResult {
   refreshToken: string;
 }
 
+export interface GetCustomIdAndRefreshTokensOptions {
+  appCheckToken?: string;
+  referer?: string;
+}
+
 interface AuthOptions {
   credential: Credential;
   apiKey: string;
@@ -222,6 +235,8 @@ interface AuthOptions {
 }
 
 export type Auth = ReturnType<typeof getAuth>;
+
+const DEFAULT_VERIFY_OPTIONS = {referer: ''};
 
 function getAuth(options: AuthOptions) {
   const credential = options.credential ?? getApplicationDefault();
@@ -234,11 +249,17 @@ function getAuth(options: AuthOptions) {
   );
 
   const handleTokenRefresh = async (
-    refreshToken: string
+    refreshToken: string,
+    tokenRefreshOptions: {referer?: string} = {}
   ): Promise<VerifyTokenResult> => {
     const {idToken, refreshToken: newRefreshToken} =
-      await refreshExpiredIdToken(refreshToken, options.apiKey);
-    const decodedIdToken = await verifyIdToken(idToken);
+      await refreshExpiredIdToken(refreshToken, {
+        apiKey: options.apiKey,
+        referer: tokenRefreshOptions.referer
+      });
+    const decodedIdToken = await verifyIdToken(idToken, {
+      referer: tokenRefreshOptions.referer
+    });
 
     return {
       decodedIdToken,
@@ -309,12 +330,12 @@ function getAuth(options: AuthOptions) {
 
   async function verifyIdToken(
     idToken: string,
-    checkRevoked = false,
-    options?: VerifyOptions
+    options: VerifyOptions = DEFAULT_VERIFY_OPTIONS
   ): Promise<DecodedIdToken> {
     const projectId = await credential.getProjectId();
     const idTokenVerifier = createIdTokenVerifier(projectId);
     const decodedIdToken = await idTokenVerifier.verifyJWT(idToken, options);
+    const checkRevoked = options.checkRevoked ?? false;
 
     if (checkRevoked) {
       return verifyDecodedJWTNotRevokedOrDisabled(decodedIdToken);
@@ -326,16 +347,18 @@ function getAuth(options: AuthOptions) {
   async function verifyAndRefreshExpiredIdToken(
     idToken: string,
     refreshToken: string,
-    options?: VerifyOptions
+    verifyOptions: VerifyOptions = DEFAULT_VERIFY_OPTIONS
   ): Promise<VerifyTokenResult> {
     return await handleExpiredToken(
       async () => {
-        const decodedIdToken = await verifyIdToken(idToken, false, options);
+        const decodedIdToken = await verifyIdToken(idToken, verifyOptions);
         return {idToken, decodedIdToken, refreshToken};
       },
       async () => {
         if (refreshToken) {
-          return handleTokenRefresh(refreshToken);
+          return handleTokenRefresh(refreshToken, {
+            referer: verifyOptions.referer
+          });
         }
 
         throw new InvalidTokenError(InvalidTokenReason.MISSING_REFRESH_TOKEN);
@@ -355,9 +378,11 @@ function getAuth(options: AuthOptions) {
 
   async function getCustomIdAndRefreshTokens(
     idToken: string,
-    appCheckToken?: string
+    customTokensOptions: GetCustomIdAndRefreshTokensOptions = DEFAULT_VERIFY_OPTIONS
   ) {
-    const decodedToken = await verifyIdToken(idToken);
+    const decodedToken = await verifyIdToken(idToken, {
+      referer: customTokensOptions.referer
+    });
     const customToken = await createCustomToken(decodedToken.uid, {
       email_verified: decodedToken.email_verified,
       source_sign_in_provider: decodedToken.firebase.sign_in_provider
@@ -367,7 +392,8 @@ function getAuth(options: AuthOptions) {
 
     return customTokenToIdAndRefreshTokens(customToken, options.apiKey, {
       tenantId: options.tenantId,
-      appCheckToken
+      appCheckToken: customTokensOptions.appCheckToken,
+      referer: customTokensOptions.referer
     });
   }
 

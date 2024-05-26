@@ -1,0 +1,31 @@
+# Firebase API Key domain restriction
+
+In production-ready application, you would want to restrict your Firebase API Key by domain.
+
+You can edit your API key restriction in [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+
+## Enable referer validation
+
+To support API Key domain restriction, we need to let Google APIs know the referer of requests. To achieve this, we need to make sure to pass relevant information on each of the following operations:
+
+1. Make sure to pass `headers` option on each `getTokens` invocation. The library will use headers to extract referer and use it when veryfing token against Google APIs.
+
+```tsx
+import {getTokens} from 'next-firebase-auth-edge';
+import {cookies, headers} from 'next/headers';
+
+export default async function ServerComponentExample() {
+  const tokens = await getTokens(cookies(), {
+    // ...other options
+    headers: headers()
+  });
+
+  return <div>{/* ... */}</div>;
+}
+```
+
+See [getTokens](/docs/usage/server-components) options section for more details
+
+2. If you're using deprecated `getTokensFromObject` method, change it to `getApiRequestTokens` instead. See [getApiRequestTokens](/docs/usage/pages-router-api-routes) docs
+
+3. If you are using either of `getCustomIdAndRefreshTokens`, `verifyIdToken`, `handleTokenRefresh`, `verifyAndRefreshExpiredIdToken` [advanced methods](/docs/usage/advanced-usage), make sure to pass `referer` option. `referer` should be value derived from incoming request's `Referer` header.

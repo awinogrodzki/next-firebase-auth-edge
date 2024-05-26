@@ -17,6 +17,8 @@ const TEST_SERVICE_ACCOUNT = {
   projectId: FIREBASE_PROJECT_ID!
 };
 
+const REFERER = 'http://localhost:3000';
+
 describe('set custom user claims integration test', () => {
   let appCheckToken: AppCheckToken = {token: '', ttlMillis: 0};
 
@@ -39,10 +41,10 @@ describe('set custom user claims integration test', () => {
     const {idToken} = await customTokenToIdAndRefreshTokens(
       customToken,
       FIREBASE_API_KEY!,
-      {appCheckToken: appCheckToken.token}
+      {appCheckToken: appCheckToken.token, referer: REFERER}
     );
 
-    await verifyIdToken(idToken);
+    await verifyIdToken(idToken, {referer: REFERER});
 
     await setCustomUserClaims(userId, {
       newCustomClaim: 'newCustomClaimValue'

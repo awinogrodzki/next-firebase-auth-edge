@@ -61,7 +61,7 @@ export class FirebaseTokenVerifier {
 
   public async verifyJWT(
     jwtToken: string,
-    options?: VerifyOptions
+    options: VerifyOptions
   ): Promise<DecodedIdToken> {
     const decoded = await this.decodeAndVerify(
       jwtToken,
@@ -75,7 +75,7 @@ export class FirebaseTokenVerifier {
   private async decodeAndVerify(
     token: string,
     projectId: string,
-    options?: VerifyOptions
+    options: VerifyOptions
   ): Promise<DecodedToken> {
     const header = decodeProtectedHeader(token);
     const payload = decodeJwt(token);
@@ -119,7 +119,7 @@ export class FirebaseTokenVerifier {
 
   private verifySignature(
     jwtToken: string,
-    options?: VerifyOptions
+    options: VerifyOptions
   ): Promise<void> {
     return this.signatureVerifier.verify(jwtToken, options).catch((error) => {
       throw this.mapJoseErrorToAuthError(error);

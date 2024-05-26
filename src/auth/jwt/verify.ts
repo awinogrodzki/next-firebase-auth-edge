@@ -12,6 +12,8 @@ import {DecodedIdToken} from '../token-verifier';
 
 export interface VerifyOptions {
   currentDate?: Date;
+  checkRevoked?: boolean;
+  referer?: string;
 }
 
 const keyMap: Map<string, KeyLike> = new Map();
@@ -39,7 +41,7 @@ export async function getPublicCryptoKey(publicKey: string): Promise<KeyLike> {
 export async function verify(
   jwtString: string,
   getPublicKey: () => Promise<KeyLike>,
-  options: VerifyOptions = {}
+  options: VerifyOptions
 ) {
   const currentDate = options.currentDate ?? new Date();
   const currentTimestamp = currentDate.getTime() / 1000;

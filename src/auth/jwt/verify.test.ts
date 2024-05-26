@@ -49,6 +49,8 @@ aQIDAQAB
       privateKey
     });
 
-    await verify(jwt, async () => getPublicCryptoKey(publicKey));
+    await verify(jwt, async () => getPublicCryptoKey(publicKey), {
+      referer: 'http://localhost:3000'
+    });
   });
 });
