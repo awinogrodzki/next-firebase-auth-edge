@@ -47,7 +47,7 @@ To allow gradual adoption of latest Next.js features, `next-firebase-auth-edge` 
 
 Most notable features are:
 * Support for domain restricted Firebase API Keys
-* Removed APIs deprecated in v1.x
+* Removed APIs deprecated in v1.0
 * Updates several [advanced methods](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/advanced-usage)
 
 See [1.5.x canary release](https://github.com/awinogrodzki/next-firebase-auth-edge/pull/186) for detailed API changes description
