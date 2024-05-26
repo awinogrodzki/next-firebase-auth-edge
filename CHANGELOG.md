@@ -1,3 +1,10 @@
+## [1.4.5-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5-canary.5...v1.4.5-canary.6) (2024-05-26)
+
+
+### Bug Fixes
+
+* exclude lib folder from npmignore file ([f7ef2d5](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/f7ef2d5249d7183f3f1204a34c540e03392943a4))
+
 ## [1.4.5-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5-canary.4...v1.4.5-canary.5) (2024-05-26)
 
 
