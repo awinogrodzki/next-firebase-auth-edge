@@ -16,5 +16,11 @@ module.exports = withNextra({
       destination: '/docs/getting-started',
       permanent: false
     },
+    // Legacy pages
+    {
+      source: '/docs/usage/refresh-auth-cookies',
+      destination: '/docs/usage/refresh-credentials',
+      permanent: true
+    },
   ],
 });
