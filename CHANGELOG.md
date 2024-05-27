@@ -1,3 +1,10 @@
+# [1.5.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.0-canary.3...v1.5.0-canary.4) (2024-05-27)
+
+
+### Performance Improvements
+
+* **refreshCredentials:** slightly improve performance by generating signed tokens only once ([da2fc3e](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/da2fc3e164da0d5015e4d484813cafce2f033ea2))
+
 # [1.5.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.0-canary.2...v1.5.0-canary.3) (2024-05-27)
 
 
