@@ -294,7 +294,10 @@ export async function refreshCredentials(
 
   const response = responseFactory({headers: request.headers});
 
-  await appendAuthCookies(response, verifyTokenResult, options);
+  response.headers.append(
+    'Set-Cookie',
+    serialize(options.cookieName, signedTokens, options.cookieSerializeOptions)
+  );
 
   return response;
 }
