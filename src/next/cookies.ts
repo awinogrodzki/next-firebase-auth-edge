@@ -274,6 +274,31 @@ export async function refreshNextCookies(
   return verifyTokenResult;
 }
 
+export async function refreshCredentials(
+  request: NextRequest,
+  options: SetAuthCookiesOptions,
+  responseFactory: (options: {headers: Headers}) => NextResponse
+): Promise<NextResponse> {
+  const verifyTokenResult = await refreshNextCookies(
+    request.cookies,
+    request.headers,
+    options
+  );
+
+  const signedTokens = await signTokens(
+    verifyTokenResult,
+    options.cookieSignatureKeys
+  );
+
+  request.cookies.set(options.cookieName, signedTokens);
+
+  const response = responseFactory({headers: request.headers});
+
+  await appendAuthCookies(response, verifyTokenResult, options);
+
+  return response;
+}
+
 export async function refreshNextResponseCookies(
   request: NextRequest,
   response: NextResponse,
