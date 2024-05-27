@@ -1,3 +1,10 @@
+# [1.5.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.0-canary.2...v1.5.0-canary.3) (2024-05-27)
+
+
+### Features
+
+* added refreshCredentials method that allows to pass modified request headers to NextResponse constructor ([2bf2877](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/2bf2877f5b12456c5e8125d5fa1babfc0074edaf))
+
 # [1.5.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.0-canary.1...v1.5.0-canary.2) (2024-05-26)
 
 
