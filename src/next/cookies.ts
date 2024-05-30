@@ -9,6 +9,7 @@ import {ServiceAccount} from '../auth/credential';
 import {debug} from '../debug';
 import {getCookiesTokens, getRequestCookiesTokens} from './tokens';
 import {IncomingHttpHeaders} from 'http';
+import { getReferer } from './utils';
 
 export interface SetAuthCookiesOptions {
   cookieName: string;
@@ -124,7 +125,7 @@ export async function setAuthCookies(
   }
 
   const appCheckToken = headers.get('X-Firebase-AppCheck') ?? undefined;
-  const referer = headers.get('Referer') ?? '';
+  const referer = getReferer(headers) ?? '';
 
   const idAndRefreshTokens = await getCustomIdAndRefreshTokens(token, {
     appCheckToken,
@@ -244,7 +245,7 @@ export async function verifyNextCookies(
     apiKey: options.apiKey,
     tenantId: options.tenantId
   });
-  const referer = headers.get('Referer') ?? '';
+  const referer = getReferer(headers) ?? '';
   const tokens = await getRequestCookiesTokens(cookies, options);
   const verifyTokenResult = await verifyAndRefreshExpiredIdToken(
     tokens.idToken,
@@ -265,7 +266,7 @@ export async function refreshNextCookies(
     apiKey: options.apiKey,
     tenantId: options.tenantId
   });
-  const referer = headers.get('Referer') ?? '';
+  const referer = getReferer(headers) ?? '';
   const tokens = await getRequestCookiesTokens(cookies, options);
   const verifyTokenResult = await handleTokenRefresh(tokens.refreshToken, {
     referer

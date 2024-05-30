@@ -1,6 +1,7 @@
 import {NextRequest, NextResponse} from 'next/server';
 import {serverConfig} from '../../../config/server-config';
 import {getAppCheck} from 'next-firebase-auth-edge/lib/app-check';
+import {getReferer} from 'next-firebase-auth-edge/lib/next/utils';
 
 export async function POST(request: NextRequest) {
   const appCheckToken = request.headers.get('X-Firebase-AppCheck');
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const response = await verifyToken(appCheckToken, {
-      referer: request.headers.get('Referer') ?? ''
+      referer: getReferer(request.headers) ?? ''
     });
 
     return new NextResponse(JSON.stringify(response.token), {

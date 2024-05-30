@@ -18,6 +18,7 @@ import {
   getRequestCookiesTokens,
   validateOptions
 } from './tokens';
+import { getReferer } from './utils';
 
 export interface CreateAuthMiddlewareOptions {
   loginPath: string;
@@ -136,7 +137,7 @@ export async function authMiddleware(
 
   validateOptions(options);
 
-  const referer = request.headers.get('Referer') ?? '';
+  const referer = getReferer(request.headers) ?? '';
   const handleValidToken = options.handleValidToken ?? defaultValidTokenHandler;
   const handleError = options.handleError ?? defaultInvalidTokenHandler;
   const handleInvalidToken =

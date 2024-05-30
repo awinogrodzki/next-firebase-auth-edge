@@ -18,6 +18,7 @@ import {
   CookiesObject,
   isCookiesObjectVerifiedByMiddleware
 } from './cookies';
+import {getReferer} from './utils';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   serviceAccount?: ServiceAccount;
@@ -79,7 +80,7 @@ export async function getTokens(
 
   validateOptions(options);
 
-  const referer = options.headers?.get('Referer') ?? '';
+  const referer = options.headers ? getReferer(options.headers) : '';
 
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
