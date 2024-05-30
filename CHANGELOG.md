@@ -1,3 +1,22 @@
+# [1.5.0](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5...v1.5.0) (2024-05-30)
+
+
+### Bug Fixes
+
+* remove fetch `cache: no-store` due to https://github.com/awinogrodzki/next-firebase-auth-edge/issues/173 ([6fb8143](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/6fb81430b580b586f5a27c5b36624a441aa68e82))
+
+
+### Features
+
+* added refreshCredentials method that allows to pass modified request headers to NextResponse constructor ([2bf2877](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/2bf2877f5b12456c5e8125d5fa1babfc0074edaf))
+* extract referer from Next.js request headers ([bc666fa](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/bc666fa887b81adbf91681faa7d1974417b20988))
+* introduced Firebase API Key domain restriction support. Introduced changes to advanced methods and removed APIs deprecated in 1.0 ([67dbb9a](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/67dbb9a2908d62d90fb40a5a154cd2a7d8b14626))
+
+
+### Performance Improvements
+
+* **refreshCredentials:** slightly improve performance by generating signed tokens only once ([da2fc3e](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/da2fc3e164da0d5015e4d484813cafce2f033ea2))
+
 # [1.5.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.0-canary.4...v1.5.0-canary.5) (2024-05-30)
 
 
