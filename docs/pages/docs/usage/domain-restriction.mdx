@@ -28,4 +28,27 @@ See [getTokens](/docs/usage/server-components) options section for more details
 
 2. If you're using deprecated `getTokensFromObject` method, change it to `getApiRequestTokens` instead. See [getApiRequestTokens](/docs/usage/pages-router-api-routes) docs
 
-3. If you are using either of `getCustomIdAndRefreshTokens`, `verifyIdToken`, `handleTokenRefresh`, `verifyAndRefreshExpiredIdToken` [advanced methods](/docs/usage/advanced-usage), make sure to pass `referer` option. `referer` should be value derived from incoming request's `Referer` header.
+3. If you are using either of `getCustomIdAndRefreshTokens`, `verifyIdToken`, `handleTokenRefresh`, `verifyAndRefreshExpiredIdToken` [advanced methods](/docs/usage/advanced-usage), make sure to pass `referer` option. `referer` should be value derived from incoming request's `Referer` header. You can use `getReferer` function imported from `next-firebase-auth-edge/lib/next/utils` to extract referer from `NextResponse`'s headers.
+
+```ts
+import {getFirebaseAuth} from 'next-firebase-auth-edge/lib/auth';
+import {getReferer} from 'next-firebase-auth-edge/lib/next/utils';
+import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
+import {NextRequest} from 'next/server';
+
+const {verifyIdToken} = getFirebaseAuth(/*{...}*/);
+
+export async function POST(request: NextRequest) {
+  const tokens = await getTokens(request.cookies, /*{...}*/);
+
+  if (!tokens) {
+    throw new Error('Unauthenticated');
+  }
+
+  await verifyIdToken(tokens.token, {
+    referer: getReferer(request.headers)
+  });
+
+  //...
+}
+```
