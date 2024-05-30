@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.0...v1.5.1) (2024-05-30)
+
+
+### Bug Fixes
+
+* reintroduce refreshAuthCookies as refreshNextResponseCookiesWithToken ([620f986](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/620f98682b9002837bfca287d32ea0371f2b2017))
+
 # [1.5.0](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.4.5...v1.5.0) (2024-05-30)
 
 
