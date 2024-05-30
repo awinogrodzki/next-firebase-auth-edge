@@ -303,6 +303,31 @@ export async function refreshCredentials(
   return response;
 }
 
+export async function refreshNextResponseCookiesWithToken(
+  idToken: string,
+  request: NextRequest,
+  response: NextResponse,
+  options: SetAuthCookiesOptions
+): Promise<NextResponse> {
+  const appCheckToken = request.headers.get('X-Firebase-AppCheck') ?? undefined;
+  const referer = getReferer(request.headers) ?? '';
+
+  const {getCustomIdAndRefreshTokens} = getFirebaseAuth({
+    serviceAccount: options.serviceAccount,
+    apiKey: options.apiKey,
+    tenantId: options.tenantId
+  });
+
+  const idAndRefreshTokens = await getCustomIdAndRefreshTokens(idToken, {
+    appCheckToken,
+    referer
+  });
+
+  await appendAuthCookies(response, idAndRefreshTokens, options);
+
+  return response;
+}
+
 export async function refreshNextResponseCookies(
   request: NextRequest,
   response: NextResponse,
