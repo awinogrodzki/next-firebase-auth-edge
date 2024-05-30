@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.1...v1.5.2) (2024-05-30)
+
+
+### Bug Fixes
+
+* expose tokens in refreshCredentials response factory callback ([644b8a2](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/644b8a272cb48e830d21344f12bae9e3082ae1f4))
+
 ## [1.5.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.0...v1.5.1) (2024-05-30)
 
 
