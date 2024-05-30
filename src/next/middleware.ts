@@ -1,18 +1,12 @@
 import {CookieSerializeOptions, serialize} from 'cookie';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
-import {
-  IdAndRefreshTokens,
-  Tokens,
-  getFirebaseAuth,
-  handleExpiredToken
-} from '../auth';
+import {Tokens, getFirebaseAuth, handleExpiredToken} from '../auth';
 import {signTokens} from '../auth/cookies/sign';
 import {ServiceAccount} from '../auth/credential';
+import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
 import {debug, enableDebugMode} from '../debug';
 import {
-  SetAuthCookiesOptions,
-  appendAuthCookies,
   markCookiesAsVerified,
   removeAuthCookies,
   removeInternalVerifiedCookieIfExists,
@@ -24,7 +18,7 @@ import {
   getRequestCookiesTokens,
   validateOptions
 } from './tokens';
-import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
+import {getReferer} from './utils';
 
 export interface CreateAuthMiddlewareOptions {
   loginPath: string;
@@ -113,36 +107,6 @@ export interface AuthMiddlewareOptions
   debug?: boolean;
 }
 
-/**
- * @deprecated
- * Use `AuthMiddlewareOptions` interface instead
- */
-export type AuthenticationOptions = AuthMiddlewareOptions;
-
-/**
- * @deprecated
- * Use `refreshNextResponseCookies` from `next-firebase-auth-edge/lib/next/cookies` instead
- */
-export async function refreshAuthCookies(
-  idToken: string,
-  response: NextResponse,
-  options: SetAuthCookiesOptions
-): Promise<IdAndRefreshTokens> {
-  const {getCustomIdAndRefreshTokens} = getFirebaseAuth({
-    serviceAccount: options.serviceAccount,
-    apiKey: options.apiKey,
-    tenantId: options.tenantId
-  });
-  const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
-    idToken,
-    options.appCheckToken
-  );
-
-  await appendAuthCookies(response, idAndRefreshTokens, options);
-
-  return idAndRefreshTokens;
-}
-
 const defaultInvalidTokenHandler = async () => NextResponse.next();
 
 const defaultValidTokenHandler: HandleValidToken = async (
@@ -173,6 +137,7 @@ export async function authMiddleware(
 
   validateOptions(options);
 
+  const referer = getReferer(request.headers) ?? '';
   const handleValidToken = options.handleValidToken ?? defaultValidTokenHandler;
   const handleError = options.handleError ?? defaultInvalidTokenHandler;
   const handleInvalidToken =
@@ -205,10 +170,10 @@ export async function authMiddleware(
       async () => {
         debug('Verifying user credentials...');
 
-        const decodedToken = await verifyIdToken(
-          idAndRefreshTokens.idToken,
-          options.checkRevoked
-        );
+        const decodedToken = await verifyIdToken(idAndRefreshTokens.idToken, {
+          checkRevoked: options.checkRevoked,
+          referer
+        });
 
         debug('Credentials verified successfully');
 
@@ -233,7 +198,9 @@ export async function authMiddleware(
         debug('Token has expired. Refreshing token...');
 
         const {idToken, decodedIdToken, refreshToken} =
-          await handleTokenRefresh(idAndRefreshTokens.refreshToken);
+          await handleTokenRefresh(idAndRefreshTokens.refreshToken, {
+            referer
+          });
 
         debug(
           'Token refreshed successfully. Updating response cookie headers...'
@@ -290,9 +257,3 @@ export async function authMiddleware(
     throw error;
   }
 }
-
-/**
- * @deprecated
- * Backwards compatiblity with 0.x
- */
-export {authMiddleware as authentication};

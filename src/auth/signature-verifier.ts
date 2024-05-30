@@ -29,7 +29,7 @@ export type DecodedToken = {
 };
 
 export interface SignatureVerifier {
-  verify(token: string, options?: VerifyOptions): Promise<void>;
+  verify(token: string, options: VerifyOptions): Promise<void>;
 }
 
 export interface KeyFetcher {
@@ -67,10 +67,7 @@ export class UrlKeyFetcher implements KeyFetcher {
   }
 
   private async fetchPublicKeysResponse(url: URL): Promise<PublicKeysResponse> {
-    const res = await fetch(url, {
-      cache: 'no-store'
-    });
-
+    const res = await fetch(url);
     const headers = {};
 
     res.headers.forEach((value, key) => {
@@ -177,7 +174,7 @@ export class JWKSSignatureVerifier implements SignatureVerifier {
     return getKey(header);
   }
 
-  public async verify(token: string, options?: VerifyOptions): Promise<void> {
+  public async verify(token: string, options: VerifyOptions): Promise<void> {
     const header = decodeProtectedHeader(token);
 
     try {
@@ -226,14 +223,14 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
     return fetchPublicKey(this.keyFetcher, header).then(getPublicCryptoKey);
   }
 
-  public async verify(token: string, options?: VerifyOptions): Promise<void> {
+  public async verify(token: string, options: VerifyOptions): Promise<void> {
     const header = decodeProtectedHeader(token);
 
     try {
       await verify(token, () => this.getPublicKey(header), options);
     } catch (e) {
       if (e instanceof AuthError && e.code === AuthErrorCode.NO_KID_IN_HEADER) {
-        await this.verifyWithoutKid(token);
+        await this.verifyWithoutKid(token, options);
         return;
       }
 
@@ -241,20 +238,28 @@ export class PublicKeySignatureVerifier implements SignatureVerifier {
     }
   }
 
-  private async verifyWithoutKid(token: string): Promise<void> {
+  private async verifyWithoutKid(
+    token: string,
+    options: VerifyOptions
+  ): Promise<void> {
     const publicKeys = await this.keyFetcher.fetchPublicKeys();
 
-    return this.verifyWithAllKeys(token, publicKeys);
+    return this.verifyWithAllKeys(token, publicKeys, options);
   }
 
   private async verifyWithAllKeys(
     token: string,
-    keys: {[key: string]: string}
+    keys: {[key: string]: string},
+    options: VerifyOptions
   ): Promise<void> {
     const promises: Promise<boolean>[] = [];
 
     Object.values(keys).forEach((key) => {
-      const promise = verify(token, async () => getPublicCryptoKey(key))
+      const promise = verify(
+        token,
+        async () => getPublicCryptoKey(key),
+        options
+      )
         .then(() => true)
         .catch((error) => {
           if (error instanceof errors.JWTExpired) {

@@ -1,13 +1,13 @@
 # Usage in getServerSideProps
 
-Example usage of [getTokensFromObject](/docs/usage/pages-router-api-routes) function in [getServerSideProps](https://nextjs.org/docs/pages/building-your-application/data-fetching/get-server-side-props)
+Example usage of [getApiRequestTokens](/docs/usage/pages-router-api-routes) function in [getServerSideProps](https://nextjs.org/docs/pages/building-your-application/data-fetching/get-server-side-props)
 
 ```tsx
 import { GetServerSidePropsContext } from "next";
-import { getTokensFromObject } from "next-firebase-auth-edge";
+import { getApiRequestTokens } from "next-firebase-auth-edge";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const tokens = await getTokensFromObject(context.req.cookies, {
+  const tokens = await getApiRequestTokens(context.req, {
     apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
     cookieName: 'AuthToken',
     cookieSignatureKeys: ['secret1', 'secret2'],

@@ -7,8 +7,8 @@ The library provides `getTokens` function to extract and validate user credentia
 Example usage of `getTokens` function from `next-firebase-auth-edge`:
 
 ```tsx
-import { getTokens } from "next-firebase-auth-edge";
-import { cookies } from "next/headers";
+import {getTokens} from 'next-firebase-auth-edge';
+import {cookies, headers} from 'next/headers';
 
 export default async function ServerComponentExample() {
   const tokens = await getTokens(cookies(), {
@@ -21,17 +21,20 @@ export default async function ServerComponentExample() {
         'firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com',
       privateKey:
         '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
-    }
+    },
+    // Optional
+    headers: headers()
   });
 
   return (
-    <div style={{wordBreak: "break-word", width: "600px"}}>
-      {tokens && (
+    <div style={{wordBreak: 'break-word', width: '600px'}}>
+      {(tokens && (
         <p>
-            Valid token: <span>{tokens.token}</span><br/>
-            <pre>{JSON.stringify(tokens.decodedToken, undefined, 2)}</pre>
+          Valid token: <span>{tokens.token}</span>
+          <br />
+          <pre>{JSON.stringify(tokens.decodedToken, undefined, 2)}</pre>
         </p>
-      ) || <p>No valid user credentials</p>}
+      )) || <p>No valid user credentials</p>}
     </div>
   );
 }
@@ -39,9 +42,15 @@ export default async function ServerComponentExample() {
 
 ### Required options
 
-| Name                   |   | Description                                                                                                                                                                                      |
-| ---------------------- | - | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| apiKey           | **Required**                                                                                                           | Firebase Web API Key retrieved from Firebase Project settings overview page. Please note that this API Key will be visible only after you enable Firebase Authentication in your Firebase project |
-| serviceAccount   | Optional in authenticated [Google Cloud Run](https://cloud.google.com/run) environment. Otherwise **required**                                                                                                            |  Firebase Service Account credentials |
-| cookieName          | **Required**   | The name for cookie set by `loginPath` api route.                                                                                                                                                |
-| cookieSignatureKeys   | **Required**    | [Rotating keys](https://developer.okta.com/docs/concepts/key-rotation/#:~:text=Key%20rotation%20is%20when%20a,and%20follows%20cryptographic%20best%20practices.) the cookie is validated against |
+| Name                |                                                                                                                | Description                                                                                                                                                                                       |
+| ------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| apiKey              | **Required**                                                                                                   | Firebase Web API Key retrieved from Firebase Project settings overview page. Please note that this API Key will be visible only after you enable Firebase Authentication in your Firebase project |
+| serviceAccount      | Optional in authenticated [Google Cloud Run](https://cloud.google.com/run) environment. Otherwise **required** | Firebase Service Account credentials                                                                                                                                                              |
+| cookieName          | **Required**                                                                                                   | The name for cookie set by `loginPath` api route.                                                                                                                                                 |
+| cookieSignatureKeys | **Required**                                                                                                   | [Rotating keys](https://developer.okta.com/docs/concepts/key-rotation/#:~:text=Key%20rotation%20is%20when%20a,and%20follows%20cryptographic%20best%20practices.) the cookie is validated against  |
+
+### Optional options
+
+| Name    |              | Description                                                                                                                                                                                                                                                  |
+| ------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| headers | **Optional** | Request `Headers`. Used to share referer between request and Google APIs. `Headers` can be obtained by calling `headers` function imported from `next/headers` inside Server Components. In Edge and Node.js environments, use `NextRequest.headers` instead |

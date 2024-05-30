@@ -8,6 +8,8 @@ import {signTokens} from '../auth/cookies/sign';
 import {ServiceAccount} from '../auth/credential';
 import {debug} from '../debug';
 import {getCookiesTokens, getRequestCookiesTokens} from './tokens';
+import {IncomingHttpHeaders} from 'http';
+import {getReferer} from './utils';
 
 export interface SetAuthCookiesOptions {
   cookieName: string;
@@ -16,7 +18,6 @@ export interface SetAuthCookiesOptions {
   serviceAccount?: ServiceAccount;
   apiKey: string;
   tenantId?: string;
-  appCheckToken?: string;
 }
 
 export type CookiesObject = Partial<{[K in string]: string}>;
@@ -100,30 +101,6 @@ export async function appendAuthCookies(
   );
 }
 
-/**
- * @deprecated
- * Use `refreshApiResponseCookies` from `next-firebase-auth-edge/lib/next/cookies` instead
- */
-export async function refreshAuthCookies(
-  idToken: string,
-  response: NextApiResponse,
-  options: SetAuthCookiesOptions
-): Promise<IdAndRefreshTokens> {
-  const {getCustomIdAndRefreshTokens} = getFirebaseAuth({
-    serviceAccount: options.serviceAccount,
-    apiKey: options.apiKey,
-    tenantId: options.tenantId
-  });
-  const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
-    idToken,
-    options.apiKey
-  );
-
-  await appendAuthCookiesApi(response, idAndRefreshTokens, options);
-
-  return idAndRefreshTokens;
-}
-
 export async function setAuthCookies(
   headers: Headers,
   options: SetAuthCookiesOptions
@@ -148,10 +125,12 @@ export async function setAuthCookies(
   }
 
   const appCheckToken = headers.get('X-Firebase-AppCheck') ?? undefined;
-  const idAndRefreshTokens = await getCustomIdAndRefreshTokens(
-    token,
-    appCheckToken
-  );
+  const referer = getReferer(headers) ?? '';
+
+  const idAndRefreshTokens = await getCustomIdAndRefreshTokens(token, {
+    appCheckToken,
+    referer
+  });
 
   debug('Successfully generated custom tokens');
 
@@ -200,6 +179,7 @@ export async function verifyApiCookies(
   cookies: Partial<{
     [key: string]: string;
   }>,
+  headers: IncomingHttpHeaders,
   options: SetAuthCookiesOptions
 ): Promise<VerifyTokenResult> {
   const tokens = await getCookiesTokens(cookies, options);
@@ -211,7 +191,8 @@ export async function verifyApiCookies(
 
   const verifyTokenResult = await verifyAndRefreshExpiredIdToken(
     tokens.idToken,
-    tokens.refreshToken
+    tokens.refreshToken,
+    {referer: headers.referer ?? ''}
   );
 
   return verifyTokenResult;
@@ -221,8 +202,10 @@ export async function refreshApiCookies(
   cookies: Partial<{
     [key: string]: string;
   }>,
+  headers: IncomingHttpHeaders,
   options: SetAuthCookiesOptions
 ): Promise<VerifyTokenResult> {
+  const referer = headers['referer'] ?? '';
   const tokens = await getCookiesTokens(cookies, options);
   const {handleTokenRefresh} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
@@ -230,7 +213,9 @@ export async function refreshApiCookies(
     tenantId: options.tenantId
   });
 
-  const verifyTokenResult = await handleTokenRefresh(tokens.refreshToken);
+  const verifyTokenResult = await handleTokenRefresh(tokens.refreshToken, {
+    referer
+  });
 
   return verifyTokenResult;
 }
@@ -240,7 +225,11 @@ export async function refreshApiResponseCookies(
   response: NextApiResponse,
   options: SetAuthCookiesOptions
 ): Promise<NextApiResponse> {
-  const verifyTokenResult = await refreshApiCookies(request.cookies, options);
+  const verifyTokenResult = await refreshApiCookies(
+    request.cookies,
+    request.headers,
+    options
+  );
   await appendAuthCookiesApi(response, verifyTokenResult, options);
 
   return response;
@@ -248,6 +237,7 @@ export async function refreshApiResponseCookies(
 
 export async function verifyNextCookies(
   cookies: RequestCookies | ReadonlyRequestCookies,
+  headers: Headers,
   options: SetAuthCookiesOptions
 ): Promise<VerifyTokenResult> {
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
@@ -255,11 +245,12 @@ export async function verifyNextCookies(
     apiKey: options.apiKey,
     tenantId: options.tenantId
   });
-
+  const referer = getReferer(headers) ?? '';
   const tokens = await getRequestCookiesTokens(cookies, options);
   const verifyTokenResult = await verifyAndRefreshExpiredIdToken(
     tokens.idToken,
-    tokens.refreshToken
+    tokens.refreshToken,
+    {referer}
   );
 
   return verifyTokenResult;
@@ -267,6 +258,7 @@ export async function verifyNextCookies(
 
 export async function refreshNextCookies(
   cookies: RequestCookies | ReadonlyRequestCookies,
+  headers: Headers,
   options: SetAuthCookiesOptions
 ): Promise<VerifyTokenResult> {
   const {handleTokenRefresh} = getFirebaseAuth({
@@ -274,11 +266,41 @@ export async function refreshNextCookies(
     apiKey: options.apiKey,
     tenantId: options.tenantId
   });
-
+  const referer = getReferer(headers) ?? '';
   const tokens = await getRequestCookiesTokens(cookies, options);
-  const verifyTokenResult = await handleTokenRefresh(tokens.refreshToken);
+  const verifyTokenResult = await handleTokenRefresh(tokens.refreshToken, {
+    referer
+  });
 
   return verifyTokenResult;
+}
+
+export async function refreshCredentials(
+  request: NextRequest,
+  options: SetAuthCookiesOptions,
+  responseFactory: (options: {headers: Headers}) => NextResponse
+): Promise<NextResponse> {
+  const verifyTokenResult = await refreshNextCookies(
+    request.cookies,
+    request.headers,
+    options
+  );
+
+  const signedTokens = await signTokens(
+    verifyTokenResult,
+    options.cookieSignatureKeys
+  );
+
+  request.cookies.set(options.cookieName, signedTokens);
+
+  const response = responseFactory({headers: request.headers});
+
+  response.headers.append(
+    'Set-Cookie',
+    serialize(options.cookieName, signedTokens, options.cookieSerializeOptions)
+  );
+
+  return response;
 }
 
 export async function refreshNextResponseCookies(
@@ -286,7 +308,12 @@ export async function refreshNextResponseCookies(
   response: NextResponse,
   options: SetAuthCookiesOptions
 ): Promise<NextResponse> {
-  const verifyTokenResult = await refreshNextCookies(request.cookies, options);
+  const verifyTokenResult = await refreshNextCookies(
+    request.cookies,
+    request.headers,
+    options
+  );
+
   await appendAuthCookies(response, verifyTokenResult, options);
 
   return response;
@@ -294,9 +321,10 @@ export async function refreshNextResponseCookies(
 
 export async function refreshServerCookies(
   cookies: RequestCookies | ReadonlyRequestCookies,
+  headers: Headers,
   options: SetAuthCookiesOptions
 ): Promise<void> {
-  const verifyTokenResult = await refreshNextCookies(cookies, options);
+  const verifyTokenResult = await refreshNextCookies(cookies, headers, options);
   const signedTokens = await signTokens(
     verifyTokenResult,
     options.cookieSignatureKeys

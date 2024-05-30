@@ -23,6 +23,8 @@ const TEST_SERVICE_ACCOUNT = {
   projectId: FIREBASE_PROJECT_ID!
 };
 
+const REFERER = 'http://localhost:3000';
+
 describe('verify token integration test', () => {
   const scenarios = [
     {
@@ -61,9 +63,9 @@ describe('verify token integration test', () => {
         const {idToken} = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          {tenantId, appCheckToken: appCheckToken.token}
+          {tenantId, appCheckToken: appCheckToken.token, referer: REFERER}
         );
-        const tenant = await verifyIdToken(idToken);
+        const tenant = await verifyIdToken(idToken, {referer: REFERER});
 
         expect(tenant.uid).toEqual(userId);
         expect(tenant.customClaim).toEqual('customClaimValue');
@@ -79,12 +81,13 @@ describe('verify token integration test', () => {
         const {idToken} = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          {tenantId, appCheckToken: appCheckToken.token}
+          {tenantId, appCheckToken: appCheckToken.token, referer: REFERER}
         );
 
         return expect(() =>
-          verifyIdToken(idToken, false, {
-            currentDate: new Date(Date.now() + 7200 * 1000)
+          verifyIdToken(idToken, {
+            currentDate: new Date(Date.now() + 7200 * 1000),
+            referer: REFERER
           })
         ).rejects.toHaveProperty('code', AuthErrorCode.TOKEN_EXPIRED);
       });
@@ -98,14 +101,15 @@ describe('verify token integration test', () => {
         const {idToken, refreshToken} = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          {tenantId, appCheckToken: appCheckToken.token}
+          {tenantId, appCheckToken: appCheckToken.token, referer: REFERER}
         );
 
         const result = await verifyAndRefreshExpiredIdToken(
           idToken,
           refreshToken,
           {
-            currentDate: new Date(Date.now() + 7200 * 1000)
+            currentDate: new Date(Date.now() + 7200 * 1000),
+            referer: REFERER
           }
         );
 
@@ -121,11 +125,12 @@ describe('verify token integration test', () => {
         const {idToken, refreshToken} = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          {tenantId, appCheckToken: appCheckToken.token}
+          {tenantId, appCheckToken: appCheckToken.token, referer: REFERER}
         );
         const tokens = await verifyAndRefreshExpiredIdToken(
           idToken,
-          refreshToken
+          refreshToken,
+          {referer: REFERER}
         );
 
         expect(tokens?.decodedIdToken.uid).toEqual(userId);
@@ -142,9 +147,12 @@ describe('verify token integration test', () => {
         const {idToken} = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          {tenantId, appCheckToken: appCheckToken.token}
+          {tenantId, appCheckToken: appCheckToken.token, referer: REFERER}
         );
-        const tenant = await verifyIdToken(idToken, true);
+        const tenant = await verifyIdToken(idToken, {
+          checkRevoked: true,
+          referer: REFERER
+        });
 
         expect(tenant.uid).toEqual(userId);
         expect(tenant.customClaim).toEqual('customClaimValue');
@@ -160,9 +168,11 @@ describe('verify token integration test', () => {
         const {idToken, refreshToken} = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          {tenantId, appCheckToken: appCheckToken.token}
+          {tenantId, appCheckToken: appCheckToken.token, referer: REFERER}
         );
-        const {decodedIdToken} = await handleTokenRefresh(refreshToken);
+        const {decodedIdToken} = await handleTokenRefresh(refreshToken, {
+          referer: REFERER
+        });
 
         expect(decodedIdToken.uid).toEqual(userId);
         expect(decodedIdToken.customClaim).toEqual('customClaimValue');
@@ -178,14 +188,14 @@ describe('verify token integration test', () => {
         const {refreshToken} = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          {tenantId, appCheckToken: appCheckToken.token}
+          {tenantId, appCheckToken: appCheckToken.token, referer: REFERER}
         );
 
         await deleteUser(userId);
 
-        return expect(() => handleTokenRefresh(refreshToken)).rejects.toEqual(
-          new AuthError(AuthErrorCode.USER_NOT_FOUND)
-        );
+        return expect(() =>
+          handleTokenRefresh(refreshToken, {referer: REFERER})
+        ).rejects.toEqual(new AuthError(AuthErrorCode.USER_NOT_FOUND));
       });
 
       it('should be able to catch "user not found" error and return null', async () => {
@@ -196,7 +206,7 @@ describe('verify token integration test', () => {
 
         async function customGetToken() {
           try {
-            return await handleTokenRefresh(refreshToken);
+            return await handleTokenRefresh(refreshToken, {referer: REFERER});
           } catch (e: unknown) {
             if (isUserNotFoundError(e)) {
               return null;
@@ -209,7 +219,7 @@ describe('verify token integration test', () => {
         const {refreshToken} = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          {tenantId, appCheckToken: appCheckToken.token}
+          {tenantId, appCheckToken: appCheckToken.token, referer: REFERER}
         );
 
         await deleteUser(userId);

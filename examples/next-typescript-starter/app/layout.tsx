@@ -2,7 +2,7 @@ import './globals.css';
 import styles from './layout.module.css';
 import {Metadata} from 'next';
 import {getTokens} from 'next-firebase-auth-edge';
-import {cookies} from 'next/headers';
+import {cookies, headers} from 'next/headers';
 import {authConfig} from '../config/server-config';
 import {AuthProvider} from './auth/AuthProvider';
 import {toUser} from './shared/user';
@@ -12,7 +12,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const tokens = await getTokens(cookies(), authConfig);
+  const tokens = await getTokens(cookies(), {
+    ...authConfig,
+    headers: headers()
+  });
   const user = tokens ? toUser(tokens) : null;
 
   return (

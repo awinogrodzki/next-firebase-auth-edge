@@ -1,4 +1,5 @@
 import {decodeJwt} from 'jose';
+import {NextApiRequest} from 'next';
 import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {
@@ -9,6 +10,7 @@ import {
 } from '../auth';
 import {parseTokens} from '../auth/cookies/sign';
 import {ServiceAccount} from '../auth/credential';
+import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
 import {mapJwtPayloadToDecodedIdToken} from '../auth/utils';
 import {debug, enableDebugMode} from '../debug';
 import {
@@ -16,12 +18,13 @@ import {
   CookiesObject,
   isCookiesObjectVerifiedByMiddleware
 } from './cookies';
-import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
+import {getReferer} from './utils';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   serviceAccount?: ServiceAccount;
   apiKey: string;
   debug?: boolean;
+  headers?: Headers;
 }
 
 export function validateOptions(options: GetTokensOptions) {
@@ -77,6 +80,8 @@ export async function getTokens(
 
   validateOptions(options);
 
+  const referer = options.headers ? getReferer(options.headers) : '';
+
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey
@@ -96,7 +101,8 @@ export async function getTokens(
 
     const result = await verifyAndRefreshExpiredIdToken(
       tokens.idToken,
-      tokens.refreshToken
+      tokens.refreshToken,
+      {referer}
     );
 
     return toTokens(result);
@@ -128,6 +134,48 @@ export async function getCookiesTokens(
   return await parseTokens(signedCookie, options.cookieSignatureKeys);
 }
 
+export async function getApiRequestTokens(
+  request: NextApiRequest,
+  options: GetTokensOptions
+): Promise<Tokens | null> {
+  const referer = request.headers.referer ?? '';
+  const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
+    serviceAccount: options.serviceAccount,
+    apiKey: options.apiKey
+  });
+
+  try {
+    const tokens = await getCookiesTokens(request.cookies, options);
+
+    if (isCookiesObjectVerifiedByMiddleware(request.cookies)) {
+      const payload = decodeJwt(tokens.idToken);
+
+      return {
+        token: tokens.idToken,
+        decodedToken: mapJwtPayloadToDecodedIdToken(payload)
+      };
+    }
+
+    return toTokens(
+      await verifyAndRefreshExpiredIdToken(
+        tokens.idToken,
+        tokens.refreshToken,
+        {referer}
+      )
+    );
+  } catch (error: unknown) {
+    if (error instanceof InvalidTokenError) {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+/**
+ * @deprecated
+ * Use `getApiRequestTokens` instead
+ */
 export async function getTokensFromObject(
   cookies: CookiesObject,
   options: GetTokensOptions
@@ -150,7 +198,13 @@ export async function getTokensFromObject(
     }
 
     return toTokens(
-      await verifyAndRefreshExpiredIdToken(tokens.idToken, tokens.refreshToken)
+      await verifyAndRefreshExpiredIdToken(
+        tokens.idToken,
+        tokens.refreshToken,
+        {
+          referer: ''
+        }
+      )
     );
   } catch (error: unknown) {
     if (error instanceof InvalidTokenError) {

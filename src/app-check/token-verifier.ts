@@ -23,7 +23,7 @@ export class AppCheckTokenVerifier {
 
   public async verifyToken(
     token: string,
-    options?: VerifyOptions
+    options: VerifyOptions
   ): Promise<DecodedAppCheckToken> {
     const projectId = await this.credential.getProjectId();
     const decoded = await this.decodeAndVerify(token, projectId, options);
@@ -36,7 +36,7 @@ export class AppCheckTokenVerifier {
   private async decodeAndVerify(
     token: string,
     projectId: string,
-    options?: VerifyOptions
+    options: VerifyOptions
   ): Promise<DecodedToken> {
     const header = decodeProtectedHeader(token);
     const payload = decodeJwt(token);
@@ -96,7 +96,7 @@ export class AppCheckTokenVerifier {
 
   private verifySignature(
     jwtToken: string,
-    options?: VerifyOptions
+    options: VerifyOptions
   ): Promise<void> {
     return this.signatureVerifier
       .verify(jwtToken, options)
