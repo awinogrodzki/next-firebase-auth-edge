@@ -39,7 +39,7 @@ import {NextRequest} from 'next/server';
 const {verifyIdToken} = getFirebaseAuth(/*{...}*/);
 
 export async function POST(request: NextRequest) {
-  const token = headers.get('Authorization')?.split(' ')[1] ?? '';
+  const token = request.headers.get('Authorization')?.split(' ')[1] ?? '';
 
   if (!token) {
     throw new Error('Unauthenticated');
