@@ -1,3 +1,10 @@
+# [1.5.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.0-canary.4...v1.5.0-canary.5) (2024-05-30)
+
+
+### Features
+
+* extract referer from Next.js request headers ([bc666fa](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/bc666fa887b81adbf91681faa7d1974417b20988))
+
 # [1.5.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.0-canary.3...v1.5.0-canary.4) (2024-05-27)
 
 
