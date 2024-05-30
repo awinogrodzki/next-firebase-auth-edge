@@ -9,7 +9,7 @@ import {ServiceAccount} from '../auth/credential';
 import {debug} from '../debug';
 import {getCookiesTokens, getRequestCookiesTokens} from './tokens';
 import {IncomingHttpHeaders} from 'http';
-import { getReferer } from './utils';
+import {getReferer} from './utils';
 
 export interface SetAuthCookiesOptions {
   cookieName: string;

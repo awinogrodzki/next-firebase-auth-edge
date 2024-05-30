@@ -18,7 +18,7 @@ import {
   getRequestCookiesTokens,
   validateOptions
 } from './tokens';
-import { getReferer } from './utils';
+import {getReferer} from './utils';
 
 export interface CreateAuthMiddlewareOptions {
   loginPath: string;
