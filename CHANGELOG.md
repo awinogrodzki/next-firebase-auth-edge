@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.2...v1.5.3) (2024-05-31)
+
+
+### Bug Fixes
+
+* referer is now based on caller host ([2f75386](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/2f75386de3d91aea42345771c006221eff819104))
+
 ## [1.5.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.1...v1.5.2) (2024-05-30)
 
 
