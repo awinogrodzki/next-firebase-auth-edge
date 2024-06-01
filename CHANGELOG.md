@@ -1,3 +1,10 @@
+## [1.5.4-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.3...v1.5.4-canary.1) (2024-06-01)
+
+
+### Bug Fixes
+
+* fix "process is not defined" error in cloudflare worker [#192](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/192) ([6a94587](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/6a9458774da1ec8a026a223ffd9204eb5c11915f))
+
 ## [1.5.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.2...v1.5.3) (2024-05-31)
 
 
