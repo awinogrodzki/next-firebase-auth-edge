@@ -1,3 +1,10 @@
+# [1.6.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.4-canary.1...v1.6.0-canary.1) (2024-06-05)
+
+
+### Features
+
+* support for async response factory in refreshCredentials method ([25bf5c4](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/25bf5c46f68bc0f8cdd6cfd480802f3d23922a4d))
+
 ## [1.5.4-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.3...v1.5.4-canary.1) (2024-06-01)
 
 
