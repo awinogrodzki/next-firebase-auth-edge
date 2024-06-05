@@ -149,15 +149,10 @@ export interface RemoveAuthCookiesOptions {
   cookieSerializeOptions: CookieSerializeOptions;
 }
 
-export function removeAuthCookies(
-  _headers: Headers,
+export function removeCookie(
+  response: NextResponse,
   options: RemoveAuthCookiesOptions
-): NextResponse {
-  const response = new NextResponse(JSON.stringify({success: true}), {
-    status: 200,
-    headers: {'content-type': 'application/json'}
-  });
-
+) {
   const {maxAge, expires, ...cookieOptions} = options.cookieSerializeOptions;
 
   response.headers.append(
@@ -167,6 +162,18 @@ export function removeAuthCookies(
       expires: new Date(0)
     })
   );
+}
+
+export function removeAuthCookies(
+  _headers: Headers,
+  options: RemoveAuthCookiesOptions
+): NextResponse {
+  const response = new NextResponse(JSON.stringify({success: true}), {
+    status: 200,
+    headers: {'content-type': 'application/json'}
+  });
+
+  removeCookie(response, options);
 
   debug('Updating response with empty authentication cookie headers', {
     cookieName: options.cookieName
