@@ -1,3 +1,10 @@
+# [1.6.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.1...v1.6.0-canary.2) (2024-06-05)
+
+
+### Features
+
+* introduced removeCookie method ([f108984](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/f108984a9c74ed8cf2cf26133a8f3f8f65c905f9))
+
 # [1.6.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.4-canary.1...v1.6.0-canary.1) (2024-06-05)
 
 
