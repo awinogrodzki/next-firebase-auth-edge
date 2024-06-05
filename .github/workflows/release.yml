@@ -40,9 +40,9 @@ jobs:
         with:
           path: |
             node_modules
-          key: ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles('./yarn.lock') }}-${{github.sha}}
+          key: ${{ runner.os }}-node_modules-cache-v2-${{ hashFiles('./yarn.lock') }}-${{github.sha}}
           restore-keys: |
-            ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles('./yarn.lock') }}-
+            ${{ runner.os }}-node_modules-cache-v2-${{ hashFiles('./yarn.lock') }}-
       - run: yarn install
 
   build:
@@ -61,15 +61,15 @@ jobs:
         with:
           path: |
             node_modules
-          key: ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles('./yarn.lock') }}-${{github.sha}}
+          key: ${{ runner.os }}-node_modules-cache-v2-${{ hashFiles('./yarn.lock') }}-${{github.sha}}
       - name: Cache build
         uses: actions/cache@v3
         with:
           path: |
             lib
-          key: ${{ runner.os }}-build-cache-v1-${{ github.ref_name }}-${{github.sha}}
+          key: ${{ runner.os }}-build-cache-v2-${{ github.ref_name }}-${{github.sha}}
           restore-keys: |
-            ${{ runner.os }}-build-cache-v1-${{ github.ref_name }}-
+            ${{ runner.os }}-build-cache-v2-${{ github.ref_name }}-
       - run: yarn build
 
   semantic-release:
@@ -93,15 +93,15 @@ jobs:
         with:
           path: |
             node_modules
-          key: ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles('./yarn.lock') }}-${{github.sha}}
+          key: ${{ runner.os }}-node_modules-cache-v2-${{ hashFiles('./yarn.lock') }}-${{github.sha}}
       - name: Cache build
         uses: actions/cache@v3
         with:
           path: |
             lib
-          key: ${{ runner.os }}-build-cache-v1-${{ github.ref_name }}-${{github.sha}}
+          key: ${{ runner.os }}-build-cache-v2-${{ github.ref_name }}-${{github.sha}}
           restore-keys: |
-            ${{ runner.os }}-build-cache-v1-${{ github.ref_name }}-
+            ${{ runner.os }}-build-cache-v2-${{ github.ref_name }}-
 
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
