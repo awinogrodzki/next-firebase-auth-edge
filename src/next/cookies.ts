@@ -281,7 +281,7 @@ export async function refreshCredentials(
   responseFactory: (options: {
     headers: Headers;
     tokens: VerifyTokenResult;
-  }) => NextResponse
+  }) => NextResponse | Promise<NextResponse>
 ): Promise<NextResponse> {
   const verifyTokenResult = await refreshNextCookies(
     request.cookies,
@@ -296,10 +296,15 @@ export async function refreshCredentials(
 
   request.cookies.set(options.cookieName, signedTokens);
 
-  const response = responseFactory({
+  const responseOrPromise = responseFactory({
     headers: request.headers,
     tokens: verifyTokenResult
   });
+
+  const response =
+    responseOrPromise instanceof Promise
+      ? await responseOrPromise
+      : responseOrPromise;
 
   response.headers.append(
     'Set-Cookie',
