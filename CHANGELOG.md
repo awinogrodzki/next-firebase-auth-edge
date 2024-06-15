@@ -1,3 +1,10 @@
+# [1.6.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.4...v1.6.0-canary.5) (2024-06-15)
+
+
+### Bug Fixes
+
+* store latest valid id token on client ([5764a33](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/5764a33ae8cadff6e48f5e7cb6d31e977e4d8ab9))
+
 # [1.6.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.3...v1.6.0-canary.4) (2024-06-15)
 
 
