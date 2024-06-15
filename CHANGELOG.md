@@ -1,3 +1,10 @@
+# [1.6.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.3...v1.6.0-canary.4) (2024-06-15)
+
+
+### Bug Fixes
+
+* enable refresh token route ([d081c22](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d081c22f67bdde49211ac6053011901c616f99d6))
+
 # [1.6.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.2...v1.6.0-canary.3) (2024-06-15)
 
 
