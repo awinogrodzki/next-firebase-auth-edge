@@ -1,3 +1,10 @@
+# [1.6.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.2...v1.6.0-canary.3) (2024-06-15)
+
+
+### Features
+
+* introduced refreshTokenPath middleware option and getValidIdToken client method ([56e07c5](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/56e07c59cc9b6da45fd818c0600638bb9258bafa))
+
 # [1.6.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.1...v1.6.0-canary.2) (2024-06-05)
 
 
