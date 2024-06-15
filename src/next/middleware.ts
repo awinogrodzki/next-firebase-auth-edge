@@ -157,7 +157,9 @@ export async function authMiddleware(
   debug('Handle request', {path: request.nextUrl.pathname});
 
   if (
-    [options.loginPath, options.logoutPath].includes(request.nextUrl.pathname)
+    [options.loginPath, options.logoutPath, options.refreshTokenPath]
+      .filter(Boolean)
+      .includes(request.nextUrl.pathname)
   ) {
     debug('Handle authentication API route');
     return createAuthMiddlewareResponse(request, options);
