@@ -7,12 +7,27 @@ export interface GetValidIdTokenOptions {
   checkRevoked?: boolean;
 }
 
+let serverIdTokenCacheMap: Record<string, string> = {};
+
+function getLatestIdToken(serverIdToken: string) {
+  if (!serverIdTokenCacheMap[serverIdToken]) {
+    return serverIdToken;
+  }
+
+  return serverIdTokenCacheMap[serverIdToken];
+}
+
+function saveLatestIdToken(serverIdToken: string, idToken: string) {
+  serverIdTokenCacheMap = {[serverIdToken]: idToken};
+}
+
 export async function getValidIdToken({
   serverIdToken,
   refreshTokenUrl,
   checkRevoked
 }: GetValidIdTokenOptions): Promise<string | null> {
-  const payload = decodeJwt(serverIdToken);
+  const token = getLatestIdToken(serverIdToken);
+  const payload = decodeJwt(token);
   const exp = payload?.exp ?? 0;
 
   if (!checkRevoked && exp > Date.now() / 1000) {
@@ -27,6 +42,8 @@ export async function getValidIdToken({
       'Refresh token endpoint returned invalid response. This URL should point to endpoint exposed by the middleware and configured using refreshTokenPath option'
     );
   }
+
+  saveLatestIdToken(serverIdToken, response.idToken);
 
   return response.idToken;
 }
