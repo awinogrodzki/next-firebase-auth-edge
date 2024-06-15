@@ -19,6 +19,7 @@ import {
   validateOptions
 } from './tokens';
 import {getReferer} from './utils';
+import {refreshToken} from './refresh-token';
 
 export interface CreateAuthMiddlewareOptions {
   loginPath: string;
@@ -29,6 +30,7 @@ export interface CreateAuthMiddlewareOptions {
   serviceAccount?: ServiceAccount;
   apiKey: string;
   tenantId?: string;
+  refreshTokenPath?: string;
 }
 
 export function redirectToHome(request: NextRequest) {
@@ -83,6 +85,13 @@ export async function createAuthMiddlewareResponse(
       cookieName: options.cookieName,
       cookieSerializeOptions: options.cookieSerializeOptions
     });
+  }
+
+  if (
+    options.refreshTokenPath &&
+    request.nextUrl.pathname === options.refreshTokenPath
+  ) {
+    return refreshToken(request, options);
   }
 
   return NextResponse.next();
