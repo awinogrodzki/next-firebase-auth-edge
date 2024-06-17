@@ -26,6 +26,11 @@ export async function getValidIdToken({
   refreshTokenUrl,
   checkRevoked
 }: GetValidIdTokenOptions): Promise<string | null> {
+  // If serverIdToken is empty, we assume user is unauthenticated and token refresh will yield null
+  if (!serverIdToken) {
+    return null;
+  }
+
   const token = getLatestIdToken(serverIdToken);
   const payload = decodeJwt(token);
   const exp = payload?.exp ?? 0;
