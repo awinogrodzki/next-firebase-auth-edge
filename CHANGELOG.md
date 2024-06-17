@@ -1,3 +1,10 @@
+# [1.6.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.5...v1.6.0-canary.6) (2024-06-17)
+
+
+### Bug Fixes
+
+* return null from getValidIdToken if provided server token is empty ([613f230](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/613f230504e30e8329eb1c1be008fadbf4347c96))
+
 # [1.6.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.4...v1.6.0-canary.5) (2024-06-15)
 
 
