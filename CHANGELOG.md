@@ -1,3 +1,52 @@
+# [1.6.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.5...v1.6.0-canary.6) (2024-06-17)
+
+
+### Bug Fixes
+
+* return null from getValidIdToken if provided server token is empty ([613f230](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/613f230504e30e8329eb1c1be008fadbf4347c96))
+
+# [1.6.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.4...v1.6.0-canary.5) (2024-06-15)
+
+
+### Bug Fixes
+
+* store latest valid id token on client ([5764a33](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/5764a33ae8cadff6e48f5e7cb6d31e977e4d8ab9))
+
+# [1.6.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.3...v1.6.0-canary.4) (2024-06-15)
+
+
+### Bug Fixes
+
+* enable refresh token route ([d081c22](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d081c22f67bdde49211ac6053011901c616f99d6))
+
+# [1.6.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.2...v1.6.0-canary.3) (2024-06-15)
+
+
+### Features
+
+* introduced refreshTokenPath middleware option and getValidIdToken client method ([56e07c5](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/56e07c59cc9b6da45fd818c0600638bb9258bafa))
+
+# [1.6.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.1...v1.6.0-canary.2) (2024-06-05)
+
+
+### Features
+
+* introduced removeCookie method ([f108984](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/f108984a9c74ed8cf2cf26133a8f3f8f65c905f9))
+
+# [1.6.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.4-canary.1...v1.6.0-canary.1) (2024-06-05)
+
+
+### Features
+
+* support for async response factory in refreshCredentials method ([25bf5c4](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/25bf5c46f68bc0f8cdd6cfd480802f3d23922a4d))
+
+## [1.5.4-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.3...v1.5.4-canary.1) (2024-06-01)
+
+
+### Bug Fixes
+
+* fix "process is not defined" error in cloudflare worker [#192](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/192) ([6a94587](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/6a9458774da1ec8a026a223ffd9204eb5c11915f))
+
 ## [1.5.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.2...v1.5.3) (2024-05-31)
 
 

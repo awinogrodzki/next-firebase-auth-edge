@@ -370,6 +370,20 @@ const files = [
       >
         <span className="line">
           <span style={{color: 'var(--shiki-token-keyword)'}}>import</span>
+          <span style={{color: 'var(--shiki-color-text)'}}>
+            {' '}
+            {'{'} cookies {'}'}{' '}
+          </span>
+          <span style={{color: 'var(--shiki-token-keyword)'}}>from</span>
+          <span style={{color: 'var(--shiki-color-text)'}}> </span>
+          <span style={{color: 'var(--shiki-token-string-expression)'}}>
+            "next/headers"
+          </span>
+          <span style={{color: 'var(--shiki-color-text)'}}>;</span>
+        </span>
+        {'\n'}
+        <span className="line">
+          <span style={{color: 'var(--shiki-token-keyword)'}}>import</span>
           <span style={{color: 'var(--shiki-color-text)'}}> {'{'}</span>
           <span style={{color: 'var(--shiki-color-text)'}}>
             {' '}
@@ -379,20 +393,6 @@ const files = [
           <span style={{color: 'var(--shiki-color-text)'}}> </span>
           <span style={{color: 'var(--shiki-token-string-expression)'}}>
             "next-firebase-auth-edge"
-          </span>
-          <span style={{color: 'var(--shiki-color-text)'}}>;</span>
-        </span>
-        {'\n'}
-        <span className="line">
-          <span style={{color: 'var(--shiki-token-keyword)'}}>import</span>
-          <span style={{color: 'var(--shiki-color-text)'}}>
-            {' '}
-            {'{'} cookies {'}'}{' '}
-          </span>
-          <span style={{color: 'var(--shiki-token-keyword)'}}>from</span>
-          <span style={{color: 'var(--shiki-color-text)'}}> </span>
-          <span style={{color: 'var(--shiki-token-string-expression)'}}>
-            "next/headers"
           </span>
           <span style={{color: 'var(--shiki-color-text)'}}>;</span>
         </span>
