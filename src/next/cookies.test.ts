@@ -1,5 +1,16 @@
 import {SetAuthCookiesOptions, refreshCredentials} from './cookies';
 
+// Suppress "Property 'headers' does not exist on type NextRequest/NextResponse" error
+declare module 'next/server' {
+  export interface NextRequest {
+    headers: Headers;
+  }
+
+  export interface NextResponse {
+    headers: Headers;
+  }
+}
+
 jest.mock('../auth', () => ({
   getFirebaseAuth: () => ({
     handleTokenRefresh: () => ({
