@@ -68,7 +68,7 @@ export class UrlKeyFetcher implements KeyFetcher {
 
   private async fetchPublicKeysResponse(url: URL): Promise<PublicKeysResponse> {
     const res = await fetch(url);
-    const headers = {};
+    const headers: Record<string, string> = {};
 
     res.headers.forEach((value, key) => {
       headers[key] = value;

@@ -105,8 +105,7 @@ describe('verify token integration test', () => {
         );
 
         const result = await verifyAndRefreshExpiredIdToken(
-          idToken,
-          refreshToken,
+          {idToken, refreshToken, customToken},
           {
             currentDate: new Date(Date.now() + 7200 * 1000),
             referer: REFERER
@@ -128,8 +127,7 @@ describe('verify token integration test', () => {
           {tenantId, appCheckToken: appCheckToken.token, referer: REFERER}
         );
         const tokens = await verifyAndRefreshExpiredIdToken(
-          idToken,
-          refreshToken,
+          {idToken, refreshToken, customToken},
           {referer: REFERER}
         );
 

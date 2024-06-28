@@ -271,9 +271,9 @@ export abstract class AbstractAuthRequestHandler {
 
     request.deleteAttribute = [];
     for (const key in deletableParams) {
-      if (request[key] === null) {
+      if (request[key as keyof UpdateRequest] === null) {
         request.deleteAttribute.push(deletableParams[key]);
-        delete request[key];
+        delete request[key as keyof UpdateRequest];
       }
     }
     if (request.deleteAttribute.length === 0) {
@@ -388,11 +388,11 @@ export abstract class AbstractAuthRequestHandler {
     const searchParams = new URLSearchParams();
 
     for (const key in requestData) {
-      if (!requestData[key]) {
+      if (!requestData[key as keyof object]) {
         continue;
       }
 
-      searchParams.append(key, requestData[key]);
+      searchParams.append(key, requestData[key as keyof object]);
     }
 
     return searchParams;
