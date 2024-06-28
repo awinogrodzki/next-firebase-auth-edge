@@ -172,7 +172,7 @@ export async function authMiddleware(
   });
 
   try {
-    const idAndRefreshTokens = await getRequestCookiesTokens(
+    const customTokens = await getRequestCookiesTokens(
       request.cookies,
       options
     );
@@ -181,7 +181,7 @@ export async function authMiddleware(
       async () => {
         debug('Verifying user credentials...');
 
-        const decodedToken = await verifyIdToken(idAndRefreshTokens.idToken, {
+        const decodedToken = await verifyIdToken(customTokens.idToken, {
           checkRevoked: options.checkRevoked,
           referer
         });
@@ -191,8 +191,9 @@ export async function authMiddleware(
         markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
           {
-            token: idAndRefreshTokens.idToken,
-            decodedToken
+            token: customTokens.idToken,
+            decodedToken,
+            customToken: customTokens.customToken
           },
           request.headers
         );
@@ -208,8 +209,8 @@ export async function authMiddleware(
       async () => {
         debug('Token has expired. Refreshing token...');
 
-        const {idToken, decodedIdToken, refreshToken} =
-          await handleTokenRefresh(idAndRefreshTokens.refreshToken, {
+        const {idToken, decodedIdToken, refreshToken, customToken} =
+          await handleTokenRefresh(customTokens.refreshToken, {
             referer
           });
 
@@ -220,7 +221,8 @@ export async function authMiddleware(
         const signedTokens = await signTokens(
           {
             idToken,
-            refreshToken
+            refreshToken,
+            customToken
           },
           options.cookieSignatureKeys
         );
@@ -229,7 +231,7 @@ export async function authMiddleware(
 
         markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
-          {token: idToken, decodedToken: decodedIdToken},
+          {token: idToken, decodedToken: decodedIdToken, customToken},
           request.headers
         );
 

@@ -4,19 +4,20 @@ jest.mock('../auth', () => ({
   getFirebaseAuth: () => ({
     handleTokenRefresh: () => ({
       idToken: 'TEST_ID_TOKEN',
-      refreshToken: 'TEST_REFRESH_TOKEN'
+      refreshToken: 'TEST_REFRESH_TOKEN',
+      customToken: 'TEST_CUSTOM_TOKEN'
     })
   })
 }));
 
-const TEST_TOKEN =
-  'eyJ0b2tlbnMiOnsiaWRUb2tlbiI6ImV4YW1wbGVfaWRfdG9rZW4iLCJyZWZyZXNoVG9rZW4iOiJleGFtcGxlX3JlZnJlc2hfdG9rZW4ifSwic2lnbmF0dXJlIjoia1hsUTZVVlIwbzY0cHpuQXBzdUxPOGdVQm1VUnVmNXZ6R2EycmMwRGo0WSJ9';
-const TEST_TOKEN_SIGNED =
-  'eyJ0b2tlbnMiOnsiaWRUb2tlbiI6IlRFU1RfSURfVE9LRU4iLCJyZWZyZXNoVG9rZW4iOiJURVNUX1JFRlJFU0hfVE9LRU4ifSwic2lnbmF0dXJlIjoiVmZfd2poWmJlRVV1cGcwSjdqQTdsQlVnQ2tyekxSb2Q4X1RYQ1JHYktiMCJ9';
-
+const secret = 'very-secure-secret';
+const jwt =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6Ik1PQ0sgSUQgVE9LRU4iLCJyZWZyZXNoX3Rva2VuIjoiTU9DSyBSRUZSRVNIIFRPS0VOIiwiY3VzdG9tX3Rva2VuIjoiTU9DSyBDVVNUT00gVE9LRU4ifQ.Y9WD7_nVQ0k2QCmke4cgmDMLD1ThjskojFlvPGypnLU';
+const refreshedJwt =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6IlRFU1RfSURfVE9LRU4iLCJyZWZyZXNoX3Rva2VuIjoiVEVTVF9SRUZSRVNIX1RPS0VOIiwiY3VzdG9tX3Rva2VuIjoiVEVTVF9DVVNUT01fVE9LRU4ifQ.2tjn-__AKP3J7w9vIDuFDFkYmPzpuGpWvHvBFksMh5E';
 const MOCK_REQUEST = {
   cookies: {
-    get: () => ({value: TEST_TOKEN}),
+    get: () => ({value: jwt}),
     set: jest.fn()
   },
   headers: {
@@ -26,7 +27,7 @@ const MOCK_REQUEST = {
 
 const MOCK_OPTIONS: SetAuthCookiesOptions = {
   cookieName: 'TestCookie',
-  cookieSignatureKeys: ['secret'],
+  cookieSignatureKeys: [secret],
   cookieSerializeOptions: {},
   apiKey: 'API_KEY'
 };
@@ -50,12 +51,12 @@ describe('cookies', () => {
 
     expect(MOCK_REQUEST.cookies.set).toHaveBeenCalledWith(
       'TestCookie',
-      TEST_TOKEN_SIGNED
+      refreshedJwt
     );
 
     expect(MOCK_RESPONSE.headers.append).toHaveBeenCalledWith(
       'Set-Cookie',
-      `TestCookie=${TEST_TOKEN_SIGNED}`
+      `TestCookie=${refreshedJwt}`
     );
 
     expect(result).toBe(MOCK_RESPONSE);
@@ -73,7 +74,7 @@ describe('cookies', () => {
 
     expect(MOCK_RESPONSE.headers.append).toHaveBeenCalledWith(
       'Set-Cookie',
-      `TestCookie=${TEST_TOKEN_SIGNED}`
+      `TestCookie=${refreshedJwt}`
     );
 
     expect(result).toBe(MOCK_RESPONSE);

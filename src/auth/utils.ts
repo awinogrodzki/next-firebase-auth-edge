@@ -101,3 +101,7 @@ export function deepExtend(target: any, source: any): any {
 
   return target;
 }
+
+export function toUint8Array(key: string) {
+  return Uint8Array.from(key.split('').map((x) => x.charCodeAt(0)));
+}
