@@ -65,12 +65,12 @@ export async function customTokenToIdAndRefreshTokens(
   firebaseApiKey: string,
   options: CustomTokenToIdAndRefreshTokensOptions
 ): Promise<IdAndRefreshTokens> {
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.referer ? {Referer: options.referer} : {})
   };
 
-  const body: object = {
+  const body: Record<string, string | boolean> = {
     token: customToken,
     returnSecureToken: true
   };
