@@ -1,3 +1,15 @@
+# [1.6.0-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.6...v1.6.0-canary.7) (2024-07-07)
+
+
+### Bug Fixes
+
+* suppress unknown headers property error ([1459ba9](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/1459ba99703ba7a6b3e9f10f59304d0974ccc652))
+
+
+### Features
+
+* exposed customToken in handleValidToken, getTokens and getFirebaseAuth methods ([f95c34c](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/f95c34cafb5f87b3afe60130a1631e3c337f2d34))
+
 # [1.6.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.5...v1.6.0-canary.6) (2024-06-17)
 
 
