@@ -9,6 +9,7 @@ import {
   ServiceAccountCredential,
   Credential
 } from './credential';
+import {CustomTokens, VerifiedTokens} from './custom-token';
 import {getApplicationDefault} from './default-credential';
 import {
   AuthError,
@@ -64,12 +65,12 @@ export async function customTokenToIdAndRefreshTokens(
   firebaseApiKey: string,
   options: CustomTokenToIdAndRefreshTokensOptions
 ): Promise<IdAndRefreshTokens> {
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.referer ? {Referer: options.referer} : {})
   };
 
-  const body: object = {
+  const body: Record<string, string | boolean> = {
     token: customToken,
     returnSecureToken: true
   };
@@ -207,6 +208,7 @@ export interface IdAndRefreshTokens {
 }
 
 export interface Tokens {
+  customToken: string;
   decodedToken: DecodedIdToken;
   token: string;
 }
@@ -214,12 +216,6 @@ export interface Tokens {
 export interface UsersList {
   users: UserRecord[];
   nextPageToken?: string;
-}
-
-export interface VerifyTokenResult {
-  idToken: string;
-  decodedIdToken: DecodedIdToken;
-  refreshToken: string;
 }
 
 export interface GetCustomIdAndRefreshTokensOptions {
@@ -251,20 +247,27 @@ function getAuth(options: AuthOptions) {
   const handleTokenRefresh = async (
     refreshToken: string,
     tokenRefreshOptions: {referer?: string} = {}
-  ): Promise<VerifyTokenResult> => {
+  ): Promise<VerifiedTokens> => {
     const {idToken, refreshToken: newRefreshToken} =
       await refreshExpiredIdToken(refreshToken, {
         apiKey: options.apiKey,
         referer: tokenRefreshOptions.referer
       });
+
     const decodedIdToken = await verifyIdToken(idToken, {
       referer: tokenRefreshOptions.referer
+    });
+
+    const customToken = await createCustomToken(decodedIdToken.uid, {
+      email_verified: decodedIdToken.email_verified,
+      source_sign_in_provider: decodedIdToken.firebase.sign_in_provider
     });
 
     return {
       decodedIdToken,
       idToken,
-      refreshToken: newRefreshToken
+      refreshToken: newRefreshToken,
+      customToken
     };
   };
 
@@ -345,18 +348,25 @@ function getAuth(options: AuthOptions) {
   }
 
   async function verifyAndRefreshExpiredIdToken(
-    idToken: string,
-    refreshToken: string,
+    customTokens: CustomTokens,
     verifyOptions: VerifyOptions = DEFAULT_VERIFY_OPTIONS
-  ): Promise<VerifyTokenResult> {
+  ): Promise<VerifiedTokens> {
     return await handleExpiredToken(
       async () => {
-        const decodedIdToken = await verifyIdToken(idToken, verifyOptions);
-        return {idToken, decodedIdToken, refreshToken};
+        const decodedIdToken = await verifyIdToken(
+          customTokens.idToken,
+          verifyOptions
+        );
+        return {
+          idToken: customTokens.idToken,
+          decodedIdToken,
+          refreshToken: customTokens.refreshToken,
+          customToken: customTokens.customToken
+        };
       },
       async () => {
-        if (refreshToken) {
-          return handleTokenRefresh(refreshToken, {
+        if (customTokens.refreshToken) {
+          return handleTokenRefresh(customTokens.refreshToken, {
             referer: verifyOptions.referer
           });
         }
@@ -379,7 +389,7 @@ function getAuth(options: AuthOptions) {
   async function getCustomIdAndRefreshTokens(
     idToken: string,
     customTokensOptions: GetCustomIdAndRefreshTokensOptions = DEFAULT_VERIFY_OPTIONS
-  ) {
+  ): Promise<CustomTokens> {
     const decodedToken = await verifyIdToken(idToken, {
       referer: customTokensOptions.referer
     });
@@ -390,11 +400,20 @@ function getAuth(options: AuthOptions) {
 
     debug('Generated custom token based on provided idToken', {customToken});
 
-    return customTokenToIdAndRefreshTokens(customToken, options.apiKey, {
-      tenantId: options.tenantId,
-      appCheckToken: customTokensOptions.appCheckToken,
-      referer: customTokensOptions.referer
-    });
+    const idAndRefreshTokens = await customTokenToIdAndRefreshTokens(
+      customToken,
+      options.apiKey,
+      {
+        tenantId: options.tenantId,
+        appCheckToken: customTokensOptions.appCheckToken,
+        referer: customTokensOptions.referer
+      }
+    );
+
+    return {
+      ...idAndRefreshTokens,
+      customToken
+    };
   }
 
   async function deleteUser(uid: string): Promise<void> {

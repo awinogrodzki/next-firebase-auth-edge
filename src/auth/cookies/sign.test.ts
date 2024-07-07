@@ -1,43 +1,54 @@
+import {CustomTokens} from '../custom-token';
 import {InvalidTokenError, InvalidTokenReason} from '../error';
 import {parseTokens, signTokens} from './sign';
 
+const secret = 'some-secret';
+const jwt =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6Ik1PQ0sgSUQgVE9LRU4iLCJyZWZyZXNoX3Rva2VuIjoiTU9DSyBSRUZSRVNIIFRPS0VOIiwiY3VzdG9tX3Rva2VuIjoiTU9DSyBDVVNUT00gVE9LRU4ifQ.kTqBXm7eX9W9kWpgIGoTDUFvA5m8X_JfBNVcOPQZZ_w';
+const customTokens: CustomTokens = {
+  idToken: 'MOCK ID TOKEN',
+  refreshToken: 'MOCK REFRESH TOKEN',
+  customToken: 'MOCK CUSTOM TOKEN'
+};
+
 describe('signTokens', () => {
   it('should sign provided id and refresh tokens into single string', async () => {
-    const value = await signTokens(
-      {
-        idToken: 'example_id_token',
-        refreshToken: 'example_refresh_token'
-      },
-      ['secret']
-    );
+    const value = await signTokens(customTokens, [secret]);
 
-    expect(value).toEqual(
-      'eyJ0b2tlbnMiOnsiaWRUb2tlbiI6ImV4YW1wbGVfaWRfdG9rZW4iLCJyZWZyZXNoVG9rZW4iOiJleGFtcGxlX3JlZnJlc2hfdG9rZW4ifSwic2lnbmF0dXJlIjoia1hsUTZVVlIwbzY0cHpuQXBzdUxPOGdVQm1VUnVmNXZ6R2EycmMwRGo0WSJ9'
-    );
+    expect(value).toEqual(jwt);
   });
 });
 
 describe('parseTokens', () => {
   it('should parse and verify provided string into id and refresh tokens', async () => {
-    const value = await parseTokens(
-      'eyJ0b2tlbnMiOnsiaWRUb2tlbiI6ImV4YW1wbGVfaWRfdG9rZW4iLCJyZWZyZXNoVG9rZW4iOiJleGFtcGxlX3JlZnJlc2hfdG9rZW4ifSwic2lnbmF0dXJlIjoia1hsUTZVVlIwbzY0cHpuQXBzdUxPOGdVQm1VUnVmNXZ6R2EycmMwRGo0WSJ9',
-      ['secret']
-    );
+    const value = await parseTokens(jwt, [secret]);
 
-    expect(value).toEqual({
-      idToken: 'example_id_token',
-      refreshToken: 'example_refresh_token'
-    });
+    expect(value).toEqual(customTokens);
   });
 
-  it('should return throw invalid error if result is invalid', async () => {
-    return expect(() =>
-      parseTokens(
-        'eyJ0b2tlbnMiOnsiaWRUb2tlbiI6ImV4YW1wbGVfaWRfdG9rZW4iLCJyZWZyZXNoVG9rZW4iOiJleGFtcGxlX3JlZnJlc2hfdG9rZW4ifSwic2lnbmF0dXJlIjoia1hsUTZVVlIwbzY0cHpuQXBzdUxPOGdVQm1VUnVmNXZ6R2EycmMwRGo0WSJ9',
-        ['foobar']
-      )
-    ).rejects.toEqual(
+  it('should throw invalid signature error if secret is invalid', async () => {
+    return expect(() => parseTokens(jwt, ['foobar'])).rejects.toEqual(
       new InvalidTokenError(InvalidTokenReason.INVALID_SIGNATURE)
+    );
+  });
+
+  it('should throw missing credentials error if token is empty', async () => {
+    return expect(() => parseTokens('', [secret])).rejects.toEqual(
+      new InvalidTokenError(InvalidTokenReason.MISSING_CREDENTIALS)
+    );
+  });
+
+  it('should throw malformed credentials error if custom tokens are empty', async () => {
+    const customTokens: CustomTokens = {
+      idToken: '',
+      refreshToken: '',
+      customToken: ''
+    };
+
+    const emptyJWT = await signTokens(customTokens, [secret]);
+
+    return expect(() => parseTokens(emptyJWT, [secret])).rejects.toEqual(
+      new InvalidTokenError(InvalidTokenReason.MALFORMED_CREDENTIALS)
     );
   });
 });

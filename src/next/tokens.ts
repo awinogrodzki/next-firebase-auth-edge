@@ -2,14 +2,10 @@ import {decodeJwt} from 'jose';
 import {NextApiRequest} from 'next';
 import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
-import {
-  getFirebaseAuth,
-  IdAndRefreshTokens,
-  Tokens,
-  VerifyTokenResult
-} from '../auth';
+import {getFirebaseAuth, Tokens} from '../auth';
 import {parseTokens} from '../auth/cookies/sign';
 import {ServiceAccount} from '../auth/credential';
+import {CustomTokens, VerifiedTokens} from '../auth/custom-token';
 import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
 import {mapJwtPayloadToDecodedIdToken} from '../auth/utils';
 import {debug, enableDebugMode} from '../debug';
@@ -45,7 +41,7 @@ export interface GetCookiesTokensOptions {
 export async function getRequestCookiesTokens(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetCookiesTokensOptions
-): Promise<IdAndRefreshTokens> {
+): Promise<CustomTokens> {
   const signedCookie = cookies.get(options.cookieName);
 
   if (!signedCookie) {
@@ -62,12 +58,16 @@ export async function getRequestCookiesTokens(
   return tokens;
 }
 
-function toTokens(result: VerifyTokenResult | null): Tokens | null {
+function toTokens(result: VerifiedTokens | null): Tokens | null {
   if (!result) {
     return null;
   }
 
-  return {token: result.idToken, decodedToken: result.decodedIdToken};
+  return {
+    token: result.idToken,
+    decodedToken: result.decodedIdToken,
+    customToken: result.customToken
+  };
 }
 
 export async function getTokens(
@@ -95,15 +95,12 @@ export async function getTokens(
 
       return {
         token: tokens.idToken,
-        decodedToken: mapJwtPayloadToDecodedIdToken(payload)
+        decodedToken: mapJwtPayloadToDecodedIdToken(payload),
+        customToken: tokens.customToken
       };
     }
 
-    const result = await verifyAndRefreshExpiredIdToken(
-      tokens.idToken,
-      tokens.refreshToken,
-      {referer}
-    );
+    const result = await verifyAndRefreshExpiredIdToken(tokens, {referer});
 
     return toTokens(result);
   } catch (error: unknown) {
@@ -124,7 +121,7 @@ export async function getTokens(
 export async function getCookiesTokens(
   cookies: Partial<{[K in string]: string}>,
   options: GetCookiesTokensOptions
-): Promise<IdAndRefreshTokens> {
+): Promise<CustomTokens> {
   const signedCookie = cookies[options.cookieName];
 
   if (!signedCookie) {
@@ -152,17 +149,12 @@ export async function getApiRequestTokens(
 
       return {
         token: tokens.idToken,
-        decodedToken: mapJwtPayloadToDecodedIdToken(payload)
+        decodedToken: mapJwtPayloadToDecodedIdToken(payload),
+        customToken: tokens.customToken
       };
     }
 
-    return toTokens(
-      await verifyAndRefreshExpiredIdToken(
-        tokens.idToken,
-        tokens.refreshToken,
-        {referer}
-      )
-    );
+    return toTokens(await verifyAndRefreshExpiredIdToken(tokens, {referer}));
   } catch (error: unknown) {
     if (error instanceof InvalidTokenError) {
       return null;
@@ -193,18 +185,15 @@ export async function getTokensFromObject(
 
       return {
         token: tokens.idToken,
-        decodedToken: mapJwtPayloadToDecodedIdToken(payload)
+        decodedToken: mapJwtPayloadToDecodedIdToken(payload),
+        customToken: tokens.customToken
       };
     }
 
     return toTokens(
-      await verifyAndRefreshExpiredIdToken(
-        tokens.idToken,
-        tokens.refreshToken,
-        {
-          referer: ''
-        }
-      )
+      await verifyAndRefreshExpiredIdToken(tokens, {
+        referer: ''
+      })
     );
   } catch (error: unknown) {
     if (error instanceof InvalidTokenError) {

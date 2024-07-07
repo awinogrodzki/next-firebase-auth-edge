@@ -1,36 +1,40 @@
-import {FlattenedSign, base64url} from 'jose';
-
-function toUint8Array(key: string) {
-  return Uint8Array.from(key.split('').map((x) => x.charCodeAt(0)));
-}
+import {errors} from 'jose';
+import {
+  CustomJWTPayload,
+  createCustomJWT,
+  verifyCustomJWT
+} from './custom-token';
 
 export class RotatingCredential {
   constructor(private keys: string[]) {}
 
-  private async signKey(data: string, keyValue: string) {
-    const jws = await new FlattenedSign(base64url.decode(data))
-      .setProtectedHeader({alg: 'HS256'})
-      .sign(toUint8Array(keyValue));
-
-    return jws.signature;
+  private async signPayload(
+    payload: CustomJWTPayload,
+    secret: string
+  ): Promise<string> {
+    return createCustomJWT(payload, secret);
   }
 
-  public async sign(data: string) {
-    return this.signKey(data, this.keys[0]);
+  public async sign(payload: CustomJWTPayload) {
+    return this.signPayload(payload, this.keys[0]);
   }
 
-  public async verify(data: string, digest: string) {
-    return (await this.index(data, digest)) > -1;
-  }
-
-  public async index(data: string, digest: string): Promise<number> {
+  public async verify(customJWT: string): Promise<CustomJWTPayload> {
     for (const key of this.keys) {
-      const signedKey = await this.signKey(data, key);
-      if (signedKey === digest) {
-        return this.keys.findIndex((it) => it === key);
+      try {
+        const result = await verifyCustomJWT(customJWT, key);
+        return result.payload;
+      } catch (e) {
+        if (e instanceof errors.JWSSignatureVerificationFailed) {
+          continue;
+        }
+
+        throw e;
       }
     }
 
-    return -1;
+    throw new errors.JWSSignatureVerificationFailed(
+      'Custom JWT could not be verified against any of the provided keys'
+    );
   }
 }
