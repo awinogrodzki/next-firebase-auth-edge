@@ -46,7 +46,7 @@ To allow gradual adoption of latest Next.js features, `next-firebase-auth-edge` 
 ### What's new in v1.6
 
 Most notable features are:
-* `handleValidToken` and `getToken` functions now expose `customToken` which can be used together with Firebase's `signInWithCustomToken` method to authenticate with Firebase Client SDKs
+* `handleValidToken` and `getToken` functions now expose `customToken` which can be used together with Firebase's `signInWithCustomToken` method to [authenticate with Firebase Client SDKs](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/client-side-apis#using-firebase-client-sdks)
 * Introduced `enableMultipleCookies` option in [Authentication Middleware](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#multiple-cookies). It is recommended to set this option to `true` to avoid cookie size issues. See [middleware docs](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#multiple-cookies) for more information
 * Introduced `getValidIdToken` and `getValidCustomToken` helper functions to ensure token stays valid in long-running client-side sessions. See [client-side APIs docs](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/client-side-apis) for more information
 * Updates several [advanced methods](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/advanced-usage)
