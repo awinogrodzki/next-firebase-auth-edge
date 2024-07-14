@@ -28,7 +28,8 @@ export async function refreshToken(
 
   const response = new NextResponse(
     JSON.stringify({
-      idToken: result.idToken
+      idToken: result.idToken,
+      customToken: result.customToken
     }),
     {
       status: 200,

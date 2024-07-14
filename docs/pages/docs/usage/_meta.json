@@ -6,6 +6,7 @@
   "pages-router-api-routes": "Pages Router API Routes",
   "get-server-side-props": "Usage in getServerSideProps",
   "refresh-credentials": "Refreshing credentials",
+  "client-side-apis": "Using Client-Side APIs",
   "domain-restriction": "Firebase API Key domain restriction",
   "advanced-usage": "Advanced usage",
   "cloud-run": "Usage in Google Cloud Run",

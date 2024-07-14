@@ -12,12 +12,13 @@ export async function middleware(request: NextRequest) {
   return authMiddleware(request, {
     loginPath: '/api/login',
     logoutPath: '/api/logout',
+    refreshTokenPath: '/api/refresh-token',
     apiKey: authConfig.apiKey,
     cookieName: authConfig.cookieName,
     cookieSerializeOptions: authConfig.cookieSerializeOptions,
     cookieSignatureKeys: authConfig.cookieSignatureKeys,
     serviceAccount: authConfig.serviceAccount,
-    handleValidToken: async ({token, decodedToken}, headers) => {
+    handleValidToken: async ({token, decodedToken, customToken}, headers) => {
       // Authenticated user should not be able to access /login, /register and /reset-password routes
       if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
         return redirectToHome(request);
@@ -51,6 +52,7 @@ export const config = {
     '/',
     '/((?!_next|favicon.ico|__/auth|__/firebase|api|.*\\.).*)',
     '/api/login',
-    '/api/logout'
+    '/api/logout',
+    '/api/refresh-token'
   ]
 };

@@ -1,0 +1,134 @@
+# Using Client-Side APIs
+
+The starter example uses the [inMemoryPersistence](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next-typescript-starter/app/auth/firebase.ts#L28-L30) strategy to rely solely on server-side tokens, thus avoiding any consistency issues on client-side.
+
+This approach is recommended, but causes a few issues user may run into:
+
+1. **Stale tokens:** In long-running client sessions, server-side tokens may no longer be valid, requiring user to refresh the page in order to get access to valid token. This may happen when user re-opens tab after 1 hour.
+2. **Unauthenticated Firebase Client SDK environment:** `inMemoryPersistence` will cause `currentUser` to be `null`, when trying to access it using [client-side APIs](https://firebase.google.com/docs/auth/web/manage-users), in most cases. This prevents us from using Firebase client-side SDKs.
+
+`next-firebase-auth-edge` provides a number of features that solves aforementioned issues, as listed below:
+
+
+
+### Enable Refresh Token API endpoint in Auth Middleware
+
+In long-running client-side sessions (e.g., if a user reopens a tab after 1 hour), the server-side token may be expired. This can cause access issues when using the token to validate external API calls or when using the `customToken` together with the `signInWithCustomToken` Firebase SDK function.
+
+To fix this, `authMiddleware` can expose a special endpoint to refresh client-side tokens, if current server-side token has expired.
+
+To enable the endpoint, define `refreshTokenPath` middleware option:
+
+```tsx
+export async function middleware(request: NextRequest) {
+  return authMiddleware(request, {
+    loginPath: "/api/login",
+    logoutPath: "/api/logout",
+    refreshTokenPath: "/api/refresh-token"
+    // other options...
+  });
+}
+
+export const config = {
+  // Make sure to include the path in `matcher`
+  matcher: ["/api/login", "/api/logout", "/api/refresh-token", "/", "/((?!_next|favicon.ico|api|.*\\.).*)"],
+};
+```
+
+Calling `/api/refresh-token` does two things:
+
+1. It checks if the current token is expired. If it is, it regenerates the token and updates the cookies by returning `Set-Cookie` header with fresh token.
+2. It resolves with JSON containing valid `idToken` and `customToken` 
+
+
+
+### getValidIdToken
+
+`getValidIdToken` works together with [refresh token endpoint](/docs/usage/client-side-apis#enable-refresh-token-api-endpoint-in-auth-middleware) to provide latest, valid id token. It can be useful if you use `token` to authorize external API calls
+
+It requires `serverIdToken`, which is the `token` returned by [getTokens](/docs/usage/server-components#gettokens) function inside server components
+
+The function is designed to be fast and safe to use when called multiple times. Thus, the `/api/refresh-token` endpoint will only be called if the token has expired.
+
+Example usage:
+```ts
+import {getValidIdToken} from 'next-firebase-auth-edge/lib/next/client';
+
+export async function fetchSomethingFromExternalApi(serverIdToken: string) {
+  const idToken = await getValidIdToken({
+    serverIdToken,
+    refreshTokenUrl: '/api/refresh-token'
+  });
+
+  return fetch("https://some-external-api.com/api/example", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+    },
+  })
+}
+```
+
+
+### getValidCustomToken
+
+`getValidCustomToken` works together with [refresh token endpoint](/docs/usage/client-side-apis#enable-refresh-token-api-endpoint-in-auth-middleware) to provide latest, valid custom token. It can be useful if you use `customToken` together with Firebase's [signInWithCustomToken](https://firebase.google.com/docs/auth/web/custom-auth#authenticate-with-firebase) method
+
+It requires `serverCustomToken`, which is the `customToken` returned by [getTokens](/docs/usage/server-components#gettokens) function inside server components
+
+The function is designed to be fast and safe to use when called multiple times. Thus, the `/api/refresh-token` endpoint will only be called if the token has expired.
+
+Example usage:
+```ts
+export async function signInWithServerCustomToken(
+  serverCustomToken: string
+) {
+  const auth = getAuth(getFirebaseApp());
+
+  const customToken = await getValidCustomToken({
+    serverCustomToken,
+    refreshTokenUrl: '/api/refresh-token'
+  });
+
+  if (!customToken) {
+    throw new Error('Invalid custom token');
+  }
+
+  return signInWithCustomToken(auth, customToken);
+}
+```
+
+
+## Using Firebase Client SDKs
+
+Firebase Client SDK exposes [signInWithCustomToken](https://firebase.google.com/docs/auth/web/custom-auth#authenticate-with-firebase) method that allows us to access current user using custom token.
+
+Custom token can be obtained by calling [getTokens](/docs/usage/server-components#gettokens) function in server components
+
+```tsx
+import {signInWithCustomToken} from 'firebase/auth';
+import {getValidCustomToken} from 'next-firebase-auth-edge/lib/next/client';
+
+import {doc, getDoc, getFirestore, updateDoc, setDoc} from 'firebase/firestore';
+
+export async function doSomethingWithFirestoreClient(
+  serverCustomToken: string
+) {
+  const auth = getAuth(getFirebaseApp());
+
+  // See https://next-firebase-auth-edge-docs.vercel.app/docs/usage/client-side-apis#getvalidcustomtoken
+  const customToken = await getValidCustomToken({
+    serverCustomToken,
+    refreshTokenUrl: '/api/refresh-token'
+  });
+
+  if (!customToken) {
+    throw new Error('Invalid custom token');
+  }
+
+  const {user: firebaseUser} = await signInWithCustomToken(auth, customToken);
+
+  // Use client-side firestore instance
+  const db = getFirestore(getApp());
+}
+```
