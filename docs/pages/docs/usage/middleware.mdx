@@ -15,34 +15,41 @@
 Advanced usage of `authMiddleware` in `middleware.ts`, based on [starter example](/examples#starter):
 
 ```tsx filename="middleware.ts"
-import { NextRequest, NextResponse } from "next/server";
-import { authMiddleware, redirectToHome, redirectToLogin } from "next-firebase-auth-edge";
+import {NextRequest, NextResponse} from 'next/server';
+import {
+  authMiddleware,
+  redirectToHome,
+  redirectToLogin
+} from 'next-firebase-auth-edge';
 
-const PUBLIC_PATHS = ["/register", "/login", "/reset-password"];
+const PUBLIC_PATHS = ['/register', '/login', '/reset-password'];
 
 export async function middleware(request: NextRequest) {
   return authMiddleware(request, {
-    loginPath: "/api/login",
-    logoutPath: "/api/logout",
-    apiKey: "XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX",
-    cookieName: "AuthToken",
-    cookieSignatureKeys: ["Key-Should-Be-at-least-32-bytes-in-length"],
+    loginPath: '/api/login',
+    logoutPath: '/api/logout',
+    apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
+    cookieName: 'AuthToken',
+    cookieSignatureKeys: ['Key-Should-Be-at-least-32-bytes-in-length'],
     cookieSerializeOptions: {
-      path: "/",
+      path: '/',
       httpOnly: true,
       secure: false, // Set this to true on HTTPS environments
-      sameSite: "lax" as const,
-      maxAge: 12 * 60 * 60 * 24, // twelve days
+      sameSite: 'lax' as const,
+      maxAge: 12 * 60 * 60 * 24 // twelve days
     },
     serviceAccount: {
-      projectId: "your-firebase-project-id",
-      clientEmail: "firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com",
-      privateKey: "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
+      projectId: 'your-firebase-project-id',
+      clientEmail:
+        'firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com',
+      privateKey:
+        '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
     },
+    enableMultipleCookies: true,
     debug: true,
-    tenantId: "your-tenant-id",
+    tenantId: 'your-tenant-id',
     checkRevoked: true,
-    handleValidToken: async ({ token, decodedToken }, headers) => {
+    handleValidToken: async ({token, decodedToken}, headers) => {
       // Authenticated user should not be able to access /login, /register and /reset-password routes
       if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
         return redirectToHome(request);
@@ -50,34 +57,60 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.next({
         request: {
-          headers,
-        },
+          headers
+        }
       });
     },
     handleInvalidToken: async (reason) => {
       console.info('Missing or malformed credentials', {reason});
 
       return redirectToLogin(request, {
-        path: "/login",
-        publicPaths: PUBLIC_PATHS,
+        path: '/login',
+        publicPaths: PUBLIC_PATHS
       });
     },
     handleError: async (error) => {
-      console.error("Unhandled authentication error", { error });
+      console.error('Unhandled authentication error', {error});
 
       return redirectToLogin(request, {
-        path: "/login",
-        publicPaths: PUBLIC_PATHS,
+        path: '/login',
+        publicPaths: PUBLIC_PATHS
       });
-    },
+    }
   });
 }
 
 export const config = {
-  matcher: ["/api/login", "/api/logout", "/", "/((?!_next|favicon.ico|api|.*\\.).*)"],
+  matcher: [
+    '/api/login',
+    '/api/logout',
+    '/',
+    '/((?!_next|favicon.ico|api|.*\\.).*)'
+  ]
 };
 ```
 
+## Multiple cookies
+
+Since v1.6.0 `authMiddleware` accepts `enableMultipleCookies` option.
+
+By default, the session is stored within a single cookie. This is fine for most use cases, but it limits the size of custom claims we can attach to a token. Most browsers won't save a cookie if it exceeds [4096 bytes](https://support.convert.com/hc/en-us/articles/4511582623117-Cookie-size-limits-and-the-impact-on-the-use-of-Convert-goals).
+
+It is recommended to set `enableMultipleCookies` to `true` to avoid issues with cookie size
+
+If enabled, session will be split into the different cookies:
+
+- `${cookieName}` – holds `idToken` and `refreshToken`
+- `${cookieName}.custom` – holds `customToken`
+- `${cookieName}.sig` – holds `signature` the tokens are validated against
+
+### Firebase Hosting multiple cookie issue
+
+Set `enableMultipleCookies` to `false` in [Firebase Hosting](/docs/usage/firebase-hosting) environment.
+
+Due to https://stackoverflow.com/questions/44929653/firebase-cloud-function-wont-store-cookie-named-other-than-session multiple cookies are not supported inside Firebase Hosting environment.
+
+If you encounter cookie size issues in Firebase Hosting, consider changing your hosting provider or reduce the size of the custom claims in user tokens
 
 ## Middleware token verification caching
 
@@ -88,11 +121,11 @@ You can pass this object to `NextResponse.next({ request: { headers } })` to ena
 See [Modifying Request Headers in Middleware](https://vercel.com/templates/next.js/edge-functions-modify-request-header) for more information on how modified headers work
 
 ```tsx
-handleValidToken: async ({ token, decodedToken, customToken }, headers) => {
+handleValidToken: async ({token, decodedToken, customToken}, headers) => {
   return NextResponse.next({
     request: {
-      headers, // Pass modified request headers to skip token verification in subsequent getTokens and getApiRequestTokens calls
-    },
+      headers // Pass modified request headers to skip token verification in subsequent getTokens and getApiRequestTokens calls
+    }
   });
 };
 ```
@@ -100,13 +133,13 @@ handleValidToken: async ({ token, decodedToken, customToken }, headers) => {
 ## Usage with `next-intl` and other middlewares
 
 ```tsx
-import { NextRequest } from "next/server";
-import createIntlMiddleware from "next-intl/middleware";
-import { authMiddleware } from "next-firebase-auth-edge";
+import {NextRequest} from 'next/server';
+import createIntlMiddleware from 'next-intl/middleware';
+import {authMiddleware} from 'next-firebase-auth-edge';
 
 const intlMiddleware = createIntlMiddleware({
-  locales: ["en", "pl"],
-  defaultLocale: "en",
+  locales: ['en', 'pl'],
+  defaultLocale: 'en'
 });
 
 export async function middleware(request: NextRequest) {
@@ -120,7 +153,7 @@ export async function middleware(request: NextRequest) {
     },
     handleError: async (error) => {
       return intlMiddleware(request);
-    },
+    }
   });
 }
 ```
@@ -129,18 +162,19 @@ export async function middleware(request: NextRequest) {
 
 ## Options
 
-| Name                   |   |   | Description                                                                                                                                                                                      |
-| ---------------------- | -- | -- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| loginPath              | **Required** |   |  Defines API login endpoint. When called with auth firebase token from the client (see examples below), responds with `Set-Cookie` headers containing signed id and refresh tokens.               |
-| logoutPath             | **Required** |   |  Defines API logout endpoint. When called from the client (see examples below), returns empty `Set-Cookie` headers that remove previously set credentials                                         |
-| apiKey                 | **Required** |   |  Firebase project API key used to fetch firebase id and refresh tokens                                                                                                                            |
-| cookieName             | **Required** |   |  The name for cookie set by `loginPath` api route.                                                                                                                                                |
-| cookieSignatureKeys    | **Required** |   |  [Rotating keys](https://developer.okta.com/docs/concepts/key-rotation/#:~:text=Key%20rotation%20is%20when%20a,and%20follows%20cryptographic%20best%20practices.) the cookie is validated against |
-| cookieSerializeOptions | **Required** |   |  Defines additional cookie options sent along `Set-Cookie` headers                                                                                                                                |
-| serviceAccount         | Optional in authenticated [Google Cloud Run](https://cloud.google.com/run) environment. Otherwise **required** |   | Firebase project service account.                                                                                                                                                             |
-| tenantId           | Optional | `string` By default `undefined`                                                                                                                 | Google Cloud Platform tenant identifier. Specify if your project supports [multi-tenancy](https://cloud.google.com/identity-platform/docs/multi-tenancy-authentication)                                                                                                                                                                                                              |
-| checkRevoked       | Optional | `boolean` By default `false`                                                                                                                    | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                                                                                                                                                      |
-| handleValidToken   | Optional | `(tokens: { token: string, decodedToken: DecodedIdToken, customToken: string }, headers: Headers) => Promise<NextResponse>` By default returns `NextResponse.next()` | Receives id and decoded tokens and should return a promise that resolves with NextResponse. Function is called with modified request `headers` as a second parameter. By passing this parameters down to `NextResponse.next({ request: { headers } })` library won't verify the token in subsequent calls to `getTokens` or `getApiRequestTokens`, which can improve response times. |
-| handleInvalidToken | Optional | `(reason: InvalidTokenReason) => Promise<NextResponse>` By default returns `NextResponse.next()`                                                                          | If passed, is called and returned if request has not been authenticated (either does not have credentials attached or credentials are malformed). Can be used to redirect unauthenticated users to specific page or pages. Called with `reason` as first argument, which can be one of `MISSING_CREDENTIALS`, `MISSING_REFRESH_TOKEN`, `MALFORMED_CREDENTIALS`, `INVALID_SIGNATURE`, `INVALID_CREDENTIALS`.  See [handleInvalidToken](/docs/errors#handleinvalidtoken) to read description of each reason.                                                                                                                                        |
-| handleError        | Optional | `(error: AuthError) => Promise<NextResponse>` By default returns `NextResponse.next()`                                                          | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, the library just allows application to render. This allows you to customize error handling. See [handleError](/docs/errors#handleerror) to read about possible errors |
-| debug           | Optional | `boolean` By default `false`                                                                                                                 | Provides helpful logs than can help understand authentication flow and debug issues |
+| Name                   |                                                                                                                |                                                                                                                                                                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| loginPath              | **Required**                                                                                                   |                                                                                                                                                                      | Defines API login endpoint. When called with auth firebase token from the client (see examples below), responds with `Set-Cookie` headers containing signed id and refresh tokens.                                                                                                                                                                                                                                                                                                                        |
+| logoutPath             | **Required**                                                                                                   |                                                                                                                                                                      | Defines API logout endpoint. When called from the client (see examples below), returns empty `Set-Cookie` headers that remove previously set credentials                                                                                                                                                                                                                                                                                                                                                  |
+| apiKey                 | **Required**                                                                                                   |                                                                                                                                                                      | Firebase project API key used to fetch firebase id and refresh tokens                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| cookieName             | **Required**                                                                                                   |                                                                                                                                                                      | The name for cookie set by `loginPath` api route.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| cookieSignatureKeys    | **Required**                                                                                                   |                                                                                                                                                                      | [Rotating keys](https://developer.okta.com/docs/concepts/key-rotation/#:~:text=Key%20rotation%20is%20when%20a,and%20follows%20cryptographic%20best%20practices.) the cookie is validated against                                                                                                                                                                                                                                                                                                          |
+| cookieSerializeOptions | **Required**                                                                                                   |                                                                                                                                                                      | Defines additional cookie options sent along `Set-Cookie` headers                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| serviceAccount         | Optional in authenticated [Google Cloud Run](https://cloud.google.com/run) environment. Otherwise **required** |                                                                                                                                                                      | Firebase project service account.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| enableMultipleCookies  | Optional                                                                                                       | `boolean` By default `false`                                                                                                                                         | Splits session tokens into multiple cookies to increase token claims capacity. Recommended, but `false` by default to keep backwards compatibility. Recommended, but `false` by default to keep backwards compatibility. Set to false on Firebase Hosting due to https://stackoverflow.com/questions/44929653/firebase-cloud-function-wont-store-cookie-named-other-than-session                                                                                                                          |
+| tenantId               | Optional                                                                                                       | `string` By default `undefined`                                                                                                                                      | Google Cloud Platform tenant identifier. Specify if your project supports [multi-tenancy](https://cloud.google.com/identity-platform/docs/multi-tenancy-authentication)                                                                                                                                                                                                                                                                                                                                   |
+| checkRevoked           | Optional                                                                                                       | `boolean` By default `false`                                                                                                                                         | If true, validates the token against firebase server on each request. Unless you have a good reason, it's better not to use it.                                                                                                                                                                                                                                                                                                                                                                           |
+| handleValidToken       | Optional                                                                                                       | `(tokens: { token: string, decodedToken: DecodedIdToken, customToken: string }, headers: Headers) => Promise<NextResponse>` By default returns `NextResponse.next()` | Receives id and decoded tokens and should return a promise that resolves with NextResponse. Function is called with modified request `headers` as a second parameter. By passing this parameters down to `NextResponse.next({ request: { headers } })` library won't verify the token in subsequent calls to `getTokens` or `getApiRequestTokens`, which can improve response times.                                                                                                                      |
+| handleInvalidToken     | Optional                                                                                                       | `(reason: InvalidTokenReason) => Promise<NextResponse>` By default returns `NextResponse.next()`                                                                     | If passed, is called and returned if request has not been authenticated (either does not have credentials attached or credentials are malformed). Can be used to redirect unauthenticated users to specific page or pages. Called with `reason` as first argument, which can be one of `MISSING_CREDENTIALS`, `MISSING_REFRESH_TOKEN`, `MALFORMED_CREDENTIALS`, `INVALID_SIGNATURE`, `INVALID_CREDENTIALS`. See [handleInvalidToken](/docs/errors#handleinvalidtoken) to read description of each reason. |
+| handleError            | Optional                                                                                                       | `(error: AuthError) => Promise<NextResponse>` By default returns `NextResponse.next()`                                                                               | Receives an unhandled error that happened during authentication and should resolve with NextResponse. By default, in case of unhandled error during authentication, the library just allows application to render. This allows you to customize error handling. See [handleError](/docs/errors#handleerror) to read about possible errors                                                                                                                                                                 |
+| debug                  | Optional                                                                                                       | `boolean` By default `false`                                                                                                                                         | Provides helpful logs than can help understand authentication flow and debug issues                                                                                                                                                                                                                                                                                                                                                                                                                       |
