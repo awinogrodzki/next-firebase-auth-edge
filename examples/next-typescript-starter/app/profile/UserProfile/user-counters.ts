@@ -28,8 +28,8 @@ export async function incrementCounterUsingClientFirestore(
   if (docSnap.exists()) {
     const data = docSnap.data();
 
-    updateDoc(docRef, {count: data.count + 1});
+    await updateDoc(docRef, {count: data.count + 1});
   } else {
-    setDoc(docRef, {count: 1});
+    await setDoc(docRef, {count: 1});
   }
 }

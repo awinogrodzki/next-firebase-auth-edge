@@ -1,22 +1,22 @@
 import {errors} from 'jose';
 import {
   CustomJWTPayload,
+  CustomTokens,
   createCustomJWT,
-  verifyCustomJWT
+  createCustomSignature,
+  verifyCustomJWT,
+  verifyCustomSignature
 } from './custom-token';
 
 export class RotatingCredential {
   constructor(private keys: string[]) {}
 
-  private async signPayload(
-    payload: CustomJWTPayload,
-    secret: string
-  ): Promise<string> {
-    return createCustomJWT(payload, secret);
+  public async sign(payload: CustomJWTPayload) {
+    return createCustomJWT(payload, this.keys[0]);
   }
 
-  public async sign(payload: CustomJWTPayload) {
-    return this.signPayload(payload, this.keys[0]);
+  public async createSignature(tokens: CustomTokens): Promise<string> {
+    return createCustomSignature(tokens, this.keys[0]);
   }
 
   public async verify(customJWT: string): Promise<CustomJWTPayload> {
@@ -35,6 +35,27 @@ export class RotatingCredential {
 
     throw new errors.JWSSignatureVerificationFailed(
       'Custom JWT could not be verified against any of the provided keys'
+    );
+  }
+
+  public async verifySignature(
+    tokens: CustomTokens,
+    signature: string
+  ): Promise<void> {
+    for (const key of this.keys) {
+      try {
+        return await verifyCustomSignature(tokens, signature, key);
+      } catch (e) {
+        if (e instanceof errors.JWSSignatureVerificationFailed) {
+          continue;
+        }
+
+        throw e;
+      }
+    }
+
+    throw new errors.JWSSignatureVerificationFailed(
+      'Custom tokens signature could not be verified against any of the provided keys'
     );
   }
 }

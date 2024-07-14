@@ -13,6 +13,7 @@ export async function middleware(request: NextRequest) {
     loginPath: '/api/login',
     logoutPath: '/api/logout',
     refreshTokenPath: '/api/refresh-token',
+    enableMultipleCookies: authConfig.enableMultipleCookies,
     apiKey: authConfig.apiKey,
     cookieName: authConfig.cookieName,
     cookieSerializeOptions: authConfig.cookieSerializeOptions,

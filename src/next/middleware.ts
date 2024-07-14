@@ -2,13 +2,11 @@ import {CookieSerializeOptions} from 'cookie';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
 import {Tokens, getFirebaseAuth, handleExpiredToken} from '../auth';
-import {signTokens} from '../auth/cookies/sign';
 import {ServiceAccount} from '../auth/credential';
 import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
 import {debug, enableDebugMode} from '../debug';
 import {
-  appendResponseCookies,
-  appendResponseHeaders,
+  createVerifier,
   markCookiesAsVerified,
   removeAuthCookies,
   removeInternalVerifiedCookieIfExists,
@@ -223,16 +221,17 @@ export async function authMiddleware(
           'Token refreshed successfully. Updating response cookie headers...'
         );
 
-        const signedTokens = await signTokens(
-          {
-            idToken,
-            refreshToken,
-            customToken
-          },
-          options.cookieSignatureKeys
-        );
+        const tokensToSign = {
+          idToken,
+          refreshToken,
+          customToken
+        };
 
-        appendResponseCookies(request.cookies, signedTokens, options);
+        const verifier = createVerifier(tokensToSign, options);
+
+        await verifier.init();
+
+        verifier.appendCookies(request.cookies);
 
         markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
@@ -244,7 +243,7 @@ export async function authMiddleware(
 
         validateResponse(response);
 
-        appendResponseHeaders(response.headers, signedTokens, options);
+        verifier.appendHeaders(response.headers);
 
         return response;
       },

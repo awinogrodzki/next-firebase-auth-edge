@@ -5,12 +5,13 @@ import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapte
 import {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {NextRequest, NextResponse} from 'next/server';
 import {getFirebaseAuth} from '../auth';
-import {signTokens} from '../auth/cookies/sign';
+import {SignedCookies, signCookies, signTokens} from '../auth/cookies/sign';
 import {ServiceAccount} from '../auth/credential';
 import {CustomTokens, VerifiedTokens} from '../auth/custom-token';
 import {debug} from '../debug';
 import {getCookiesTokens, getRequestCookiesTokens} from './tokens';
 import {getReferer} from './utils';
+import {AuthError, AuthErrorCode} from '../auth/error';
 
 export interface SetAuthCookiesOptions {
   cookieName: string;
@@ -81,9 +82,9 @@ export async function appendAuthCookiesApi(
   tokens: CustomTokens,
   options: SetAuthCookiesOptions
 ) {
-  const signedTokens = await signTokens(tokens, options.cookieSignatureKeys);
+  const cookies = await signCookies(tokens, options.cookieSignatureKeys);
 
-  serializeCookies(signedTokens, options, (value) => {
+  serializeCookies(cookies, options, (value) => {
     response.setHeader('Set-Cookie', [value]);
   });
 }
@@ -92,23 +93,32 @@ function generateEmptyCookies(
   options: RemoveAuthCookiesOptions,
   callback: (name: string) => void
 ) {
+  if (options.enableMultipleCookies) {
+    callback(options.cookieName);
+    callback(`${options.cookieName}.custom`);
+    callback(`${options.cookieName}.sig`);
+    return;
+  }
+
   callback(options.cookieName);
 }
 
 function generateCookies(
-  signedTokens: string,
+  cookies: SignedCookies,
   options: SetAuthCookiesOptions,
   callback: (name: string, value: string) => void
 ) {
-  callback(options.cookieName, signedTokens);
+  callback(options.cookieName, cookies.signed);
+  callback(`${options.cookieName}.custom`, cookies.custom);
+  callback(`${options.cookieName}.sig`, cookies.signature);
 }
 
 function serializeCookies(
-  signedTokens: string,
+  cookies: SignedCookies,
   options: SetAuthCookiesOptions,
   callback: (setCookieHeader: string) => void
 ) {
-  generateCookies(signedTokens, options, (name, value) => {
+  generateCookies(cookies, options, (name, value) => {
     callback(serialize(name, value, options.cookieSerializeOptions));
   });
 }
@@ -129,24 +139,48 @@ function serializeEmptyCookies(
   });
 }
 
-export function appendResponseCookies(
+export function appendCookies(
   cookies: RequestCookies | ReadonlyRequestCookies,
-  signedTokens: string,
+  signedCookies: SignedCookies,
   options: SetAuthCookiesOptions
 ) {
-  generateCookies(signedTokens, options, (name, value) => {
+  generateCookies(signedCookies, options, (name, value) => {
     cookies.set(name, value);
   });
 }
 
-export function appendResponseHeaders(
+export function appendCookie(
+  cookies: RequestCookies | ReadonlyRequestCookies,
+  signedTokens: string,
+  options: SetAuthCookiesOptions
+) {
+  cookies.set(options.cookieName, signedTokens);
+}
+
+export function appendHeaders(
+  headers: Headers,
+  signedCookies: SignedCookies,
+  options: SetAuthCookiesOptions
+) {
+  serializeCookies(signedCookies, options, (value) =>
+    headers.append('Set-Cookie', value)
+  );
+}
+
+function serializeCookie(signedTokens: string, options: SetAuthCookiesOptions) {
+  return serialize(
+    options.cookieName,
+    signedTokens,
+    options.cookieSerializeOptions
+  );
+}
+
+export function appendHeader(
   headers: Headers,
   signedTokens: string,
   options: SetAuthCookiesOptions
 ) {
-  serializeCookies(signedTokens, options, (value) =>
-    headers.append('Set-Cookie', value)
-  );
+  headers.append('Set-Cookie', serializeCookie(signedTokens, options));
 }
 
 export async function appendAuthCookies(
@@ -154,11 +188,13 @@ export async function appendAuthCookies(
   tokens: CustomTokens,
   options: SetAuthCookiesOptions
 ) {
-  const signedTokens = await signTokens(tokens, options.cookieSignatureKeys);
-
   debug('Updating response headers with authenticated cookies');
 
-  appendResponseHeaders(response.headers, signedTokens, options);
+  const verifier = createVerifier(tokens, options);
+
+  await verifier.init();
+
+  verifier.appendHeaders(response.headers);
 }
 
 export async function setAuthCookies(
@@ -343,6 +379,101 @@ export async function refreshNextCookies(
   };
 }
 
+interface HeaderVerifier {
+  init(): Promise<void>;
+  appendCookies: (cookies: RequestCookies | ReadonlyRequestCookies) => void;
+  appendHeaders: (headers: Headers) => void;
+}
+
+class SingleHeaderVerifier implements HeaderVerifier {
+  private signedTokens: string = '';
+
+  constructor(
+    private tokens: CustomTokens,
+    private options: SetAuthCookiesOptions
+  ) {}
+
+  async init() {
+    this.signedTokens = await signTokens(
+      this.tokens,
+      this.options.cookieSignatureKeys
+    );
+  }
+
+  private validate() {
+    if (!this.signedTokens) {
+      throw new AuthError(
+        AuthErrorCode.INTERNAL_ERROR,
+        'Signed tokens are not assigned. Remember to await .init before calling append methods'
+      );
+    }
+  }
+
+  appendCookies(cookies: RequestCookies | ReadonlyRequestCookies) {
+    this.validate();
+    appendCookie(cookies, this.signedTokens, this.options);
+  }
+
+  appendHeaders(headers: Headers) {
+    this.validate();
+    appendHeader(headers, this.signedTokens, this.options);
+  }
+}
+
+class MultiHeaderVerifier implements HeaderVerifier {
+  private signedCookies: SignedCookies = {
+    custom: '',
+    signature: '',
+    signed: ''
+  };
+
+  constructor(
+    private tokens: CustomTokens,
+    private options: SetAuthCookiesOptions
+  ) {}
+
+  async init() {
+    this.signedCookies = await signCookies(
+      this.tokens,
+      this.options.cookieSignatureKeys
+    );
+  }
+
+  private validate() {
+    if (
+      !this.signedCookies.signed ||
+      !this.signedCookies.signature ||
+      !this.signedCookies.custom
+    ) {
+      throw new AuthError(
+        AuthErrorCode.INTERNAL_ERROR,
+        'Signed cookies are not assigned. Remember to await .init before calling append methods'
+      );
+    }
+  }
+
+  appendCookies(cookies: RequestCookies | ReadonlyRequestCookies) {
+    this.validate();
+    appendCookies(cookies, this.signedCookies, this.options);
+  }
+
+  appendHeaders(headers: Headers) {
+    this.validate();
+    appendHeaders(headers, this.signedCookies, this.options);
+  }
+}
+
+export function createVerifier(
+  tokens: CustomTokens,
+  options: SetAuthCookiesOptions
+): HeaderVerifier {
+  if (options.enableMultipleCookies) {
+    return new MultiHeaderVerifier(tokens, options);
+  }
+
+  return new SingleHeaderVerifier(tokens, options);
+}
+
 export async function refreshCredentials(
   request: NextRequest,
   options: SetAuthCookiesOptions,
@@ -357,12 +488,11 @@ export async function refreshCredentials(
     options
   );
 
-  const signedTokens = await signTokens(
-    customTokens,
-    options.cookieSignatureKeys
-  );
+  const verifier = createVerifier(customTokens, options);
 
-  appendResponseCookies(request.cookies, signedTokens, options);
+  await verifier.init();
+
+  verifier.appendCookies(request.cookies);
 
   const responseOrPromise = responseFactory({
     headers: request.headers,
@@ -374,7 +504,7 @@ export async function refreshCredentials(
       ? await responseOrPromise
       : responseOrPromise;
 
-  appendResponseHeaders(response.headers, signedTokens, options);
+  verifier.appendHeaders(response.headers);
 
   return response;
 }
@@ -426,10 +556,11 @@ export async function refreshServerCookies(
   options: SetAuthCookiesOptions
 ): Promise<void> {
   const customTokens = await refreshNextCookies(cookies, headers, options);
-  const signedTokens = await signTokens(
-    customTokens,
-    options.cookieSignatureKeys
-  );
 
-  appendResponseCookies(cookies, signedTokens, options);
+  const verifier = createVerifier(customTokens, options);
+
+  await verifier.init();
+
+  verifier.appendCookies(cookies);
+  verifier.appendHeaders(headers);
 }

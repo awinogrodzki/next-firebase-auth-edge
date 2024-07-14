@@ -2,16 +2,16 @@ import {decodeJwt} from 'jose';
 import {NextApiRequest} from 'next';
 import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
-import {getFirebaseAuth, Tokens} from '../auth';
-import {parseTokens} from '../auth/cookies/sign';
+import {Tokens, getFirebaseAuth} from '../auth';
+import {parseCookies, parseTokens} from '../auth/cookies/sign';
 import {ServiceAccount} from '../auth/credential';
 import {CustomTokens, VerifiedTokens} from '../auth/custom-token';
 import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
 import {mapJwtPayloadToDecodedIdToken} from '../auth/utils';
 import {debug, enableDebugMode} from '../debug';
 import {
-  areCookiesVerifiedByMiddleware,
   CookiesObject,
+  areCookiesVerifiedByMiddleware,
   isCookiesObjectVerifiedByMiddleware
 } from './cookies';
 import {getReferer} from './utils';
@@ -43,19 +43,29 @@ export async function getRequestCookiesTokens(
   options: GetCookiesTokensOptions
 ): Promise<CustomTokens> {
   const signedCookie = cookies.get(options.cookieName);
+  const signatureCookie = cookies.get(`${options.cookieName}.sig`);
+  const customCookie = cookies.get(`${options.cookieName}.custom`);
 
-  if (!signedCookie) {
+  const enableMultipleCookies = signatureCookie?.value && customCookie?.value;
+
+  if (!signedCookie?.value) {
     debug('Missing authentication cookies');
 
     throw new InvalidTokenError(InvalidTokenReason.MISSING_CREDENTIALS);
   }
 
-  const tokens = await parseTokens(
-    signedCookie.value,
-    options.cookieSignatureKeys
-  );
+  if (enableMultipleCookies) {
+    return parseCookies(
+      {
+        signed: signedCookie.value,
+        custom: customCookie.value,
+        signature: signatureCookie.value
+      },
+      options.cookieSignatureKeys
+    );
+  }
 
-  return tokens;
+  return parseTokens(signedCookie.value, options.cookieSignatureKeys);
 }
 
 function toTokens(result: VerifiedTokens | null): Tokens | null {
@@ -123,9 +133,23 @@ export async function getCookiesTokens(
   options: GetCookiesTokensOptions
 ): Promise<CustomTokens> {
   const signedCookie = cookies[options.cookieName];
+  const signatureCookie = cookies[`${options.cookieName}.sig`];
+  const customCookie = cookies[`${options.cookieName}.custom`];
+  const enableMultipleCookie = signatureCookie && customCookie;
 
   if (!signedCookie) {
     throw new InvalidTokenError(InvalidTokenReason.MISSING_CREDENTIALS);
+  }
+
+  if (enableMultipleCookie) {
+    return await parseCookies(
+      {
+        signed: signedCookie,
+        custom: customCookie,
+        signature: signatureCookie
+      },
+      options.cookieSignatureKeys
+    );
   }
 
   return await parseTokens(signedCookie, options.cookieSignatureKeys);
