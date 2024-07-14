@@ -1,4 +1,4 @@
-import {CookieSerializeOptions, serialize} from 'cookie';
+import {CookieSerializeOptions} from 'cookie';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
 import {Tokens, getFirebaseAuth, handleExpiredToken} from '../auth';
@@ -7,19 +7,21 @@ import {ServiceAccount} from '../auth/credential';
 import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
 import {debug, enableDebugMode} from '../debug';
 import {
+  appendResponseCookies,
+  appendResponseHeaders,
   markCookiesAsVerified,
   removeAuthCookies,
   removeInternalVerifiedCookieIfExists,
   setAuthCookies,
   wasResponseDecoratedWithModifiedRequestHeaders
 } from './cookies';
+import {refreshToken} from './refresh-token';
 import {
   GetTokensOptions,
   getRequestCookiesTokens,
   validateOptions
 } from './tokens';
 import {getReferer} from './utils';
-import {refreshToken} from './refresh-token';
 
 export interface CreateAuthMiddlewareOptions {
   loginPath: string;
@@ -31,6 +33,7 @@ export interface CreateAuthMiddlewareOptions {
   apiKey: string;
   tenantId?: string;
   refreshTokenPath?: string;
+  enableMultipleCookies?: boolean;
 }
 
 export function redirectToHome(request: NextRequest) {
@@ -76,14 +79,16 @@ export async function createAuthMiddlewareResponse(
       cookieSignatureKeys: options.cookieSignatureKeys,
       serviceAccount: options.serviceAccount,
       apiKey: options.apiKey,
-      tenantId: options.tenantId
+      tenantId: options.tenantId,
+      enableMultipleCookies: options.enableMultipleCookies
     });
   }
 
   if (request.nextUrl.pathname === options.logoutPath) {
     return removeAuthCookies(request.headers, {
       cookieName: options.cookieName,
-      cookieSerializeOptions: options.cookieSerializeOptions
+      cookieSerializeOptions: options.cookieSerializeOptions,
+      enableMultipleCookies: options.enableMultipleCookies
     });
   }
 
@@ -227,7 +232,7 @@ export async function authMiddleware(
           options.cookieSignatureKeys
         );
 
-        request.cookies.set(options.cookieName, signedTokens);
+        appendResponseCookies(request.cookies, signedTokens, options);
 
         markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
@@ -239,14 +244,7 @@ export async function authMiddleware(
 
         validateResponse(response);
 
-        response.headers.append(
-          'Set-Cookie',
-          serialize(
-            options.cookieName,
-            signedTokens,
-            options.cookieSerializeOptions
-          )
-        );
+        appendResponseHeaders(response.headers, signedTokens, options);
 
         return response;
       },

@@ -16,6 +16,7 @@ export interface SetAuthCookiesOptions {
   cookieName: string;
   cookieSignatureKeys: string[];
   cookieSerializeOptions: CookieSerializeOptions;
+  enableMultipleCookies?: boolean;
   serviceAccount?: ServiceAccount;
   apiKey: string;
   tenantId?: string;
@@ -82,9 +83,70 @@ export async function appendAuthCookiesApi(
 ) {
   const signedTokens = await signTokens(tokens, options.cookieSignatureKeys);
 
-  response.setHeader('Set-Cookie', [
-    serialize(options.cookieName, signedTokens, options.cookieSerializeOptions)
-  ]);
+  serializeCookies(signedTokens, options, (value) => {
+    response.setHeader('Set-Cookie', [value]);
+  });
+}
+
+function generateEmptyCookies(
+  options: RemoveAuthCookiesOptions,
+  callback: (name: string) => void
+) {
+  callback(options.cookieName);
+}
+
+function generateCookies(
+  signedTokens: string,
+  options: SetAuthCookiesOptions,
+  callback: (name: string, value: string) => void
+) {
+  callback(options.cookieName, signedTokens);
+}
+
+function serializeCookies(
+  signedTokens: string,
+  options: SetAuthCookiesOptions,
+  callback: (setCookieHeader: string) => void
+) {
+  generateCookies(signedTokens, options, (name, value) => {
+    callback(serialize(name, value, options.cookieSerializeOptions));
+  });
+}
+
+function serializeEmptyCookies(
+  options: RemoveAuthCookiesOptions,
+  callback: (setCookieHeader: string) => void
+) {
+  const {maxAge, expires, ...cookieOptions} = options.cookieSerializeOptions;
+
+  generateEmptyCookies(options, (name) => {
+    callback(
+      serialize(name, '', {
+        ...cookieOptions,
+        expires: new Date(0)
+      })
+    );
+  });
+}
+
+export function appendResponseCookies(
+  cookies: RequestCookies | ReadonlyRequestCookies,
+  signedTokens: string,
+  options: SetAuthCookiesOptions
+) {
+  generateCookies(signedTokens, options, (name, value) => {
+    cookies.set(name, value);
+  });
+}
+
+export function appendResponseHeaders(
+  headers: Headers,
+  signedTokens: string,
+  options: SetAuthCookiesOptions
+) {
+  serializeCookies(signedTokens, options, (value) =>
+    headers.append('Set-Cookie', value)
+  );
 }
 
 export async function appendAuthCookies(
@@ -96,10 +158,7 @@ export async function appendAuthCookies(
 
   debug('Updating response headers with authenticated cookies');
 
-  response.headers.append(
-    'Set-Cookie',
-    serialize(options.cookieName, signedTokens, options.cookieSerializeOptions)
-  );
+  appendResponseHeaders(response.headers, signedTokens, options);
 }
 
 export async function setAuthCookies(
@@ -148,20 +207,15 @@ export async function setAuthCookies(
 export interface RemoveAuthCookiesOptions {
   cookieName: string;
   cookieSerializeOptions: CookieSerializeOptions;
+  enableMultipleCookies?: boolean;
 }
 
-export function removeCookie(
+function appendEmptyResponseHeaders(
   response: NextResponse,
   options: RemoveAuthCookiesOptions
 ) {
-  const {maxAge, expires, ...cookieOptions} = options.cookieSerializeOptions;
-
-  response.headers.append(
-    'Set-Cookie',
-    serialize(options.cookieName, '', {
-      ...cookieOptions,
-      expires: new Date(0)
-    })
+  serializeEmptyCookies(options, (value) =>
+    response.headers.append('Set-Cookie', value)
   );
 }
 
@@ -174,7 +228,7 @@ export function removeAuthCookies(
     headers: {'content-type': 'application/json'}
   });
 
-  removeCookie(response, options);
+  appendEmptyResponseHeaders(response, options);
 
   debug('Updating response with empty authentication cookie headers', {
     cookieName: options.cookieName
@@ -308,7 +362,7 @@ export async function refreshCredentials(
     options.cookieSignatureKeys
   );
 
-  request.cookies.set(options.cookieName, signedTokens);
+  appendResponseCookies(request.cookies, signedTokens, options);
 
   const responseOrPromise = responseFactory({
     headers: request.headers,
@@ -320,10 +374,7 @@ export async function refreshCredentials(
       ? await responseOrPromise
       : responseOrPromise;
 
-  response.headers.append(
-    'Set-Cookie',
-    serialize(options.cookieName, signedTokens, options.cookieSerializeOptions)
-  );
+  appendResponseHeaders(response.headers, signedTokens, options);
 
   return response;
 }
@@ -380,5 +431,5 @@ export async function refreshServerCookies(
     options.cookieSignatureKeys
   );
 
-  cookies.set(options.cookieName, signedTokens, options.cookieSerializeOptions);
+  appendResponseCookies(cookies, signedTokens, options);
 }
