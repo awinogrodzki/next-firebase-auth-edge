@@ -43,11 +43,12 @@ To allow gradual adoption of latest Next.js features, `next-firebase-auth-edge` 
 * **Minimal configuration**: In contrary to other libraries, you don't have to define your own API routes or update your `next.config.js` file. All heavy lifting is done by [the middleware](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware).
 * **Secure**: Uses [jose](https://github.com/panva/jose) for JWT validation. Signs user cookies with rotating keys to mitigate the risk of cryptanalysis attacks
 
-### What's new in v1.5
+### What's new in v1.6
 
 Most notable features are:
-* Support for domain restricted Firebase API Keys
-* Removed APIs deprecated in v1.0
+* `handleValidToken` and `getToken` functions now expose `customToken` which can be used together with Firebase's `signInWithCustomToken` method to authenticate with Firebase Client SDKs
+* Introduced `enableMultipleCookies` option in [Authentication Middleware](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#multiple-cookies). It is recommended to set this option to `true` to avoid cookie size issues. See [middleware docs](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#multiple-cookies) for more information
+* Introduced `getValidIdToken` and `getValidCustomToken` helper functions to ensure token stays valid in long-running client-side sessions. See [client-side APIs docs](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/client-side-apis) for more information
 * Updates several [advanced methods](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/advanced-usage)
 
 See [1.5.x canary release](https://github.com/awinogrodzki/next-firebase-auth-edge/pull/186) for detailed API changes description
