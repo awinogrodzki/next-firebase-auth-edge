@@ -1,3 +1,10 @@
+# [1.6.0-canary.8](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.7...v1.6.0-canary.8) (2024-07-14)
+
+
+### Features
+
+* added `getValidCustomToken` method and documented client-side SDK usage ([2261ef9](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/2261ef9321a0e3974456af2db11915a128d69421))
+
 # [1.6.0-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.6...v1.6.0-canary.7) (2024-07-07)
 
 
