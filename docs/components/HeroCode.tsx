@@ -148,12 +148,7 @@ const files = [
           <span style={{color: 'var(--shiki-token-keyword)'}}>:</span>
           <span style={{color: 'var(--shiki-color-text)'}}> [</span>
           <span style={{color: 'var(--shiki-token-string-expression)'}}>
-            "secret1"
-          </span>
-          <span style={{color: 'var(--shiki-token-punctuation)'}}>,</span>
-          <span style={{color: 'var(--shiki-color-text)'}}> </span>
-          <span style={{color: 'var(--shiki-token-string-expression)'}}>
-            "secret2"
+            "Key-Should-Be-at-least-32-bytes-in-length"
           </span>
           <span style={{color: 'var(--shiki-color-text)'}}>]</span>
           <span style={{color: 'var(--shiki-token-punctuation)'}}>,</span>
@@ -485,12 +480,7 @@ const files = [
           <span style={{color: 'var(--shiki-token-keyword)'}}>:</span>
           <span style={{color: 'var(--shiki-color-text)'}}> [</span>
           <span style={{color: 'var(--shiki-token-string-expression)'}}>
-            'secret1'
-          </span>
-          <span style={{color: 'var(--shiki-token-punctuation)'}}>,</span>
-          <span style={{color: 'var(--shiki-color-text)'}}> </span>
-          <span style={{color: 'var(--shiki-token-string-expression)'}}>
-            'secret2'
+            'Key-Should-Be-at-least-32-bytes-in-length'
           </span>
           <span style={{color: 'var(--shiki-color-text)'}}>]</span>
           <span style={{color: 'var(--shiki-token-punctuation)'}}>,</span>

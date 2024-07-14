@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
     logoutPath: "/api/logout",
     apiKey: "XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX",
     cookieName: "AuthToken",
-    cookieSignatureKeys: ["secret1", "secret2"],
+    cookieSignatureKeys: ["Key-Should-Be-at-least-32-bytes-in-length"],
     cookieSerializeOptions: {
       path: "/",
       httpOnly: true,
@@ -41,6 +41,6 @@ import { getTokens } from "next-firebase-auth-edge";
 const tokens = await getTokens(context.req.cookies, {
     apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
     cookieName: 'AuthToken',
-    cookieSignatureKeys: ['secret1', 'secret2'],
+    cookieSignatureKeys: ['Key-Should-Be-at-least-32-bytes-in-length'],
 });
 ```

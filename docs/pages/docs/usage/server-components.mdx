@@ -14,7 +14,7 @@ export default async function ServerComponentExample() {
   const tokens = await getTokens(cookies(), {
     apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
     cookieName: 'AuthToken',
-    cookieSignatureKeys: ['secret1', 'secret2'],
+    cookieSignatureKeys: ['Key-Should-Be-at-least-32-bytes-in-length'],
     serviceAccount: {
       projectId: 'your-firebase-project-id',
       clientEmail:
