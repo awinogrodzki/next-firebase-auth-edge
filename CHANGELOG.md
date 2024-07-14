@@ -1,3 +1,10 @@
+# [1.6.0-canary.9](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.8...v1.6.0-canary.9) (2024-07-14)
+
+
+### Features
+
+* introduced `enableMultipleCookies` auth middleware option to increase token capacity ([23ee02f](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/23ee02f2160faee133127dfb8808b1977dba4593))
+
 # [1.6.0-canary.8](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0-canary.7...v1.6.0-canary.8) (2024-07-14)
 
 
