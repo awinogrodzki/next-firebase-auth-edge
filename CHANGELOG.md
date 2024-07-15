@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0...v1.6.1) (2024-07-15)
+
+
+### Bug Fixes
+
+* rename appendEmptyResponseHeaders to removeCookies ([498d044](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/498d0443b7981776cc7091049ac83a92a4d8d81b))
+
 # [1.6.0](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.5.3...v1.6.0) (2024-07-15)
 
 
