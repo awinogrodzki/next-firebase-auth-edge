@@ -160,6 +160,10 @@ export async function middleware(request: NextRequest) {
 
 **Please note** that you don't need to pass `headers` as in [middleware token verification caching](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#middleware-token-verification-caching) when using `next-intl` middleware. `request` is already updated with modified headers by the time we call `intlMiddleware`. `next-intl` will pass modified headers for us.
 
+The example is a simplified version of how you can compose other middleware with `next-firebase-auth-edge`. 
+
+If you are having issues when using `next-intl` middleware with redirects, see [this GitHub issue comment](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/169#issuecomment-2076683598) for code examples
+
 ## Options
 
 | Name                   |                                                                                                                |                                                                                                                                                                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
