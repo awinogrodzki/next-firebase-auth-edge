@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
     logoutPath: "/api/logout",
     apiKey: "XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX",
     cookieName: "AuthToken",
-    cookieSignatureKeys: ["secret1", "secret2"],
+    cookieSignatureKeys: ["Key-Should-Be-at-least-32-bytes-in-length"],
     cookieSerializeOptions: {
       path: "/",
       httpOnly: true,
@@ -29,6 +29,7 @@ export async function middleware(request: NextRequest) {
       clientEmail: "firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com",
       privateKey: "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
     },
+    enableMultipleCookies: true // Recommended, but `false` by default to keep backwards compatibility. Set to false on Firebase Hosting due to https://stackoverflow.com/questions/44929653/firebase-cloud-function-wont-store-cookie-named-other-than-session 
   });
 }
 

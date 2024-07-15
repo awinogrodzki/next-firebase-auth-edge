@@ -29,6 +29,27 @@ yarn dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Configuring Firestore rules
+
+The demo shows example usage of Firestore Client SDK
+
+Make sure to update Firestore Database Rules of `user-counters` collection in [Firebase Console](https://console.firebase.google.com/).
+
+The following Firestore Database Rules validates if user has access to update specific `user-counters` database entry
+
+```
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /user-counters/{document} {
+      allow read, write: if request.auth.uid == resource.data.id;
+    }
+  }
+}
+```
+
+
 ## Emulator support
 
 Library provides Firebase Authentication Emulator support

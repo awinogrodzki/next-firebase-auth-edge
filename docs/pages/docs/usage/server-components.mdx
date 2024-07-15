@@ -1,6 +1,6 @@
 # Usage in Server Components
 
-The library provides `getTokens` function to extract and validate user credentials. The function can be used only in `Server Components` or [API Route Handlers](/docs/usage/app-router-api-routes). It returns `null` if there are no authentication cookies or the credentials have expired. If request contains valid user credentials, the function returns an object with `token` and `decodedToken` properties. `token` is jwt-encoded string, whereas `decodedToken` is an object representing decoded `token`.
+The library provides `getTokens` function to extract and validate user credentials. The function can be used only in `Server Components` or [API Route Handlers](/docs/usage/app-router-api-routes). It returns `null` if there are no authentication cookies or the credentials have expired. If request contains valid user credentials, the function returns an object with `token`, `decodedToken` and `customToken` properties. `token` is jwt-encoded string, whereas `decodedToken` is an object representing decoded `token`.
 
 ## getTokens
 
@@ -9,12 +9,13 @@ Example usage of `getTokens` function from `next-firebase-auth-edge`:
 ```tsx
 import {getTokens} from 'next-firebase-auth-edge';
 import {cookies, headers} from 'next/headers';
+import {notFound} from 'next/navigation';
 
 export default async function ServerComponentExample() {
   const tokens = await getTokens(cookies(), {
     apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
     cookieName: 'AuthToken',
-    cookieSignatureKeys: ['secret1', 'secret2'],
+    cookieSignatureKeys: ['Key-Should-Be-at-least-32-bytes-in-length'],
     serviceAccount: {
       projectId: 'your-firebase-project-id',
       clientEmail:
@@ -26,15 +27,21 @@ export default async function ServerComponentExample() {
     headers: headers()
   });
 
+  if (!tokens) {
+    return notFound();
+  }
+
+  const {token, decodedToken, customToken} = tokens;
+
   return (
     <div style={{wordBreak: 'break-word', width: '600px'}}>
-      {(tokens && (
-        <p>
-          Valid token: <span>{tokens.token}</span>
-          <br />
-          <pre>{JSON.stringify(tokens.decodedToken, undefined, 2)}</pre>
-        </p>
-      )) || <p>No valid user credentials</p>}
+      <p>
+        Valid token: {token}
+        <br />
+        User email: {decodedToken.email}
+        <br />
+        Custom token: {customToken}
+      </p>
     </div>
   );
 }

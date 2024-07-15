@@ -2,7 +2,7 @@ import {Tokens} from 'next-firebase-auth-edge';
 import {User} from '../auth/AuthContext';
 import {filterStandardClaims} from 'next-firebase-auth-edge/lib/auth/claims';
 
-export const toUser = ({decodedToken}: Tokens): User => {
+export const toUser = ({token, customToken, decodedToken}: Tokens): User => {
   const {
     uid,
     email,
@@ -23,6 +23,8 @@ export const toUser = ({decodedToken}: Tokens): User => {
     phoneNumber: phoneNumber ?? null,
     emailVerified: emailVerified ?? false,
     providerId: signInProvider,
-    customClaims
+    customClaims,
+    idToken: token,
+    customToken
   };
 };

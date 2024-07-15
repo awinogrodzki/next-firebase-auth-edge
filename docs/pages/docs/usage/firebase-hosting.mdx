@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
     loginPath: "/api/login",
     logoutPath: "/api/logout",
     apiKey: "XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX",
-    cookieSignatureKeys: ["secret1", "secret2"],
+    cookieSignatureKeys: ["Key-Should-Be-at-least-32-bytes-in-length"],
     cookieSerializeOptions: {
       path: "/",
       httpOnly: true,
@@ -44,7 +44,7 @@ import { getTokens } from "next-firebase-auth-edge";
 const tokens = await getTokens(context.req.cookies, {
   apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
   cookieName: '__session',
-  cookieSignatureKeys: ['secret1', 'secret2'],
+  cookieSignatureKeys: ['Key-Should-Be-at-least-32-bytes-in-length'],
   serviceAccount: {
     projectId: "your-firebase-project-id",
     clientEmail: "firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com",

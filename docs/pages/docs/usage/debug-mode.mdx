@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
     logoutPath: "/api/logout",
     apiKey: "XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX",
     cookieName: "AuthToken",
-    cookieSignatureKeys: ["secret1", "secret2"],
+    cookieSignatureKeys: ["Key-Should-Be-at-least-32-bytes-in-length"],
     cookieSerializeOptions: {
       path: "/",
       httpOnly: true,
@@ -49,7 +49,7 @@ const tokens = await getTokens(cookies(), {
   debug: true,
   apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
   cookieName: 'AuthToken',
-  cookieSignatureKeys: ['secret1', 'secret2'],
+  cookieSignatureKeys: ['Key-Should-Be-at-least-32-bytes-in-length'],
   serviceAccount: {
     projectId: 'your-firebase-project-id',
     clientEmail:

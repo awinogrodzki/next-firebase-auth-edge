@@ -1,18 +1,19 @@
-import {CookieSerializeOptions, serialize} from 'cookie';
+import {CookieSerializeOptions} from 'cookie';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
 import {Tokens, getFirebaseAuth, handleExpiredToken} from '../auth';
-import {signTokens} from '../auth/cookies/sign';
 import {ServiceAccount} from '../auth/credential';
 import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
 import {debug, enableDebugMode} from '../debug';
 import {
+  createVerifier,
   markCookiesAsVerified,
   removeAuthCookies,
   removeInternalVerifiedCookieIfExists,
   setAuthCookies,
   wasResponseDecoratedWithModifiedRequestHeaders
 } from './cookies';
+import {refreshToken} from './refresh-token';
 import {
   GetTokensOptions,
   getRequestCookiesTokens,
@@ -29,6 +30,8 @@ export interface CreateAuthMiddlewareOptions {
   serviceAccount?: ServiceAccount;
   apiKey: string;
   tenantId?: string;
+  refreshTokenPath?: string;
+  enableMultipleCookies?: boolean;
 }
 
 export function redirectToHome(request: NextRequest) {
@@ -74,15 +77,24 @@ export async function createAuthMiddlewareResponse(
       cookieSignatureKeys: options.cookieSignatureKeys,
       serviceAccount: options.serviceAccount,
       apiKey: options.apiKey,
-      tenantId: options.tenantId
+      tenantId: options.tenantId,
+      enableMultipleCookies: options.enableMultipleCookies
     });
   }
 
   if (request.nextUrl.pathname === options.logoutPath) {
     return removeAuthCookies(request.headers, {
       cookieName: options.cookieName,
-      cookieSerializeOptions: options.cookieSerializeOptions
+      cookieSerializeOptions: options.cookieSerializeOptions,
+      enableMultipleCookies: options.enableMultipleCookies
     });
+  }
+
+  if (
+    options.refreshTokenPath &&
+    request.nextUrl.pathname === options.refreshTokenPath
+  ) {
+    return refreshToken(request, options);
   }
 
   return NextResponse.next();
@@ -148,7 +160,9 @@ export async function authMiddleware(
   debug('Handle request', {path: request.nextUrl.pathname});
 
   if (
-    [options.loginPath, options.logoutPath].includes(request.nextUrl.pathname)
+    [options.loginPath, options.logoutPath, options.refreshTokenPath]
+      .filter(Boolean)
+      .includes(request.nextUrl.pathname)
   ) {
     debug('Handle authentication API route');
     return createAuthMiddlewareResponse(request, options);
@@ -161,7 +175,7 @@ export async function authMiddleware(
   });
 
   try {
-    const idAndRefreshTokens = await getRequestCookiesTokens(
+    const customTokens = await getRequestCookiesTokens(
       request.cookies,
       options
     );
@@ -170,7 +184,7 @@ export async function authMiddleware(
       async () => {
         debug('Verifying user credentials...');
 
-        const decodedToken = await verifyIdToken(idAndRefreshTokens.idToken, {
+        const decodedToken = await verifyIdToken(customTokens.idToken, {
           checkRevoked: options.checkRevoked,
           referer
         });
@@ -180,8 +194,9 @@ export async function authMiddleware(
         markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
           {
-            token: idAndRefreshTokens.idToken,
-            decodedToken
+            token: customTokens.idToken,
+            decodedToken,
+            customToken: customTokens.customToken
           },
           request.headers
         );
@@ -197,8 +212,8 @@ export async function authMiddleware(
       async () => {
         debug('Token has expired. Refreshing token...');
 
-        const {idToken, decodedIdToken, refreshToken} =
-          await handleTokenRefresh(idAndRefreshTokens.refreshToken, {
+        const {idToken, decodedIdToken, refreshToken, customToken} =
+          await handleTokenRefresh(customTokens.refreshToken, {
             referer
           });
 
@@ -206,19 +221,21 @@ export async function authMiddleware(
           'Token refreshed successfully. Updating response cookie headers...'
         );
 
-        const signedTokens = await signTokens(
-          {
-            idToken,
-            refreshToken
-          },
-          options.cookieSignatureKeys
-        );
+        const tokensToSign = {
+          idToken,
+          refreshToken,
+          customToken
+        };
 
-        request.cookies.set(options.cookieName, signedTokens);
+        const verifier = createVerifier(tokensToSign, options);
+
+        await verifier.init();
+
+        verifier.appendCookies(request.cookies);
 
         markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
-          {token: idToken, decodedToken: decodedIdToken},
+          {token: idToken, decodedToken: decodedIdToken, customToken},
           request.headers
         );
 
@@ -226,14 +243,7 @@ export async function authMiddleware(
 
         validateResponse(response);
 
-        response.headers.append(
-          'Set-Cookie',
-          serialize(
-            options.cookieName,
-            signedTokens,
-            options.cookieSerializeOptions
-          )
-        );
+        verifier.appendHeaders(response.headers);
 
         return response;
       },

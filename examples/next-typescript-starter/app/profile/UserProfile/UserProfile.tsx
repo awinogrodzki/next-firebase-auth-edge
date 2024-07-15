@@ -1,19 +1,21 @@
 'use client';
 
+import {getToken} from '@firebase/app-check';
 import * as React from 'react';
-import {useAuth} from '../../auth/AuthContext';
-import styles from './UserProfile.module.css';
 import {useLoadingCallback} from 'react-loading-hook';
-import {Button} from '../../../ui/Button';
-import {useRouter} from 'next/navigation';
+
 import {signOut} from 'firebase/auth';
+import {useRouter} from 'next/navigation';
+import {checkEmailVerification, logout} from '../../../api';
+import {getAppCheck} from '../../../app-check';
+import {Badge} from '../../../ui/Badge';
+import {Button} from '../../../ui/Button';
 import {ButtonGroup} from '../../../ui/ButtonGroup';
 import {Card} from '../../../ui/Card';
-import {Badge} from '../../../ui/Badge';
-import {getToken} from '@firebase/app-check';
-import {getAppCheck} from '../../../app-check';
+import {useAuth} from '../../auth/AuthContext';
 import {getFirebaseAuth} from '../../auth/firebase';
-import {logout, refreshToken} from '../../../api';
+import styles from './UserProfile.module.css';
+import {incrementCounterUsingClientFirestore} from './user-counters';
 
 interface UserProfileProps {
   count: number;
@@ -82,8 +84,19 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
       router.refresh();
     });
 
+  const [handleIncrementCounterClient, isIncrementCounterClientLoading] =
+    useLoadingCallback(async () => {
+      if (!user) {
+        return;
+      }
+
+      await incrementCounterUsingClientFirestore(user.customToken);
+
+      router.refresh();
+    });
+
   const [handleReCheck, isReCheckLoading] = useLoadingCallback(async () => {
-    await refreshToken();
+    await checkEmailVerification();
     router.refresh();
   });
 
@@ -93,6 +106,11 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
   if (!user) {
     return null;
   }
+
+  const isIncrementLoading =
+    isIncrementCounterApiLoading ||
+    isIncrementCounterActionPending ||
+    isIncrementCounterClientLoading;
 
   return (
     <div className={styles.container}>
@@ -157,21 +175,24 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
         <ButtonGroup>
           <Button
             loading={isIncrementCounterApiLoading}
-            disabled={
-              isIncrementCounterApiLoading || isIncrementCounterActionPending
-            }
+            disabled={isIncrementLoading}
             onClick={handleIncrementCounterApi}
           >
             Update counter w/ api endpoint
           </Button>
           <Button
             loading={isIncrementCounterActionPending}
-            disabled={
-              isIncrementCounterActionPending || isIncrementCounterApiLoading
-            }
+            disabled={isIncrementLoading}
             onClick={() => startTransition(() => incrementCounter())}
           >
             Update counter w/ server action
+          </Button>
+          <Button
+            loading={isIncrementCounterClientLoading}
+            disabled={isIncrementLoading}
+            onClick={handleIncrementCounterClient}
+          >
+            Update counter w/ client firestore sdk
           </Button>
         </ButtonGroup>
       </Card>

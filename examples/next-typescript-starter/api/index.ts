@@ -42,7 +42,7 @@ export async function logout() {
   });
 }
 
-export async function refreshToken() {
+export async function checkEmailVerification() {
   const headers: Record<string, string> = {};
 
   // This is optional. Use it if your app supports App Check – https://firebase.google.com/docs/app-check
@@ -52,7 +52,7 @@ export async function refreshToken() {
     headers['X-Firebase-AppCheck'] = appCheckTokenResponse.token;
   }
 
-  await fetch('/api/refresh-token', {
+  await fetch('/api/check-email-verification', {
     method: 'GET',
     headers
   });
