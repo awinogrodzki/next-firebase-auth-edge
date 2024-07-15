@@ -51,7 +51,7 @@ Most notable features are:
 * Introduced `getValidIdToken` and `getValidCustomToken` helper functions to ensure token stays valid in long-running client-side sessions. See [client-side APIs docs](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/client-side-apis) for more information
 * Updates several [advanced methods](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/advanced-usage)
 
-See [1.5.x canary release](https://github.com/awinogrodzki/next-firebase-auth-edge/pull/186) for detailed API changes description
+See [1.6.x canary release](https://github.com/awinogrodzki/next-firebase-auth-edge/pull/194) for detailed API changes description
 
 
 
