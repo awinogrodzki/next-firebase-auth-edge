@@ -246,7 +246,7 @@ export interface RemoveAuthCookiesOptions {
   enableMultipleCookies?: boolean;
 }
 
-function appendEmptyResponseHeaders(
+export function removeCookies(
   response: NextResponse,
   options: RemoveAuthCookiesOptions
 ) {
@@ -264,7 +264,7 @@ export function removeAuthCookies(
     headers: {'content-type': 'application/json'}
   });
 
-  appendEmptyResponseHeaders(response, options);
+  removeCookies(response, options);
 
   debug('Updating response with empty authentication cookie headers', {
     cookieName: options.cookieName
