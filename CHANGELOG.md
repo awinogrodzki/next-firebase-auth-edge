@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.1...v1.6.2) (2024-07-16)
+
+
+### Bug Fixes
+
+* fix `JWSInvalid: Invalid Compact JWS` error when migrating between token formats ([#214](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/214)) ([5b6b0c3](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/5b6b0c3c0eeb62e1f28c7e48c73ad93bee3c0bbc))
+
 ## [1.6.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0...v1.6.1) (2024-07-15)
 
 
