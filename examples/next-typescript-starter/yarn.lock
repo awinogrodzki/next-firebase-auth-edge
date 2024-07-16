@@ -1619,10 +1619,10 @@ nanoid@^3.3.6:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.6.tgz#443380c856d6e9f9824267d960b4236ad583ea4c"
   integrity sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==
 
-next-firebase-auth-edge@1.6.1:
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-1.6.1.tgz#62895cf9ad209938f3a8d2066c410327258d9096"
-  integrity sha512-F/MQrhqMXFQI7eReBNnors+LVKX47Hd07ZSarZIa6FxiyBahVtahI413lnBFjMO1AWyEx15nBZ5R5e0JCeodug==
+next-firebase-auth-edge@1.7.0-canary.1:
+  version "1.7.0-canary.1"
+  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-1.7.0-canary.1.tgz#dc8253ebb714098141c41f68269b724054b6e57e"
+  integrity sha512-uQI6ms8D/2io6/2OaBrSDfrZpWgums0OtU4nMqcpk/QYYxisuYeKF8J9M2sOJ4LiVWkN9Bu7A7DWcNPexFmhcA==
   dependencies:
     cookie "^0.5.0"
     encoding "^0.1.13"
