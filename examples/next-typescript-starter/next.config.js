@@ -17,6 +17,9 @@ const nextConfig = {
         destination: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseapp.com/__/firebase/init.json`
       }
     ];
+  },
+  env: {
+    VERCEL: process.env.VERCEL
   }
 };
 
