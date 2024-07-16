@@ -8,6 +8,11 @@ Use official `firebase/auth` [guide](https://firebase.google.com/docs/auth/web/p
 
 ## Example loginAction and LoginPage
 
+**Compatibility with Vercel environment:** Using `firebase/auth` library inside Server Actions is not yet compatible with **Vercel** environment.
+
+If you experience `ReferenceError: document is not defined` error, move `firebase/auth` import to client component
+
+
 A very basic login page client component that allows users to sign in using Server Action and `refreshCookiesWithIdToken` method
 
 First, let's define our Server Action:
@@ -41,6 +46,7 @@ export async function loginAction(username: string, password: string) {
   }
 }
 ```
+
 
 Next, create LoginPage client component that will call login action:
 
