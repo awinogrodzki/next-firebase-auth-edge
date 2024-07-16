@@ -4,8 +4,12 @@ import {getToken} from '@firebase/app-check';
 import * as React from 'react';
 import {useLoadingCallback} from 'react-loading-hook';
 
-import {signOut} from 'firebase/auth';
-import {useRouter} from 'next/navigation';
+import {
+  sendEmailVerification,
+  signInWithCustomToken,
+  signOut
+} from 'firebase/auth';
+import {useRouter, useSearchParams} from 'next/navigation';
 import {checkEmailVerification, logout} from '../../../api';
 import {getAppCheck} from '../../../app-check';
 import {Badge} from '../../../ui/Badge';
@@ -16,6 +20,8 @@ import {useAuth} from '../../auth/AuthContext';
 import {getFirebaseAuth} from '../../auth/firebase';
 import styles from './UserProfile.module.css';
 import {incrementCounterUsingClientFirestore} from './user-counters';
+import {verifyEmailUpdate} from './verify-email-update';
+import {FormError} from '../../../ui/FormError';
 
 interface UserProfileProps {
   count: number;
@@ -24,6 +30,8 @@ interface UserProfileProps {
 
 export function UserProfile({count, incrementCounter}: UserProfileProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const {user} = useAuth();
   const [hasLoggedOut, setHasLoggedOut] = React.useState(false);
   const [handleLogout, isLogoutLoading] = useLoadingCallback(async () => {
@@ -100,12 +108,43 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
     router.refresh();
   });
 
+  const [handleAuthCode, isAuthCodeLoading, authCodeError] = useLoadingCallback(
+    async () => {
+      const code = window.prompt('Enter oobCode')
+
+      if (!code) {
+        return;
+      }
+
+      await verifyEmailUpdate(code);
+      router.refresh();
+    }
+  );
+
+  const [handleVerification, isVerificationLoading, verificationError] =
+    useLoadingCallback(async () => {
+      if (!user) {
+        throw new Error('No access');
+      }
+
+      //https://next-firebase-auth-edge-demo.firebaseapp.com/__/auth/action?mode=resetPassword&oobCode=&lang=en
+      const credential = await signInWithCustomToken(
+        getFirebaseAuth(),
+        user.customToken
+      );
+      await sendEmailVerification(credential.user, {
+        url: `http://localhost/profile?code=code`
+      });
+    });
+
   let [isIncrementCounterActionPending, startTransition] =
     React.useTransition();
 
   if (!user) {
     return null;
   }
+
+  const error = authCodeError ?? verificationError;
 
   const isIncrementLoading =
     isIncrementCounterApiLoading ||
@@ -142,12 +181,27 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
             <h5>Custom claims</h5>
             <pre>{JSON.stringify(user.customClaims, undefined, 2)}</pre>
           </div>
+          {error && <FormError>{error.message}</FormError>}
           <Button
             loading={isClaimsLoading}
             disabled={isClaimsLoading}
             onClick={handleClaims}
           >
             Refresh custom user claims
+          </Button>
+          <Button
+            loading={isVerificationLoading}
+            disabled={isVerificationLoading}
+            onClick={handleVerification}
+          >
+            Send verification email
+          </Button>
+          <Button
+            loading={isAuthCodeLoading}
+            disabled={isAuthCodeLoading}
+            onClick={handleAuthCode}
+          >
+            Verify code
           </Button>
           {process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_KEY && (
             <Button
