@@ -25,7 +25,10 @@ export class RotatingCredential {
         const result = await verifyCustomJWT(customJWT, key);
         return result.payload;
       } catch (e) {
-        if (e instanceof errors.JWSSignatureVerificationFailed) {
+        if (
+          e instanceof errors.JWSSignatureVerificationFailed ||
+          e instanceof errors.JWSInvalid
+        ) {
           continue;
         }
 
@@ -46,7 +49,10 @@ export class RotatingCredential {
       try {
         return await verifyCustomSignature(tokens, signature, key);
       } catch (e) {
-        if (e instanceof errors.JWSSignatureVerificationFailed) {
+        if (
+          e instanceof errors.JWSSignatureVerificationFailed ||
+          e instanceof errors.JWSInvalid
+        ) {
           continue;
         }
 
