@@ -4,5 +4,6 @@
   "auth-context": "AuthContext",
   "auth-provider": "AuthProvider",
   "layout": "Layout",
-  "login-page": "Usage with Firebase Auth"
+  "login-page": "Usage with Firebase Auth",
+  "login-with-server-action": "Sign in with Server Action"
 }
