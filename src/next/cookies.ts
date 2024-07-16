@@ -534,6 +534,33 @@ export async function refreshNextResponseCookiesWithToken(
   return response;
 }
 
+export async function refreshCookiesWithIdToken(
+  idToken: string,
+  headers: Headers,
+  cookies: RequestCookies | ReadonlyRequestCookies,
+  options: SetAuthCookiesOptions
+): Promise<void> {
+  const appCheckToken = headers.get('X-Firebase-AppCheck') ?? undefined;
+  const referer = getReferer(headers) ?? '';
+
+  const {getCustomIdAndRefreshTokens} = getFirebaseAuth({
+    serviceAccount: options.serviceAccount,
+    apiKey: options.apiKey,
+    tenantId: options.tenantId
+  });
+
+  const customTokens = await getCustomIdAndRefreshTokens(idToken, {
+    appCheckToken,
+    referer
+  });
+
+  const verifier = createVerifier(customTokens, options);
+
+  await verifier.init();
+
+  verifier.appendCookies(cookies);
+}
+
 export async function refreshNextResponseCookies(
   request: NextRequest,
   response: NextResponse,
