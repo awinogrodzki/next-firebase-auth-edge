@@ -164,13 +164,16 @@ export function LoginPage({
           loading={isEmailLoading || isLoginActionPending}
           onSubmit={handleLoginWithEmailAndPassword}
           actions={
-            <div className={styles.loginWithAction}>
-              <Switch
-                value={shouldLoginWithAction}
-                onChange={setShouldLoginWithAction}
-              />
-              Login with Server Action
-            </div>
+            // `firebase/auth` library is not yet compatible with Vercel's Edge environment
+            !process.env.VERCEL ? (
+              <div className={styles.loginWithAction}>
+                <Switch
+                  value={shouldLoginWithAction}
+                  onChange={setShouldLoginWithAction}
+                />
+                Login with Server Action
+              </div>
+            ) : undefined
           }
           error={
             emailPasswordError ||

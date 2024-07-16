@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
   const response = new NextResponse(
     JSON.stringify({
-      customClaims: user?.customClaims,
+      customClaims: user?.customClaims
     }),
     {
       status: 200,
