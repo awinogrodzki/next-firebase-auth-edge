@@ -1,3 +1,15 @@
+# [1.7.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.1...v1.7.0-canary.1) (2024-07-16)
+
+
+### Bug Fixes
+
+* fix `JWSInvalid: Invalid Compact JWS` error when migrating between token formats ([#214](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/214)) ([5b6b0c3](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/5b6b0c3c0eeb62e1f28c7e48c73ad93bee3c0bbc))
+
+
+### Features
+
+* introduced `refreshCookiesWithIdToken` function to enable login using Server Actions ([#212](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/212)) ([fd6b193](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/fd6b193d345af85e7cca502640b98e2c93aebadc))
+
 ## [1.6.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.0...v1.6.1) (2024-07-15)
 
 
