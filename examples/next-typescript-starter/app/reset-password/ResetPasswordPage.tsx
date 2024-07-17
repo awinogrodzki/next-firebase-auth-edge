@@ -1,16 +1,18 @@
 'use client';
 
-import * as React from 'react';
-import {sendPasswordResetEmail} from 'firebase/auth';
+import {
+  sendPasswordResetEmail
+} from 'firebase/auth';
 import Link from 'next/link';
-import {useLoadingCallback} from 'react-loading-hook';
-import {getFirebaseAuth} from '../auth/firebase';
-import {Button} from '../../ui/Button';
-import {FormError} from '../../ui/FormError';
-import {Input} from '../../ui/Input';
-import {MainTitle} from '../../ui/MainTitle';
-import {appendRedirectParam} from '../shared/redirect';
-import {useRedirectParam} from '../shared/useRedirectParam';
+import * as React from 'react';
+import { useLoadingCallback } from 'react-loading-hook';
+import { Button } from '../../ui/Button';
+import { FormError } from '../../ui/FormError';
+import { Input } from '../../ui/Input';
+import { MainTitle } from '../../ui/MainTitle';
+import { getFirebaseAuth } from '../auth/firebase';
+import { appendRedirectParam } from '../shared/redirect';
+import { useRedirectParam } from '../shared/useRedirectParam';
 import styles from './ResetPasswordPage.module.css';
 
 export function ResetPasswordPage() {
@@ -25,6 +27,7 @@ export function ResetPasswordPage() {
       const auth = getFirebaseAuth();
       setIsSent(false);
       await sendPasswordResetEmail(auth, email);
+
       setEmail('');
       setIsSent(true);
     }
