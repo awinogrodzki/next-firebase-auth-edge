@@ -2,7 +2,7 @@ import styles from './page.module.css';
 import {UserProfile} from './UserProfile';
 import {Metadata} from 'next';
 import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
-import {cookies} from 'next/headers';
+import {cookies, headers} from 'next/headers';
 import {authConfig} from '../../config/server-config';
 import {getFirebaseAdminApp} from '../firebase';
 import {getFirestore} from 'firebase-admin/firestore';
@@ -35,6 +35,10 @@ async function getUserCounter(): Promise<number> {
 
 export default async function Profile() {
   const count = await getUserCounter();
+  const nonce = headers().get('x-nonce');
+  const csp = headers().get('Content-Security-Policy');
+
+  console.log({nonce, csp});
 
   return (
     <div className={styles.container}>

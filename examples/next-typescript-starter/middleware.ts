@@ -25,11 +25,25 @@ export async function middleware(request: NextRequest) {
         return redirectToHome(request);
       }
 
-      return NextResponse.next({
+      const requestHeaders = new Headers(request.headers)
+			requestHeaders.set('x-nonce', '123456')
+			requestHeaders.set(
+				'Content-Security-Policy',
+				'ABCDF',
+			)
+
+      const response = NextResponse.next({
         request: {
-          headers
+          headers: requestHeaders
         }
-      });
+      })
+
+      response.headers.set(
+				'Content-Security-Policy',
+				'ABCDF',
+			)
+
+      return response;
     },
     handleInvalidToken: async (_reason) => {
       return redirectToLogin(request, {
