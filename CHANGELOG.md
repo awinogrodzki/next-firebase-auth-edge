@@ -1,3 +1,11 @@
+# [1.7.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.2...v1.7.0-canary.1) (2024-07-25)
+
+
+### Features
+
+* added `path` option to `redirectToHome` helper function ([54f07f4](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/54f07f4a09fad3e46fc089e5d762afa4df5eb1f5))
+* introduced `refreshCookiesWithIdToken` function to enable login using Server Actions ([#212](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/212)) ([6cd0b13](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/6cd0b138036ff0f4fcfa91d786fca5255cfa2654))
+
 # [1.7.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.1...v1.7.0-canary.1) (2024-07-16)
 
 
