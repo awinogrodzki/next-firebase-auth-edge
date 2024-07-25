@@ -34,9 +34,18 @@ export interface CreateAuthMiddlewareOptions {
   enableMultipleCookies?: boolean;
 }
 
-export function redirectToHome(request: NextRequest) {
+interface RedirectToHomeOptions {
+  path: string;
+}
+
+export function redirectToHome(
+  request: NextRequest,
+  options: RedirectToHomeOptions = {
+    path: '/'
+  }
+) {
   const url = request.nextUrl.clone();
-  url.pathname = '/';
+  url.pathname = options.path;
   url.search = '';
   return NextResponse.redirect(url);
 }
