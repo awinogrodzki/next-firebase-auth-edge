@@ -1,3 +1,11 @@
+# [1.7.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.2...v1.7.0-canary.3) (2024-08-08)
+
+
+### Bug Fixes
+
+* recreate canary tags after force push ([c9b7c18](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/c9b7c18e5cb4f8a31e5388e0bfd23665e8b5674e))
+* semantic-version git history issue ([d514f57](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d514f5713883e1713f265b07a4670518af646a6b))
+
 # [1.7.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.2...v1.7.0-canary.2) (2024-07-25)
 
 
