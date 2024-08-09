@@ -18,6 +18,7 @@ interface PasswordFormProps
   extends Omit<JSX.IntrinsicElements['form'], 'onSubmit'> {
   loading: boolean;
   onSubmit: (value: PasswordFormValue) => void;
+  actions?: JSX.Element;
   disabled?: boolean;
   error?: FirebaseError;
 }
@@ -27,6 +28,7 @@ export function PasswordForm({
   disabled,
   error,
   onSubmit,
+  actions,
   ...props
 }: PasswordFormProps) {
   const [email, setEmail] = React.useState('');
@@ -82,6 +84,7 @@ export function PasswordForm({
             </IconButton>
           )}
         </div>
+        {actions}
         {error && <FormError>{error.message}</FormError>}
         <Button
           loading={loading}

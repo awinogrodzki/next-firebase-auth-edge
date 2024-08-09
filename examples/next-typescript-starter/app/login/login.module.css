@@ -30,3 +30,9 @@
   right: -32px;
   transform: translateY(-50%);
 }
+
+.loginWithAction {
+  display: flex;
+  gap: 0.675rem;
+  align-items: center;
+}
