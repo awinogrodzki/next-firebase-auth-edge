@@ -1,3 +1,10 @@
+# [1.7.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.5...v1.7.0-canary.6) (2024-08-10)
+
+
+### Bug Fixes
+
+* semantic-release rate exceeded error ([676b602](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/676b6021a013c0afdddd75a0cea71b2a8b4786e2))
+
 # [1.7.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.4...v1.7.0-canary.5) (2024-08-10)
 
 
