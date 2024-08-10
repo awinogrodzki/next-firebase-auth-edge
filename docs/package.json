@@ -34,5 +34,8 @@
     "next-sitemap": "^4.0.7",
     "typescript": "^5.2.2"
   },
+  "resolutions": {
+    "strip-ansi": "6.0.1"
+  },
   "funding": "https://github.com/awinogrodzki/next-firebase-auth-edge?sponsor=1"
 }
