@@ -1734,16 +1734,16 @@ nanoid@^3.3.6:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.6.tgz#443380c856d6e9f9824267d960b4236ad583ea4c"
   integrity sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==
 
-next-firebase-auth-edge@1.7.0-canary.4:
-  version "1.7.0-canary.4"
-  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-1.7.0-canary.4.tgz#ed870671fbe47adf3626fa3a89b9bd7526fc1cae"
-  integrity sha512-1Ez0iqYcH2FV/F3g7ftU3c8jcZOk8oh8CoXSWe0M12nrKOVyEc9FfwL/7921AUbqhwONURMs3qZwOcqRH9RFng==
+next-firebase-auth-edge@1.7.0-canary.5:
+  version "1.7.0-canary.5"
+  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-1.7.0-canary.5.tgz#d95d13967bac260dc13d86aa48e2fcd28128e8d6"
+  integrity sha512-W2rgX2eoyEYlk3aZ9sffs7GfpIGP+2C3gsUW1JbnRFbxHxTeZovN8SwVw7JxqQxCH8wxwlQYuzaaWN4ogmRejA==
   dependencies:
     cookie "^0.6.0"
     encoding "^0.1.13"
     jose "^5.6.3"
 
-next@^15.0.0-rc.0:
+next@15.0.0-rc.0:
   version "15.0.0-rc.0"
   resolved "https://registry.yarnpkg.com/next/-/next-15.0.0-rc.0.tgz#ec9440e10c40f7f8c04487bd58aa970553d8148e"
   integrity sha512-IWcCvxUSCAuOK5gig4+9yiyt/dLKpIa+WT01Qcx4CBE4TtwJljyTDnCVVn64jDZ4qmSzsaEYXpb4DTI8qbk03A==
@@ -1923,22 +1923,22 @@ pseudomap@^1.0.1:
   resolved "https://registry.yarnpkg.com/pseudomap/-/pseudomap-1.0.2.tgz#f052a28da70e618917ef0a8ac34c1ae5a68286b3"
   integrity sha512-b/YwNhb8lk1Zz2+bXXpS/LK9OisiZZ1SNsSLxN1x2OXVEhW2Ckr/7mWE5vrC1ZTiJlD9g19jWszTmJsB+oEpFQ==
 
-react-dom@^19.0.0-rc-2d2cc042-20240809:
-  version "19.0.0-rc-2d2cc042-20240809"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-19.0.0-rc-2d2cc042-20240809.tgz#56af46a9aa4c98cba820e3e4aedb6470e2933c44"
-  integrity sha512-fe+8TmO3zevW08+LPk9qS93LE2Y5H87l3q6dHNM7zQpelCNCeaPGeSoHAsehx2e2LRv7Iapb/qJLAUUUT9pnvw==
+react-dom@19.0.0-rc-f994737d14-20240522:
+  version "19.0.0-rc-f994737d14-20240522"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-19.0.0-rc-f994737d14-20240522.tgz#992710eeed9ccc7546fd258745cff1e04a3f8659"
+  integrity sha512-J4CsfTSptPKkhaPbaR6n/KohQiHZTrRZ8GL4H8rbAqN/Qpy69g2MIoLBr5/PUX21ye6JxC1ZRWJFna7Xdg1pdA==
   dependencies:
-    scheduler "0.25.0-rc-2d2cc042-20240809"
+    scheduler "0.25.0-rc-f994737d14-20240522"
 
-react-loading-hook@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/react-loading-hook/-/react-loading-hook-1.1.1.tgz#1b0a73090c6710c3b08e2de1247086f6e950c90f"
-  integrity sha512-6fbhJZSUcVD4VPNnswVFdrlTdGp8JAyurJwFr7xqX3NQsRDjPt4nMzCv4JjUIsA2Kt8s39r98OpmoQwGvWv4EQ==
+react-loading-hook@1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/react-loading-hook/-/react-loading-hook-1.1.2.tgz#4f81829de72770acf041e587ae16b9419f3f080c"
+  integrity sha512-KjlvddJ0UIPJ2lSBZ6EYcjZcSb41eGllx5H9QIOXjlIrbraQTsaFTxPEHnqvqwzhU2yVlyeVAYHH9P5jTlMdBQ==
 
-react@^19.0.0-rc-2d2cc042-20240809:
-  version "19.0.0-rc-2d2cc042-20240809"
-  resolved "https://registry.yarnpkg.com/react/-/react-19.0.0-rc-2d2cc042-20240809.tgz#2a6b0044445ce0c3f1a0f44c047b9da59183b704"
-  integrity sha512-+yW7RLHtdV9YKmHxFJoKrC80vJPv2If5J8MVw7Ui7NTcBs7bIpwSIaY2vrciPRb7B7JqG3TsZHxo12q/inYUhw==
+react@19.0.0-rc-f994737d14-20240522:
+  version "19.0.0-rc-f994737d14-20240522"
+  resolved "https://registry.yarnpkg.com/react/-/react-19.0.0-rc-f994737d14-20240522.tgz#b400d554859940e9f4b8b6db1fd2537bd822bcc9"
+  integrity sha512-SeU2v5Xy6FotVhKz0pMS2gvYP7HlkF0qgTskj3JzA1vlxcb3dQjxlm9t0ZlJqcgoyI3VFAw7bomuDMdgy1nBuw==
 
 readable-stream@^3.1.1:
   version "3.6.2"
@@ -1991,10 +1991,10 @@ safe-buffer@>=5.1.0, safe-buffer@^5.0.1, safe-buffer@~5.2.0:
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-scheduler@0.25.0-rc-2d2cc042-20240809:
-  version "0.25.0-rc-2d2cc042-20240809"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.25.0-rc-2d2cc042-20240809.tgz#c4a2f6be1cf48d7351bb79b3910d2f074b4a8386"
-  integrity sha512-Pce2RM+MMbQhcPWp21DiVnqlyjo4/Dz4cyW2pQpgz1fFoiuQL0Vfjt6A8M990V/2eBECcVvKAoKzYSAeLPmj6g==
+scheduler@0.25.0-rc-f994737d14-20240522:
+  version "0.25.0-rc-f994737d14-20240522"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.25.0-rc-f994737d14-20240522.tgz#6bbdbf50adeb250035a26f082bf966077d264a7e"
+  integrity sha512-qS+xGFF7AljP2APO2iJe8zESNsK20k25MACz+WGOXPybUsRdi1ssvaoF93im2nSX2q/XT3wKkjdz6RQfbmaxdw==
 
 semver@^7.1.2, semver@^7.3.8:
   version "7.5.1"
