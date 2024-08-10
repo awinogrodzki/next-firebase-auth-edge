@@ -1,3 +1,10 @@
+# [1.7.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.4...v1.7.0-canary.5) (2024-08-10)
+
+
+### Bug Fixes
+
+* update next.js peer dependency to rc ([f2953fd](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/f2953fd38bdd6df9b4b535a21abb47793249752b))
+
 # [1.7.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.3...v1.7.0-canary.4) (2024-08-10)
 
 
