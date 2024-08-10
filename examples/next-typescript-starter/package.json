@@ -11,15 +11,16 @@
   },
   "dependencies": {
     "@types/node": "18.11.9",
-    "@types/react": "18.0.25",
-    "@types/react-dom": "18.0.9",
     "firebase": "^10.4.0",
     "firebase-admin": "^11.10.1",
-    "next": "14.2.5",
+    "next": "15.0.0-rc.0",
     "next-firebase-auth-edge": "1.7.0-canary.2",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "react": "^19.0.0-rc-2d2cc042-20240809",
+    "react-dom": "^19.0.0-rc-2d2cc042-20240809",
     "react-loading-hook": "^1.0.0",
     "typescript": "5.2.2"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.3"
   }
 }

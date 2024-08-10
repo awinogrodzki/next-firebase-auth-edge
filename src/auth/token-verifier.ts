@@ -28,6 +28,7 @@ export interface DecodedIdToken {
   auth_time: number;
   email?: string;
   email_verified?: boolean;
+  name?: string;
   exp: number;
   firebase: FirebaseClaims;
   source_sign_in_provider: string;
