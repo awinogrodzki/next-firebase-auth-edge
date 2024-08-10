@@ -14,7 +14,7 @@ export interface DecodedAppCheckToken {
   exp: number;
   iat: number;
   app_id: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface VerifyAppCheckTokenResponse {

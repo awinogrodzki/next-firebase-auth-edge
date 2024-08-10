@@ -158,7 +158,10 @@ export class UrlKeyFetcher implements KeyFetcher {
 export class JWKSSignatureVerifier implements SignatureVerifier {
   private jwksUrl: URL;
 
-  constructor(jwksUrl: string, private options?: RemoteJWKSetOptions) {
+  constructor(
+    jwksUrl: string,
+    private options?: RemoteJWKSetOptions
+  ) {
     if (!isURL(jwksUrl)) {
       throw new Error('The provided JWKS URL is not a valid URL.');
     }

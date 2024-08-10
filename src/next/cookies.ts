@@ -127,7 +127,10 @@ function serializeEmptyCookies(
   options: RemoveAuthCookiesOptions,
   callback: (setCookieHeader: string) => void
 ) {
-  const {maxAge, expires, ...cookieOptions} = options.cookieSerializeOptions;
+  const cookieOptions = options.cookieSerializeOptions;
+
+  delete cookieOptions['maxAge'];
+  delete cookieOptions['expires'];
 
   generateEmptyCookies(options, (name) => {
     callback(

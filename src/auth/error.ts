@@ -33,7 +33,10 @@ function getErrorMessage(code: AuthErrorCode, customMessage?: string) {
 }
 
 export class AuthError extends Error {
-  constructor(readonly code: AuthErrorCode, customMessage?: string) {
+  constructor(
+    readonly code: AuthErrorCode,
+    customMessage?: string
+  ) {
     super(getErrorMessage(code, customMessage));
     Object.setPrototypeOf(this, AuthError.prototype);
   }

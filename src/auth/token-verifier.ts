@@ -14,13 +14,13 @@ import {isURL} from './validator';
 
 export interface FirebaseClaims {
   identities: {
-    [key: string]: any;
+    [key: string]: unknown;
   };
   sign_in_provider: string;
   sign_in_second_factor?: string;
   second_factor_identifier?: string;
   tenant?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface DecodedIdToken {
@@ -37,7 +37,7 @@ export interface DecodedIdToken {
   picture?: string;
   sub: string;
   uid: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export class FirebaseTokenVerifier {
@@ -105,10 +105,9 @@ export class FirebaseTokenVerifier {
       errorMessage = `Incorrect algorithm. ${ALGORITHM_RS256} expected, ${header.alg} provided`;
     } else if (payload.iss !== this.issuer + projectId) {
       errorMessage = `idToken has incorrect "iss" (issuer) claim. Expected ${this.issuer}${projectId}, but got ${payload.iss}`;
-    } else if (typeof payload.sub !== 'string') {
     } else if (payload.sub === '') {
       errorMessage = `idToken has an empty string "sub" (subject) claim.`;
-    } else if (payload.sub.length > 128) {
+    } else if (typeof payload.sub === 'string' && payload.sub.length > 128) {
       errorMessage = `idToken has "sub" (subject) claim longer than 128 characters.`;
     }
 

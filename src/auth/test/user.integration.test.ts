@@ -38,7 +38,8 @@ describe('user integration test', () => {
       beforeEach(async () => {
         try {
           await deleteUser(TEST_USER_ID);
-        } catch (e) {}
+          // eslint-disable-next-line no-empty
+        } catch {}
       });
 
       it('should create user', async () => {
@@ -113,7 +114,8 @@ describe('user integration test', () => {
 
     try {
       await deleteUser(TEST_USER_ID);
-    } catch (e) {}
+      // eslint-disable-next-line no-empty
+    } catch {}
 
     await createUser({
       uid: TEST_USER_ID,

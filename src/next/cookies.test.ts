@@ -1,3 +1,4 @@
+import {NextRequest, NextResponse} from 'next/server';
 import {
   SetAuthCookiesOptions,
   appendAuthCookies,
@@ -44,7 +45,7 @@ const MOCK_REQUEST = {
   headers: {
     get: jest.fn()
   }
-} as unknown as jest.Mocked<any>;
+} as unknown as jest.Mocked<NextRequest>;
 
 const MOCK_OPTIONS: SetAuthCookiesOptions = {
   cookieName: 'TestCookie',
@@ -69,7 +70,7 @@ describe('cookies', () => {
       headers: {
         append: jest.fn()
       }
-    } as unknown as jest.Mocked<any> & jest.Mocked<Response>;
+    } as unknown as jest.Mocked<NextResponse>;
     const result = await refreshCredentials(
       MOCK_REQUEST,
       MOCK_OPTIONS,
@@ -94,7 +95,7 @@ describe('cookies', () => {
       headers: {
         append: jest.fn()
       }
-    } as unknown as jest.Mocked<any> & jest.Mocked<Response>;
+    } as unknown as jest.Mocked<NextResponse>;
     const result = await refreshCredentials(MOCK_REQUEST, MOCK_OPTIONS, () =>
       Promise.resolve(MOCK_RESPONSE)
     );
@@ -112,7 +113,7 @@ describe('cookies', () => {
       headers: {
         append: jest.fn()
       }
-    } as unknown as jest.Mocked<any> & jest.Mocked<Response>;
+    } as unknown as jest.Mocked<NextResponse>;
     const result = await refreshCredentials(
       MOCK_REQUEST,
       {...MOCK_OPTIONS, enableMultipleCookies: true},
@@ -145,7 +146,7 @@ describe('cookies', () => {
       headers: {
         append: jest.fn()
       }
-    } as unknown as jest.Mocked<any> & jest.Mocked<Response>;
+    } as unknown as jest.Mocked<NextResponse>;
     await appendAuthCookies(MOCK_RESPONSE, customTokens, {
       ...MOCK_OPTIONS,
       enableMultipleCookies: true
