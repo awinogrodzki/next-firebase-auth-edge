@@ -14,7 +14,7 @@
     "firebase": "^10.4.0",
     "firebase-admin": "^11.10.1",
     "next": "15.0.0-rc.0",
-    "next-firebase-auth-edge": "1.7.0-canary.2",
+    "next-firebase-auth-edge": "file:../../",
     "react": "^19.0.0-rc-2d2cc042-20240809",
     "react-dom": "^19.0.0-rc-2d2cc042-20240809",
     "react-loading-hook": "^1.0.0",

@@ -1,6 +1,7 @@
 import {refreshNextResponseCookies} from 'next-firebase-auth-edge/lib/next/cookies';
 import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
-import {NextRequest, NextResponse} from 'next/server';
+import {NextResponse} from 'next/server';
+import type { NextRequest } from 'next/server';
 import {authConfig} from '../../../config/server-config';
 
 export async function GET(request: NextRequest) {
