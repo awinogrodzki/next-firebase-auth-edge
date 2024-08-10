@@ -39,7 +39,7 @@ export class FirebaseTokenGenerator {
 
   public createCustomToken(
     uid: string,
-    developerClaims?: {[key: string]: any}
+    developerClaims?: {[key: string]: unknown}
   ): Promise<string> {
     let errorMessage: string | undefined;
     if (uid.length > 128) {
@@ -56,7 +56,7 @@ export class FirebaseTokenGenerator {
       throw new AuthError(AuthErrorCode.INVALID_ARGUMENT, errorMessage);
     }
 
-    const claims: {[key: string]: any} = {};
+    const claims: {[key: string]: unknown} = {};
     if (typeof developerClaims !== 'undefined') {
       for (const key in developerClaims) {
         if (Object.prototype.hasOwnProperty.call(developerClaims, key)) {

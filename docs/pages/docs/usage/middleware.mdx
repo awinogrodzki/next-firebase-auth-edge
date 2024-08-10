@@ -15,7 +15,8 @@
 Advanced usage of `authMiddleware` in `middleware.ts`, based on [starter example](/examples#starter):
 
 ```tsx filename="middleware.ts"
-import {NextRequest, NextResponse} from 'next/server';
+import {NextResponse} from 'next/server';
+import type { NextRequest } from 'next/server';
 import {
   authMiddleware,
   redirectToHome,
@@ -133,7 +134,7 @@ handleValidToken: async ({token, decodedToken, customToken}, headers) => {
 ## Usage with `next-intl` and other middlewares
 
 ```tsx
-import {NextRequest} from 'next/server';
+import type {NextRequest} from 'next/server';
 import createIntlMiddleware from 'next-intl/middleware';
 import {authMiddleware} from 'next-firebase-auth-edge';
 

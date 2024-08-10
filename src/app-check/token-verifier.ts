@@ -68,7 +68,7 @@ export class AppCheckTokenVerifier {
         '"' +
         header.alg +
         '".';
-    } else if (!payload.aud?.includes(scopedProjectId) ?? false) {
+    } else if (!payload.aud?.includes(scopedProjectId)) {
       errorMessage =
         'The provided App Check token has incorrect "aud" (audience) claim. Expected "' +
         scopedProjectId +

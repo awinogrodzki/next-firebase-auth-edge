@@ -1,7 +1,7 @@
 import {sign} from './sign';
 
 type GlobalAny = {
-  [key: string]: any;
+  [key: string]: unknown;
   crypto: {
     subtle: {
       importKey: jest.Mock;

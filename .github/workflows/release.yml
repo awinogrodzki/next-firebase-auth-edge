@@ -36,7 +36,7 @@ jobs:
           cache-dependency-path: yarn.lock
           node-version: 18
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
@@ -57,13 +57,13 @@ jobs:
         with:
           node-version: 18
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
           key: ${{ runner.os }}-node_modules-cache-v2-${{ hashFiles('./yarn.lock') }}-${{github.sha}}
       - name: Cache build
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             lib
@@ -89,13 +89,13 @@ jobs:
         with:
           node-version: 18
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
           key: ${{ runner.os }}-node_modules-cache-v2-${{ hashFiles('./yarn.lock') }}-${{github.sha}}
       - name: Cache build
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             lib

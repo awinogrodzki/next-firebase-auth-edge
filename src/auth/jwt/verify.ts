@@ -61,7 +61,8 @@ export async function verify(
     }
     if (payload.nbf > currentTimestamp) {
       throw new errors.JWTExpired(
-        'jwt not active: ' + new Date(payload.nbf * 1000).toISOString()
+        'jwt not active: ' + new Date(payload.nbf * 1000).toISOString(),
+        payload
       );
     }
   }
@@ -73,7 +74,8 @@ export async function verify(
 
     if (currentTimestamp >= payload.exp) {
       throw new errors.JWTExpired(
-        'token expired: ' + new Date(payload.exp * 1000).toISOString()
+        'token expired: ' + new Date(payload.exp * 1000).toISOString(),
+        payload
       );
     }
   }
