@@ -1,3 +1,15 @@
+# [1.7.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.3...v1.7.0-canary.4) (2024-08-10)
+
+
+### Bug Fixes
+
+* add missing name property to decoded id token type ([39b086d](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/39b086db222f619a8b4cf0365895f33c6832e3fc))
+
+
+### Features
+
+* next.js 15 rc support ([a994dd0](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/a994dd07bce5420049573b2651b08ecb1a82b63c))
+
 # [1.7.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.2...v1.7.0-canary.3) (2024-08-08)
 
 
