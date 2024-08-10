@@ -11,7 +11,7 @@ import {
   signInWithPopup,
   signInWithRedirect,
   signOut,
-  useDeviceLanguage
+  useDeviceLanguage as setDeviceLanguage
 } from 'firebase/auth';
 
 const CREDENTIAL_ALREADY_IN_USE_ERROR = 'auth/credential-already-in-use';
@@ -26,7 +26,7 @@ export const getGoogleProvider = (auth: Auth) => {
   const provider = new GoogleAuthProvider();
   provider.addScope('profile');
   provider.addScope('email');
-  useDeviceLanguage(auth);
+  setDeviceLanguage(auth);
   provider.setCustomParameters({
     display: 'popup'
   });
