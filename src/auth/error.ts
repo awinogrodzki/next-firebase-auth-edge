@@ -7,8 +7,8 @@ export enum AuthErrorCode {
   INVALID_ARGUMENT = 'INVALID_ARGUMENT',
   INTERNAL_ERROR = 'INTERNAL_ERROR',
   NO_KID_IN_HEADER = 'NO_KID_IN_HEADER',
-  NO_MATCHING_KID = 'NO_MATCHING_KID',
-  INVALID_SIGNATURE = 'INVALID_SIGNATURE'
+  INVALID_SIGNATURE = 'INVALID_SIGNATURE',
+  NO_MATCHING_KID = 'NO_MATCHING_KID'
 }
 
 const AuthErrorMessages: Record<AuthErrorCode, string> = {
@@ -20,8 +20,8 @@ const AuthErrorMessages: Record<AuthErrorCode, string> = {
   [AuthErrorCode.INVALID_ARGUMENT]: 'Invalid argument',
   [AuthErrorCode.INTERNAL_ERROR]: 'Internal error',
   [AuthErrorCode.NO_KID_IN_HEADER]: 'No kid in jwt header',
-  [AuthErrorCode.NO_MATCHING_KID]: 'Kid is not matching any certificate',
-  [AuthErrorCode.INVALID_SIGNATURE]: 'Invalid token signature.'
+  [AuthErrorCode.INVALID_SIGNATURE]: 'Invalid token signature.',
+  [AuthErrorCode.NO_MATCHING_KID]: 'Kid is not matching any certificate'
 };
 
 function getErrorMessage(code: AuthErrorCode, customMessage?: string) {
@@ -54,7 +54,8 @@ export enum InvalidTokenReason {
   MISSING_REFRESH_TOKEN = 'MISSING_REFRESH_TOKEN',
   MALFORMED_CREDENTIALS = 'MALFORMED_CREDENTIALS',
   INVALID_SIGNATURE = 'INVALID_SIGNATURE',
-  INVALID_CREDENTIALS = 'INVALID_CREDENTIALS'
+  INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
+  INVALID_KID = 'INVALID_KID'
 }
 
 const InvalidTokenMessages: Record<InvalidTokenReason, string> = {
@@ -63,7 +64,9 @@ const InvalidTokenMessages: Record<InvalidTokenReason, string> = {
     'Credentials are incorrectly formatted',
   [InvalidTokenReason.INVALID_SIGNATURE]: 'Credentials have invalid signature',
   [InvalidTokenReason.MISSING_REFRESH_TOKEN]: 'Refresh token is missing',
-  [InvalidTokenReason.INVALID_CREDENTIALS]: 'Invalid credentials'
+  [InvalidTokenReason.INVALID_CREDENTIALS]: 'Invalid credentials',
+  [InvalidTokenReason.INVALID_KID]:
+    'Token has kid claim that cannot be matched with any known Google certificate. This usually indicates that Google certificates have expired and user has to reauthenticate.'
 };
 
 export class InvalidTokenError extends Error {

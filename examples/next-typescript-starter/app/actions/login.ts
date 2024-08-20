@@ -8,18 +8,13 @@ import {authConfig} from '../../config/server-config';
 import {redirect} from 'next/navigation';
 
 export async function loginAction(username: string, password: string) {
-  try {
-    const credential = await signInWithEmailAndPassword(
-      getFirebaseAuth(),
-      username,
-      password
-    );
+  const credential = await signInWithEmailAndPassword(
+    getFirebaseAuth(),
+    username,
+    password
+  );
 
-    const idToken = await credential.user.getIdToken();
-    await refreshCookiesWithIdToken(idToken, headers(), cookies(), authConfig);
-  } catch (e) {
-    console.log(e);
-  } finally {
-    redirect('/');
-  }
+  const idToken = await credential.user.getIdToken();
+  await refreshCookiesWithIdToken(idToken, headers(), cookies(), authConfig);
+  redirect('/');
 }

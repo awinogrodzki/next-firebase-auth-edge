@@ -2,7 +2,7 @@
 
 ## handleInvalidToken
 
-[Auth middleware](/docs/usage/middleware)'s `handleInvalidToken` function is called with `InvalidTokenReason` as the first argument. 
+[Auth middleware](/docs/usage/middleware)'s `handleInvalidToken` function is called with `InvalidTokenReason` as the first argument.
 
 The role of `InvalidTokenReason` is mostly informative. `handleInvalidToken` is usually called when something **expected** happens and we can safely redirect user to the login page. One of those **expected** events might be a user visiting your app for the first time.
 
@@ -17,6 +17,7 @@ Following table describes different types of `InvalidTokenReason`
 | `MALFORMED_CREDENTIALS` | Cookies cannot be parsed or the structure has changed |
 | `INVALID_SIGNATURE` | Cookie signature cannot be verified or cookie signature keys have changed |
 | `INVALID_CREDENTIALS` | Cookies have valid structure, but `idToken` cannot be verified |
+| `INVALID_KID` | This error usually indicates that certificate the token has been signed with has expired. This is **expected**. Google refreshes certificates periodically, which is a form of [key rotation](https://developer.okta.com/docs/concepts/key-rotation/) |
 
 
 ## handleError
@@ -37,5 +38,4 @@ It can be divided into following types
 | `INVALID_ARGUMENT` | Token has incorrect structure or certificate this token was signed with has expired |
 | `INTERNAL_ERROR` | Internal error. Check error message for details |
 | `NO_KID_IN_HEADER` | Handled internally to verify token against all public certificates. Re-throws `INVALID_SIGNATURE` if none of the public keys match token signature. |
-| `NO_MATCHING_KID` | Handled internally to re-throw as `INVALID_ARGUMENT`. Usually indicates that certificate this token has been signed with has expired. This is **expected**. Google refreshes certificates periodically, which is a form of [key rotation](https://developer.okta.com/docs/concepts/key-rotation/) |
 | `INVALID_SIGNATURE` | Token signature cannot be verified |
