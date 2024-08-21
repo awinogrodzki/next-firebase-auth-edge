@@ -115,7 +115,7 @@ function serializeEmptyCookies(
   options: RemoveAuthCookiesOptions,
   callback: (setCookieHeader: string) => void
 ) {
-  const cookieOptions = options.cookieSerializeOptions;
+  const cookieOptions = {...options.cookieSerializeOptions};
 
   delete cookieOptions['maxAge'];
   delete cookieOptions['expires'];
@@ -136,7 +136,7 @@ export function appendCookies(
   options: SetAuthCookiesOptions
 ) {
   generateCookies(signedCookies, options, (name, value) => {
-    cookies.set(name, value);
+    cookies.set(name, value, options.cookieSerializeOptions);
   });
 }
 
@@ -145,7 +145,7 @@ export function appendCookie(
   signedTokens: string,
   options: SetAuthCookiesOptions
 ) {
-  cookies.set(options.cookieName, signedTokens);
+  cookies.set(options.cookieName, signedTokens, options.cookieSerializeOptions);
 }
 
 export function appendHeaders(
@@ -153,9 +153,9 @@ export function appendHeaders(
   signedCookies: SignedCookies,
   options: SetAuthCookiesOptions
 ) {
-  serializeCookies(signedCookies, options, (value) =>
-    headers.append('Set-Cookie', value)
-  );
+  serializeCookies(signedCookies, options, (value) => {
+    headers.append('Set-Cookie', value);
+  });
 }
 
 function serializeCookie(signedTokens: string, options: SetAuthCookiesOptions) {
