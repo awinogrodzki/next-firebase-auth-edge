@@ -135,12 +135,8 @@ export class FirebaseTokenVerifier {
       return new AuthError(AuthErrorCode.INVALID_SIGNATURE);
     }
 
-    if (
-      error instanceof AuthError &&
-      error.code === AuthErrorCode.NO_MATCHING_KID
-    ) {
-      const message = `idToken has "kid" claim which does not correspond to a known public key. Most likely the token is expired, so get a fresh token from your client app and try again.`;
-      return new AuthError(AuthErrorCode.INVALID_ARGUMENT, message);
+    if (error instanceof AuthError) {
+      return error;
     }
 
     return new AuthError(AuthErrorCode.INTERNAL_ERROR, error.message);

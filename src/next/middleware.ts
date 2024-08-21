@@ -1,9 +1,14 @@
 import {CookieSerializeOptions} from 'cookie';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
-import {Tokens, getFirebaseAuth, handleExpiredToken} from '../auth';
+import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth';
 import {ServiceAccount} from '../auth/credential';
-import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
+import {
+  AuthError,
+  AuthErrorCode,
+  InvalidTokenError,
+  InvalidTokenReason
+} from '../auth/error';
 import {debug, enableDebugMode} from '../debug';
 import {
   createVerifier,
@@ -15,8 +20,8 @@ import {
 } from './cookies';
 import {refreshToken} from './refresh-token';
 import {
-  GetTokensOptions,
   getRequestCookiesTokens,
+  GetTokensOptions,
   validateOptions
 } from './tokens';
 import {getReferer} from './utils';
@@ -257,6 +262,15 @@ export async function authMiddleware(
         return response;
       },
       async (e) => {
+        if (
+          e instanceof AuthError &&
+          e.code === AuthErrorCode.NO_MATCHING_KID
+        ) {
+          const error = new InvalidTokenError(InvalidTokenReason.INVALID_KID);
+          error.stack = e.stack;
+          throw error;
+        }
+
         debug('Authentication failed with error', {error: e});
 
         return handleError(e);
@@ -267,7 +281,9 @@ export async function authMiddleware(
       debug(
         `Token is missing or has incorrect formatting. This is expected and usually means that user has not yet logged in`,
         {
-          reason: error.reason
+          message: error.message,
+          reason: error.reason,
+          stack: error.stack
         }
       );
       return handleInvalidToken(error.reason);
