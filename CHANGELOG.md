@@ -1,3 +1,10 @@
+# [1.7.0-canary.9](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.8...v1.7.0-canary.9) (2024-08-21)
+
+
+### Bug Fixes
+
+* pass cookie serialization options to cookie setter ([b28ce7a](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/b28ce7a866318f958e58b14e4adfcc85a47e5bef))
+
 # [1.7.0-canary.8](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.7...v1.7.0-canary.8) (2024-08-21)
 
 
