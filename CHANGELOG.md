@@ -1,3 +1,10 @@
+# [1.7.0-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.6...v1.7.0-canary.7) (2024-08-21)
+
+
+### Features
+
+* support Node.js 22 ([6c7f435](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/6c7f435485391a4d987f0bc3d0653536d4ef93ff))
+
 # [1.7.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.5...v1.7.0-canary.6) (2024-08-10)
 
 
