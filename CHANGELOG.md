@@ -1,3 +1,10 @@
+# [1.7.0-canary.8](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.7...v1.7.0-canary.8) (2024-08-21)
+
+
+### Features
+
+* replaced no matching kid auth error with invalid token error ([9d2d0fc](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/9d2d0fcb49374d0bb6b260c43d8a2409377b0144))
+
 # [1.7.0-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.6...v1.7.0-canary.7) (2024-08-21)
 
 
