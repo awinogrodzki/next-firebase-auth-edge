@@ -1,3 +1,10 @@
+# [1.7.0-canary.10](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.9...v1.7.0-canary.10) (2024-08-22)
+
+
+### Features
+
+* **getTokens:** introduced optional `cookieSerializeOptions` option ([e041542](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/e041542c6b2f4380fcc7f803f7e1c8d5c14bc6e1))
+
 # [1.7.0-canary.9](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.8...v1.7.0-canary.9) (2024-08-21)
 
 
