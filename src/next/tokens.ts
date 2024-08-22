@@ -12,11 +12,14 @@ import {debug, enableDebugMode} from '../debug';
 import {
   CookiesObject,
   areCookiesVerifiedByMiddleware,
+  createVerifier,
   isCookiesObjectVerifiedByMiddleware
 } from './cookies';
 import {getReferer} from './utils';
+import {CookieSerializeOptions} from 'cookie';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
+  cookieSerializeOptions?: CookieSerializeOptions;
   serviceAccount?: ServiceAccount;
   apiKey: string;
   debug?: boolean;
@@ -80,10 +83,18 @@ function toTokens(result: VerifiedTokens | null): Tokens | null {
   };
 }
 
+function isReadonly(
+  cookies: RequestCookies | ReadonlyRequestCookies
+): cookies is ReadonlyRequestCookies {
+  return !Object.hasOwn(cookies, 'set');
+}
+
 export async function getTokens(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetTokensOptions
 ): Promise<Tokens | null> {
+  const now = Date.now();
+
   if (options.debug) {
     enableDebugMode();
   }
@@ -99,8 +110,10 @@ export async function getTokens(
 
   try {
     const tokens = await getRequestCookiesTokens(cookies, options);
+    debug('getTokens: Tokens successfully extracted from cookies');
 
     if (areCookiesVerifiedByMiddleware(cookies)) {
+      debug('getTokens: Cookies are marked as verified. Skipping verification');
       const payload = decodeJwt(tokens.idToken);
 
       return {
@@ -110,7 +123,43 @@ export async function getTokens(
       };
     }
 
-    const result = await verifyAndRefreshExpiredIdToken(tokens, {referer});
+    const result = await verifyAndRefreshExpiredIdToken(tokens, {
+      referer,
+      async onTokenRefresh({idToken, refreshToken, customToken}) {
+        const cookieSerializeOptions = options.cookieSerializeOptions;
+
+        if (isReadonly(cookies) || !cookieSerializeOptions) {
+          debug(
+            'getTokens: Expired tokens have been refreshed, but were not set on the response',
+            {
+              hasCookieSerializeOptions: !!cookieSerializeOptions,
+              isReadonly: isReadonly(cookies)
+            }
+          );
+
+          return;
+        }
+
+        debug(
+          'getTokens: Expired tokens have been refreshed and new credentials will be set on the response'
+        );
+
+        const tokensToSign = {
+          idToken,
+          refreshToken,
+          customToken
+        };
+
+        const verifier = createVerifier(tokensToSign, {
+          ...options,
+          cookieSerializeOptions
+        });
+
+        await verifier.init();
+
+        verifier.appendCookies(cookies);
+      }
+    });
 
     return toTokens(result);
   } catch (error: unknown) {
@@ -125,6 +174,8 @@ export async function getTokens(
     }
 
     throw error;
+  } finally {
+    debug(`getTokens: took ${(Date.now() - now) / 1000}ms`);
   }
 }
 

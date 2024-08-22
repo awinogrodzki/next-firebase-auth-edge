@@ -19,11 +19,7 @@ import {
   wasResponseDecoratedWithModifiedRequestHeaders
 } from './cookies';
 import {refreshToken} from './refresh-token';
-import {
-  getRequestCookiesTokens,
-  GetTokensOptions,
-  validateOptions
-} from './tokens';
+import {getRequestCookiesTokens, validateOptions} from './tokens';
 import {getReferer} from './utils';
 
 export interface CreateAuthMiddlewareOptions {
@@ -123,14 +119,15 @@ export type HandleValidToken = (
 ) => Promise<NextResponse>;
 export type HandleError = (e: unknown) => Promise<NextResponse>;
 
-export interface AuthMiddlewareOptions
-  extends CreateAuthMiddlewareOptions,
-    GetTokensOptions {
+export interface AuthMiddlewareOptions extends CreateAuthMiddlewareOptions {
+  serviceAccount?: ServiceAccount;
+  apiKey: string;
+  debug?: boolean;
+  headers?: Headers;
   checkRevoked?: boolean;
   handleInvalidToken?: HandleInvalidToken;
   handleValidToken?: HandleValidToken;
   handleError?: HandleError;
-  debug?: boolean;
 }
 
 const defaultInvalidTokenHandler = async () => NextResponse.next();
