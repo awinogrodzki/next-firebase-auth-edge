@@ -348,7 +348,9 @@ function getAuth(options: AuthOptions) {
 
   async function verifyAndRefreshExpiredIdToken(
     customTokens: CustomTokens,
-    verifyOptions: VerifyOptions = DEFAULT_VERIFY_OPTIONS
+    verifyOptions: VerifyOptions & {
+      onTokenRefresh?: (tokens: VerifiedTokens) => Promise<void>;
+    } = DEFAULT_VERIFY_OPTIONS
   ): Promise<VerifiedTokens> {
     return await handleExpiredToken(
       async () => {
@@ -365,9 +367,13 @@ function getAuth(options: AuthOptions) {
       },
       async () => {
         if (customTokens.refreshToken) {
-          return handleTokenRefresh(customTokens.refreshToken, {
+          const result = await handleTokenRefresh(customTokens.refreshToken, {
             referer: verifyOptions.referer
           });
+
+          await verifyOptions.onTokenRefresh?.(result);
+
+          return result;
         }
 
         throw new InvalidTokenError(InvalidTokenReason.MISSING_REFRESH_TOKEN);
