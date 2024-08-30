@@ -1,7 +1,7 @@
-import { JWTPayload, KeyLike, SignJWT, base64url, importPKCS8 } from 'jose';
-import { ALGORITHM_RS256 } from '../signature-verifier';
-import { fetchAny } from '../utils';
-import { AuthError, AuthErrorCode } from '../error';
+import {JWTPayload, KeyLike, SignJWT, base64url, importPKCS8} from 'jose';
+import {ALGORITHM_RS256} from '../signature-verifier';
+import {fetchAny} from '../utils';
+import {AuthError, AuthErrorCode} from '../error';
 
 export type SignOptions = {
   readonly payload: JWTPayload;
@@ -19,13 +19,16 @@ export async function sign({
   try {
     key = await importPKCS8(privateKey, ALGORITHM_RS256);
   } catch (e) {
-    const error = new AuthError(AuthErrorCode.INVALID_ARGUMENT, "It looks like the value provided for `serviceAccount.privateKey` is incorrectly formatted. Please double-check if private key has correct format. See https://github.com/awinogrodzki/next-firebase-auth-edge/issues/246#issuecomment-2321559620 for details")
-    error.stack = (error?.stack ?? '') + (e as Error)?.stack ?? '';
+    const error = new AuthError(
+      AuthErrorCode.INVALID_ARGUMENT,
+      'It looks like the value provided for `serviceAccount.privateKey` is incorrectly formatted. Please double-check if private key has correct format. See https://github.com/awinogrodzki/next-firebase-auth-edge/issues/246#issuecomment-2321559620 for details'
+    );
+    error.stack = (error?.stack ?? '') + ((e as Error)?.stack ?? '');
     throw error;
   }
 
   return new SignJWT(payload)
-    .setProtectedHeader({ alg: ALGORITHM_RS256, kid: keyId })
+    .setProtectedHeader({alg: ALGORITHM_RS256, kid: keyId})
     .sign(key);
 }
 
@@ -61,12 +64,12 @@ export async function signBlob({
     headers: {
       Authorization: `Bearer ${accessToken}`
     },
-    body: JSON.stringify({ payload: base64url.encode(token) })
+    body: JSON.stringify({payload: base64url.encode(token)})
   };
   const response = await fetchAny(url, request);
   const blob = await response.blob();
   const key = await blob.text();
-  const { signedBlob } = JSON.parse(key);
+  const {signedBlob} = JSON.parse(key);
 
   return `${token}.${formatBase64(signedBlob)}`;
 }
