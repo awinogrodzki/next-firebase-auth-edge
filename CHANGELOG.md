@@ -1,3 +1,10 @@
+# [1.7.0-canary.11](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.10...v1.7.0-canary.11) (2024-08-30)
+
+
+### Bug Fixes
+
+* **#246:** re-throw invalid PKCS8 error as AuthError with user-friendly message ([a7d7a22](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/a7d7a228733e67525b001cff70a523880d858e01)), closes [#246](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/246)
+
 # [1.7.0-canary.10](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.9...v1.7.0-canary.10) (2024-08-22)
 
 
