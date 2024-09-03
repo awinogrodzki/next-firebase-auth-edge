@@ -1,3 +1,10 @@
+# [1.7.0-canary.13](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.12...v1.7.0-canary.13) (2024-09-03)
+
+
+### Bug Fixes
+
+* **#249:** merge error stack trace in token verifier to improve visibility on fetch errors ([6bce756](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/6bce7564216dff60fe736ef85e8508d2df686eaf)), closes [#249](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/249)
+
 # [1.7.0-canary.12](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.11...v1.7.0-canary.12) (2024-09-03)
 
 
