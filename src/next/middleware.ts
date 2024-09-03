@@ -263,9 +263,7 @@ export async function authMiddleware(
           e instanceof AuthError &&
           e.code === AuthErrorCode.NO_MATCHING_KID
         ) {
-          const error = new InvalidTokenError(InvalidTokenReason.INVALID_KID);
-          error.stack = e.stack;
-          throw error;
+          throw InvalidTokenError.fromError(e, InvalidTokenReason.INVALID_KID);
         }
 
         debug('Authentication failed with error', {error: e});

@@ -32,7 +32,29 @@ function getErrorMessage(code: AuthErrorCode, customMessage?: string) {
   return `${AuthErrorMessages[code]}: ${customMessage}`;
 }
 
+function mergeStackTraceAndCause(target: Error, original: unknown) {
+  const originalError = original as Error | undefined;
+  const originalErrorStack =
+    typeof originalError?.stack === 'string' ? originalError.stack : '';
+  const originalCause =
+    typeof originalError?.cause === 'string' ? originalError.cause : '';
+
+  target.stack = originalErrorStack + (target?.stack ?? '');
+  target.cause = originalCause + (target?.cause ?? '');
+}
+
 export class AuthError extends Error {
+  public static fromError(
+    error: unknown,
+    code: AuthErrorCode,
+    customMessage?: string
+  ) {
+    const authError = new AuthError(code, customMessage);
+
+    mergeStackTraceAndCause(authError, error);
+
+    return authError;
+  }
   constructor(
     readonly code: AuthErrorCode,
     customMessage?: string
@@ -70,6 +92,14 @@ const InvalidTokenMessages: Record<InvalidTokenReason, string> = {
 };
 
 export class InvalidTokenError extends Error {
+  public static fromError(error: unknown, reason: InvalidTokenReason) {
+    const invalidTokenError = new InvalidTokenError(reason);
+
+    mergeStackTraceAndCause(invalidTokenError, error);
+
+    return invalidTokenError;
+  }
+
   constructor(public readonly reason: InvalidTokenReason) {
     super(`${reason}: ${InvalidTokenMessages[reason]}`);
     Object.setPrototypeOf(this, InvalidTokenError.prototype);
