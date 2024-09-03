@@ -108,6 +108,8 @@ export function deepExtend<T>(target: T, source: T): T {
   return target;
 }
 
+const encoder = new TextEncoder();
+
 export function toUint8Array(key: string) {
-  return Uint8Array.from(key.split('').map((x) => x.charCodeAt(0)));
+  return encoder.encode(key);
 }
