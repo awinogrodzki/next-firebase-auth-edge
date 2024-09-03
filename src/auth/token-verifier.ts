@@ -128,18 +128,26 @@ export class FirebaseTokenVerifier {
 
   private mapJoseErrorToAuthError(error: JOSEError): Error {
     if (error instanceof errors.JWTExpired) {
-      return new AuthError(AuthErrorCode.TOKEN_EXPIRED, error.message);
+      return AuthError.fromError(
+        error,
+        AuthErrorCode.TOKEN_EXPIRED,
+        error.message
+      );
     }
 
     if (error instanceof errors.JWSSignatureVerificationFailed) {
-      return new AuthError(AuthErrorCode.INVALID_SIGNATURE);
+      return AuthError.fromError(error, AuthErrorCode.INVALID_SIGNATURE);
     }
 
     if (error instanceof AuthError) {
       return error;
     }
 
-    return new AuthError(AuthErrorCode.INTERNAL_ERROR, error.message);
+    return AuthError.fromError(
+      error,
+      AuthErrorCode.INTERNAL_ERROR,
+      error.message
+    );
   }
 }
 

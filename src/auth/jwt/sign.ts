@@ -19,12 +19,11 @@ export async function sign({
   try {
     key = await importPKCS8(privateKey, ALGORITHM_RS256);
   } catch (e) {
-    const error = new AuthError(
+    throw AuthError.fromError(
+      e,
       AuthErrorCode.INVALID_ARGUMENT,
       'It looks like the value provided for `serviceAccount.privateKey` is incorrectly formatted. Please double-check if private key has correct format. See https://github.com/awinogrodzki/next-firebase-auth-edge/issues/246#issuecomment-2321559620 for details'
     );
-    error.stack = (error?.stack ?? '') + ((e as Error)?.stack ?? '');
-    throw error;
   }
 
   return new SignJWT(payload)
