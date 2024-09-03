@@ -1,3 +1,10 @@
+# [1.7.0-canary.12](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.11...v1.7.0-canary.12) (2024-09-03)
+
+
+### Bug Fixes
+
+* **#242:** use TextEncoder when mapping token to UInt8Array ([23b04dc](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/23b04dcd8867fd7c6b108c41496cb19930e5cc16)), closes [#242](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/242)
+
 # [1.7.0-canary.11](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.10...v1.7.0-canary.11) (2024-08-30)
 
 
