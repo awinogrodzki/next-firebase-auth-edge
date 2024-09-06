@@ -181,7 +181,7 @@ describe('cookies', () => {
         append: jest.fn(),
         get: jest.fn()
       }
-    } as unknown as jest.Mocked<any> & jest.Mocked<Response>;
+    } as unknown as jest.Mocked<NextResponse>;
 
     await setAuthCookies(MOCK_RESPONSE.headers, MOCK_OPTIONS);
 
