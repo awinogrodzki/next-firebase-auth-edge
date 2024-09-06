@@ -24,6 +24,7 @@ export interface GetTokensOptions extends GetCookiesTokensOptions {
   apiKey: string;
   debug?: boolean;
   headers?: Headers;
+  experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
 }
 
 export function validateOptions(options: GetTokensOptions) {
@@ -125,6 +126,8 @@ export async function getTokens(
 
     const result = await verifyAndRefreshExpiredIdToken(tokens, {
       referer,
+      experimental_enableTokenRefreshOnExpiredKidHeader:
+        options.experimental_enableTokenRefreshOnExpiredKidHeader,
       async onTokenRefresh({idToken, refreshToken, customToken}) {
         const cookieSerializeOptions = options.cookieSerializeOptions;
 

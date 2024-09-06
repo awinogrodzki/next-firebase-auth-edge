@@ -104,15 +104,19 @@ describe('verify token integration test', () => {
           {tenantId, appCheckToken: appCheckToken.token, referer: REFERER}
         );
 
+        const onTokenRefresh = jest.fn();
+
         const result = await verifyAndRefreshExpiredIdToken(
           {idToken, refreshToken, customToken},
           {
             currentDate: new Date(Date.now() + 7200 * 1000),
-            referer: REFERER
+            referer: REFERER,
+            onTokenRefresh
           }
         );
 
         expect(result?.decodedIdToken?.customClaim).toEqual('customClaimValue');
+        expect(onTokenRefresh).toHaveBeenCalledWith(result);
       });
 
       it('should verify token', async () => {
