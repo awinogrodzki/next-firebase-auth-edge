@@ -22,7 +22,7 @@ async function getDetailFromResponse(response: Response): Promise<string> {
   let detail =
     typeof json.error === 'string'
       ? json.error
-      : json.error?.message ?? 'Missing error payload';
+      : (json.error?.message ?? 'Missing error payload');
 
   if (json.error_description) {
     detail += ' (' + json.error_description + ')';
@@ -55,7 +55,11 @@ export function mapJwtPayloadToDecodedIdToken(payload: JWTPayload) {
   return decodedIdToken;
 }
 
-export function addReadonlyGetter(obj: object, prop: string, value: any): void {
+export function addReadonlyGetter(
+  obj: object,
+  prop: string,
+  value: unknown
+): void {
   Object.defineProperty(obj, prop, {
     value,
     writable: false,
@@ -64,28 +68,28 @@ export function addReadonlyGetter(obj: object, prop: string, value: any): void {
 }
 
 export function deepCopy<T>(value: T): T {
-  return deepExtend(undefined, value);
+  return deepExtend(undefined, value) as T;
 }
 
-export function deepExtend(target: any, source: any): any {
+export function deepExtend<T>(target: T, source: T): T {
   if (!(source instanceof Object)) {
     return source;
   }
 
   switch (source.constructor) {
     case Date: {
-      const dateValue = source as any as Date;
-      return new Date(dateValue.getTime());
+      const dateValue = source as unknown as Date;
+      return new Date(dateValue.getTime()) as T;
     }
 
     case Object:
       if (target === undefined) {
-        target = {};
+        target = {} as T;
       }
       break;
 
     case Array:
-      target = [];
+      target = [] as T;
       break;
 
     default:
@@ -96,12 +100,16 @@ export function deepExtend(target: any, source: any): any {
     if (!Object.prototype.hasOwnProperty.call(source, prop)) {
       continue;
     }
-    target[prop] = deepExtend(target[prop], source[prop]);
+
+    const objectTarget = target as {[key: string]: unknown};
+    objectTarget[prop] = deepExtend(objectTarget[prop], objectTarget[prop]);
   }
 
   return target;
 }
 
+const encoder = new TextEncoder();
+
 export function toUint8Array(key: string) {
-  return Uint8Array.from(key.split('').map((x) => x.charCodeAt(0)));
+  return encoder.encode(key);
 }

@@ -32,12 +32,14 @@ const files = [
     code: (
       <code
         className="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10"
+        dir="ltr"
         data-language="tsx"
         data-theme="default"
-        dir="ltr"
       >
         <span className="line">
           <span style={{color: 'var(--shiki-token-keyword)'}}>import</span>
+          <span style={{color: 'var(--shiki-color-text)'}}> </span>
+          <span style={{color: 'var(--shiki-token-keyword)'}}>type</span>
           <span style={{color: 'var(--shiki-color-text)'}}>
             {' '}
             {'{'} NextRequest {'}'}{' '}
@@ -234,7 +236,7 @@ const files = [
           <span style={{color: 'var(--shiki-token-punctuation)'}}>,</span>
           <span style={{color: 'var(--shiki-color-text)'}}> </span>
           <span style={{color: 'var(--shiki-token-comment)'}}>
-            // twelve days
+            // Twelve days
           </span>
         </span>
         {'\n'}

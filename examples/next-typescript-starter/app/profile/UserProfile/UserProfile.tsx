@@ -16,6 +16,7 @@ import {useAuth} from '../../auth/AuthContext';
 import {getFirebaseAuth} from '../../auth/firebase';
 import styles from './UserProfile.module.css';
 import {incrementCounterUsingClientFirestore} from './user-counters';
+import {refreshCookies} from '../../actions/refresh-cookies';
 
 interface UserProfileProps {
   count: number;
@@ -103,6 +104,9 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
   let [isIncrementCounterActionPending, startTransition] =
     React.useTransition();
 
+  let [isRefreshCookiesActionPending, startRefreshCookiesTransition] =
+    React.useTransition();
+
   if (!user) {
     return null;
   }
@@ -148,6 +152,15 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
             onClick={handleClaims}
           >
             Refresh custom user claims
+          </Button>
+          <Button
+            loading={isRefreshCookiesActionPending}
+            disabled={isRefreshCookiesActionPending}
+            onClick={() =>
+              startRefreshCookiesTransition(() => refreshCookies())
+            }
+          >
+            Refresh cookies w/ server action
           </Button>
           {process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_KEY && (
             <Button

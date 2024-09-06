@@ -1,4 +1,4 @@
-export type Claims = {[key: string]: any};
+export type Claims = {[key: string]: unknown};
 
 export const STANDARD_CLAIMS = [
   'aud',

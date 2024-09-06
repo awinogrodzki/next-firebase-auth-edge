@@ -1,7 +1,8 @@
 import {getFirebaseAuth} from 'next-firebase-auth-edge/lib/auth';
 import {refreshNextResponseCookies} from 'next-firebase-auth-edge/lib/next/cookies';
 import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
-import {NextRequest, NextResponse} from 'next/server';
+import {NextResponse} from 'next/server';
+import type { NextRequest } from 'next/server';
 import {authConfig} from '../../../config/server-config';
 
 const {setCustomUserClaims, getUser} = getFirebaseAuth({
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
 
   const response = new NextResponse(
     JSON.stringify({
-      customClaims: user?.customClaims,
+      customClaims: user?.customClaims
     }),
     {
       status: 200,

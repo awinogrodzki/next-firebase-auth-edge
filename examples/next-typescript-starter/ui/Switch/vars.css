@@ -1,0 +1,13 @@
+:root {
+  --toggle-color: 204, 204, 204;
+  --background-color: 214, 219, 220;
+  --slider-color: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --toggle-color: 51, 51, 51;
+    --background-color: 0, 0, 0;
+    --slider-color: 0, 0, 0;
+  }
+}

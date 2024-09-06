@@ -1,6 +1,7 @@
-import {JWTPayload, SignJWT, base64url, importPKCS8} from 'jose';
+import {JWTPayload, KeyLike, SignJWT, base64url, importPKCS8} from 'jose';
 import {ALGORITHM_RS256} from '../signature-verifier';
 import {fetchAny} from '../utils';
+import {AuthError, AuthErrorCode} from '../error';
 
 export type SignOptions = {
   readonly payload: JWTPayload;
@@ -13,7 +14,17 @@ export async function sign({
   privateKey,
   keyId
 }: SignOptions): Promise<string> {
-  const key = await importPKCS8(privateKey, ALGORITHM_RS256);
+  let key: KeyLike;
+
+  try {
+    key = await importPKCS8(privateKey, ALGORITHM_RS256);
+  } catch (e) {
+    throw AuthError.fromError(
+      e,
+      AuthErrorCode.INVALID_ARGUMENT,
+      'It looks like the value provided for `serviceAccount.privateKey` is incorrectly formatted. Please double-check if private key has correct format. See https://github.com/awinogrodzki/next-firebase-auth-edge/issues/246#issuecomment-2321559620 for details'
+    );
+  }
 
   return new SignJWT(payload)
     .setProtectedHeader({alg: ALGORITHM_RS256, kid: keyId})

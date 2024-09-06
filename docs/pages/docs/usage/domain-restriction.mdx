@@ -34,7 +34,7 @@ See [getTokens](/docs/usage/server-components) options section for more details
 import {getFirebaseAuth} from 'next-firebase-auth-edge/lib/auth';
 import {getReferer} from 'next-firebase-auth-edge/lib/next/utils';
 import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
-import {NextRequest} from 'next/server';
+import type {NextRequest} from 'next/server';
 
 const {verifyIdToken} = getFirebaseAuth(/*{...}*/);
 

@@ -1,9 +1,9 @@
-import {CookieSerializeOptions, serialize} from 'cookie';
-import {IncomingHttpHeaders} from 'http';
-import {NextApiRequest, NextApiResponse} from 'next';
-import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
-import {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
-import {NextRequest, NextResponse} from 'next/server';
+import {type CookieSerializeOptions, serialize} from 'cookie';
+import type {IncomingHttpHeaders} from 'http';
+import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
+import {NextResponse} from 'next/server';
+import type {NextRequest} from 'next/server';
 import {getFirebaseAuth} from '../auth';
 import {SignedCookies, signCookies, signTokens} from '../auth/cookies/sign';
 import {ServiceAccount} from '../auth/credential';
@@ -78,18 +78,6 @@ export function isCookiesObjectVerifiedByMiddleware(cookies: CookiesObject) {
   );
 }
 
-export async function appendAuthCookiesApi(
-  response: NextApiResponse,
-  tokens: CustomTokens,
-  options: SetAuthCookiesOptions
-) {
-  const cookies = await signCookies(tokens, options.cookieSignatureKeys);
-
-  serializeCookies(cookies, options, (value) => {
-    response.setHeader('Set-Cookie', [value]);
-  });
-}
-
 function generateEmptyCookies(
   options: RemoveAuthCookiesOptions,
   callback: (name: string) => void
@@ -114,7 +102,7 @@ function generateCookies(
   callback(`${options.cookieName}.sig`, cookies.signature);
 }
 
-function serializeCookies(
+export function serializeCookies(
   cookies: SignedCookies,
   options: SetAuthCookiesOptions,
   callback: (setCookieHeader: string) => void
@@ -128,7 +116,10 @@ function serializeEmptyCookies(
   options: RemoveAuthCookiesOptions,
   callback: (setCookieHeader: string) => void
 ) {
-  const {maxAge, expires, ...cookieOptions} = options.cookieSerializeOptions;
+  const cookieOptions = {...options.cookieSerializeOptions};
+
+  delete cookieOptions['maxAge'];
+  delete cookieOptions['expires'];
 
   generateEmptyCookies(options, (name) => {
     callback(
@@ -146,7 +137,7 @@ export function appendCookies(
   options: SetAuthCookiesOptions
 ) {
   generateCookies(signedCookies, options, (name, value) => {
-    cookies.set(name, value);
+    cookies.set(name, value, options.cookieSerializeOptions);
   });
 }
 
@@ -155,7 +146,7 @@ export function appendCookie(
   signedTokens: string,
   options: SetAuthCookiesOptions
 ) {
-  cookies.set(options.cookieName, signedTokens);
+  cookies.set(options.cookieName, signedTokens, options.cookieSerializeOptions);
 }
 
 export function appendHeaders(
@@ -163,9 +154,9 @@ export function appendHeaders(
   signedCookies: SignedCookies,
   options: SetAuthCookiesOptions
 ) {
-  serializeCookies(signedCookies, options, (value) =>
-    headers.append('Set-Cookie', value)
-  );
+  serializeCookies(signedCookies, options, (value) => {
+    headers.append('Set-Cookie', value);
+  });
 }
 
 function serializeCookie(signedTokens: string, options: SetAuthCookiesOptions) {
@@ -294,48 +285,6 @@ export async function verifyApiCookies(
   });
 
   return verifyTokenResult;
-}
-
-export async function refreshApiCookies(
-  cookies: Partial<{
-    [key: string]: string;
-  }>,
-  headers: IncomingHttpHeaders,
-  options: SetAuthCookiesOptions
-): Promise<VerifiedTokens> {
-  const referer = headers['referer'] ?? '';
-  const tokens = await getCookiesTokens(cookies, options);
-  const {handleTokenRefresh} = getFirebaseAuth({
-    serviceAccount: options.serviceAccount,
-    apiKey: options.apiKey,
-    tenantId: options.tenantId
-  });
-
-  const tokenRefreshResult = await handleTokenRefresh(tokens.refreshToken, {
-    referer
-  });
-
-  return {
-    customToken: tokenRefreshResult.customToken,
-    idToken: tokenRefreshResult.idToken,
-    refreshToken: tokenRefreshResult.refreshToken,
-    decodedIdToken: tokenRefreshResult.decodedIdToken
-  };
-}
-
-export async function refreshApiResponseCookies(
-  request: NextApiRequest,
-  response: NextApiResponse,
-  options: SetAuthCookiesOptions
-): Promise<NextApiResponse> {
-  const customTokens = await refreshApiCookies(
-    request.cookies,
-    request.headers,
-    options
-  );
-  await appendAuthCookiesApi(response, customTokens, options);
-
-  return response;
 }
 
 export async function verifyNextCookies(
@@ -534,6 +483,33 @@ export async function refreshNextResponseCookiesWithToken(
   await appendAuthCookies(response, customTokens, options);
 
   return response;
+}
+
+export async function refreshCookiesWithIdToken(
+  idToken: string,
+  headers: Headers,
+  cookies: RequestCookies | ReadonlyRequestCookies,
+  options: SetAuthCookiesOptions
+): Promise<void> {
+  const appCheckToken = headers.get('X-Firebase-AppCheck') ?? undefined;
+  const referer = getReferer(headers) ?? '';
+
+  const {getCustomIdAndRefreshTokens} = getFirebaseAuth({
+    serviceAccount: options.serviceAccount,
+    apiKey: options.apiKey,
+    tenantId: options.tenantId
+  });
+
+  const customTokens = await getCustomIdAndRefreshTokens(idToken, {
+    appCheckToken,
+    referer
+  });
+
+  const verifier = createVerifier(customTokens, options);
+
+  await verifier.init();
+
+  verifier.appendCookies(cookies);
 }
 
 export async function refreshNextResponseCookies(

@@ -113,7 +113,7 @@ async function mapResponseToAuthError(
   );
 }
 
-function safeResponse<T extends any>(response: Response): Promise<T> {
+function safeResponse<T>(response: Response): Promise<T> {
   const contentType = response.headers.get('content-type');
   if (contentType && contentType.indexOf('application/json') !== -1) {
     return response.json();
@@ -122,7 +122,7 @@ function safeResponse<T extends any>(response: Response): Promise<T> {
   }
 }
 
-async function fetchApi<T extends any>(
+async function fetchApi<T>(
   input: RequestInfo | URL,
   init?: RequestInit
 ): Promise<T> {

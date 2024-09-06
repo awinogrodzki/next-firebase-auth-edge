@@ -64,7 +64,7 @@ export class AppCheckTokenGenerator {
   }
 
   private validateTokenOptions(options: AppCheckTokenOptions): {
-    [key: string]: any;
+    [key: string]: unknown;
   } {
     if (typeof options.ttlMillis !== 'undefined') {
       if (
