@@ -21,6 +21,7 @@ export interface SetAuthCookiesOptions {
   serviceAccount?: ServiceAccount;
   apiKey: string;
   tenantId?: string;
+  authorizationHeaderName?: string;
 }
 
 export type CookiesObject = Partial<{[K in string]: string}>;
@@ -197,7 +198,8 @@ export async function setAuthCookies(
     apiKey: options.apiKey,
     tenantId: options.tenantId
   });
-  const token = headers.get('Authorization')?.split(' ')[1] ?? '';
+  const authHeader = options.authorizationHeaderName ?? 'Authorization';
+  const token = headers.get(authHeader)?.split(' ')[1] ?? '';
 
   if (!token) {
     const response = new NextResponse(
