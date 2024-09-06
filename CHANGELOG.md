@@ -1,3 +1,11 @@
+# [1.7.0-canary.16](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.15...v1.7.0-canary.16) (2024-09-06)
+
+
+### Features
+
+* allow setAuthCookies to accept custom auth headers or fall back ([b1d169b](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/b1d169b13d1c6132799aed23ef1c6da3698ba080))
+* pass custom auth header from authMiddleware ([71286af](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/71286afe6c7faebf2cdcd568e507a5e0739720f0))
+
 # [1.7.0-canary.15](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.14...v1.7.0-canary.15) (2024-09-06)
 
 
