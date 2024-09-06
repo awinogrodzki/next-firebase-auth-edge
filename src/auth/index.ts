@@ -205,7 +205,26 @@ export async function handleExpiredToken<T>(
     switch ((e as AuthError)?.code) {
       case AuthErrorCode.NO_MATCHING_KID:
         if (shouldExpireOnNoMatchingKidError) {
-          return handleVerifyTokenError(e, onExpired, onError);
+          return handleVerifyTokenError(
+            e,
+            async (e) => {
+              const result = await onExpired(e);
+
+              debug(
+                'experimental_refresh_on_expired_kid: Successfully refreshed token after kid has expired'
+              );
+
+              return result;
+            },
+            (e) => {
+              debug(
+                'experimental_refresh_on_expired_kid: Error when trying to refresh token after kid has expired',
+                {message: (e as Error)?.message, stack: (e as Error)?.stack}
+              );
+
+              return onError(e);
+            }
+          );
         }
 
         return onError(e);
