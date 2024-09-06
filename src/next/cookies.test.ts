@@ -1,7 +1,8 @@
 import {
   SetAuthCookiesOptions,
   appendAuthCookies,
-  refreshCredentials
+  refreshCredentials,
+  setAuthCookies
 } from './cookies';
 
 // Suppress "Property 'headers' does not exist on type NextRequest/NextResponse" error
@@ -50,7 +51,8 @@ const MOCK_OPTIONS: SetAuthCookiesOptions = {
   cookieName: 'TestCookie',
   cookieSignatureKeys: [secret],
   cookieSerializeOptions: {},
-  apiKey: 'API_KEY'
+  apiKey: 'API_KEY',
+  authorizationHeaderName: 'Next-Authorization'
 };
 
 describe('cookies', () => {
@@ -167,6 +169,21 @@ describe('cookies', () => {
       3,
       'Set-Cookie',
       'TestCookie.sig=AuSOlUSJENTLtShQpjf7SMRiPY4aILyFNmjr7Tc3Fig'
+    );
+  });
+
+  it('appends custom auth headers', async () => {
+    const MOCK_RESPONSE = {
+      headers: {
+        append: jest.fn(),
+        get: jest.fn()
+      }
+    } as unknown as jest.Mocked<any> & jest.Mocked<Response>;
+
+    await setAuthCookies(MOCK_RESPONSE.headers, MOCK_OPTIONS);
+
+    expect(MOCK_RESPONSE.headers.get).toHaveBeenCalledWith(
+      'Next-Authorization'
     );
   });
 });
