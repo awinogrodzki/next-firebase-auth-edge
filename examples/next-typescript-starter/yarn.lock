@@ -3122,10 +3122,10 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
-next-firebase-auth-edge@1.7.0-canary.12:
-  version "1.7.0-canary.12"
-  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-1.7.0-canary.12.tgz#11e1a9214613981d4f08ea9e1c26df0b9dc97a8a"
-  integrity sha512-Jt4ZY3wCxvz13so8fsxCVPsi9PkLFGG6xZF+fVtoEmDXngOpKXRlo9iyMttGlpcBppMkIIqpHeAP/326k5O85A==
+next-firebase-auth-edge@1.7.0-canary.14:
+  version "1.7.0-canary.14"
+  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-1.7.0-canary.14.tgz#4215e15792fdce86de471f5e5fc9c251279d7805"
+  integrity sha512-RXh/ST/addBqKUYoV31B9HOZ8G8GYols9zbsDzGGXFuGg/eNzfpEaty8N38pIJW0L6xU0f9OoP4mbRyVRKBdPA==
   dependencies:
     cookie "^0.6.0"
     encoding "^0.1.13"
