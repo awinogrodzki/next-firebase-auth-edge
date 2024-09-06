@@ -39,8 +39,8 @@ function mergeStackTraceAndCause(target: Error, original: unknown) {
   const originalCause =
     typeof originalError?.cause === 'string' ? originalError.cause : '';
 
-  target.stack = originalErrorStack + (target?.stack ?? '');
-  target.cause = originalCause + (target?.cause ?? '');
+  target.stack = (target?.stack ?? '') + originalErrorStack;
+  target.cause = (target?.cause ?? '') + originalCause;
 }
 
 export class AuthError extends Error {

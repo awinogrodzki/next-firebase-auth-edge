@@ -128,6 +128,7 @@ export interface AuthMiddlewareOptions extends CreateAuthMiddlewareOptions {
   handleInvalidToken?: HandleInvalidToken;
   handleValidToken?: HandleValidToken;
   handleError?: HandleError;
+  experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
 }
 
 const defaultInvalidTokenHandler = async () => NextResponse.next();
@@ -269,7 +270,8 @@ export async function authMiddleware(
         debug('Authentication failed with error', {error: e});
 
         return handleError(e);
-      }
+      },
+      options.experimental_enableTokenRefreshOnExpiredKidHeader ?? false
     );
   } catch (error: unknown) {
     if (error instanceof InvalidTokenError) {

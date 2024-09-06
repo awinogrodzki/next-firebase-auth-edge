@@ -14,6 +14,7 @@ export interface VerifyOptions {
   currentDate?: Date;
   checkRevoked?: boolean;
   referer?: string;
+  experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
 }
 
 const keyMap: Map<string, KeyLike> = new Map();

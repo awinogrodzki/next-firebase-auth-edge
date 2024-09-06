@@ -181,21 +181,36 @@ export function isInvalidCredentialError(error: unknown): error is AuthError {
   return (error as AuthError)?.code === AuthErrorCode.INVALID_CREDENTIAL;
 }
 
+async function handleVerifyTokenError<T>(
+  e: unknown,
+  onExpired: (e: AuthError) => Promise<T>,
+  onError: (e: unknown) => Promise<T>
+) {
+  try {
+    return await onExpired(e as AuthError);
+  } catch (e) {
+    return onError(e);
+  }
+}
+
 export async function handleExpiredToken<T>(
   verifyIdToken: () => Promise<T>,
   onExpired: (e: AuthError) => Promise<T>,
-  onError: (e: unknown) => Promise<T>
+  onError: (e: unknown) => Promise<T>,
+  shouldExpireOnNoMatchingKidError: boolean
 ): Promise<T> {
   try {
     return await verifyIdToken();
   } catch (e: unknown) {
-    switch ((e as AuthError).code) {
-      case AuthErrorCode.TOKEN_EXPIRED:
-        try {
-          return await onExpired(e as AuthError);
-        } catch (e) {
-          return onError(e);
+    switch ((e as AuthError)?.code) {
+      case AuthErrorCode.NO_MATCHING_KID:
+        if (shouldExpireOnNoMatchingKidError) {
+          return handleVerifyTokenError(e, onExpired, onError);
         }
+
+        return onError(e);
+      case AuthErrorCode.TOKEN_EXPIRED:
+        return handleVerifyTokenError(e, onExpired, onError);
       default:
         return onError(e);
     }
@@ -378,9 +393,20 @@ function getAuth(options: AuthOptions) {
 
         throw new InvalidTokenError(InvalidTokenReason.MISSING_REFRESH_TOKEN);
       },
-      async () => {
-        throw new InvalidTokenError(InvalidTokenReason.INVALID_CREDENTIALS);
-      }
+      async (e) => {
+        if (
+          e instanceof AuthError &&
+          e.code === AuthErrorCode.NO_MATCHING_KID
+        ) {
+          throw InvalidTokenError.fromError(e, InvalidTokenReason.INVALID_KID);
+        }
+
+        throw InvalidTokenError.fromError(
+          e,
+          InvalidTokenReason.INVALID_CREDENTIALS
+        );
+      },
+      verifyOptions.experimental_enableTokenRefreshOnExpiredKidHeader ?? false
     );
   }
 
