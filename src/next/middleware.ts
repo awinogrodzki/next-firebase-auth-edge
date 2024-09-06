@@ -32,6 +32,7 @@ export interface CreateAuthMiddlewareOptions {
   tenantId?: string;
   refreshTokenPath?: string;
   enableMultipleCookies?: boolean;
+  authorizationHeaderName?: string;
 }
 
 export function redirectToHome(request: NextRequest) {
@@ -78,7 +79,8 @@ export async function createAuthMiddlewareResponse(
       serviceAccount: options.serviceAccount,
       apiKey: options.apiKey,
       tenantId: options.tenantId,
-      enableMultipleCookies: options.enableMultipleCookies
+      enableMultipleCookies: options.enableMultipleCookies,
+      authorizationHeaderName: options.authorizationHeaderName
     });
   }
 
