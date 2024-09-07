@@ -36,6 +36,25 @@ export interface CreateAuthMiddlewareOptions {
   authorizationHeaderName?: string;
 }
 
+interface RedirectToPathOptions {
+  shouldClearSearchParams: boolean;
+}
+
+export function redirectToPath(
+  request: NextRequest,
+  path: string,
+  options: RedirectToPathOptions = {shouldClearSearchParams: false}
+) {
+  const url = request.nextUrl.clone();
+  url.pathname = path;
+
+  if (options.shouldClearSearchParams) {
+    url.search = '';
+  }
+
+  return NextResponse.redirect(url);
+}
+
 interface RedirectToHomeOptions {
   path: string;
 }
@@ -46,16 +65,35 @@ export function redirectToHome(
     path: '/'
   }
 ) {
-  const url = request.nextUrl.clone();
-  url.pathname = options.path;
-  url.search = '';
-  return NextResponse.redirect(url);
+  return redirectToPath(request, options.path, {shouldClearSearchParams: true});
 }
+
+export type PublicPath = string | RegExp;
 
 interface RedirectToLoginOptions {
   path: string;
-  publicPaths: string[];
+  publicPaths: PublicPath[];
   redirectParamKeyName?: string;
+}
+
+function doesRequestPathnameMatchPublicPath(
+  request: NextRequest,
+  publicPath: PublicPath
+) {
+  if (typeof publicPath === 'string') {
+    return publicPath === request.nextUrl.pathname;
+  }
+
+  return publicPath.test(request.nextUrl.pathname);
+}
+
+function doesRequestPathnameMatchOneOfPublicPaths(
+  request: NextRequest,
+  publicPaths: PublicPath[]
+) {
+  return publicPaths.some((path) =>
+    doesRequestPathnameMatchPublicPath(request, path)
+  );
 }
 
 export function redirectToLogin(
@@ -67,7 +105,7 @@ export function redirectToLogin(
 ) {
   const redirectKey = options.redirectParamKeyName || 'redirect';
 
-  if (options.publicPaths.includes(request.nextUrl.pathname)) {
+  if (doesRequestPathnameMatchOneOfPublicPaths(request, options.publicPaths)) {
     return NextResponse.next();
   }
 

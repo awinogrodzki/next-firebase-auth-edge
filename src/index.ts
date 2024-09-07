@@ -1,7 +1,8 @@
 export {
   authMiddleware,
   redirectToHome,
-  redirectToLogin
+  redirectToLogin,
+  redirectToPath
 } from './next/middleware';
 
 export {
