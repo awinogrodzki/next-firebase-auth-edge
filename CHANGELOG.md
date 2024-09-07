@@ -1,3 +1,10 @@
+# [1.7.0-canary.17](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.16...v1.7.0-canary.17) (2024-09-07)
+
+
+### Features
+
+* **middleware:** introduced `redirectToPath` method and RegExp support in `redirectToLogin` method ([21024bb](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/21024bb02f6f0300301e7822751e047caef745c0))
+
 # [1.7.0-canary.16](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.15...v1.7.0-canary.16) (2024-09-06)
 
 
