@@ -1,4 +1,5 @@
-import {NextRequest, NextResponse} from 'next/server';
+import {NextResponse} from 'next/server';
+import type { NextRequest } from 'next/server';
 import {serverConfig} from '../../../config/server-config';
 import {getAppCheck} from 'next-firebase-auth-edge/lib/app-check';
 import {getReferer} from 'next-firebase-auth-edge/lib/next/utils';

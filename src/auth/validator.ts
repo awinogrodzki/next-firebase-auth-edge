@@ -1,8 +1,8 @@
-export function isObject(value: any): boolean {
+export function isObject(value: unknown): boolean {
   return typeof value === 'object' && !isArray(value);
 }
 
-export function isArray<T>(value: any): value is T[] {
+export function isArray<T>(value: unknown): value is T[] {
   return Array.isArray(value);
 }
 
@@ -10,7 +10,7 @@ export function isNonNullObject<T>(value: T | null | undefined): value is T {
   return isObject(value) && value !== null;
 }
 
-export function isEmail(email: any): boolean {
+export function isEmail(email: unknown): boolean {
   if (typeof email !== 'string') {
     return false;
   }
@@ -19,7 +19,7 @@ export function isEmail(email: any): boolean {
   return re.test(email);
 }
 
-export function isURL(urlStr: any): boolean {
+export function isURL(urlStr: unknown): boolean {
   if (typeof urlStr !== 'string') {
     return false;
   }
@@ -48,7 +48,7 @@ export function isURL(urlStr: any): boolean {
     if (pathname && pathname !== '/' && !pathnameRe.test(pathname)) {
       return false;
     }
-  } catch (e) {
+  } catch {
     return false;
   }
   return true;

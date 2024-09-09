@@ -7,7 +7,7 @@ The library provides `authMiddleware` function that is designed to be used with 
 Basic usage of `authMiddleware` in `middleware.ts`:
 
 ```tsx filename="middleware.ts"
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { authMiddleware } from "next-firebase-auth-edge";
 
 export async function middleware(request: NextRequest) {
@@ -22,14 +22,13 @@ export async function middleware(request: NextRequest) {
       httpOnly: true,
       secure: false, // Set this to true on HTTPS environments
       sameSite: "lax" as const,
-      maxAge: 12 * 60 * 60 * 24, // twelve days
+      maxAge: 12 * 60 * 60 * 24, // Twelve days
     },
     serviceAccount: {
       projectId: "your-firebase-project-id",
       clientEmail: "firebase-adminsdk-nnw48@your-firebase-project-id.iam.gserviceaccount.com",
       privateKey: "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
     },
-    enableMultipleCookies: true // Recommended, but `false` by default to keep backwards compatibility. Set to false on Firebase Hosting due to https://stackoverflow.com/questions/44929653/firebase-cloud-function-wont-store-cookie-named-other-than-session 
   });
 }
 

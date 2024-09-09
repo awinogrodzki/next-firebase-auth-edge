@@ -25,3 +25,17 @@ a {
     background: black;
   }
 }
+
+:root {
+  --toggle-color: rgb(204, 204, 204);
+  --background-color: #0070f3;
+  --slider-color: rgb(255, 255, 255);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --toggle-color: rgb(255, 255, 255);
+    --background-color: #0070f3;
+    --slider-color: rgb(82, 79, 79);
+  }
+}

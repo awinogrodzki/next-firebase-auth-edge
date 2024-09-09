@@ -14,13 +14,13 @@ import {isURL} from './validator';
 
 export interface FirebaseClaims {
   identities: {
-    [key: string]: any;
+    [key: string]: unknown;
   };
   sign_in_provider: string;
   sign_in_second_factor?: string;
   second_factor_identifier?: string;
   tenant?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface DecodedIdToken {
@@ -28,6 +28,7 @@ export interface DecodedIdToken {
   auth_time: number;
   email?: string;
   email_verified?: boolean;
+  name?: string;
   exp: number;
   firebase: FirebaseClaims;
   source_sign_in_provider: string;
@@ -37,7 +38,7 @@ export interface DecodedIdToken {
   picture?: string;
   sub: string;
   uid: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export class FirebaseTokenVerifier {
@@ -105,10 +106,9 @@ export class FirebaseTokenVerifier {
       errorMessage = `Incorrect algorithm. ${ALGORITHM_RS256} expected, ${header.alg} provided`;
     } else if (payload.iss !== this.issuer + projectId) {
       errorMessage = `idToken has incorrect "iss" (issuer) claim. Expected ${this.issuer}${projectId}, but got ${payload.iss}`;
-    } else if (typeof payload.sub !== 'string') {
     } else if (payload.sub === '') {
       errorMessage = `idToken has an empty string "sub" (subject) claim.`;
-    } else if (payload.sub.length > 128) {
+    } else if (typeof payload.sub === 'string' && payload.sub.length > 128) {
       errorMessage = `idToken has "sub" (subject) claim longer than 128 characters.`;
     }
 
@@ -128,22 +128,26 @@ export class FirebaseTokenVerifier {
 
   private mapJoseErrorToAuthError(error: JOSEError): Error {
     if (error instanceof errors.JWTExpired) {
-      return new AuthError(AuthErrorCode.TOKEN_EXPIRED, error.message);
+      return AuthError.fromError(
+        error,
+        AuthErrorCode.TOKEN_EXPIRED,
+        error.message
+      );
     }
 
     if (error instanceof errors.JWSSignatureVerificationFailed) {
-      return new AuthError(AuthErrorCode.INVALID_SIGNATURE);
+      return AuthError.fromError(error, AuthErrorCode.INVALID_SIGNATURE);
     }
 
-    if (
-      error instanceof AuthError &&
-      error.code === AuthErrorCode.NO_MATCHING_KID
-    ) {
-      const message = `idToken has "kid" claim which does not correspond to a known public key. Most likely the token is expired, so get a fresh token from your client app and try again.`;
-      return new AuthError(AuthErrorCode.INVALID_ARGUMENT, message);
+    if (error instanceof AuthError) {
+      return error;
     }
 
-    return new AuthError(AuthErrorCode.INTERNAL_ERROR, error.message);
+    return AuthError.fromError(
+      error,
+      AuthErrorCode.INTERNAL_ERROR,
+      error.message
+    );
   }
 }
 

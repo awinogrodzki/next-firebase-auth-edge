@@ -17,6 +17,7 @@ import {ButtonGroup} from '../../ui/ButtonGroup';
 import {MainTitle} from '../../ui/MainTitle';
 import {PasswordForm} from '../../ui/PasswordForm';
 import {PasswordFormValue} from '../../ui/PasswordForm/PasswordForm';
+import {Switch} from '../../ui/Switch/Switch';
 import {LoadingIcon} from '../../ui/icons';
 import {getFirebaseAuth} from '../auth/firebase';
 import {appendRedirectParam} from '../shared/redirect';
@@ -29,8 +30,15 @@ import {
 } from './firebase';
 import styles from './login.module.css';
 
-export function LoginPage() {
+export function LoginPage({
+  loginAction
+}: {
+  loginAction: (email: string, password: string) => void;
+}) {
   const [hasLogged, setHasLogged] = React.useState(false);
+  const [shouldLoginWithAction, setShouldLoginWithAction] =
+    React.useState(false);
+  let [isLoginActionPending, startTransition] = React.useTransition();
   const redirect = useRedirectParam();
   const redirectAfterLogin = useRedirectAfterLogin();
 
@@ -44,11 +52,16 @@ export function LoginPage() {
       setHasLogged(false);
 
       const auth = getFirebaseAuth();
-      await handleLogin(
-        await signInWithEmailAndPassword(auth, email, password)
-      );
 
-      setHasLogged(true);
+      if (shouldLoginWithAction) {
+        startTransition(() => loginAction(email, password));
+      } else {
+        await handleLogin(
+          await signInWithEmailAndPassword(auth, email, password)
+        );
+
+        setHasLogged(true);
+      }
     });
 
   const [handleLoginWithGoogle, isGoogleLoading, googleError] =
@@ -148,8 +161,20 @@ export function LoginPage() {
       )}
       {!hasLogged && (
         <PasswordForm
-          loading={isEmailLoading}
+          loading={isEmailLoading || isLoginActionPending}
           onSubmit={handleLoginWithEmailAndPassword}
+          actions={
+            // `firebase/auth` library is not yet compatible with Vercel's Edge environment
+            !process.env.VERCEL ? (
+              <div className={styles.loginWithAction}>
+                <Switch
+                  value={shouldLoginWithAction}
+                  onChange={setShouldLoginWithAction}
+                />
+                Login with Server Action
+              </div>
+            ) : undefined
+          }
           error={
             emailPasswordError ||
             googleError ||

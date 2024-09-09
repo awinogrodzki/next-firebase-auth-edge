@@ -121,7 +121,10 @@ export type AppCheckErrorCode =
   | 'unknown-error';
 
 export class FirebaseAppCheckError extends Error {
-  constructor(public readonly code: AppCheckErrorCode, message: string) {
+  constructor(
+    public readonly code: AppCheckErrorCode,
+    message: string
+  ) {
     super(`(${code}): ${message}`);
     Object.setPrototypeOf(this, FirebaseAppCheckError.prototype);
   }

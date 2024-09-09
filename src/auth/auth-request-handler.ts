@@ -115,13 +115,19 @@ export interface AuthRequestHandlerOptions {
   tenantId?: string;
 }
 
+export interface ErrorResponse {
+  error: Error;
+}
+
 export abstract class AbstractAuthRequestHandler {
   private authUrlBuilder: AuthResourceUrlBuilder | undefined;
   private getToken: (forceRefresh?: boolean) => Promise<FirebaseAccessToken>;
 
-  private static getErrorCode(response: any): string | null {
+  private static getErrorCode(response: unknown): string | null {
     return (
-      (isNonNullObject(response) && response.error && response.error.message) ||
+      (isNonNullObject(response) &&
+        (response as ErrorResponse).error &&
+        (response as ErrorResponse).error.message) ||
       null
     );
   }
@@ -144,7 +150,9 @@ export abstract class AbstractAuthRequestHandler {
     };
   }
 
-  public getAccountInfoByUid(uid: string): Promise<ResponseObject> {
+  public getAccountInfoByUid(
+    uid: string
+  ): Promise<{users?: GetAccountInfoUserResponse[]}> {
     const request = {
       localId: [uid]
     };
@@ -281,9 +289,12 @@ export abstract class AbstractAuthRequestHandler {
     }
 
     if (request.phoneNumber === null) {
-      request.deleteProvider
-        ? request.deleteProvider.push('phone')
-        : (request.deleteProvider = ['phone']);
+      if (request.deleteProvider) {
+        request.deleteProvider.push('phone');
+      } else {
+        request.deleteProvider = ['phone'];
+      }
+
       delete request.phoneNumber;
     }
 
@@ -495,7 +506,7 @@ function isUTCDateString(dateString: string): boolean {
     return (
       Boolean(dateString) && new Date(dateString).toUTCString() === dateString
     );
-  } catch (e) {
+  } catch {
     return false;
   }
 }
@@ -541,7 +552,7 @@ export interface AuthFactorInfo {
   displayName?: string;
   phoneInfo?: string;
   enrolledAt?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface BaseUpdateMultiFactorInfoRequest {

@@ -1,3 +1,130 @@
+# [1.7.0-canary.17](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.16...v1.7.0-canary.17) (2024-09-07)
+
+
+### Features
+
+* **middleware:** introduced `redirectToPath` method and RegExp support in `redirectToLogin` method ([21024bb](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/21024bb02f6f0300301e7822751e047caef745c0))
+
+# [1.7.0-canary.16](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.15...v1.7.0-canary.16) (2024-09-06)
+
+
+### Features
+
+* allow setAuthCookies to accept custom auth headers or fall back ([b1d169b](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/b1d169b13d1c6132799aed23ef1c6da3698ba080))
+* pass custom auth header from authMiddleware ([71286af](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/71286afe6c7faebf2cdcd568e507a5e0739720f0))
+
+# [1.7.0-canary.15](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.14...v1.7.0-canary.15) (2024-09-06)
+
+
+### Bug Fixes
+
+* add debug logs for experimental feature ([41ef1df](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/41ef1dfcf6fe23a7dabfa4e8d3cc5e2c1172b31e))
+
+# [1.7.0-canary.14](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.13...v1.7.0-canary.14) (2024-09-06)
+
+
+### Features
+
+* experimental option to refresh token on expired kid header ([2869531](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/28695315164fffee7b3a08879e95033c44b8a197))
+
+# [1.7.0-canary.13](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.12...v1.7.0-canary.13) (2024-09-03)
+
+
+### Bug Fixes
+
+* **#249:** merge error stack trace in token verifier to improve visibility on fetch errors ([6bce756](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/6bce7564216dff60fe736ef85e8508d2df686eaf)), closes [#249](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/249)
+
+# [1.7.0-canary.12](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.11...v1.7.0-canary.12) (2024-09-03)
+
+
+### Bug Fixes
+
+* **#242:** use TextEncoder when mapping token to UInt8Array ([23b04dc](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/23b04dcd8867fd7c6b108c41496cb19930e5cc16)), closes [#242](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/242)
+
+# [1.7.0-canary.11](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.10...v1.7.0-canary.11) (2024-08-30)
+
+
+### Bug Fixes
+
+* **#246:** re-throw invalid PKCS8 error as AuthError with user-friendly message ([a7d7a22](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/a7d7a228733e67525b001cff70a523880d858e01)), closes [#246](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/246)
+
+# [1.7.0-canary.10](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.9...v1.7.0-canary.10) (2024-08-22)
+
+
+### Features
+
+* **getTokens:** introduced optional `cookieSerializeOptions` option ([e041542](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/e041542c6b2f4380fcc7f803f7e1c8d5c14bc6e1))
+
+# [1.7.0-canary.9](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.8...v1.7.0-canary.9) (2024-08-21)
+
+
+### Bug Fixes
+
+* pass cookie serialization options to cookie setter ([b28ce7a](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/b28ce7a866318f958e58b14e4adfcc85a47e5bef))
+
+# [1.7.0-canary.8](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.7...v1.7.0-canary.8) (2024-08-21)
+
+
+### Features
+
+* replaced no matching kid auth error with invalid token error ([9d2d0fc](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/9d2d0fcb49374d0bb6b260c43d8a2409377b0144))
+
+# [1.7.0-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.6...v1.7.0-canary.7) (2024-08-21)
+
+
+### Features
+
+* support Node.js 22 ([6c7f435](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/6c7f435485391a4d987f0bc3d0653536d4ef93ff))
+
+# [1.7.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.5...v1.7.0-canary.6) (2024-08-10)
+
+
+### Bug Fixes
+
+* semantic-release rate exceeded error ([676b602](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/676b6021a013c0afdddd75a0cea71b2a8b4786e2))
+
+# [1.7.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.4...v1.7.0-canary.5) (2024-08-10)
+
+
+### Bug Fixes
+
+* update next.js peer dependency to rc ([f2953fd](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/f2953fd38bdd6df9b4b535a21abb47793249752b))
+
+# [1.7.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.3...v1.7.0-canary.4) (2024-08-10)
+
+
+### Bug Fixes
+
+* add missing name property to decoded id token type ([39b086d](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/39b086db222f619a8b4cf0365895f33c6832e3fc))
+
+
+### Features
+
+* next.js 15 rc support ([a994dd0](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/a994dd07bce5420049573b2651b08ecb1a82b63c))
+
+# [1.7.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.2...v1.7.0-canary.3) (2024-08-08)
+
+
+### Bug Fixes
+
+* recreate canary tags after force push ([c9b7c18](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/c9b7c18e5cb4f8a31e5388e0bfd23665e8b5674e))
+* semantic-version git history issue ([d514f57](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d514f5713883e1713f265b07a4670518af646a6b))
+
+# [1.7.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.2...v1.7.0-canary.2) (2024-07-25)
+
+
+### Features
+
+* added `path` option to `redirectToHome` helper function ([54f07f4](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/54f07f4a09fad3e46fc089e5d762afa4df5eb1f5))
+
+
+# [1.7.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.1...v1.7.0-canary.1) (2024-07-16)
+
+
+### Features
+
+* introduced `refreshCookiesWithIdToken` function to enable login using Server Actions ([#212](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/212)) ([fd6b193](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/fd6b193d345af85e7cca502640b98e2c93aebadc))
+
 ## [1.6.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.1...v1.6.2) (2024-07-16)
 
 

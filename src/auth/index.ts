@@ -5,9 +5,9 @@ import {
   UpdateRequest
 } from './auth-request-handler';
 import {
+  Credential,
   ServiceAccount,
-  ServiceAccountCredential,
-  Credential
+  ServiceAccountCredential
 } from './credential';
 import {CustomTokens, VerifiedTokens} from './custom-token';
 import {getApplicationDefault} from './default-credential';
@@ -102,8 +102,8 @@ export async function customTokenToIdAndRefreshTokens(
   }
 
   return {
-    idToken: refreshTokenJSON.idToken,
-    refreshToken: refreshTokenJSON.refreshToken
+    idToken: refreshTokenJSON.idToken as string,
+    refreshToken: refreshTokenJSON.refreshToken as string
   };
 }
 
@@ -181,21 +181,55 @@ export function isInvalidCredentialError(error: unknown): error is AuthError {
   return (error as AuthError)?.code === AuthErrorCode.INVALID_CREDENTIAL;
 }
 
+async function handleVerifyTokenError<T>(
+  e: unknown,
+  onExpired: (e: AuthError) => Promise<T>,
+  onError: (e: unknown) => Promise<T>
+) {
+  try {
+    return await onExpired(e as AuthError);
+  } catch (e) {
+    return onError(e);
+  }
+}
+
 export async function handleExpiredToken<T>(
   verifyIdToken: () => Promise<T>,
   onExpired: (e: AuthError) => Promise<T>,
-  onError: (e: unknown) => Promise<T>
+  onError: (e: unknown) => Promise<T>,
+  shouldExpireOnNoMatchingKidError: boolean
 ): Promise<T> {
   try {
     return await verifyIdToken();
-  } catch (e: any) {
-    switch ((e as AuthError).code) {
-      case AuthErrorCode.TOKEN_EXPIRED:
-        try {
-          return await onExpired(e);
-        } catch (e) {
-          return onError(e);
+  } catch (e: unknown) {
+    switch ((e as AuthError)?.code) {
+      case AuthErrorCode.NO_MATCHING_KID:
+        if (shouldExpireOnNoMatchingKidError) {
+          return handleVerifyTokenError(
+            e,
+            async (e) => {
+              const result = await onExpired(e);
+
+              debug(
+                'experimental_refresh_on_expired_kid: Successfully refreshed token after kid has expired'
+              );
+
+              return result;
+            },
+            (e) => {
+              debug(
+                'experimental_refresh_on_expired_kid: Error when trying to refresh token after kid has expired',
+                {message: (e as Error)?.message, stack: (e as Error)?.stack}
+              );
+
+              return onError(e);
+            }
+          );
         }
+
+        return onError(e);
+      case AuthErrorCode.TOKEN_EXPIRED:
+        return handleVerifyTokenError(e, onExpired, onError);
       default:
         return onError(e);
     }
@@ -272,8 +306,7 @@ function getAuth(options: AuthOptions) {
   };
 
   async function getUser(uid: string): Promise<UserRecord | null> {
-    return authRequestHandler.getAccountInfoByUid(uid).then((response: any) => {
-      // Returns the user record populated with server response.
+    return authRequestHandler.getAccountInfoByUid(uid).then((response) => {
       return response.users?.length ? new UserRecord(response.users[0]) : null;
     });
   }
@@ -349,7 +382,9 @@ function getAuth(options: AuthOptions) {
 
   async function verifyAndRefreshExpiredIdToken(
     customTokens: CustomTokens,
-    verifyOptions: VerifyOptions = DEFAULT_VERIFY_OPTIONS
+    verifyOptions: VerifyOptions & {
+      onTokenRefresh?: (tokens: VerifiedTokens) => Promise<void>;
+    } = DEFAULT_VERIFY_OPTIONS
   ): Promise<VerifiedTokens> {
     return await handleExpiredToken(
       async () => {
@@ -366,22 +401,37 @@ function getAuth(options: AuthOptions) {
       },
       async () => {
         if (customTokens.refreshToken) {
-          return handleTokenRefresh(customTokens.refreshToken, {
+          const result = await handleTokenRefresh(customTokens.refreshToken, {
             referer: verifyOptions.referer
           });
+
+          await verifyOptions.onTokenRefresh?.(result);
+
+          return result;
         }
 
         throw new InvalidTokenError(InvalidTokenReason.MISSING_REFRESH_TOKEN);
       },
-      async () => {
-        throw new InvalidTokenError(InvalidTokenReason.INVALID_CREDENTIALS);
-      }
+      async (e) => {
+        if (
+          e instanceof AuthError &&
+          e.code === AuthErrorCode.NO_MATCHING_KID
+        ) {
+          throw InvalidTokenError.fromError(e, InvalidTokenReason.INVALID_KID);
+        }
+
+        throw InvalidTokenError.fromError(
+          e,
+          InvalidTokenReason.INVALID_CREDENTIALS
+        );
+      },
+      verifyOptions.experimental_enableTokenRefreshOnExpiredKidHeader ?? false
     );
   }
 
   function createCustomToken(
     uid: string,
-    developerClaims?: object
+    developerClaims?: {[key: string]: unknown}
   ): Promise<string> {
     return tokenGenerator.createCustomToken(uid, developerClaims);
   }

@@ -1,0 +1,110 @@
+# Sign in with Server Action
+
+Use official `firebase/auth` [guide](https://firebase.google.com/docs/auth/web/password-auth) to perform different operations, such as `signInWithEmailAndPassword` or `signOut`.
+
+## refreshCookiesWithIdToken
+
+`refreshCookiesWithIdToken` method updates browser cookies with authenticated credentials based on `idToken`. The method is compatible with **Server Actions** and **Middleware**. You can use this method after you perform different Firebase operations within Server Actions to update browser cookies with latest credentials.
+
+## Example loginAction and LoginPage
+
+**Compatibility with Vercel environment:** Using `firebase/auth` library inside Server Actions is not yet compatible with **Vercel** environment.
+
+If you experience `ReferenceError: document is not defined` error, move `firebase/auth` import to client component
+
+
+The example below shows very basic login page client component that allows users to sign in using Server Action and `refreshCookiesWithIdToken` method
+
+First, let's define our Server Action:
+
+```tsx filename="login.tsx"
+'use server';
+
+import {refreshCookiesWithIdToken} from 'next-firebase-auth-edge/lib/next/cookies';
+import {signInWithEmailAndPassword} from 'firebase/auth';
+import {cookies, headers} from 'next/headers';
+import {redirect} from 'next/navigation';
+
+// See starter example for implementation: https://github.com/awinogrodzki/next-firebase-auth-edge/tree/main/examples/next-typescript-starter
+import {getFirebaseAuth} from '@/app/auth/firebase';
+import {authConfig} from '@/config/server-config';
+
+export async function loginAction(username: string, password: string) {
+  const credential = await signInWithEmailAndPassword(
+    getFirebaseAuth(),
+    username,
+    password
+  );
+
+  const idToken = await credential.user.getIdToken();
+
+  await refreshCookiesWithIdToken(idToken, headers(), cookies(), authConfig);
+  redirect('/');
+}
+```
+
+
+Next, create LoginPage client component that will call login action:
+
+```tsx filename="LoginPage.tsx"
+'use client';
+
+import * as React from 'react';
+
+interface LoginPageProps {
+  loginAction: (email: string, password: string) => void;
+}
+
+export default function LoginPage({loginAction}: LoginPageProps) {
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  let [isLoginActionPending, startTransition] = React.useTransition();
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    startTransition(() => loginAction(email, password));
+  }
+
+  return (
+    <div>
+      <h1>Login</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          name="email"
+          type="email"
+          placeholder="Email address"
+        />
+        <br />
+        <input
+          required
+          name="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          type="password"
+          placeholder="Password"
+          minLength={8}
+        />
+        <button disabled={isLoginActionPending} type="submit">
+          Submit
+        </button>
+      </form>
+    </div>
+  );
+}
+```
+
+Lastly, let's use LoginPage inside `page.tsx` Server Component:
+
+```tsx filename="page.tsx"
+import LoginPage from './LoginPage';
+import {loginAction} from './login';
+
+export default function Page() {
+  return <LoginPage loginAction={loginAction} />;
+}
+```

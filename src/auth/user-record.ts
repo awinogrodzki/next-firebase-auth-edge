@@ -5,13 +5,16 @@ import {AuthError, AuthErrorCode} from './error';
 
 const B64_REDACTED = base64url.encode('REDACTED');
 
-function parseDate(time: any): string | null {
+function parseDate(time: unknown): string | null {
   try {
-    const date = new Date(parseInt(time, 10));
+    const date = new Date(parseInt(time as string, 10));
     if (!isNaN(date.getTime())) {
       return date.toUTCString();
     }
-  } catch (e) {}
+  } catch {
+    return null;
+  }
+
   return null;
 }
 
@@ -20,7 +23,7 @@ export interface MultiFactorInfoResponse {
   displayName?: string;
   phoneInfo?: string;
   enrolledAt?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface ProviderUserInfoResponse {
@@ -51,11 +54,18 @@ export interface GetAccountInfoUserResponse {
   createdAt?: string;
   lastLoginAt?: string;
   lastRefreshAt?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 enum MultiFactorId {
   Phone = 'phone'
+}
+
+export interface MultiFactorInfoType {
+  uid?: string;
+  displayName?: string;
+  factorId?: string;
+  enrollmentTime?: string;
 }
 
 export abstract class MultiFactorInfo {
@@ -69,7 +79,9 @@ export abstract class MultiFactorInfo {
     let multiFactorInfo: MultiFactorInfo | null = null;
     try {
       multiFactorInfo = new PhoneMultiFactorInfo(response);
-    } catch (e) {}
+    } catch {
+      return null;
+    }
 
     return multiFactorInfo;
   }
@@ -78,7 +90,7 @@ export abstract class MultiFactorInfo {
     this.initFromServerResponse(response);
   }
 
-  public toJSON(): object {
+  public toJSON(): MultiFactorInfoType {
     return {
       uid: this.uid,
       displayName: this.displayName,
@@ -167,6 +179,12 @@ export class MultiFactorSettings {
   }
 }
 
+export interface UserMetadataType {
+  lastSignInTime?: string;
+  creationTime?: string;
+  lastRefreshTime?: string | null;
+}
+
 export class UserMetadata {
   public readonly creationTime!: string;
   public readonly lastSignInTime!: string;
@@ -181,7 +199,7 @@ export class UserMetadata {
     addReadonlyGetter(this, 'lastRefreshTime', lastRefreshAt);
   }
 
-  public toJSON(): object {
+  public toJSON(): UserMetadataType {
     return {
       lastSignInTime: this.lastSignInTime,
       creationTime: this.creationTime,
@@ -189,6 +207,15 @@ export class UserMetadata {
     };
   }
 }
+
+export type UserInfoType = {
+  uid?: string;
+  displayName?: string;
+  email?: string;
+  photoURL?: string;
+  providerId?: string;
+  phoneNumber?: string;
+};
 
 export class UserInfo {
   public readonly uid!: string;
@@ -214,7 +241,7 @@ export class UserInfo {
     addReadonlyGetter(this, 'phoneNumber', response.phoneNumber);
   }
 
-  public toJSON(): object {
+  public toJSON(): UserInfoType {
     return {
       uid: this.uid,
       displayName: this.displayName,
@@ -238,7 +265,7 @@ export class UserRecord {
   public readonly providerData!: UserInfo[];
   public readonly passwordHash?: string;
   public readonly passwordSalt?: string;
-  public readonly customClaims?: {[key: string]: any};
+  public readonly customClaims?: {[key: string]: unknown};
   public readonly tenantId?: string | null;
   public readonly tokensValidAfterTime?: string;
   public readonly multiFactor?: MultiFactorSettings;
@@ -296,8 +323,8 @@ export class UserRecord {
     }
   }
 
-  public toJSON(): object {
-    const json: any = {
+  public toJSON(): UserRecordType {
+    const json: UserRecordType = {
       uid: this.uid,
       email: this.email,
       emailVerified: this.emailVerified,
@@ -321,4 +348,22 @@ export class UserRecord {
     }
     return json;
   }
+}
+
+export interface UserRecordType {
+  uid?: string;
+  email?: string;
+  emailVerified?: boolean;
+  displayName?: string;
+  photoURL?: string;
+  phoneNumber?: string;
+  multiFactor?: MultiFactorInfoType;
+  disabled?: boolean;
+  metadata?: UserMetadataType;
+  passwordHash?: string;
+  passwordSalt?: string;
+  customClaims?: {[key: string]: unknown};
+  providerData?: UserInfoType[];
+  tokensValidAfterTime?: string;
+  tenantId?: string | null;
 }

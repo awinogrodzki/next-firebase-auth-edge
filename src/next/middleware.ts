@@ -1,9 +1,14 @@
 import {CookieSerializeOptions} from 'cookie';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
-import {Tokens, getFirebaseAuth, handleExpiredToken} from '../auth';
+import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth';
 import {ServiceAccount} from '../auth/credential';
-import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
+import {
+  AuthError,
+  AuthErrorCode,
+  InvalidTokenError,
+  InvalidTokenReason
+} from '../auth/error';
 import {debug, enableDebugMode} from '../debug';
 import {
   createVerifier,
@@ -14,11 +19,7 @@ import {
   wasResponseDecoratedWithModifiedRequestHeaders
 } from './cookies';
 import {refreshToken} from './refresh-token';
-import {
-  GetTokensOptions,
-  getRequestCookiesTokens,
-  validateOptions
-} from './tokens';
+import {getRequestCookiesTokens, validateOptions} from './tokens';
 import {getReferer} from './utils';
 
 export interface CreateAuthMiddlewareOptions {
@@ -32,19 +33,67 @@ export interface CreateAuthMiddlewareOptions {
   tenantId?: string;
   refreshTokenPath?: string;
   enableMultipleCookies?: boolean;
+  authorizationHeaderName?: string;
 }
 
-export function redirectToHome(request: NextRequest) {
+interface RedirectToPathOptions {
+  shouldClearSearchParams: boolean;
+}
+
+export function redirectToPath(
+  request: NextRequest,
+  path: string,
+  options: RedirectToPathOptions = {shouldClearSearchParams: false}
+) {
   const url = request.nextUrl.clone();
-  url.pathname = '/';
-  url.search = '';
+  url.pathname = path;
+
+  if (options.shouldClearSearchParams) {
+    url.search = '';
+  }
+
   return NextResponse.redirect(url);
 }
 
+interface RedirectToHomeOptions {
+  path: string;
+}
+
+export function redirectToHome(
+  request: NextRequest,
+  options: RedirectToHomeOptions = {
+    path: '/'
+  }
+) {
+  return redirectToPath(request, options.path, {shouldClearSearchParams: true});
+}
+
+export type PublicPath = string | RegExp;
+
 interface RedirectToLoginOptions {
   path: string;
-  publicPaths: string[];
+  publicPaths: PublicPath[];
   redirectParamKeyName?: string;
+}
+
+function doesRequestPathnameMatchPublicPath(
+  request: NextRequest,
+  publicPath: PublicPath
+) {
+  if (typeof publicPath === 'string') {
+    return publicPath === request.nextUrl.pathname;
+  }
+
+  return publicPath.test(request.nextUrl.pathname);
+}
+
+function doesRequestPathnameMatchOneOfPublicPaths(
+  request: NextRequest,
+  publicPaths: PublicPath[]
+) {
+  return publicPaths.some((path) =>
+    doesRequestPathnameMatchPublicPath(request, path)
+  );
 }
 
 export function redirectToLogin(
@@ -56,7 +105,7 @@ export function redirectToLogin(
 ) {
   const redirectKey = options.redirectParamKeyName || 'redirect';
 
-  if (options.publicPaths.includes(request.nextUrl.pathname)) {
+  if (doesRequestPathnameMatchOneOfPublicPaths(request, options.publicPaths)) {
     return NextResponse.next();
   }
 
@@ -78,7 +127,8 @@ export async function createAuthMiddlewareResponse(
       serviceAccount: options.serviceAccount,
       apiKey: options.apiKey,
       tenantId: options.tenantId,
-      enableMultipleCookies: options.enableMultipleCookies
+      enableMultipleCookies: options.enableMultipleCookies,
+      authorizationHeaderName: options.authorizationHeaderName
     });
   }
 
@@ -109,14 +159,16 @@ export type HandleValidToken = (
 ) => Promise<NextResponse>;
 export type HandleError = (e: unknown) => Promise<NextResponse>;
 
-export interface AuthMiddlewareOptions
-  extends CreateAuthMiddlewareOptions,
-    GetTokensOptions {
+export interface AuthMiddlewareOptions extends CreateAuthMiddlewareOptions {
+  serviceAccount?: ServiceAccount;
+  apiKey: string;
+  debug?: boolean;
+  headers?: Headers;
   checkRevoked?: boolean;
   handleInvalidToken?: HandleInvalidToken;
   handleValidToken?: HandleValidToken;
   handleError?: HandleError;
-  debug?: boolean;
+  experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
 }
 
 const defaultInvalidTokenHandler = async () => NextResponse.next();
@@ -248,17 +300,27 @@ export async function authMiddleware(
         return response;
       },
       async (e) => {
+        if (
+          e instanceof AuthError &&
+          e.code === AuthErrorCode.NO_MATCHING_KID
+        ) {
+          throw InvalidTokenError.fromError(e, InvalidTokenReason.INVALID_KID);
+        }
+
         debug('Authentication failed with error', {error: e});
 
         return handleError(e);
-      }
+      },
+      options.experimental_enableTokenRefreshOnExpiredKidHeader ?? false
     );
   } catch (error: unknown) {
     if (error instanceof InvalidTokenError) {
       debug(
         `Token is missing or has incorrect formatting. This is expected and usually means that user has not yet logged in`,
         {
-          reason: error.reason
+          message: error.message,
+          reason: error.reason,
+          stack: error.stack
         }
       );
       return handleInvalidToken(error.reason);
