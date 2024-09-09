@@ -1,8 +1,8 @@
-# Debug mode
+# Debug Mode
 
-You can enable `debug mode` by providing `debug: true` option to `authMiddleware` and `getTokens`.
+You can enable `debug mode` by setting `debug: true` in the options for `authMiddleware` and `getTokens`.
 
-When in debug mode, middleware logs additional information about authentication process to the console.
+When debug mode is active, the middleware will log additional details about the authentication process to the console.
 
 ```tsx filename="middleware.ts"
 import { NextRequest, NextResponse } from "next/server";

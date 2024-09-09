@@ -1,21 +1,20 @@
 # Sign in with Server Action
 
-Use official `firebase/auth` [guide](https://firebase.google.com/docs/auth/web/password-auth) to perform different operations, such as `signInWithEmailAndPassword` or `signOut`.
+You can follow the official `firebase/auth` [guide](https://firebase.google.com/docs/auth/web/password-auth) to handle operations like `signInWithEmailAndPassword` or `signOut`.
 
 ## refreshCookiesWithIdToken
 
-`refreshCookiesWithIdToken` method updates browser cookies with authenticated credentials based on `idToken`. The method is compatible with **Server Actions** and **Middleware**. You can use this method after you perform different Firebase operations within Server Actions to update browser cookies with latest credentials.
+The `refreshCookiesWithIdToken` method updates browser cookies with the latest authenticated credentials based on the `idToken`. This method works with **Server Actions** and **Middleware**. After performing Firebase operations in a Server Action, you can use this method to refresh the browser cookies with updated credentials.
 
 ## Example loginAction and LoginPage
 
-**Compatibility with Vercel environment:** Using `firebase/auth` library inside Server Actions is not yet compatible with **Vercel** environment.
+**Note for Vercel users:** The `firebase/auth` library isn't fully compatible with **Vercel** environments when used inside Server Actions.
 
-If you experience `ReferenceError: document is not defined` error, move `firebase/auth` import to client component
+If you get a `ReferenceError: document is not defined`, move the `firebase/auth` import to a client component.
 
+Below is a simple example of a login page client component that lets users sign in using a Server Action and the `refreshCookiesWithIdToken` method.
 
-The example below shows very basic login page client component that allows users to sign in using Server Action and `refreshCookiesWithIdToken` method
-
-First, let's define our Server Action:
+First, let’s define our Server Action:
 
 ```tsx filename="login.tsx"
 'use server';

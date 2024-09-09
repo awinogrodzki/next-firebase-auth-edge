@@ -1,23 +1,27 @@
+
+Here’s a more familiar version of the markdown:
+
+markdown
+Copy code
 # Using Client-Side APIs
 
-The starter example uses the [inMemoryPersistence](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next-typescript-starter/app/auth/firebase.ts#L28-L30) strategy to rely solely on server-side tokens, thus avoiding any consistency issues on client-side.
+The starter example uses the [inMemoryPersistence](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next-typescript-starter/app/auth/firebase.ts#L28-L30) strategy, relying entirely on server-side tokens. This avoids consistency issues on the client side.
 
-This approach is recommended, but causes a few issues user may run into:
+While this approach is recommended, it can lead to a few challenges:
 
-1. **Stale tokens:** In long-running client sessions, server-side tokens may no longer be valid, requiring user to refresh the page in order to get access to valid token. This may happen when user re-opens tab after 1 hour.
-2. **Unauthenticated Firebase Client SDK environment:** `inMemoryPersistence` will cause `currentUser` to be `null`, when trying to access it using [client-side APIs](https://firebase.google.com/docs/auth/web/manage-users), in most cases. This prevents us from using Firebase client-side SDKs.
+1. **Stale tokens:** In long-running client sessions, server-side tokens may expire, requiring the user to refresh the page to get a valid token. This typically happens if the user reopens a tab after about an hour.
+2. **Unauthenticated Firebase Client SDK environment:** With `inMemoryPersistence`, `currentUser` will often be `null` when using [client-side APIs](https://firebase.google.com/docs/auth/web/manage-users), preventing the use of Firebase’s client-side SDKs.
 
-`next-firebase-auth-edge` provides a number of features that solves aforementioned issues, as listed below:
+However, `next-firebase-auth-edge` includes several features that address these issues:
 
 
+### Enable Refresh Token API Endpoint in Auth Middleware
 
-### Enable Refresh Token API endpoint in Auth Middleware
+In long-running client sessions (e.g., when a user reopens a tab after an hour), the server-side token may expire. This can cause problems when validating external API calls or when using the `customToken` with Firebase's `signInWithCustomToken`.
 
-In long-running client-side sessions (e.g., if a user reopens a tab after 1 hour), the server-side token may be expired. This can cause access issues when using the token to validate external API calls or when using the `customToken` together with the `signInWithCustomToken` Firebase SDK function.
+To resolve this, you can expose an endpoint via `authMiddleware` to refresh client-side tokens when the server-side token has expired.
 
-To fix this, `authMiddleware` can expose a special endpoint to refresh client-side tokens, if current server-side token has expired.
-
-To enable the endpoint, define `refreshTokenPath` middleware option:
+To enable this endpoint, define the `refreshTokenPath` option in the middleware.
 
 ```tsx
 export async function middleware(request: NextRequest) {
@@ -35,20 +39,19 @@ export const config = {
 };
 ```
 
-Calling `/api/refresh-token` does two things:
+Calling `/api/refresh-token` will:
 
-1. It checks if the current token is expired. If it is, it regenerates the token and updates the cookies by returning `Set-Cookie` header with fresh token.
-2. It resolves with JSON containing valid `idToken` and `customToken` 
-
+1. Check if the current token has expired. If it has, it regenerates the token and updates the cookies with a `Set-Cookie` header containing the fresh token.
+2. Return JSON with a valid `idToken` and `customToken`.
 
 
 ### getValidIdToken
 
-`getValidIdToken` works together with [refresh token endpoint](/docs/usage/client-side-apis#enable-refresh-token-api-endpoint-in-auth-middleware) to provide latest, valid id token. It can be useful if you use `token` to authorize external API calls
+The `getValidIdToken` function works in conjunction with the [refresh token endpoint](/docs/usage/client-side-apis#enable-refresh-token-api-endpoint-in-auth-middleware) to ensure you have the latest valid ID token. This is helpful if you use tokens to authorize external API calls.
 
-It requires `serverIdToken`, which is the `token` returned by [getTokens](/docs/usage/server-components#gettokens) function inside server components
+It requires `serverIdToken`, which is the `token` returned by the [getTokens](/docs/usage/server-components#gettokens) function in server components.
 
-The function is designed to be fast and safe to use when called multiple times. Thus, the `/api/refresh-token` endpoint will only be called if the token has expired.
+The function is optimized to be fast and safe for repeated calls. The `/api/refresh-token` endpoint will only be called if the token has expired.
 
 Example usage:
 ```ts
@@ -72,11 +75,11 @@ export async function fetchSomethingFromExternalApi(serverIdToken: string) {
 
 ### getValidCustomToken
 
-`getValidCustomToken` works together with [refresh token endpoint](/docs/usage/client-side-apis#enable-refresh-token-api-endpoint-in-auth-middleware) to provide latest, valid custom token. It can be useful if you use `customToken` together with Firebase's [signInWithCustomToken](https://firebase.google.com/docs/auth/web/custom-auth#authenticate-with-firebase) method
+Similar to `getValidIdToken`, the `getValidCustomToken` function works with the [refresh token endpoint](/docs/usage/client-side-apis#enable-refresh-token-api-endpoint-in-auth-middleware) to provide a valid custom token. This is useful when using the custom token with Firebase’s [signInWithCustomToken](https://firebase.google.com/docs/auth/web/custom-auth#authenticate-with-firebase) method.
 
-It requires `serverCustomToken`, which is the `customToken` returned by [getTokens](/docs/usage/server-components#gettokens) function inside server components
+It requires `serverCustomToken`, which is the `customToken` returned by the [getTokens](/docs/usage/server-components#gettokens) function in server components.
 
-The function is designed to be fast and safe to use when called multiple times. Thus, the `/api/refresh-token` endpoint will only be called if the token has expired.
+Like `getValidIdToken`, this function is designed to be efficient and only calls the `/api/refresh-token` endpoint if necessary.
 
 Example usage:
 ```ts
@@ -101,9 +104,9 @@ export async function signInWithServerCustomToken(
 
 ## Using Firebase Client SDKs
 
-Firebase Client SDK exposes [signInWithCustomToken](https://firebase.google.com/docs/auth/web/custom-auth#authenticate-with-firebase) method that allows us to access current user using custom token.
+The Firebase Client SDK exposes the [signInWithCustomToken](https://firebase.google.com/docs/auth/web/custom-auth#authenticate-with-firebase) method, which allows you to access the current user using a custom token.
 
-Custom token can be obtained by calling [getTokens](/docs/usage/server-components#gettokens) function in server components
+You can obtain a custom token by calling the [getTokens](/docs/usage/server-components#gettokens) function in server components.
 
 ```tsx
 import {signInWithCustomToken} from 'firebase/auth';

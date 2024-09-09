@@ -1,10 +1,11 @@
 # Usage in Server Components
 
-The library provides `getTokens` function to extract and validate user credentials. The function can be used only in `Server Components` or [API Route Handlers](/docs/usage/app-router-api-routes). It returns `null` if there are no authentication cookies or the credentials have expired. If request contains valid user credentials, the function returns an object with `token`, `decodedToken` and `customToken` properties. `token` is jwt-encoded string, whereas `decodedToken` is an object representing decoded `token`.
+The library provides a `getTokens` function to extract and validate user credentials. This function can only be used in `Server Components` or [API Route Handlers](/docs/usage/app-router-api-routes). It returns `null` if there are no authentication cookies or if the credentials have expired. If the request contains valid credentials, the function returns an object with `token`, `decodedToken`, and `customToken`. The `token` is a JWT-encoded string, while `decodedToken` is the decoded object representation of that token.
 
 ## getTokens
 
-Example usage of `getTokens` function from `next-firebase-auth-edge`:
+Here’s an example of how to use the `getTokens` function from `next-firebase-auth-edge`:
+
 
 ```tsx
 import {getTokens} from 'next-firebase-auth-edge';
@@ -47,17 +48,17 @@ export default async function ServerComponentExample() {
 }
 ```
 
-### Required options
+### Required Options
 
-| Name                |                                                                                                                | Description                                                                                                                                                                                       |
-| ------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apiKey              | **Required**                                                                                                   | Firebase Web API Key retrieved from Firebase Project settings overview page. Please note that this API Key will be visible only after you enable Firebase Authentication in your Firebase project |
-| serviceAccount      | Optional in authenticated [Google Cloud Run](https://cloud.google.com/run) environment. Otherwise **required** | Firebase Service Account credentials                                                                                                                                                              |
-| cookieName          | **Required**                                                                                                   | The name for cookie set by `loginPath` api route.                                                                                                                                                 |
-| cookieSignatureKeys | **Required**                                                                                                   | [Rotating keys](https://developer.okta.com/docs/concepts/key-rotation/#:~:text=Key%20rotation%20is%20when%20a,and%20follows%20cryptographic%20best%20practices.) the cookie is validated against  |
+| Name                | Description                                                                                                                                                                                                          |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| apiKey              | **Required**. The Firebase Web API Key, which you can find on the Firebase Project settings overview page. Keep in mind, this API key will only be visible once you enable Firebase Authentication.                  |
+| serviceAccount      | Optional in authenticated [Google Cloud Run](https://cloud.google.com/run) environments. Otherwise, **required**. This refers to the Firebase Service Account credentials.                                           |
+| cookieName          | **Required**. The name of the cookie set by the `loginPath` API route.                                                                                                                                               |
+| cookieSignatureKeys | **Required**. These are [rotating keys](https://developer.okta.com/docs/concepts/key-rotation/#:~:text=Key%20rotation%20is%20when%20a,and%20follows%20cryptographic%20best%20practices) used to validate the cookie. |
 
-### Optional options
+### Optional Options
 
-| Name    |              | Description                                                                                                                                                                                                                                                  |
-| ------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| headers | **Optional** | Request `Headers`. Used to share referer between request and Google APIs. `Headers` can be obtained by calling `headers` function imported from `next/headers` inside Server Components. In Edge and Node.js environments, use `NextRequest.headers` instead |
+| Name    | Description                                                                                                                                                                                                                                                                         |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| headers | **Optional**. The request `Headers`. These are used to pass the referer between the request and Google APIs. You can get `Headers` by calling the `headers` function from `next/headers` in Server Components. In Edge and Node.js environments, use `NextRequest.headers` instead. |

@@ -1,41 +1,40 @@
-# Handling errors
+# Handling Errors
 
 ## handleInvalidToken
 
-[Auth middleware](/docs/usage/middleware)'s `handleInvalidToken` function is called with `InvalidTokenReason` as the first argument.
+The [Auth middleware](/docs/usage/middleware) provides a `handleInvalidToken` function, which is called with an `InvalidTokenReason` as the first argument.
 
-The role of `InvalidTokenReason` is mostly informative. `handleInvalidToken` is usually called when something **expected** happens and we can safely redirect user to the login page. One of those **expected** events might be a user visiting your app for the first time.
+The `InvalidTokenReason` is primarily for informational purposes. The `handleInvalidToken` function is typically called when something **expected** happens, allowing the user to be safely redirected to the login page. One common **expected** event is when a user visits your app for the first time.
 
 ### InvalidTokenReason
 
-Following table describes different types of `InvalidTokenReason`
+The table below describes the different types of `InvalidTokenReason`:
 
 | Name | Description |
 | ---- | ----------- |
-| `MISSING_CREDENTIALS` | Request does not contain authentication cookie |
-| `MISSING_REFRESH_TOKEN` | Credentials have expired, but refresh token is not available |
-| `MALFORMED_CREDENTIALS` | Cookies cannot be parsed or the structure has changed |
-| `INVALID_SIGNATURE` | Cookie signature cannot be verified or cookie signature keys have changed |
-| `INVALID_CREDENTIALS` | Cookies have valid structure, but `idToken` cannot be verified |
-| `INVALID_KID` | This error usually indicates that certificate the token has been signed with has expired. This is **expected**. Google refreshes certificates periodically, which is a form of [key rotation](https://developer.okta.com/docs/concepts/key-rotation/) |
-
+| `MISSING_CREDENTIALS` | The request does not contain an authentication cookie |
+| `MISSING_REFRESH_TOKEN` | Credentials have expired, and no refresh token is available |
+| `MALFORMED_CREDENTIALS` | The cookies cannot be parsed or the structure has changed |
+| `INVALID_SIGNATURE` | The cookie signature cannot be verified or the signature keys have changed |
+| `INVALID_CREDENTIALS` | The cookies have a valid structure, but the `idToken` cannot be verified |
+| `INVALID_KID` | This error usually means the certificate used to sign the token has expired, which is **expected**. Google periodically refreshes certificates as part of [key rotation](https://developer.okta.com/docs/concepts/key-rotation/) |
 
 ## handleError
 
-Contrary to [handleInvalidToken](/docs/errors#handleinvalidtoken), `handleError` is called when something **unexpected** happens. Something a developer should take a closer look at.
+Unlike `handleInvalidToken`, which handles **expected** issues, `handleError` is called when something **unexpected** occurs that a developer should investigate.
 
-`handleError` is called with `AuthError` as the first argument. `AuthError` has `code` and `message` properties that describe the type and meaning of the error
+The `handleError` function receives an `AuthError` object as the first argument. This object includes `code` and `message` properties, which describe the type and meaning of the error.
 
-It can be divided into following types
+The error codes are divided as follows:
 
 | Code | Description |
 | ---- | ----------- |
-| `USER_NOT_FOUND` | User cannot be found. Most likely was removed between generating and refreshing custom token |
-| `INVALID_CREDENTIAL` | Token could not be refreshed due to invalid refresh token or service account credentials |
-| `TOKEN_EXPIRED` | Handled internally to refresh the token. Happens when custom `idToken` has expired  |
+| `USER_NOT_FOUND` | The user cannot be found, possibly because they were removed after generating or refreshing the custom token |
+| `INVALID_CREDENTIAL` | The token could not be refreshed due to an invalid refresh token or service account credentials |
+| `TOKEN_EXPIRED` | Handled internally to refresh the token. Occurs when the custom `idToken` has expired |
 | `USER_DISABLED` | Thrown when `authMiddleware` is called with `checkRevoked: true` and the user has been disabled |
 | `TOKEN_REVOKED` | Thrown when `authMiddleware` is called with `checkRevoked: true` and the token has been revoked |
-| `INVALID_ARGUMENT` | Token has incorrect structure or certificate this token was signed with has expired |
-| `INTERNAL_ERROR` | Internal error. Check error message for details |
-| `NO_KID_IN_HEADER` | Handled internally to verify token against all public certificates. Re-throws `INVALID_SIGNATURE` if none of the public keys match token signature. |
-| `INVALID_SIGNATURE` | Token signature cannot be verified |
+| `INVALID_ARGUMENT` | The token has an incorrect structure or the certificate used to sign it has expired |
+| `INTERNAL_ERROR` | An internal error occurred. Check the error message for more details |
+| `NO_KID_IN_HEADER` | Handled internally to verify the token against all public certificates. Re-throws `INVALID_SIGNATURE` if none of the public keys match the token's signature |
+| `INVALID_SIGNATURE` | The token signature cannot be verified |

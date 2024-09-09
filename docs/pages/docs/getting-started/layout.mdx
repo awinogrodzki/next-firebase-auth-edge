@@ -1,16 +1,16 @@
 # Layout
 
-We can use `getTokens` function from `next-firebase-auth-edge` to extract user information from request cookies.
+We can use the `getTokens` function from `next-firebase-auth-edge` to pull user information from request cookies.
 
-After extracting token details, we can map them to `User` object and pass it to `AuthProvider` created in [previous step](/docs/getting-started/auth-provider).
+Once we have the token details, we can map them to a `User` object and pass it to the `AuthProvider` we created in the [previous step](/docs/getting-started/auth-provider).
 
-You can use `getTokens` inside any React Server Component, be it a `page.tsx` or `layout.tsx`.
+You can use `getTokens` in any React Server Component, whether it's `page.tsx` or `layout.tsx`.
 
-Read more about Next.js App Router in [official docs](https://nextjs.org/docs/app)
+Learn more about the Next.js App Router in the [official docs](https://nextjs.org/docs/app).
 
 ## Example RootLayout
 
-The following is an example implementation of `RootLayout` React Server Component that uses `getTokens` function to create user object based on user cookies and pass it down to `AuthProvider` client component.
+Here’s an example of how to implement the `RootLayout` React Server Component. It uses the `getTokens` function to create a user object from cookies and passes it to the `AuthProvider` client component.
 
 ```tsx filename="app/layout.tsx"
 import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
