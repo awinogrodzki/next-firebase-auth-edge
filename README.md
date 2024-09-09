@@ -26,7 +26,7 @@ https://hackernoon.com/using-firebase-authentication-with-the-latest-nextjs-feat
 
 The official documentation is available here: https://next-firebase-auth-edge-docs.vercel.app
 
-## Why This Library?
+## Why?
 
 The official `firebase-admin` library depends heavily on Node.js’s internal `crypto` library, which isn’t available in [Next.js Edge Runtime](https://nextjs.org/docs/api-reference/edge-runtime).
 
