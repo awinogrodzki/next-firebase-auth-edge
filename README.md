@@ -12,53 +12,54 @@ Next.js Firebase Authentication for Edge and Node.js runtimes. Use Firebase Auth
 
 ## Example
 
-The starter demo is available at [next-firebase-auth-edge-starter.vercel.app](https://next-firebase-auth-edge-starter.vercel.app/)
+Check out a working demo here: [next-firebase-auth-edge-starter.vercel.app](https://next-firebase-auth-edge-starter.vercel.app/)
 
-You can find source code for the demo in [examples/next-typescript-starter](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next-typescript-starter)
+You can find the source code for this demo at [examples/next-typescript-starter](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next-typescript-starter)
 
 ## Guide
 
-If you're new to Firebase or Next.js, you can follow this comprehensive, step-by-step guide on integrating Firebase Authentication with Next.js using **next-firebase-auth-edge** library: 
+New to Firebase or Next.js? No worries! Follow this easy, step-by-step guide to set up Firebase Authentication in your Next.js app using the **next-firebase-auth-edge** library:
 
 https://hackernoon.com/using-firebase-authentication-with-the-latest-nextjs-features
 
 ## Docs
 
-Official library documentation can be found at https://next-firebase-auth-edge-docs.vercel.app
+The official documentation is available here: https://next-firebase-auth-edge-docs.vercel.app
 
-## Why
+## Why This Library?
 
-Official `firebase-admin` library relies heavily on Node.js internal `crypto` library and primitives that are unavailable inside [Next.js Edge Runtime](https://nextjs.org/docs/api-reference/edge-runtime).
+The official `firebase-admin` library depends heavily on Node.js’s internal `crypto` library, which isn’t available in [Next.js Edge Runtime](https://nextjs.org/docs/api-reference/edge-runtime).
 
-This library aims to solve the problem of creating and verifying [Custom ID Tokens](https://firebase.google.com/docs/auth/admin/verify-id-tokens) using Web Crypto API available inside Edge runtimes.
+This library solves that problem by handling the creation and verification of [Custom ID Tokens](https://firebase.google.com/docs/auth/admin/verify-id-tokens) using the Web Crypto API, which works in Edge runtimes.
 
 ## Features
 
-`next-firebase-auth-edge` is compatible with latest Next.js features, such as [App Router](https://nextjs.org/docs/app) or [Server Components](https://nextjs.org/docs/app/building-your-application/rendering/server-components)
+`next-firebase-auth-edge` supports all the latest Next.js features, like the [App Router](https://nextjs.org/docs/app) and [Server Components](https://nextjs.org/docs/app/building-your-application/rendering/server-components).
 
-To allow gradual adoption of latest Next.js features, `next-firebase-auth-edge` works interchangeably with [getServerSideProps](https://nextjs.org/docs/pages/building-your-application/data-fetching/get-server-side-props) and legacy [Api Routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes)
+To make adopting the newest Next.js features easier, this library works seamlessly with both [getServerSideProps](https://nextjs.org/docs/pages/building-your-application/data-fetching/get-server-side-props) and legacy [API Routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes).
 
-* **Supports latest Next.js features**
-* **Zero-bundle size**
-* **Minimal configuration**: In contrary to other libraries, you don't have to define your own API routes or update your `next.config.js` file. All heavy lifting is done by [the middleware](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware).
-* **Secure**: Uses [jose](https://github.com/panva/jose) for JWT validation. Signs user cookies with rotating keys to mitigate the risk of cryptanalysis attacks
+### Key Features:
+* **Supports Next.js's latest features**
+* **Zero bundle size**
+* **Minimal setup**: Unlike other libraries, you won’t need to create your own API routes or modify your `next.config.js`. Everything’s handled by [middleware](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware).
+* **Secure**: Uses [jose](https://github.com/panva/jose) for JWT validation, and signs user cookies with rotating keys to prevent cryptanalysis attacks.
 
-### What's new in v1.7
+### What's New in v1.7
 
-Most notable features are:
-* **Node.js 22** support
-* **Next.js 15 RC** support
-* **React 19** support
-* Introduced `experimental_enableTokenRefreshOnExpiredKidHeader` option in `authMiddleware` and `getTokens` to refresh user token instead of throwing an error when Google public certificates have expired
-* Introduced `authorizationHeaderName` option in `authMiddleware` to customize login endpoint authorization header name
-* Introduced `redirectToPath` helper function to redirect users to any path from inside Middleware
-* Updated `redirectToLogin` helper function to accept `RegExp` in `publicPaths`
+Key updates in this release include:
+* Support for **Node.js 22**
+* Support for **Next.js 15 RC**
+* Support for **React 19**
+* New `experimental_enableTokenRefreshOnExpiredKidHeader` option in `authMiddleware` and `getTokens`, which refreshes user tokens when Google’s public certificates expire (instead of throwing an error).
+* New `authorizationHeaderName` option in `authMiddleware`, letting you customize the authorization header for login endpoints.
+* New `redirectToPath` helper function, allowing you to easily redirect users from within Middleware.
+* Updated `redirectToLogin` helper function, now accepts `RegExp` for `publicPaths`.
 
-See [1.7.x canary release](https://github.com/awinogrodzki/next-firebase-auth-edge/pull/216) for detailed description
-
-
+For more details, check out the [1.7.x canary release](https://github.com/awinogrodzki/next-firebase-auth-edge/pull/216).
 
 ## Installation
+
+To install, run one of the following:
 
 With **npm**
 
