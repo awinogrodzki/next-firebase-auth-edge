@@ -122,6 +122,9 @@ You can pass this headers object to `NextResponse.next({ request: { headers } })
 
 For more details on modifying request headers in middleware, check out [Modifying Request Headers in Middleware](https://vercel.com/templates/next.js/edge-functions-modify-request-header).
 
+The example below shows a simplified version of how you can combine other middleware with `next-firebase-auth-edge`.
+
+
 ```tsx
 handleValidToken: async ({token, decodedToken, customToken}, headers) => {
   return NextResponse.next({
@@ -161,8 +164,6 @@ export async function middleware(request: NextRequest) {
 ```
 
 **Note:** When using `next-intl` middleware, you don't need to pass `headers` like you would in [middleware token verification caching](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#middleware-token-verification-caching). By the time we call `intlMiddleware`, the `request` already has the updated headers. `next-intl` will handle passing the modified headers for you.
-
-The example below shows a simplified version of how you can combine other middleware with `next-firebase-auth-edge`.
 
 If you're experiencing issues with redirects while using `next-intl` middleware, check out [this comment on GitHub](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/169#issuecomment-2076683598) for code examples.
 
