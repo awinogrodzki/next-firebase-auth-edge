@@ -28,7 +28,7 @@ See the [getTokens](/docs/usage/server-components) options section for more deta
 
 2. If you're using the deprecated `getTokensFromObject` method, switch to `getApiRequestTokens` instead. Refer to the [getApiRequestTokens](/docs/usage/pages-router-api-routes) documentation for more information.
 
-3. If you are using any of the advanced methods like `getCustomIdAndRefreshTokens`, `verifyIdToken`, `handleTokenRefresh`, or `verifyAndRefreshExpiredIdToken` from the [advanced usage](/docs/usage/advanced-usage) section, make sure to pass the `referer` option. The `referer` should be the authorized domain, derived from the request headers. You can use the `getReferer` function (imported from `next-firebase-auth-edge/lib/next/utils`) to extract the referer from the headers of `NextResponse`.
+3. If you are using any of the advanced methods like `getCustomIdAndRefreshTokens`, `verifyIdToken`, `handleTokenRefresh`, or `verifyAndRefreshExpiredIdToken` from the [advanced usage](/docs/usage/advanced-usage) section, make sure to pass the `referer` option. The `referer` should be the authorized domain, derived from the request headers. You can use the `getReferer` function (imported from `next-firebase-auth-edge/lib/next/utils`) to extract the referer from the headers of `NextRequest`.
 
 ```ts
 import {getFirebaseAuth} from 'next-firebase-auth-edge/lib/auth';
