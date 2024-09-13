@@ -52,6 +52,14 @@ export async function getRequestCookiesTokens(
 
   const enableMultipleCookies = signatureCookie?.value && customCookie?.value;
 
+  if (!enableMultipleCookies && signedCookie?.value.includes(':')) {
+    debug(
+      "Authentication cookie is in multiple cookie format, but lacks signature and custom cookies. Clear your browser cookies and try again. If the issue keeps happening and you're using `enableMultipleCookies` option, make sure that server returns all required cookies: https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#multiple-cookies"
+    );
+
+    throw new InvalidTokenError(InvalidTokenReason.INVALID_CREDENTIALS);
+  }
+
   if (!signedCookie?.value) {
     debug('Missing authentication cookies');
 
