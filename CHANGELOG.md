@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0...v1.7.1) (2024-09-13)
+
+
+### Bug Fixes
+
+* handle switch from multiple to single cookie ([9b18bd5](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/9b18bd58ed0b765c19727d8aaf8f1f45299623d0))
+
 # [1.7.0](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.6.2...v1.7.0) (2024-09-09)
 
 
