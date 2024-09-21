@@ -1,0 +1,67 @@
+# Redirect Helper Functions
+
+This library provides a set of helper functions to simplify handling common redirect scenarios.
+
+These redirect functions make it easier to create a [redirect response in Next.js Middleware](https://nextjs.org/docs/app/building-your-application/routing/redirecting#nextresponseredirect-in-middleware).
+
+For example, here’s how the `redirectToPath` helper function works:
+
+```ts
+export function redirectToPath(
+  request: NextRequest,
+  path: string,
+  options: RedirectToPathOptions = {shouldClearSearchParams: false}
+) {
+  const url = request.nextUrl.clone();
+  url.pathname = path;
+
+  if (options.shouldClearSearchParams) {
+    url.search = '';
+  }
+
+  return NextResponse.redirect(url);
+}
+```
+
+It’s a straightforward function that builds a `NextResponse` object for handling redirects.
+
+**Note:** You don’t have to use the library's redirect functions—you can always implement your own redirect logic if it better suits your needs.
+
+## redirectToPath
+
+Example usage
+
+```ts
+import {redirectToPath} from 'next-firebase-auth-edge';
+```
+
+```ts
+redirectToPath(request, '/dashboard', {shouldClearSearchParams: true});
+```
+
+## redirectToHome
+
+`redirectToHome` is a simplified version of `redirectToPath` that redirects the user to the home page (`/`).
+
+```ts
+import {redirectToHome} from 'next-firebase-auth-edge';
+```
+
+```ts
+redirectToHome(request);
+```
+
+## redirectToLogin
+
+`redirectToLogin` redirects unauthenticated users to a public login page. It will skip the redirect if the request matches one of the paths listed in `publicPaths`.
+
+```ts
+import {redirectToLogin} from 'next-firebase-auth-edge';
+```
+
+```ts
+redirectToLogin(request, {
+  path: '/sign-in',
+  publicPaths: ['/sign-in', '/register', /^\/post\/(\w+)/]
+});
+```

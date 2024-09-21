@@ -1,13 +1,13 @@
-# Usage in Google Cloud Run environment
+# Usage in Google Cloud Run Environment
 
-Before running `next-firebase-auth-edge` in Google Cloud Environment, make sure to:
+Before running `next-firebase-auth-edge` in a Google Cloud Run environment, make sure to:
 
-1. [Enable IAM Service Account Credentials API](https://console.cloud.google.com/apis/api/iamcredentials.googleapis.com)
-2. Assign `iam.serviceAccounts.signBlob` permission to IAM role attached to [default compute service account](https://console.cloud.google.com/iam-admin/iam)
+1. [Enable the IAM Service Account Credentials API](https://console.cloud.google.com/apis/api/iamcredentials.googleapis.com).
+2. Assign the `iam.serviceAccounts.signBlob` permission to the IAM role attached to the [default compute service account](https://console.cloud.google.com/iam-admin/iam).
 
-You can now omit `serviceAccount` option in `authMiddleware`, `getTokens` and other functions. When `serviceAccount` is `undefined`, `next-firebase-auth-edge` will extract credentials from authenticated [Google Cloud Run](https://cloud.google.com/run) environment.
+Once this is done, you can omit the `serviceAccount` option in `authMiddleware`, `getTokens`, and other functions. If `serviceAccount` is `undefined`, `next-firebase-auth-edge` will automatically extract credentials from the authenticated [Google Cloud Run](https://cloud.google.com/run) environment.
 
-Please note that you still have to supply firebase `apiKey`.
+Keep in mind that you still need to provide the Firebase `apiKey`.
 
 Example [authMiddleware](/docs/usage/middleware) usage:
 

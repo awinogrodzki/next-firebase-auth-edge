@@ -1,8 +1,8 @@
-# Usage in Firebase Hosting environment
+# Usage in Firebase Hosting Environment
 
-Firebase Hosting environment by default strips all cookies other than `__session` (See https://stackoverflow.com/questions/44929653/firebase-cloud-function-wont-store-cookie-named-other-than-session)
+By default, the Firebase Hosting environment strips all cookies except for `__session`. (See [this StackOverflow thread](https://stackoverflow.com/questions/44929653/firebase-cloud-function-wont-store-cookie-named-other-than-session) for more details.)
 
-To enable `next-firebase-auth-edge` in Firebase Hosting, you need to provide custom `cookieName` with the value of `__session`, as in below examples:
+To use `next-firebase-auth-edge` in Firebase Hosting, you need to set a custom `cookieName` with the value `__session`, as shown in the examples below:
 
 ```tsx filename="middleware.ts"
 import { NextRequest, NextResponse } from "next/server";

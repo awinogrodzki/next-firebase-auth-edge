@@ -1,8 +1,8 @@
-# App Check support
+# App Check Support
 
-Library provides [Firebase App Check](https://firebase.google.com/docs/app-check) support. Follow [starter example README](https://github.com/awinogrodzki/next-firebase-auth-edge/tree/main/examples/next-typescript-starter) for more information on integrating your app with App Check.
+This library provides support for [Firebase App Check](https://firebase.google.com/docs/app-check). To learn how to integrate App Check into your app, follow the instructions in the [starter example README](https://github.com/awinogrodzki/next-firebase-auth-edge/tree/main/examples/next-typescript-starter).
 
-In order to make `next-firebase-auth-edge` work with App Check, you need to send `X-Firebase-AppCheck` header with App Check token when making a call to `/api/login` endpoint, as in [this example](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next-typescript-starter/api/index.ts#L10-L14)
+To use `next-firebase-auth-edge` with App Check, you need to include the `X-Firebase-AppCheck` header with the App Check token when making a call to the `/api/login` endpoint. You can see how this works in [this example](https://github.com/awinogrodzki/next-firebase-auth-edge/blob/main/examples/next-typescript-starter/api/index.ts#L10-L14).
 
 ```tsx
 import { getToken } from "@firebase/app-check";
@@ -19,9 +19,9 @@ await fetch("/api/login", {
 });
 ```
 
-## Advanced usage
+## Advanced Usage
 
-You can use `getAppCheck` from `next-firebase-auth-edge/lib/app-check` if you need to create or verify App Check token explicitly, as in provided example:
+If you need to explicitly create or verify an App Check token, you can use the `getAppCheck` function from `next-firebase-auth-edge/lib/app-check`. You can see an example of how to do this below:
 
 ```tsx
 import { getAppCheck } from "next-firebase-auth-edge/lib/app-check";

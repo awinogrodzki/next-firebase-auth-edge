@@ -30,18 +30,15 @@ export function getSdkVersion(): string {
   return '11.2.0';
 }
 
-/** Firebase Auth request header. */
 const FIREBASE_AUTH_HEADER = {
   'X-Client-Version': `Node/Admin/${getSdkVersion()}`,
   Accept: 'application/json',
   'Content-Type': 'application/json'
 };
 
-/** The Firebase Auth backend base URL format. */
 const FIREBASE_AUTH_BASE_URL_FORMAT =
   'https://identitytoolkit.googleapis.com/{version}/projects/{projectId}{api}';
 
-/** Firebase Auth base URlLformat when using the auth emultor. */
 const FIREBASE_AUTH_EMULATOR_BASE_URL_FORMAT =
   'http://{host}/identitytoolkit.googleapis.com/{version}/projects/{projectId}{api}';
 
