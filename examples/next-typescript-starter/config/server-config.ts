@@ -1,3 +1,5 @@
+import {clientConfig} from './client-config';
+
 export const serverConfig = {
   useSecureCookies: process.env.USE_SECURE_COOKIES === 'true',
   firebaseApiKey: process.env.FIREBASE_API_KEY!,
@@ -32,4 +34,5 @@ export const authConfig = {
   enableMultipleCookies: true,
   experimental_enableTokenRefreshOnExpiredKidHeader: true,
   debug: true,
+  tenantId: clientConfig.tenantId
 };

@@ -4,7 +4,11 @@ The library provides `getTokens` function to extract and validate user credentia
 
 ## getTokens
 
+<<<<<<< Updated upstream
 Example usage of `getTokens` function from `next-firebase-auth-edge`:
+=======
+Here’s an example of how to use the `getTokens` function from `next-firebase-auth-edge`:
+>>>>>>> Stashed changes
 
 ```tsx
 import {getTokens} from 'next-firebase-auth-edge';
@@ -24,7 +28,8 @@ export default async function ServerComponentExample() {
         '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
     },
     // Optional
-    headers: headers()
+    headers: headers(),
+    tenantId: 'your-tenant-id'
   });
 
   if (!tokens) {
@@ -58,6 +63,13 @@ export default async function ServerComponentExample() {
 
 ### Optional options
 
+<<<<<<< Updated upstream
 | Name    |              | Description                                                                                                                                                                                                                                                  |
 | ------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | headers | **Optional** | Request `Headers`. Used to share referer between request and Google APIs. `Headers` can be obtained by calling `headers` function imported from `next/headers` inside Server Components. In Edge and Node.js environments, use `NextRequest.headers` instead |
+=======
+| Name     | Description                                                                                                                                                                                                                                                                         |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| headers  | **Optional**. The request `Headers`. These are used to pass the referer between the request and Google APIs. You can get `Headers` by calling the `headers` function from `next/headers` in Server Components. In Edge and Node.js environments, use `NextRequest.headers` instead. |
+| tenantId | **Optional** `string`. Specify this if your project supports [multi-tenancy](https://cloud.google.com/identity-platform/docs/multi-tenancy-authentication).                                                                                                                                   |
+>>>>>>> Stashed changes

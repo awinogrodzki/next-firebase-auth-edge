@@ -2,12 +2,13 @@ import {getFirebaseAuth} from 'next-firebase-auth-edge/lib/auth';
 import {refreshNextResponseCookies} from 'next-firebase-auth-edge/lib/next/cookies';
 import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
 import {NextResponse} from 'next/server';
-import type { NextRequest } from 'next/server';
+import type {NextRequest} from 'next/server';
 import {authConfig} from '../../../config/server-config';
 
 const {setCustomUserClaims, getUser} = getFirebaseAuth({
   serviceAccount: authConfig.serviceAccount,
-  apiKey: authConfig.apiKey
+  apiKey: authConfig.apiKey,
+  tenantId: authConfig.tenantId
 });
 
 export async function POST(request: NextRequest) {

@@ -47,7 +47,8 @@ export class FirebaseTokenVerifier {
   constructor(
     clientCertUrl: string,
     private issuer: string,
-    private projectId: string
+    private projectId: string,
+    private tenantId?: string
   ) {
     if (!isURL(clientCertUrl)) {
       throw new AuthError(
@@ -70,7 +71,13 @@ export class FirebaseTokenVerifier {
       options
     );
 
-    return mapJwtPayloadToDecodedIdToken(decoded.payload);
+    const decodedIdToken = mapJwtPayloadToDecodedIdToken(decoded.payload);
+
+    if (this.tenantId && decodedIdToken.firebase.tenant !== this.tenantId) {
+      throw new AuthError(AuthErrorCode.MISMATCHING_TENANT_ID);
+    }
+
+    return decodedIdToken;
   }
 
   private async decodeAndVerify(
@@ -152,11 +159,13 @@ export class FirebaseTokenVerifier {
 }
 
 export function createIdTokenVerifier(
-  projectId: string
+  projectId: string,
+  tenantId?: string
 ): FirebaseTokenVerifier {
   return new FirebaseTokenVerifier(
     CLIENT_CERT_URL,
     'https://securetoken.google.com/',
-    projectId
+    projectId,
+    tenantId
   );
 }

@@ -25,6 +25,7 @@ export interface GetTokensOptions extends GetCookiesTokensOptions {
   debug?: boolean;
   headers?: Headers;
   experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
+  tenantId?: string;
 }
 
 export function validateOptions(options: GetTokensOptions) {
@@ -106,7 +107,8 @@ export async function getTokens(
 
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
-    apiKey: options.apiKey
+    apiKey: options.apiKey,
+    tenantId: options.tenantId
   });
 
   try {
@@ -216,7 +218,8 @@ export async function getApiRequestTokens(
   const referer = request.headers.referer ?? '';
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
-    apiKey: options.apiKey
+    apiKey: options.apiKey,
+    tenantId: options.tenantId
   });
 
   try {
@@ -252,7 +255,8 @@ export async function getTokensFromObject(
 ): Promise<Tokens | null> {
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
-    apiKey: options.apiKey
+    apiKey: options.apiKey,
+    tenantId: options.tenantId
   });
 
   try {

@@ -72,6 +72,11 @@ class AuthResourceUrlBuilder {
   }
 }
 
+export const FIREBASE_AUTH_CREATE_SESSION_COOKIE = new ApiSettings(
+  ':createSessionCookie',
+  'POST'
+);
+
 export const FIREBASE_AUTH_GET_ACCOUNT_INFO = new ApiSettings(
   '/accounts:lookup',
   'POST'
@@ -250,6 +255,23 @@ export abstract class AbstractAuthRequestHandler {
     ).then((response) => {
       return response.localId;
     });
+  }
+
+  public createSessionCookie(
+    idToken: string,
+    expiresInMs: number
+  ): Promise<string> {
+    const request = {
+      idToken,
+      // To seconds
+      validDuration: expiresInMs / 1000
+    };
+
+    return this.invokeRequestHandler<{sessionCookie: string}>(
+      this.getAuthUrlBuilder(),
+      FIREBASE_AUTH_CREATE_SESSION_COOKIE,
+      request
+    ).then((response) => response.sessionCookie);
   }
 
   public updateExistingAccount(

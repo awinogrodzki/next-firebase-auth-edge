@@ -270,13 +270,11 @@ const DEFAULT_VERIFY_OPTIONS = {referer: ''};
 
 function getAuth(options: AuthOptions) {
   const credential = options.credential ?? getApplicationDefault();
+  const tenantId = options.tenantId;
   const authRequestHandler = new AuthRequestHandler(credential, {
-    tenantId: options.tenantId
+    tenantId
   });
-  const tokenGenerator = createFirebaseTokenGenerator(
-    credential,
-    options.tenantId
-  );
+  const tokenGenerator = createFirebaseTokenGenerator(credential, tenantId);
 
   const handleTokenRefresh = async (
     refreshToken: string,
@@ -369,7 +367,7 @@ function getAuth(options: AuthOptions) {
     options: VerifyOptions = DEFAULT_VERIFY_OPTIONS
   ): Promise<DecodedIdToken> {
     const projectId = await credential.getProjectId();
-    const idTokenVerifier = createIdTokenVerifier(projectId);
+    const idTokenVerifier = createIdTokenVerifier(projectId, tenantId);
     const decodedIdToken = await idTokenVerifier.verifyJWT(idToken, options);
     const checkRevoked = options.checkRevoked ?? false;
 
