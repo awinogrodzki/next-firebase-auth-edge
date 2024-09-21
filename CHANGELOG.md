@@ -1,3 +1,10 @@
+# [1.7.0-canary.18](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.17...v1.7.0-canary.18) (2024-09-21)
+
+
+### Features
+
+* validate tenantId when verifying id token ([798d0f1](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/798d0f1037b387a691284b22f6a092dfbfd0d156))
+
 # [1.7.0-canary.17](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0-canary.16...v1.7.0-canary.17) (2024-09-07)
 
 
