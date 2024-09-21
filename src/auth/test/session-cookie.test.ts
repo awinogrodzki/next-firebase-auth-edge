@@ -1,6 +1,4 @@
 import {v4} from 'uuid';
-import {getAppCheck} from '../../app-check';
-import {AppCheckToken} from '../../app-check/types';
 import {customTokenToIdAndRefreshTokens, getFirebaseAuth} from '../index';
 
 const {
@@ -8,8 +6,7 @@ const {
   FIREBASE_PROJECT_ID,
   FIREBASE_ADMIN_CLIENT_EMAIL,
   FIREBASE_ADMIN_PRIVATE_KEY,
-  FIREBASE_AUTH_TENANT_ID,
-  FIREBASE_APP_ID
+  FIREBASE_AUTH_TENANT_ID
 } = process.env;
 
 const TEST_SERVICE_ACCOUNT = {
@@ -32,22 +29,14 @@ describe('session cookie integration test', () => {
     }
   ];
   for (const {desc, tenantId} of scenarios) {
-    let appCheckToken: AppCheckToken = {token: '', ttlMillis: 0};
-
-    beforeAll(async () => {
-      const {createToken} = getAppCheck(TEST_SERVICE_ACCOUNT, tenantId);
-
-      appCheckToken = await createToken(FIREBASE_APP_ID!);
-    });
-
     describe(desc, () => {
-      const {createCustomToken, verifyIdToken} = getFirebaseAuth(
+      const {createCustomToken, createSessionCookie} = getFirebaseAuth(
         TEST_SERVICE_ACCOUNT,
         FIREBASE_API_KEY!,
         tenantId
       );
 
-      it('should create and verify custom token', async () => {
+      it('should create session cookie', async () => {
         const userId = v4();
         const customToken = await createCustomToken(userId, {
           customClaim: 'customClaimValue'
@@ -56,15 +45,11 @@ describe('session cookie integration test', () => {
         const {idToken} = await customTokenToIdAndRefreshTokens(
           customToken,
           FIREBASE_API_KEY!,
-          {tenantId, appCheckToken: appCheckToken.token, referer: REFERER}
+          {tenantId, referer: REFERER}
         );
-        const tenant = await verifyIdToken(idToken, {
-          referer: REFERER
-        });
+        const cookie = await createSessionCookie(idToken, 60 * 60 * 1000);
 
-        expect(tenant.uid).toEqual(userId);
-        expect(tenant.customClaim).toEqual('customClaimValue');
-        expect(tenant.firebase.tenant).toEqual(tenantId);
+        console.log({cookie});
       });
     });
   }

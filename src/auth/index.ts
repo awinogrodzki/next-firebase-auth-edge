@@ -303,6 +303,18 @@ function getAuth(options: AuthOptions) {
     };
   };
 
+  async function createSessionCookie(
+    idToken: string,
+    expiresInMs: number
+  ): Promise<string> {
+    // Verify tenant ID before creating session cookie
+    if (tenantId) {
+      await verifyIdToken(idToken);
+    }
+
+    return authRequestHandler.createSessionCookie(idToken, expiresInMs);
+  }
+
   async function getUser(uid: string): Promise<UserRecord | null> {
     return authRequestHandler.getAccountInfoByUid(uid).then((response) => {
       return response.users?.length ? new UserRecord(response.users[0]) : null;
@@ -521,7 +533,8 @@ function getAuth(options: AuthOptions) {
     getUserByEmail,
     updateUser,
     createUser,
-    listUsers
+    listUsers,
+    createSessionCookie
   };
 }
 
