@@ -1,6 +1,6 @@
 {
   "name": "next-firebase-auth-edge",
-  "version": "1.8.0-canary.4",
+  "version": "1.8.0-canary.5",
   "description": "Next.js Firebase Authentication for Edge and server runtimes. Compatible with latest Next.js features.",
   "files": [
     "lib/**/*.js",
@@ -95,7 +95,6 @@
       "import": "./esm/next/client.js",
       "require": "./lib/next/client.js"
     },
-
     "./next/api": {
       "types": "./lib/next/api.d.ts",
       "bun": "./browser/next/api.js",
@@ -126,7 +125,6 @@
       "import": "./esm/next/refresh-token.js",
       "require": "./lib/next/refresh-token.js"
     },
-
     "./lib": "./lib/index.js",
     "./lib/app-check": "./lib/app-check/index.js",
     "./lib/auth": "./lib/auth/index.js",
@@ -135,7 +133,6 @@
     "./lib/next/cookies": "./lib/next/cookies.js",
     "./lib/next/tokens": "./lib/next/tokens.js",
     "./lib/next/client": "./lib/next/client.js",
-
     "./lib/next/api": "./lib/next/api.js",
     "./lib/next/middleware": "./lib/next/middleware.js",
     "./lib/next/refresh-token": "./lib/next/refresh-token.js"

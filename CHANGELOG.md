@@ -1,3 +1,10 @@
+# [1.8.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.4...v1.8.0-canary.5) (2024-09-22)
+
+
+### Bug Fixes
+
+* include missing directories in package.json exports ([668ae8b](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/668ae8bc4dc55b05623de71e97a2faf1eb417928))
+
 # [1.8.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.3...v1.8.0-canary.4) (2024-09-22)
 
 
