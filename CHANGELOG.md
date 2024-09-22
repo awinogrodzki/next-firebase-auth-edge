@@ -1,3 +1,10 @@
+# [1.8.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.2...v1.8.0-canary.3) (2024-09-22)
+
+
+### Bug Fixes
+
+* remove declarations from esm build ([025e4c8](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/025e4c8a501201618df4fb77a6532d22aed9ddaf))
+
 # [1.8.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.1...v1.8.0-canary.2) (2024-09-22)
 
 
