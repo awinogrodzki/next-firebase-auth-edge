@@ -94,7 +94,51 @@
       "workerd": "./browser/next/client.js",
       "import": "./esm/next/client.js",
       "require": "./lib/next/client.js"
-    }
+    },
+
+    "./next/api": {
+      "types": "./lib/next/api.d.ts",
+      "bun": "./browser/next/api.js",
+      "deno": "./browser/next/api.js",
+      "browser": "./browser/next/api.js",
+      "worker": "./browser/next/api.js",
+      "workerd": "./browser/next/api.js",
+      "import": "./esm/next/api.js",
+      "require": "./lib/next/api.js"
+    },
+    "./next/middleware": {
+      "types": "./lib/next/middleware.d.ts",
+      "bun": "./browser/next/middleware.js",
+      "deno": "./browser/next/middleware.js",
+      "browser": "./browser/next/middleware.js",
+      "worker": "./browser/next/middleware.js",
+      "workerd": "./browser/next/middleware.js",
+      "import": "./esm/next/middleware.js",
+      "require": "./lib/next/middleware.js"
+    },
+    "./next/refresh-token": {
+      "types": "./lib/next/refresh-token.d.ts",
+      "bun": "./browser/next/refresh-token.js",
+      "deno": "./browser/next/refresh-token.js",
+      "browser": "./browser/next/refresh-token.js",
+      "worker": "./browser/next/refresh-token.js",
+      "workerd": "./browser/next/refresh-token.js",
+      "import": "./esm/next/refresh-token.js",
+      "require": "./lib/next/refresh-token.js"
+    },
+
+    "./lib": "./lib/index.js",
+    "./lib/app-check": "./lib/app-check/index.js",
+    "./lib/auth": "./lib/auth/index.js",
+    "./lib/auth/claims": "./lib/auth/claims.js",
+    "./lib/next/utils": "./lib/next/utils.js",
+    "./lib/next/cookies": "./lib/next/cookies.js",
+    "./lib/next/tokens": "./lib/next/tokens.js",
+    "./lib/next/client": "./lib/next/client.js",
+
+    "./lib/next/api": "./lib/next/api.js",
+    "./lib/next/middleware": "./lib/next/middleware.js",
+    "./lib/next/refresh-token": "./lib/next/refresh-token.js"
   },
   "scripts": {
     "build": "run-s clear build:*",
