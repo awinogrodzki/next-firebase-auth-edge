@@ -1,3 +1,10 @@
+# [1.8.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.3...v1.8.0-canary.4) (2024-09-22)
+
+
+### Bug Fixes
+
+* automated release build cache ([b6abf5a](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/b6abf5aea77efdfb3827b18864fe0d08c8a2f7e6))
+
 # [1.8.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.2...v1.8.0-canary.3) (2024-09-22)
 
 
