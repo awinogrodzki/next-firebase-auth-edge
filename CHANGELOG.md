@@ -1,3 +1,10 @@
+# [1.8.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.1...v1.8.0-canary.2) (2024-09-22)
+
+
+### Features
+
+* support esm, commonjs and browser build targets ([93a17bd](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/93a17bde917817d7191cfaf5bce4f17a836c454b))
+
 # [1.8.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.1...v1.8.0-canary.1) (2024-09-21)
 
 
