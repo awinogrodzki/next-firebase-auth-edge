@@ -1,4 +1,4 @@
-import {DecodedIdToken} from './token-verifier';
+import {DecodedIdToken} from './token-verifier.js';
 import {JWTPayload} from 'jose';
 
 export function formatString(str: string, params?: object): string {

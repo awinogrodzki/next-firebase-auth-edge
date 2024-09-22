@@ -1,4 +1,4 @@
-import {debug} from '../debug';
+import {debug} from '../debug/index.js';
 import {
   AuthRequestHandler,
   CreateRequest,
@@ -9,19 +9,19 @@ import {
   ServiceAccount,
   ServiceAccountCredential
 } from './credential';
-import {CustomTokens, VerifiedTokens} from './custom-token';
-import {getApplicationDefault} from './default-credential';
+import {CustomTokens, VerifiedTokens} from './custom-token/index.js';
+import {getApplicationDefault} from './default-credential.js';
 import {
   AuthError,
   AuthErrorCode,
   InvalidTokenError,
   InvalidTokenReason
 } from './error';
-import {useEmulator} from './firebase';
-import {VerifyOptions} from './jwt/verify';
-import {createFirebaseTokenGenerator} from './token-generator';
-import {createIdTokenVerifier, DecodedIdToken} from './token-verifier';
-import {UserRecord} from './user-record';
+import {useEmulator} from './firebase.js';
+import {VerifyOptions} from './jwt/verify.js';
+import {createFirebaseTokenGenerator} from './token-generator.js';
+import {createIdTokenVerifier, DecodedIdToken} from './token-verifier.js';
+import {UserRecord} from './user-record.js';
 
 const getCustomTokenEndpoint = (apiKey: string) => {
   if (useEmulator() && process.env.FIREBASE_AUTH_EMULATOR_HOST) {

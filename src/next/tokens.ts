@@ -2,21 +2,21 @@ import {decodeJwt} from 'jose';
 import {NextApiRequest} from 'next';
 import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
-import {Tokens, getFirebaseAuth} from '../auth';
-import {parseCookies, parseTokens} from '../auth/cookies/sign';
-import {ServiceAccount} from '../auth/credential';
-import {CustomTokens, VerifiedTokens} from '../auth/custom-token';
-import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
-import {mapJwtPayloadToDecodedIdToken} from '../auth/utils';
-import {debug, enableDebugMode} from '../debug';
+import {Tokens, getFirebaseAuth} from '../auth/index.js';
+import {parseCookies, parseTokens} from '../auth/cookies/sign.js';
+import {ServiceAccount} from '../auth/credential.js';
+import {CustomTokens, VerifiedTokens} from '../auth/custom-token/index.js';
+import {InvalidTokenError, InvalidTokenReason} from '../auth/error.js';
+import {mapJwtPayloadToDecodedIdToken} from '../auth/utils.js';
+import {debug, enableDebugMode} from '../debug/index.js';
 import {
   CookiesObject,
   areCookiesVerifiedByMiddleware,
   createVerifier,
   isCookiesObjectVerifiedByMiddleware
 } from './cookies';
-import {getReferer} from './utils';
-import {CookieSerializeOptions} from 'cookie';
+import {getReferer} from './utils.js';
+import type {CookieSerializeOptions} from 'cookie';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   cookieSerializeOptions?: CookieSerializeOptions;

@@ -1,10 +1,10 @@
-import {IncomingHttpHeaders} from 'http';
+import type {IncomingHttpHeaders} from 'http';
 import {NextApiRequest, NextApiResponse} from 'next';
-import {getFirebaseAuth} from '../auth';
-import {signCookies} from '../auth/cookies/sign';
-import {CustomTokens, VerifiedTokens} from '../auth/custom-token';
-import {serializeCookies, SetAuthCookiesOptions} from './cookies';
-import {getCookiesTokens} from './tokens';
+import {getFirebaseAuth} from '../auth/index.js';
+import {signCookies} from '../auth/cookies/sign.js';
+import {CustomTokens, VerifiedTokens} from '../auth/custom-token/index.js';
+import {serializeCookies, SetAuthCookiesOptions} from './cookies.js';
+import {getCookiesTokens} from './tokens.js';
 
 export async function refreshApiResponseCookies(
   request: NextApiRequest,

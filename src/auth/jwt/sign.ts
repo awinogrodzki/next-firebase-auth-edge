@@ -1,7 +1,7 @@
 import {JWTPayload, KeyLike, SignJWT, base64url, importPKCS8} from 'jose';
-import {ALGORITHM_RS256} from '../signature-verifier';
-import {fetchAny} from '../utils';
-import {AuthError, AuthErrorCode} from '../error';
+import {ALGORITHM_RS256} from '../signature-verifier.js';
+import {fetchAny} from '../utils.js';
+import {AuthError, AuthErrorCode} from '../error.js';
 
 export type SignOptions = {
   readonly payload: JWTPayload;

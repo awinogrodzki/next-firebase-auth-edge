@@ -6,7 +6,7 @@ import {
   createCustomSignature,
   verifyCustomJWT,
   verifyCustomSignature
-} from './custom-token';
+} from './custom-token/index.js';
 
 export class RotatingCredential {
   constructor(private keys: string[]) {}

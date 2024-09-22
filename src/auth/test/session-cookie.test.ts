@@ -1,5 +1,5 @@
 import {v4} from 'uuid';
-import {customTokenToIdAndRefreshTokens, getFirebaseAuth} from '../index';
+import {customTokenToIdAndRefreshTokens, getFirebaseAuth} from '../index.js';
 
 const {
   FIREBASE_API_KEY,

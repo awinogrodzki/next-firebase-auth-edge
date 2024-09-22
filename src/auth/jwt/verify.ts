@@ -1,4 +1,4 @@
-import {useEmulator} from '../firebase';
+import {useEmulator} from '../firebase.js';
 import {
   decodeJwt,
   errors,
@@ -7,8 +7,8 @@ import {
   jwtVerify,
   KeyLike
 } from 'jose';
-import {ALGORITHM_RS256} from '../signature-verifier';
-import {DecodedIdToken} from '../token-verifier';
+import {ALGORITHM_RS256} from '../signature-verifier.js';
+import {DecodedIdToken} from '../token-verifier.js';
 
 export interface VerifyOptions {
   currentDate?: Date;

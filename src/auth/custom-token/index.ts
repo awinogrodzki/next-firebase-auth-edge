@@ -6,8 +6,8 @@ import {
   errors,
   jwtVerify
 } from 'jose';
-import {toUint8Array} from '../utils';
-import {DecodedIdToken} from '../token-verifier';
+import {toUint8Array} from '../utils.js';
+import {DecodedIdToken} from '../token-verifier.js';
 
 export interface CustomTokens {
   idToken: string;

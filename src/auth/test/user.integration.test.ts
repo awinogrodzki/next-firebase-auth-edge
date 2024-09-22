@@ -1,4 +1,4 @@
-import {getFirebaseAuth} from '../index';
+import {getFirebaseAuth} from '../index.js';
 
 const {
   FIREBASE_API_KEY,

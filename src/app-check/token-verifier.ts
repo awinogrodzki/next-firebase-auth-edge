@@ -4,12 +4,12 @@ import {
   JWKSSignatureVerifier,
   SignatureVerifier
 } from '../auth/signature-verifier';
-import {DecodedAppCheckToken} from './types';
+import {DecodedAppCheckToken} from './types.js';
 import {decodeJwt, decodeProtectedHeader, errors} from 'jose';
-import {VerifyOptions} from '../auth/jwt/verify';
+import {VerifyOptions} from '../auth/jwt/verify.js';
+import {FirebaseAppCheckError} from './api-client.js';
+import {Credential} from '../auth/credential.js';
 import {JOSEError} from 'jose/dist/types/util/errors';
-import {FirebaseAppCheckError} from './api-client';
-import {Credential} from '../auth/credential';
 
 const APP_CHECK_ISSUER = 'https://firebaseappcheck.googleapis.com/';
 const JWKS_URL = 'https://firebaseappcheck.googleapis.com/v1/jwks';

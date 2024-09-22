@@ -1,15 +1,15 @@
-import {CookieSerializeOptions} from 'cookie';
+import type {CookieSerializeOptions} from 'cookie';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
-import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth';
-import {ServiceAccount} from '../auth/credential';
+import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth/index.js';
+import {ServiceAccount} from '../auth/credential.js';
 import {
   AuthError,
   AuthErrorCode,
   InvalidTokenError,
   InvalidTokenReason
 } from '../auth/error';
-import {debug, enableDebugMode} from '../debug';
+import {debug, enableDebugMode} from '../debug/index.js';
 import {
   createVerifier,
   markCookiesAsVerified,
@@ -18,9 +18,9 @@ import {
   setAuthCookies,
   wasResponseDecoratedWithModifiedRequestHeaders
 } from './cookies';
-import {refreshToken} from './refresh-token';
-import {getRequestCookiesTokens, validateOptions} from './tokens';
-import {getReferer} from './utils';
+import {refreshToken} from './refresh-token.js';
+import {getRequestCookiesTokens, validateOptions} from './tokens.js';
+import {getReferer} from './utils.js';
 
 export interface CreateAuthMiddlewareOptions {
   loginPath: string;

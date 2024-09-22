@@ -4,14 +4,14 @@ import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/a
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {NextResponse} from 'next/server';
 import type {NextRequest} from 'next/server';
-import {getFirebaseAuth} from '../auth';
-import {SignedCookies, signCookies, signTokens} from '../auth/cookies/sign';
-import {ServiceAccount} from '../auth/credential';
-import {CustomTokens, VerifiedTokens} from '../auth/custom-token';
-import {debug} from '../debug';
-import {getCookiesTokens, getRequestCookiesTokens} from './tokens';
-import {getReferer} from './utils';
-import {AuthError, AuthErrorCode} from '../auth/error';
+import {getFirebaseAuth} from '../auth/index.js';
+import {SignedCookies, signCookies, signTokens} from '../auth/cookies/sign.js';
+import {ServiceAccount} from '../auth/credential.js';
+import {CustomTokens, VerifiedTokens} from '../auth/custom-token/index.js';
+import {debug} from '../debug/index.js';
+import {getCookiesTokens, getRequestCookiesTokens} from './tokens.js';
+import {getReferer} from './utils.js';
+import {AuthError, AuthErrorCode} from '../auth/error.js';
 
 export interface SetAuthCookiesOptions {
   cookieName: string;

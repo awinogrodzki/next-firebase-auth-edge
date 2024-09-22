@@ -1,6 +1,6 @@
-import {CustomTokens} from '../custom-token';
-import {InvalidTokenError, InvalidTokenReason} from '../error';
-import {parseCookies, parseTokens, signCookies, signTokens} from './sign';
+import {CustomTokens} from '../custom-token.js';
+import {InvalidTokenError, InvalidTokenReason} from '../error.js';
+import {parseCookies, parseTokens, signCookies, signTokens} from './sign.js';
 
 const secret = 'some-secret';
 const jwt =

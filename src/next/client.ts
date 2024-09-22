@@ -1,5 +1,5 @@
 import {decodeJwt} from 'jose';
-import {AuthError, AuthErrorCode} from '../auth/error';
+import {AuthError, AuthErrorCode} from '../auth/error.js';
 
 class ClientTokenCache {
   private cacheMap: Record<string, string> = {};

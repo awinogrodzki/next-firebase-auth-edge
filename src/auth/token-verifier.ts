@@ -1,16 +1,16 @@
 import {decodeJwt, decodeProtectedHeader, errors} from 'jose';
 import {JOSEError} from 'jose/dist/types/util/errors';
-import {AuthError, AuthErrorCode} from './error';
-import {CLIENT_CERT_URL, FIREBASE_AUDIENCE, useEmulator} from './firebase';
-import {VerifyOptions} from './jwt/verify';
+import {AuthError, AuthErrorCode} from './error.js';
+import {CLIENT_CERT_URL, FIREBASE_AUDIENCE, useEmulator} from './firebase.js';
+import {VerifyOptions} from './jwt/verify.js';
 import {
   ALGORITHM_RS256,
   DecodedToken,
   PublicKeySignatureVerifier,
   SignatureVerifier
 } from './signature-verifier';
-import {mapJwtPayloadToDecodedIdToken} from './utils';
-import {isURL} from './validator';
+import {mapJwtPayloadToDecodedIdToken} from './utils.js';
+import {isURL} from './validator.js';
 
 export interface FirebaseClaims {
   identities: {

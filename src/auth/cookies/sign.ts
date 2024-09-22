@@ -1,7 +1,7 @@
 import {errors} from 'jose';
-import {CustomTokens} from '../custom-token';
-import {InvalidTokenError, InvalidTokenReason} from '../error';
-import {RotatingCredential} from '../rotating-credential';
+import {CustomTokens} from '../custom-token/index.js';
+import {InvalidTokenError, InvalidTokenReason} from '../error.js';
+import {RotatingCredential} from '../rotating-credential.js';
 
 export async function signTokens(
   tokens: CustomTokens,
