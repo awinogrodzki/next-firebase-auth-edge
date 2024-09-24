@@ -5,10 +5,9 @@ Here’s an example of how to use the [getTokens](/docs/usage/server-components)
 ```tsx
 import { NextRequest, NextResponse } from "next/server";
 import { getTokens } from "next-firebase-auth-edge";
-import { cookies } from "next/headers";
 
-export async function GET(_request: NextRequest) {
-  const tokens = await getTokens(cookies(), {
+export async function GET(request: NextRequest) {
+  const tokens = await getTokens(request.cookies, {
     apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
     cookieName: 'AuthToken',
     cookieSignatureKeys: ['Key-Should-Be-at-least-32-bytes-in-length'],
