@@ -1,22 +1,22 @@
+import type {CookieSerializeOptions} from 'cookie';
 import {decodeJwt} from 'jose';
 import {NextApiRequest} from 'next';
 import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
-import {Tokens, getFirebaseAuth} from '../auth/index.js';
-import {parseCookies, parseTokens} from '../auth/cookies/sign.js';
 import {ServiceAccount} from '../auth/credential.js';
 import {CustomTokens, VerifiedTokens} from '../auth/custom-token/index.js';
-import {InvalidTokenError, InvalidTokenReason} from '../auth/error.js';
+import {InvalidTokenError} from '../auth/error.js';
+import {Tokens, getFirebaseAuth} from '../auth/index.js';
 import {mapJwtPayloadToDecodedIdToken} from '../auth/utils.js';
 import {debug, enableDebugMode} from '../debug/index.js';
+import {AuthCookies} from './cookies/AuthCookies.js';
 import {
   CookiesObject,
   areCookiesVerifiedByMiddleware,
-  createVerifier,
   isCookiesObjectVerifiedByMiddleware
 } from './cookies/index.js';
+import {CookieParserFactory} from './cookies/parser/CookieParserFactory.js';
 import {getReferer} from './utils.js';
-import type {CookieSerializeOptions} from 'cookie';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   cookieSerializeOptions?: CookieSerializeOptions;
@@ -47,38 +47,9 @@ export async function getRequestCookiesTokens(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetCookiesTokensOptions
 ): Promise<CustomTokens> {
-  const signedCookie = cookies.get(options.cookieName);
-  const signatureCookie = cookies.get(`${options.cookieName}.sig`);
-  const customCookie = cookies.get(`${options.cookieName}.custom`);
+  const parser = CookieParserFactory.fromRequestCookies(cookies, options);
 
-  const enableMultipleCookies = signatureCookie?.value && customCookie?.value;
-
-  if (!enableMultipleCookies && signedCookie?.value.includes(':')) {
-    debug(
-      "Authentication cookie is in multiple cookie format, but lacks signature and custom cookies. Clear your browser cookies and try again. If the issue keeps happening and you're using `enableMultipleCookies` option, make sure that server returns all required cookies: https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#multiple-cookies"
-    );
-
-    throw new InvalidTokenError(InvalidTokenReason.INVALID_CREDENTIALS);
-  }
-
-  if (!signedCookie?.value) {
-    debug('Missing authentication cookies');
-
-    throw new InvalidTokenError(InvalidTokenReason.MISSING_CREDENTIALS);
-  }
-
-  if (enableMultipleCookies) {
-    return parseCookies(
-      {
-        signed: signedCookie.value,
-        custom: customCookie.value,
-        signature: signatureCookie.value
-      },
-      options.cookieSignatureKeys
-    );
-  }
-
-  return parseTokens(signedCookie.value, options.cookieSignatureKeys);
+  return parser.parseCookies();
 }
 
 function toTokens(result: VerifiedTokens | null): Tokens | null {
@@ -163,14 +134,13 @@ export async function getTokens(
           customToken
         };
 
-        const verifier = createVerifier(tokensToSign, {
+        const setAuthCookiesOptions = {
           ...options,
           cookieSerializeOptions
-        });
+        };
+        const authCookies = new AuthCookies(setAuthCookiesOptions);
 
-        await verifier.init();
-
-        verifier.appendCookies(cookies);
+        await authCookies.setAuthCookies(tokensToSign, cookies);
       }
     });
 
@@ -196,27 +166,9 @@ export async function getCookiesTokens(
   cookies: Partial<{[K in string]: string}>,
   options: GetCookiesTokensOptions
 ): Promise<CustomTokens> {
-  const signedCookie = cookies[options.cookieName];
-  const signatureCookie = cookies[`${options.cookieName}.sig`];
-  const customCookie = cookies[`${options.cookieName}.custom`];
-  const enableMultipleCookie = signatureCookie && customCookie;
+  const parser = CookieParserFactory.fromObject(cookies, options);
 
-  if (!signedCookie) {
-    throw new InvalidTokenError(InvalidTokenReason.MISSING_CREDENTIALS);
-  }
-
-  if (enableMultipleCookie) {
-    return await parseCookies(
-      {
-        signed: signedCookie,
-        custom: customCookie,
-        signature: signatureCookie
-      },
-      options.cookieSignatureKeys
-    );
-  }
-
-  return await parseTokens(signedCookie, options.cookieSignatureKeys);
+  return parser.parseCookies();
 }
 
 export async function getApiRequestTokens(

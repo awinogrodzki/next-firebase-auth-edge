@@ -1,9 +1,9 @@
 import type {IncomingHttpHeaders} from 'http';
 import {NextApiRequest, NextApiResponse} from 'next';
-import {getFirebaseAuth} from '../auth/index.js';
-import {signCookies} from '../auth/cookies/sign.js';
 import {CustomTokens, VerifiedTokens} from '../auth/custom-token/index.js';
-import {serializeCookies, SetAuthCookiesOptions} from './cookies/index.js';
+import {getFirebaseAuth} from '../auth/index.js';
+import {AuthCookies} from './cookies/AuthCookies.js';
+import {SetAuthCookiesOptions} from './cookies/index.js';
 import {getCookiesTokens} from './tokens.js';
 
 export async function refreshApiResponseCookies(
@@ -26,11 +26,9 @@ export async function appendAuthCookiesApi(
   tokens: CustomTokens,
   options: SetAuthCookiesOptions
 ) {
-  const cookies = await signCookies(tokens, options.cookieSignatureKeys);
+  const cookies = new AuthCookies(options);
 
-  serializeCookies(cookies, options, (value) => {
-    response.setHeader('Set-Cookie', [value]);
-  });
+  await cookies.setAuthNextApiResponseHeaders(tokens, response);
 }
 
 export async function refreshApiCookies(

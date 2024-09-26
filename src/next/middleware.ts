@@ -1,7 +1,6 @@
 import type {CookieSerializeOptions} from 'cookie';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
-import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth/index.js';
 import {ServiceAccount} from '../auth/credential.js';
 import {
   AuthError,
@@ -9,9 +8,10 @@ import {
   InvalidTokenError,
   InvalidTokenReason
 } from '../auth/error';
+import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth/index.js';
 import {debug, enableDebugMode} from '../debug/index.js';
+import {AuthCookies} from './cookies/AuthCookies.js';
 import {
-  createVerifier,
   markCookiesAsVerified,
   removeAuthCookies,
   removeInternalVerifiedCookieIfExists,
@@ -279,11 +279,9 @@ export async function authMiddleware(
           customToken
         };
 
-        const verifier = createVerifier(tokensToSign, options);
+        const cookies = new AuthCookies(options);
 
-        await verifier.init();
-
-        verifier.appendCookies(request.cookies);
+        await cookies.setAuthCookies(tokensToSign, request.cookies);
 
         markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
@@ -295,7 +293,7 @@ export async function authMiddleware(
 
         validateResponse(response);
 
-        verifier.appendHeaders(response.headers);
+        await cookies.setAuthHeaders(tokensToSign, response.headers);
 
         return response;
       },

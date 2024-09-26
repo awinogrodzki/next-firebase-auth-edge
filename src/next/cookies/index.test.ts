@@ -35,6 +35,13 @@ const refreshedJwt =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6IlRFU1RfSURfVE9LRU4iLCJyZWZyZXNoX3Rva2VuIjoiVEVTVF9SRUZSRVNIX1RPS0VOIiwiY3VzdG9tX3Rva2VuIjoiVEVTVF9DVVNUT01fVE9LRU4ifQ.2tjn-__AKP3J7w9vIDuFDFkYmPzpuGpWvHvBFksMh5E';
 const MOCK_REQUEST = {
   cookies: {
+    has: (key: string) => {
+      if (key === 'TestCookie') {
+        return true;
+      }
+
+      return false;
+    },
     get: (key: string) => {
       if (key === 'TestCookie') {
         return {value: jwt};
@@ -127,17 +134,23 @@ describe('cookies', () => {
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       1,
       'Set-Cookie',
-      'TestCookie=TEST_ID_TOKEN%3ATEST_REFRESH_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+      'TestCookie.id=TEST_ID_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
     );
 
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       2,
       'Set-Cookie',
-      'TestCookie.custom=TEST_CUSTOM_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+      'TestCookie.refresh=TEST_REFRESH_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
     );
 
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       3,
+      'Set-Cookie',
+      'TestCookie.custom=TEST_CUSTOM_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+    );
+
+    expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
+      4,
       'Set-Cookie',
       'TestCookie.sig=MqBNRBcWwj7xL948-Yy89kj5dwPEf7fTACNx93rOFX4; Max-Age=123; Path=/test-path; SameSite=Lax'
     );
@@ -159,17 +172,23 @@ describe('cookies', () => {
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       1,
       'Set-Cookie',
-      'TestCookie=MOCK_ID_TOKEN%3AMOCK_REFRESH_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+      'TestCookie.id=MOCK_ID_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
     );
 
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       2,
       'Set-Cookie',
-      'TestCookie.custom=MOCK_CUSTOM_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+      'TestCookie.refresh=MOCK_REFRESH_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
     );
 
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       3,
+      'Set-Cookie',
+      'TestCookie.custom=MOCK_CUSTOM_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+    );
+
+    expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
+      4,
       'Set-Cookie',
       'TestCookie.sig=AuSOlUSJENTLtShQpjf7SMRiPY4aILyFNmjr7Tc3Fig; Max-Age=123; Path=/test-path; SameSite=Lax'
     );

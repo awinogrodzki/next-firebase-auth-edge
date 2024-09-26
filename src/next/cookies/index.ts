@@ -1,21 +1,17 @@
-import {type CookieSerializeOptions, serialize} from 'cookie';
+import {type CookieSerializeOptions} from 'cookie';
 import type {IncomingHttpHeaders} from 'http';
 import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
-import {NextResponse} from 'next/server';
 import type {NextRequest} from 'next/server';
+import {NextResponse} from 'next/server';
 import {ServiceAccount} from '../../auth/credential.js';
-import {
-  signCookies,
-  SignedCookies,
-  signTokens
-} from '../../auth/cookies/sign.js';
 import {CustomTokens, VerifiedTokens} from '../../auth/custom-token/index.js';
-import {debug} from '../../debug/index.js';
 import {getFirebaseAuth} from '../../auth/index.js';
-import {getReferer} from '../utils.js';
+import {debug} from '../../debug/index.js';
 import {getCookiesTokens, getRequestCookiesTokens} from '../tokens.js';
-import {AuthError, AuthErrorCode} from '../../auth/error.js';
+import {getReferer} from '../utils.js';
+import {AuthCookies} from './AuthCookies.js';
+import {CookieRemoverFactory} from './remover/CookieRemoverFactory.js';
 
 export interface SetAuthCookiesOptions {
   cookieName: string;
@@ -82,103 +78,6 @@ export function isCookiesObjectVerifiedByMiddleware(cookies: CookiesObject) {
   );
 }
 
-function generateEmptyCookies(
-  options: RemoveAuthCookiesOptions,
-  callback: (name: string) => void
-) {
-  if (options.enableMultipleCookies) {
-    callback(options.cookieName);
-    callback(`${options.cookieName}.custom`);
-    callback(`${options.cookieName}.sig`);
-    return;
-  }
-
-  callback(options.cookieName);
-}
-
-function generateCookies(
-  cookies: SignedCookies,
-  options: SetAuthCookiesOptions,
-  callback: (name: string, value: string) => void
-) {
-  callback(options.cookieName, cookies.signed);
-  callback(`${options.cookieName}.custom`, cookies.custom);
-  callback(`${options.cookieName}.sig`, cookies.signature);
-}
-
-export function serializeCookies(
-  cookies: SignedCookies,
-  options: SetAuthCookiesOptions,
-  callback: (setCookieHeader: string) => void
-) {
-  generateCookies(cookies, options, (name, value) => {
-    callback(serialize(name, value, options.cookieSerializeOptions));
-  });
-}
-
-function serializeEmptyCookies(
-  options: RemoveAuthCookiesOptions,
-  callback: (setCookieHeader: string) => void
-) {
-  const cookieOptions = {...options.cookieSerializeOptions};
-
-  delete cookieOptions['maxAge'];
-  delete cookieOptions['expires'];
-
-  generateEmptyCookies(options, (name) => {
-    callback(
-      serialize(name, '', {
-        ...cookieOptions,
-        expires: new Date(0)
-      })
-    );
-  });
-}
-
-export function appendCookies(
-  cookies: RequestCookies | ReadonlyRequestCookies,
-  signedCookies: SignedCookies,
-  options: SetAuthCookiesOptions
-) {
-  generateCookies(signedCookies, options, (name, value) => {
-    cookies.set(name, value, options.cookieSerializeOptions);
-  });
-}
-
-export function appendCookie(
-  cookies: RequestCookies | ReadonlyRequestCookies,
-  signedTokens: string,
-  options: SetAuthCookiesOptions
-) {
-  cookies.set(options.cookieName, signedTokens, options.cookieSerializeOptions);
-}
-
-export function appendHeaders(
-  headers: Headers,
-  signedCookies: SignedCookies,
-  options: SetAuthCookiesOptions
-) {
-  serializeCookies(signedCookies, options, (value) => {
-    headers.append('Set-Cookie', value);
-  });
-}
-
-function serializeCookie(signedTokens: string, options: SetAuthCookiesOptions) {
-  return serialize(
-    options.cookieName,
-    signedTokens,
-    options.cookieSerializeOptions
-  );
-}
-
-export function appendHeader(
-  headers: Headers,
-  signedTokens: string,
-  options: SetAuthCookiesOptions
-) {
-  headers.append('Set-Cookie', serializeCookie(signedTokens, options));
-}
-
 export async function appendAuthCookies(
   response: NextResponse,
   tokens: CustomTokens,
@@ -186,11 +85,9 @@ export async function appendAuthCookies(
 ) {
   debug('Updating response headers with authenticated cookies');
 
-  const verifier = createVerifier(tokens, options);
+  const cookies = new AuthCookies(options);
 
-  await verifier.init();
-
-  verifier.appendHeaders(response.headers);
+  await cookies.setAuthHeaders(tokens, response.headers);
 }
 
 export async function setAuthCookies(
@@ -247,9 +144,9 @@ export function removeCookies(
   response: NextResponse,
   options: RemoveAuthCookiesOptions
 ) {
-  serializeEmptyCookies(options, (value) =>
-    response.headers.append('Set-Cookie', value)
-  );
+  const remover = CookieRemoverFactory.fromHeaders(response.headers, options);
+
+  return remover.removeCookies();
 }
 
 export function removeAuthCookies(
@@ -334,101 +231,6 @@ export async function refreshNextCookies(
   };
 }
 
-interface HeaderVerifier {
-  init(): Promise<void>;
-  appendCookies: (cookies: RequestCookies | ReadonlyRequestCookies) => void;
-  appendHeaders: (headers: Headers) => void;
-}
-
-class SingleHeaderVerifier implements HeaderVerifier {
-  private signedTokens: string = '';
-
-  constructor(
-    private tokens: CustomTokens,
-    private options: SetAuthCookiesOptions
-  ) {}
-
-  async init() {
-    this.signedTokens = await signTokens(
-      this.tokens,
-      this.options.cookieSignatureKeys
-    );
-  }
-
-  private validate() {
-    if (!this.signedTokens) {
-      throw new AuthError(
-        AuthErrorCode.INTERNAL_ERROR,
-        'Signed tokens are not assigned. Remember to await .init before calling append methods'
-      );
-    }
-  }
-
-  appendCookies(cookies: RequestCookies | ReadonlyRequestCookies) {
-    this.validate();
-    appendCookie(cookies, this.signedTokens, this.options);
-  }
-
-  appendHeaders(headers: Headers) {
-    this.validate();
-    appendHeader(headers, this.signedTokens, this.options);
-  }
-}
-
-class MultiHeaderVerifier implements HeaderVerifier {
-  private signedCookies: SignedCookies = {
-    custom: '',
-    signature: '',
-    signed: ''
-  };
-
-  constructor(
-    private tokens: CustomTokens,
-    private options: SetAuthCookiesOptions
-  ) {}
-
-  async init() {
-    this.signedCookies = await signCookies(
-      this.tokens,
-      this.options.cookieSignatureKeys
-    );
-  }
-
-  private validate() {
-    if (
-      !this.signedCookies.signed ||
-      !this.signedCookies.signature ||
-      !this.signedCookies.custom
-    ) {
-      throw new AuthError(
-        AuthErrorCode.INTERNAL_ERROR,
-        'Signed cookies are not assigned. Remember to await .init before calling append methods'
-      );
-    }
-  }
-
-  appendCookies(cookies: RequestCookies | ReadonlyRequestCookies) {
-    this.validate();
-    appendCookies(cookies, this.signedCookies, this.options);
-  }
-
-  appendHeaders(headers: Headers) {
-    this.validate();
-    appendHeaders(headers, this.signedCookies, this.options);
-  }
-}
-
-export function createVerifier(
-  tokens: CustomTokens,
-  options: SetAuthCookiesOptions
-): HeaderVerifier {
-  if (options.enableMultipleCookies) {
-    return new MultiHeaderVerifier(tokens, options);
-  }
-
-  return new SingleHeaderVerifier(tokens, options);
-}
-
 export async function refreshCredentials(
   request: NextRequest,
   options: SetAuthCookiesOptions,
@@ -443,11 +245,8 @@ export async function refreshCredentials(
     options
   );
 
-  const verifier = createVerifier(customTokens, options);
-
-  await verifier.init();
-
-  verifier.appendCookies(request.cookies);
+  const cookies = new AuthCookies(options);
+  await cookies.setAuthCookies(customTokens, request.cookies);
 
   const responseOrPromise = responseFactory({
     headers: request.headers,
@@ -459,7 +258,7 @@ export async function refreshCredentials(
       ? await responseOrPromise
       : responseOrPromise;
 
-  verifier.appendHeaders(response.headers);
+  await cookies.setAuthHeaders(customTokens, response.headers);
 
   return response;
 }
@@ -509,11 +308,9 @@ export async function refreshCookiesWithIdToken(
     referer
   });
 
-  const verifier = createVerifier(customTokens, options);
+  const authCookies = new AuthCookies(options);
 
-  await verifier.init();
-
-  verifier.appendCookies(cookies);
+  await authCookies.setAuthCookies(customTokens, cookies);
 }
 
 export async function refreshNextResponseCookies(
@@ -538,11 +335,8 @@ export async function refreshServerCookies(
   options: SetAuthCookiesOptions
 ): Promise<void> {
   const customTokens = await refreshNextCookies(cookies, headers, options);
+  const authCookies = new AuthCookies(options);
 
-  const verifier = createVerifier(customTokens, options);
-
-  await verifier.init();
-
-  verifier.appendCookies(cookies);
-  verifier.appendHeaders(headers);
+  await authCookies.setAuthCookies(customTokens, cookies);
+  await authCookies.setAuthHeaders(customTokens, headers);
 }
