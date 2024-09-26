@@ -14,7 +14,7 @@ import {
   areCookiesVerifiedByMiddleware,
   createVerifier,
   isCookiesObjectVerifiedByMiddleware
-} from './cookies';
+} from './cookies/index.js';
 import {getReferer} from './utils.js';
 import type {CookieSerializeOptions} from 'cookie';
 

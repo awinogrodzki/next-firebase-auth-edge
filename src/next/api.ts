@@ -3,7 +3,7 @@ import {NextApiRequest, NextApiResponse} from 'next';
 import {getFirebaseAuth} from '../auth/index.js';
 import {signCookies} from '../auth/cookies/sign.js';
 import {CustomTokens, VerifiedTokens} from '../auth/custom-token/index.js';
-import {serializeCookies, SetAuthCookiesOptions} from './cookies.js';
+import {serializeCookies, SetAuthCookiesOptions} from './cookies/index.js';
 import {getCookiesTokens} from './tokens.js';
 
 export async function refreshApiResponseCookies(

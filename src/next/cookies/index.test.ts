@@ -5,7 +5,7 @@ import {
   appendAuthCookies,
   refreshCredentials,
   setAuthCookies
-} from './cookies';
+} from '../cookies/index.js';
 
 // Suppress "Property 'headers' does not exist on type NextRequest/NextResponse" error
 declare module 'next/server' {
@@ -18,7 +18,7 @@ declare module 'next/server' {
   }
 }
 
-jest.mock('../auth', () => ({
+jest.mock('../../auth/index.js', () => ({
   getFirebaseAuth: () => ({
     handleTokenRefresh: () => ({
       idToken: 'TEST_ID_TOKEN',

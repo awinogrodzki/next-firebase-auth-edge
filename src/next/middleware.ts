@@ -17,7 +17,7 @@ import {
   removeInternalVerifiedCookieIfExists,
   setAuthCookies,
   wasResponseDecoratedWithModifiedRequestHeaders
-} from './cookies';
+} from './cookies/index.js';
 import {refreshToken} from './refresh-token.js';
 import {getRequestCookiesTokens, validateOptions} from './tokens.js';
 import {getReferer} from './utils.js';

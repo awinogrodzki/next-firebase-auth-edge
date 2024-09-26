@@ -4,7 +4,7 @@ import {
   SetAuthCookiesOptions,
   appendAuthCookies,
   verifyNextCookies
-} from './cookies';
+} from './cookies/index.js';
 
 export async function refreshToken(
   request: NextRequest,
