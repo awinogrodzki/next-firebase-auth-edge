@@ -1,3 +1,10 @@
+# [1.8.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.5...v1.8.0-canary.6) (2024-09-29)
+
+
+### Features
+
+* refactor cookies to separate multiple from single type ([9aba786](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/9aba786f04ab20c8e57e1daeacab670d59c770f0))
+
 # [1.8.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.4...v1.8.0-canary.5) (2024-09-22)
 
 
