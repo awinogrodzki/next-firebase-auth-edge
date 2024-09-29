@@ -167,7 +167,7 @@ export async function getTokens(
 }
 
 export async function getCookiesTokens(
-  cookies: Partial<{[K in string]: string}>,
+  cookies: CookiesObject,
   options: GetCookiesTokensOptions
 ): Promise<CustomTokens> {
   const parser = CookieParserFactory.fromObject(cookies, options);

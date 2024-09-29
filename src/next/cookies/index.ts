@@ -178,9 +178,7 @@ export function removeAuthCookies(
 }
 
 export async function verifyApiCookies(
-  cookies: Partial<{
-    [key: string]: string;
-  }>,
+  cookies: CookiesObject,
   headers: IncomingHttpHeaders,
   options: SetAuthCookiesOptions
 ): Promise<VerifiedTokens> {

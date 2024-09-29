@@ -3,7 +3,7 @@ import {NextApiRequest, NextApiResponse} from 'next';
 import {CustomTokens, VerifiedTokens} from '../auth/custom-token/index.js';
 import {getFirebaseAuth} from '../auth/index.js';
 import {AuthCookies} from './cookies/AuthCookies.js';
-import {SetAuthCookiesOptions} from './cookies/index.js';
+import {CookiesObject, SetAuthCookiesOptions} from './cookies/index.js';
 import {ObjectCookiesProvider} from './cookies/parser/ObjectCookiesProvider.js';
 import {getCookiesTokens} from './tokens.js';
 
@@ -23,9 +23,7 @@ export async function refreshApiResponseCookies(
 }
 
 export async function appendAuthCookiesApi(
-  cookies: Partial<{
-    [key: string]: string;
-  }>,
+  cookies: CookiesObject,
   response: NextApiResponse,
   tokens: CustomTokens,
   options: SetAuthCookiesOptions
@@ -39,9 +37,7 @@ export async function appendAuthCookiesApi(
 }
 
 export async function refreshApiCookies(
-  cookies: Partial<{
-    [key: string]: string;
-  }>,
+  cookies: CookiesObject,
   headers: IncomingHttpHeaders,
   options: SetAuthCookiesOptions
 ): Promise<VerifiedTokens> {

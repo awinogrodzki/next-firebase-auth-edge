@@ -1,5 +1,7 @@
+import {CookiesObject} from '../index.js';
+
 export class ObjectCookiesProvider {
-  constructor(private cookies: Partial<{[K in string]: string}>) {}
+  constructor(private cookies: CookiesObject) {}
 
   get(key: string) {
     return this.cookies[key];

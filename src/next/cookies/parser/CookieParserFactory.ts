@@ -3,6 +3,7 @@ import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {InvalidTokenError, InvalidTokenReason} from '../../../auth/error.js';
 import {debug} from '../../../debug/index.js';
 import {GetCookiesTokensOptions} from '../../tokens.js';
+import {CookiesObject} from '../index.js';
 import {CookiesProvider} from './CookiesProvider.js';
 import {MultipleCookiesParser} from './MultipleCookiesParser.js';
 import {ObjectCookiesProvider} from './ObjectCookiesProvider.js';
@@ -105,10 +106,7 @@ export class CookieParserFactory {
     return CookieParserFactory.fromProvider(provider, options);
   }
 
-  static fromObject(
-    cookies: Partial<{[K in string]: string}>,
-    options: GetCookiesTokensOptions
-  ) {
+  static fromObject(cookies: CookiesObject, options: GetCookiesTokensOptions) {
     const provider = new ObjectCookiesProvider(cookies);
 
     return CookieParserFactory.fromProvider(provider, options);
