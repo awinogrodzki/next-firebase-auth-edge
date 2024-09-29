@@ -66,14 +66,14 @@
       "require": "./lib/next/utils.js"
     },
     "./next/cookies": {
-      "types": "./lib/next/cookies.d.ts",
-      "bun": "./browser/next/cookies.js",
-      "deno": "./browser/next/cookies.js",
-      "browser": "./browser/next/cookies.js",
-      "worker": "./browser/next/cookies.js",
-      "workerd": "./browser/next/cookies.js",
-      "import": "./esm/next/cookies.js",
-      "require": "./lib/next/cookies.js"
+      "types": "./lib/next/cookies/index.d.ts",
+      "bun": "./browser/next/cookies/index.js",
+      "deno": "./browser/next/cookies/index.js",
+      "browser": "./browser/next/cookies/index.js",
+      "worker": "./browser/next/cookies/index.js",
+      "workerd": "./browser/next/cookies/index.js",
+      "import": "./esm/next/cookies/index.js",
+      "require": "./lib/next/cookies/index.js"
     },
     "./next/tokens": {
       "types": "./lib/next/tokens.d.ts",
@@ -130,7 +130,7 @@
     "./lib/auth": "./lib/auth/index.js",
     "./lib/auth/claims": "./lib/auth/claims.js",
     "./lib/next/utils": "./lib/next/utils.js",
-    "./lib/next/cookies": "./lib/next/cookies.js",
+    "./lib/next/cookies": "./lib/next/cookies/index.js",
     "./lib/next/tokens": "./lib/next/tokens.js",
     "./lib/next/client": "./lib/next/client.js",
     "./lib/next/api": "./lib/next/api.js",

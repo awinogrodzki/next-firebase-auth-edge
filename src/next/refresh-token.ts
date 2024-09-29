@@ -4,7 +4,7 @@ import {
   SetAuthCookiesOptions,
   appendAuthCookies,
   verifyNextCookies
-} from './cookies';
+} from './cookies/index.js';
 
 export async function refreshToken(
   request: NextRequest,
@@ -38,7 +38,7 @@ export async function refreshToken(
     }
   );
 
-  await appendAuthCookies(response, result, options);
+  await appendAuthCookies(request.cookies, response, result, options);
 
   return response;
 }

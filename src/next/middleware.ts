@@ -1,7 +1,6 @@
 import type {CookieSerializeOptions} from 'cookie';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
-import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth/index.js';
 import {ServiceAccount} from '../auth/credential.js';
 import {
   AuthError,
@@ -9,18 +8,20 @@ import {
   InvalidTokenError,
   InvalidTokenReason
 } from '../auth/error';
+import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth/index.js';
 import {debug, enableDebugMode} from '../debug/index.js';
+import {AuthCookies} from './cookies/AuthCookies.js';
 import {
-  createVerifier,
   markCookiesAsVerified,
   removeAuthCookies,
   removeInternalVerifiedCookieIfExists,
   setAuthCookies,
   wasResponseDecoratedWithModifiedRequestHeaders
-} from './cookies';
+} from './cookies/index.js';
 import {refreshToken} from './refresh-token.js';
 import {getRequestCookiesTokens, validateOptions} from './tokens.js';
 import {getReferer} from './utils.js';
+import {RequestCookiesProvider} from './cookies/parser/RequestCookiesProvider.js';
 
 export interface CreateAuthMiddlewareOptions {
   loginPath: string;
@@ -120,7 +121,7 @@ export async function createAuthMiddlewareResponse(
   options: CreateAuthMiddlewareOptions
 ): Promise<NextResponse> {
   if (request.nextUrl.pathname === options.loginPath) {
-    return setAuthCookies(request.headers, {
+    return setAuthCookies(request.cookies, request.headers, {
       cookieName: options.cookieName,
       cookieSerializeOptions: options.cookieSerializeOptions,
       cookieSignatureKeys: options.cookieSignatureKeys,
@@ -133,10 +134,9 @@ export async function createAuthMiddlewareResponse(
   }
 
   if (request.nextUrl.pathname === options.logoutPath) {
-    return removeAuthCookies(request.headers, {
+    return removeAuthCookies(request.cookies, {
       cookieName: options.cookieName,
-      cookieSerializeOptions: options.cookieSerializeOptions,
-      enableMultipleCookies: options.enableMultipleCookies
+      cookieSerializeOptions: options.cookieSerializeOptions
     });
   }
 
@@ -279,11 +279,12 @@ export async function authMiddleware(
           customToken
         };
 
-        const verifier = createVerifier(tokensToSign, options);
+        const cookies = new AuthCookies(
+          new RequestCookiesProvider(request.cookies),
+          options
+        );
 
-        await verifier.init();
-
-        verifier.appendCookies(request.cookies);
+        await cookies.setAuthCookies(tokensToSign, request.cookies);
 
         markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
@@ -295,7 +296,7 @@ export async function authMiddleware(
 
         validateResponse(response);
 
-        verifier.appendHeaders(response.headers);
+        await cookies.setAuthHeaders(tokensToSign, response.headers);
 
         return response;
       },
