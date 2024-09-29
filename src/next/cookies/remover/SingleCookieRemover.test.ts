@@ -1,29 +1,38 @@
-import {RemoveAuthCookiesOptions} from '../index.js';
+import {CookieSetter} from '../setter/CookieSetter.js';
 import {SingleCookieRemover} from './SingleCookieRemover.js';
 
+const mockSetter: CookieSetter = {
+  setCookies: jest.fn()
+};
+
+const cookieSerializeOptions = {
+  path: '/',
+  httpOnly: true,
+  secure: true,
+  sameSite: 'lax' as const,
+  maxAge: 12 * 60 * 60 * 24,
+  expires: new Date(1727373870 * 1000)
+};
+
 describe('SingleCookieRemover', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
   it('should remove single cookie', () => {
-    const mockHeaders = {append: jest.fn()} as unknown as Headers;
-    const serializeOptions = {
-      path: '/',
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax' as const,
-      maxAge: 12 * 60 * 60 * 24,
-      expires: 1727373870
-    };
-    const options = {
-      cookieName: 'TestCookie',
-      cookieSerializeOptions: serializeOptions
-    } as unknown as RemoveAuthCookiesOptions;
-    const remover = SingleCookieRemover.fromHeaders(mockHeaders, options);
+    const remover = new SingleCookieRemover('TestCookie', mockSetter);
 
-    remover.removeCookies();
+    remover.removeCookies(cookieSerializeOptions);
 
-    expect(mockHeaders.append).toHaveBeenNthCalledWith(
-      1,
-      'Set-Cookie',
-      'TestCookie=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
+    expect(mockSetter.setCookies).toHaveBeenCalledWith(
+      [{name: 'TestCookie', value: ''}],
+      {
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax' as const,
+        expires: new Date(0)
+      }
     );
   });
 });

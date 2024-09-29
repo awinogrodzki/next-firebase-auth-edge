@@ -4,6 +4,7 @@ import {CustomTokens, VerifiedTokens} from '../auth/custom-token/index.js';
 import {getFirebaseAuth} from '../auth/index.js';
 import {AuthCookies} from './cookies/AuthCookies.js';
 import {SetAuthCookiesOptions} from './cookies/index.js';
+import {ObjectCookiesProvider} from './cookies/parser/ObjectCookiesProvider.js';
 import {getCookiesTokens} from './tokens.js';
 
 export async function refreshApiResponseCookies(
@@ -16,19 +17,25 @@ export async function refreshApiResponseCookies(
     request.headers,
     options
   );
-  await appendAuthCookiesApi(response, customTokens, options);
+  await appendAuthCookiesApi(request.cookies, response, customTokens, options);
 
   return response;
 }
 
 export async function appendAuthCookiesApi(
+  cookies: Partial<{
+    [key: string]: string;
+  }>,
   response: NextApiResponse,
   tokens: CustomTokens,
   options: SetAuthCookiesOptions
 ) {
-  const cookies = new AuthCookies(options);
+  const authCookies = new AuthCookies(
+    new ObjectCookiesProvider(cookies),
+    options
+  );
 
-  await cookies.setAuthNextApiResponseHeaders(tokens, response);
+  await authCookies.setAuthNextApiResponseHeaders(tokens, response);
 }
 
 export async function refreshApiCookies(

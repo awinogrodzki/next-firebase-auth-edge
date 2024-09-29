@@ -1,27 +1,15 @@
+import type {CookieSerializeOptions} from 'cookie';
 import {Cookie} from '../builder/CookieBuilder.js';
-import {RemoveAuthCookiesOptions} from '../index.js';
 import {CookieSetter} from '../setter/CookieSetter.js';
-import {HeadersCookieSetter} from '../setter/HeadersCookieSetter.js';
 import {CookieRemover, getExpiredSerializeOptions} from './CookieRemover.js';
 
 export class MultipleCookieRemover implements CookieRemover {
-  static fromHeaders(
-    headers: Headers,
-    options: RemoveAuthCookiesOptions
-  ): MultipleCookieRemover {
-    const setter = new HeadersCookieSetter(
-      headers,
-      getExpiredSerializeOptions(options.cookieSerializeOptions)
-    );
-
-    return new MultipleCookieRemover(options.cookieName, setter);
-  }
-  private constructor(
+  public constructor(
     private cookieName: string,
     private setter: CookieSetter
   ) {}
 
-  removeCookies(): void {
+  removeCookies(options: CookieSerializeOptions): void {
     const cookies: Cookie[] = [
       {
         name: `${this.cookieName}.id`,
@@ -41,6 +29,6 @@ export class MultipleCookieRemover implements CookieRemover {
       }
     ];
 
-    this.setter.setCookies(cookies);
+    this.setter.setCookies(cookies, getExpiredSerializeOptions(options));
   }
 }

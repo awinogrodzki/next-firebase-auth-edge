@@ -10,18 +10,21 @@ describe('HeadersCookieSetter', () => {
       sameSite: 'lax' as const,
       maxAge: 12 * 60 * 60 * 24
     };
-    const setter = new HeadersCookieSetter(mockHeaders, serializeOptions);
+    const setter = new HeadersCookieSetter(mockHeaders);
 
-    setter.setCookies([
-      {
-        name: 'FirstCookie',
-        value: 'first'
-      },
-      {
-        name: 'SecondCookie',
-        value: 'second'
-      }
-    ]);
+    setter.setCookies(
+      [
+        {
+          name: 'FirstCookie',
+          value: 'first'
+        },
+        {
+          name: 'SecondCookie',
+          value: 'second'
+        }
+      ],
+      serializeOptions
+    );
 
     expect(mockHeaders.append).toHaveBeenNthCalledWith(
       1,

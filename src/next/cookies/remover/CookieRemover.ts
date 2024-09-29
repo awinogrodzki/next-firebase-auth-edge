@@ -1,7 +1,7 @@
 import type {CookieSerializeOptions} from 'cookie';
 
 export interface CookieRemover {
-  removeCookies(): void;
+  removeCookies(options: CookieSerializeOptions): void;
 }
 
 export function getExpiredSerializeOptions(options: CookieSerializeOptions) {

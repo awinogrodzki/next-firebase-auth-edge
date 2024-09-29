@@ -21,6 +21,7 @@ import {
 import {refreshToken} from './refresh-token.js';
 import {getRequestCookiesTokens, validateOptions} from './tokens.js';
 import {getReferer} from './utils.js';
+import {RequestCookiesProvider} from './cookies/parser/RequestCookiesProvider.js';
 
 export interface CreateAuthMiddlewareOptions {
   loginPath: string;
@@ -120,7 +121,7 @@ export async function createAuthMiddlewareResponse(
   options: CreateAuthMiddlewareOptions
 ): Promise<NextResponse> {
   if (request.nextUrl.pathname === options.loginPath) {
-    return setAuthCookies(request.headers, {
+    return setAuthCookies(request.cookies, request.headers, {
       cookieName: options.cookieName,
       cookieSerializeOptions: options.cookieSerializeOptions,
       cookieSignatureKeys: options.cookieSignatureKeys,
@@ -278,7 +279,10 @@ export async function authMiddleware(
           customToken
         };
 
-        const cookies = new AuthCookies(options);
+        const cookies = new AuthCookies(
+          new RequestCookiesProvider(request.cookies),
+          options
+        );
 
         await cookies.setAuthCookies(tokensToSign, request.cookies);
 

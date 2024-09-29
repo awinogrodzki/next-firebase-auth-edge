@@ -1,41 +1,49 @@
-import {RemoveAuthCookiesOptions} from '../index.js';
 import {CookieParserFactory} from '../parser/CookieParserFactory.js';
-import {RequestCookiesProvider} from '../parser/RequestCookiesProvider.js';
+import {CookiesProvider} from '../parser/CookiesProvider.js';
+import {CookieSetter} from '../setter/CookieSetter.js';
+import {HeadersCookieSetter} from '../setter/HeadersCookieSetter.js';
 import {CombinedCookieRemover} from './CombinedCookieRemover.js';
 import {MultipleCookieRemover} from './MultipleCookieRemover.js';
 import {SingleCookieRemover} from './SingleCookieRemover.js';
-import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
-import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 
 export class CookieRemoverFactory {
-  static fromHeaders(
-    headers: Headers,
-    cookies: RequestCookies | ReadonlyRequestCookies,
-    options: RemoveAuthCookiesOptions
+  private static fromSetter(
+    setter: CookieSetter,
+    provider: CookiesProvider,
+    cookieName: string
   ) {
-    const provider = new RequestCookiesProvider(cookies);
-    const singleCookie = provider.get(options.cookieName);
+    const singleCookie = provider.get(cookieName);
     const hasEnabledMultipleCookies = CookieParserFactory.hasMultipleCookies(
       provider,
-      options.cookieName
+      cookieName
     );
     const hasEnabledLegacyMultipleCookies =
-      CookieParserFactory.hasLegacyMultipleCookies(
-        provider,
-        options.cookieName
-      );
+      CookieParserFactory.hasLegacyMultipleCookies(provider, cookieName);
 
     if (
       singleCookie &&
       (hasEnabledMultipleCookies || hasEnabledLegacyMultipleCookies)
     ) {
-      return CombinedCookieRemover.fromHeaders(headers, options);
+      return new CombinedCookieRemover(
+        new MultipleCookieRemover(cookieName, setter),
+        new SingleCookieRemover(cookieName, setter)
+      );
     }
 
     if (hasEnabledMultipleCookies) {
-      return MultipleCookieRemover.fromHeaders(headers, options);
+      return new MultipleCookieRemover(cookieName, setter);
     }
 
-    return SingleCookieRemover.fromHeaders(headers, options);
+    return new SingleCookieRemover(cookieName, setter);
+  }
+
+  static fromHeaders(
+    headers: Headers,
+    provider: CookiesProvider,
+    cookieName: string
+  ) {
+    const setter = new HeadersCookieSetter(headers);
+
+    return CookieRemoverFactory.fromSetter(setter, provider, cookieName);
   }
 }

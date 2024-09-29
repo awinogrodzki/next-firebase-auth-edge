@@ -38,7 +38,7 @@ export async function refreshToken(
     }
   );
 
-  await appendAuthCookies(response, result, options);
+  await appendAuthCookies(request.cookies, response, result, options);
 
   return response;
 }

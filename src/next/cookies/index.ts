@@ -12,6 +12,7 @@ import {getCookiesTokens, getRequestCookiesTokens} from '../tokens.js';
 import {getReferer} from '../utils.js';
 import {AuthCookies} from './AuthCookies.js';
 import {CookieRemoverFactory} from './remover/CookieRemoverFactory.js';
+import {RequestCookiesProvider} from './parser/RequestCookiesProvider.js';
 
 export interface SetAuthCookiesOptions {
   cookieName: string;
@@ -79,18 +80,23 @@ export function isCookiesObjectVerifiedByMiddleware(cookies: CookiesObject) {
 }
 
 export async function appendAuthCookies(
+  cookies: RequestCookies | ReadonlyRequestCookies,
   response: NextResponse,
   tokens: CustomTokens,
   options: SetAuthCookiesOptions
 ) {
   debug('Updating response headers with authenticated cookies');
 
-  const cookies = new AuthCookies(options);
+  const authCookies = new AuthCookies(
+    new RequestCookiesProvider(cookies),
+    options
+  );
 
-  await cookies.setAuthHeaders(tokens, response.headers);
+  await authCookies.setAuthHeaders(tokens, response.headers);
 }
 
 export async function setAuthCookies(
+  cookies: RequestCookies | ReadonlyRequestCookies,
   headers: Headers,
   options: SetAuthCookiesOptions
 ): Promise<NextResponse> {
@@ -129,7 +135,7 @@ export async function setAuthCookies(
     headers: {'content-type': 'application/json'}
   });
 
-  await appendAuthCookies(response, customTokens, options);
+  await appendAuthCookies(cookies, response, customTokens, options);
 
   return response;
 }
@@ -146,11 +152,11 @@ export function removeCookies(
 ) {
   const remover = CookieRemoverFactory.fromHeaders(
     response.headers,
-    cookies,
-    options
+    new RequestCookiesProvider(cookies),
+    options.cookieName
   );
 
-  return remover.removeCookies();
+  return remover.removeCookies(options.cookieSerializeOptions);
 }
 
 export function removeAuthCookies(
@@ -249,7 +255,10 @@ export async function refreshCredentials(
     options
   );
 
-  const cookies = new AuthCookies(options);
+  const cookies = new AuthCookies(
+    new RequestCookiesProvider(request.cookies),
+    options
+  );
   await cookies.setAuthCookies(customTokens, request.cookies);
 
   const responseOrPromise = responseFactory({
@@ -287,7 +296,7 @@ export async function refreshNextResponseCookiesWithToken(
     referer
   });
 
-  await appendAuthCookies(response, customTokens, options);
+  await appendAuthCookies(request.cookies, response, customTokens, options);
 
   return response;
 }
@@ -312,7 +321,10 @@ export async function refreshCookiesWithIdToken(
     referer
   });
 
-  const authCookies = new AuthCookies(options);
+  const authCookies = new AuthCookies(
+    new RequestCookiesProvider(cookies),
+    options
+  );
 
   await authCookies.setAuthCookies(customTokens, cookies);
 }
@@ -328,7 +340,7 @@ export async function refreshNextResponseCookies(
     options
   );
 
-  await appendAuthCookies(response, customTokens, options);
+  await appendAuthCookies(request.cookies, response, customTokens, options);
 
   return response;
 }
@@ -339,7 +351,10 @@ export async function refreshServerCookies(
   options: SetAuthCookiesOptions
 ): Promise<void> {
   const customTokens = await refreshNextCookies(cookies, headers, options);
-  const authCookies = new AuthCookies(options);
+  const authCookies = new AuthCookies(
+    new RequestCookiesProvider(cookies),
+    options
+  );
 
   await authCookies.setAuthCookies(customTokens, cookies);
   await authCookies.setAuthHeaders(customTokens, headers);

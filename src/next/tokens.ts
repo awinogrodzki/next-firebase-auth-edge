@@ -17,6 +17,7 @@ import {
 } from './cookies/index.js';
 import {CookieParserFactory} from './cookies/parser/CookieParserFactory.js';
 import {getReferer} from './utils.js';
+import {RequestCookiesProvider} from './cookies/parser/RequestCookiesProvider.js';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   cookieSerializeOptions?: CookieSerializeOptions;
@@ -138,7 +139,10 @@ export async function getTokens(
           ...options,
           cookieSerializeOptions
         };
-        const authCookies = new AuthCookies(setAuthCookiesOptions);
+        const authCookies = new AuthCookies(
+          new RequestCookiesProvider(cookies),
+          setAuthCookiesOptions
+        );
 
         await authCookies.setAuthCookies(tokensToSign, cookies);
       }

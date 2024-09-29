@@ -33,28 +33,6 @@ const jwt =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6Ik1PQ0tfSURfVE9LRU4iLCJjdXN0b21fdG9rZW4iOiJNT0NLX0NVU1RPTV9UT0tFTiIsInJlZnJlc2hfdG9rZW4iOiJNT0NLX1JFRlJFU0hfVE9LRU4ifQ.K5jwTcAlfffzuM2_WaKJ93QwgqeCpWjg7TMx1lulSO4';
 const refreshedJwt =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6IlRFU1RfSURfVE9LRU4iLCJyZWZyZXNoX3Rva2VuIjoiVEVTVF9SRUZSRVNIX1RPS0VOIiwiY3VzdG9tX3Rva2VuIjoiVEVTVF9DVVNUT01fVE9LRU4ifQ.2tjn-__AKP3J7w9vIDuFDFkYmPzpuGpWvHvBFksMh5E';
-const MOCK_REQUEST = {
-  cookies: {
-    has: (key: string) => {
-      if (key === 'TestCookie') {
-        return true;
-      }
-
-      return false;
-    },
-    get: (key: string) => {
-      if (key === 'TestCookie') {
-        return {value: jwt};
-      }
-
-      return undefined;
-    },
-    set: jest.fn()
-  },
-  headers: {
-    get: jest.fn()
-  }
-} as unknown as jest.Mocked<NextRequest>;
 
 const MOCK_OPTIONS: SetAuthCookiesOptions = {
   cookieName: 'TestCookie',
@@ -65,8 +43,32 @@ const MOCK_OPTIONS: SetAuthCookiesOptions = {
 };
 
 describe('cookies', () => {
+  let MOCK_REQUEST: jest.Mocked<NextRequest>;
+
   beforeEach(() => {
-    jest.resetAllMocks();
+    MOCK_REQUEST = {
+      cookies: {
+        has: (key: string) => {
+          if (key === 'TestCookie') {
+            return true;
+          }
+
+          return false;
+        },
+        get: jest.fn((key: string) => {
+          if (key === 'TestCookie') {
+            return {value: jwt};
+          }
+
+          return undefined;
+        }),
+        set: jest.fn(),
+        delete: jest.fn()
+      },
+      headers: {
+        get: jest.fn()
+      }
+    } as unknown as jest.Mocked<NextRequest>;
   });
 
   const customTokens = {
@@ -134,23 +136,29 @@ describe('cookies', () => {
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       1,
       'Set-Cookie',
-      'TestCookie.id=TEST_ID_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+      'TestCookie=; Path=/test-path; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax'
     );
 
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       2,
       'Set-Cookie',
-      'TestCookie.refresh=TEST_REFRESH_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+      'TestCookie.id=TEST_ID_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
     );
 
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       3,
       'Set-Cookie',
-      'TestCookie.custom=TEST_CUSTOM_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+      'TestCookie.refresh=TEST_REFRESH_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
     );
 
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       4,
+      'Set-Cookie',
+      'TestCookie.custom=TEST_CUSTOM_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+    );
+
+    expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
+      5,
       'Set-Cookie',
       'TestCookie.sig=MqBNRBcWwj7xL948-Yy89kj5dwPEf7fTACNx93rOFX4; Max-Age=123; Path=/test-path; SameSite=Lax'
     );
@@ -164,7 +172,8 @@ describe('cookies', () => {
         append: jest.fn()
       }
     } as unknown as jest.Mocked<NextResponse>;
-    await appendAuthCookies(MOCK_RESPONSE, customTokens, {
+    (MOCK_REQUEST.cookies.get as jest.Mock).mockImplementation(() => undefined);
+    await appendAuthCookies(MOCK_REQUEST.cookies, MOCK_RESPONSE, customTokens, {
       ...MOCK_OPTIONS,
       enableMultipleCookies: true
     });
@@ -202,7 +211,11 @@ describe('cookies', () => {
       }
     } as unknown as jest.Mocked<NextResponse>;
 
-    await setAuthCookies(MOCK_RESPONSE.headers, MOCK_OPTIONS);
+    await setAuthCookies(
+      MOCK_REQUEST.cookies,
+      MOCK_RESPONSE.headers,
+      MOCK_OPTIONS
+    );
 
     expect(MOCK_RESPONSE.headers.get).toHaveBeenCalledWith(
       'Next-Authorization'

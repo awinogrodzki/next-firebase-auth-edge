@@ -1,4 +1,5 @@
 import {Cookie} from '../builder/CookieBuilder.js';
+import {RequestCookiesProvider} from '../parser/RequestCookiesProvider.js';
 import {CookieRemoverFactory} from './CookieRemoverFactory.js';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 
@@ -70,12 +71,13 @@ describe('CookieRemoverFactory', () => {
     const headers = {append: jest.fn()} as unknown as Headers;
     const cookies = {get: jest.fn()} as unknown as RequestCookies;
 
-    const remover = CookieRemoverFactory.fromHeaders(headers, cookies, {
-      cookieName,
-      cookieSerializeOptions
-    });
+    const remover = CookieRemoverFactory.fromHeaders(
+      headers,
+      new RequestCookiesProvider(cookies),
+      cookieName
+    );
 
-    remover.removeCookies();
+    remover.removeCookies(cookieSerializeOptions);
 
     expect(headers.append).toHaveBeenCalledTimes(1);
     expect(headers.append).toHaveBeenCalledWith(
@@ -88,12 +90,13 @@ describe('CookieRemoverFactory', () => {
     const headers = {append: jest.fn()} as unknown as Headers;
     const cookies = {get: jest.fn(getTestCookie)} as unknown as RequestCookies;
 
-    const remover = CookieRemoverFactory.fromHeaders(headers, cookies, {
-      cookieName,
-      cookieSerializeOptions
-    });
+    const remover = CookieRemoverFactory.fromHeaders(
+      headers,
+      new RequestCookiesProvider(cookies),
+      cookieName
+    );
 
-    remover.removeCookies();
+    remover.removeCookies(cookieSerializeOptions);
 
     expect(headers.append).toHaveBeenCalledTimes(4);
     expect(headers.append).toHaveBeenCalledWith(
@@ -122,12 +125,13 @@ describe('CookieRemoverFactory', () => {
       })
     } as unknown as RequestCookies;
 
-    const remover = CookieRemoverFactory.fromHeaders(headers, cookies, {
-      cookieName,
-      cookieSerializeOptions
-    });
+    const remover = CookieRemoverFactory.fromHeaders(
+      headers,
+      new RequestCookiesProvider(cookies),
+      cookieName
+    );
 
-    remover.removeCookies();
+    remover.removeCookies(cookieSerializeOptions);
 
     expect(headers.append).toHaveBeenCalledTimes(5);
     expect(headers.append).toHaveBeenCalledWith(
@@ -160,12 +164,13 @@ describe('CookieRemoverFactory', () => {
       })
     } as unknown as RequestCookies;
 
-    const remover = CookieRemoverFactory.fromHeaders(headers, cookies, {
-      cookieName,
-      cookieSerializeOptions
-    });
+    const remover = CookieRemoverFactory.fromHeaders(
+      headers,
+      new RequestCookiesProvider(cookies),
+      cookieName
+    );
 
-    remover.removeCookies();
+    remover.removeCookies(cookieSerializeOptions);
 
     expect(headers.append).toHaveBeenCalledTimes(5);
     expect(headers.append).toHaveBeenCalledWith(
