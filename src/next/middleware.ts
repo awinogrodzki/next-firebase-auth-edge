@@ -133,10 +133,9 @@ export async function createAuthMiddlewareResponse(
   }
 
   if (request.nextUrl.pathname === options.logoutPath) {
-    return removeAuthCookies(request.headers, {
+    return removeAuthCookies(request.cookies, {
       cookieName: options.cookieName,
-      cookieSerializeOptions: options.cookieSerializeOptions,
-      enableMultipleCookies: options.enableMultipleCookies
+      cookieSerializeOptions: options.cookieSerializeOptions
     });
   }
 

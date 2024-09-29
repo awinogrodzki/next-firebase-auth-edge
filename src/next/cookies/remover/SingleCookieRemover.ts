@@ -8,7 +8,7 @@ export class SingleCookieRemover implements CookieRemover {
   static fromHeaders(
     headers: Headers,
     options: RemoveAuthCookiesOptions
-  ): CookieRemover {
+  ): SingleCookieRemover {
     const setter = new HeadersCookieSetter(
       headers,
       getExpiredSerializeOptions(options.cookieSerializeOptions)

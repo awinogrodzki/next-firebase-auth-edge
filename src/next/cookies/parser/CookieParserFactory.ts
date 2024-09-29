@@ -10,24 +10,24 @@ import {RequestCookiesProvider} from './RequestCookiesProvider.js';
 import {SingleCookieParser} from './SingleCookieParser.js';
 
 export class CookieParserFactory {
-  private static hasMultipleCookies(
+  public static hasMultipleCookies(
     provider: CookiesProvider,
-    options: GetCookiesTokensOptions
+    cookieName: string
   ) {
     return ['id', 'refresh', 'custom', 'sig']
-      .map((it) => `${options.cookieName}.${it}`)
+      .map((it) => `${cookieName}.${it}`)
       .every((it) => Boolean(provider.get(it)));
   }
 
-  private static hasLegacyMultipleCookies(
+  public static hasLegacyMultipleCookies(
     provider: CookiesProvider,
-    options: GetCookiesTokensOptions
+    cookieName: string
   ) {
     return (
       ['custom', 'sig']
-        .map((it) => `${options.cookieName}.${it}`)
+        .map((it) => `${cookieName}.${it}`)
         .every((it) => Boolean(provider.get(it))) &&
-      provider.get(options.cookieName)?.includes(':')
+      provider.get(cookieName)?.includes(':')
     );
   }
 
@@ -60,7 +60,7 @@ export class CookieParserFactory {
     const hasLegacyCookie = singleCookie?.includes(':');
     const enableMultipleCookies = CookieParserFactory.hasMultipleCookies(
       provider,
-      options
+      options.cookieName
     );
 
     if (enableMultipleCookies) {
@@ -71,7 +71,9 @@ export class CookieParserFactory {
       );
     }
 
-    if (CookieParserFactory.hasLegacyMultipleCookies(provider, options)) {
+    if (
+      CookieParserFactory.hasLegacyMultipleCookies(provider, options.cookieName)
+    ) {
       return new MultipleCookiesParser(
         CookieParserFactory.getCompatibleProvider(provider, options),
         options.cookieName,

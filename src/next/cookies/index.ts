@@ -137,20 +137,24 @@ export async function setAuthCookies(
 export interface RemoveAuthCookiesOptions {
   cookieName: string;
   cookieSerializeOptions: CookieSerializeOptions;
-  enableMultipleCookies?: boolean;
 }
 
 export function removeCookies(
+  cookies: RequestCookies | ReadonlyRequestCookies,
   response: NextResponse,
   options: RemoveAuthCookiesOptions
 ) {
-  const remover = CookieRemoverFactory.fromHeaders(response.headers, options);
+  const remover = CookieRemoverFactory.fromHeaders(
+    response.headers,
+    cookies,
+    options
+  );
 
   return remover.removeCookies();
 }
 
 export function removeAuthCookies(
-  _headers: Headers,
+  cookies: RequestCookies | ReadonlyRequestCookies,
   options: RemoveAuthCookiesOptions
 ): NextResponse {
   const response = new NextResponse(JSON.stringify({success: true}), {
@@ -158,7 +162,7 @@ export function removeAuthCookies(
     headers: {'content-type': 'application/json'}
   });
 
-  removeCookies(response, options);
+  removeCookies(cookies, response, options);
 
   debug('Updating response with empty authentication cookie headers', {
     cookieName: options.cookieName
