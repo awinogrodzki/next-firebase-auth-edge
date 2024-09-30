@@ -120,7 +120,7 @@ export async function createAuthMiddlewareResponse(
   options: CreateAuthMiddlewareOptions
 ): Promise<NextResponse> {
   if (request.nextUrl.pathname === options.loginPath) {
-    return setAuthCookies(request.cookies, request.headers, {
+    return setAuthCookies(request.headers, {
       cookieName: options.cookieName,
       cookieSerializeOptions: options.cookieSerializeOptions,
       cookieSignatureKeys: options.cookieSignatureKeys,
@@ -133,7 +133,7 @@ export async function createAuthMiddlewareResponse(
   }
 
   if (request.nextUrl.pathname === options.logoutPath) {
-    return removeAuthCookies(request.cookies, {
+    return removeAuthCookies(request.headers, {
       cookieName: options.cookieName,
       cookieSerializeOptions: options.cookieSerializeOptions
     });
@@ -279,7 +279,7 @@ export async function authMiddleware(
         };
 
         const cookies = new AuthCookies(
-          new RequestCookiesProvider(request.cookies),
+          RequestCookiesProvider.fromHeaders(request.headers),
           options
         );
 

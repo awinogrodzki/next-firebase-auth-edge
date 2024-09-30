@@ -2,8 +2,7 @@ import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/a
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {InvalidTokenError, InvalidTokenReason} from '../../../auth/error.js';
 import {debug} from '../../../debug/index.js';
-import {GetCookiesTokensOptions} from '../types.js';
-import {CookiesObject} from '../types.js';
+import {CookiesObject, GetCookiesTokensOptions} from '../types.js';
 import {CookiesProvider} from './CookiesProvider.js';
 import {MultipleCookiesParser} from './MultipleCookiesParser.js';
 import {ObjectCookiesProvider} from './ObjectCookiesProvider.js';
@@ -101,7 +100,13 @@ export class CookieParserFactory {
     cookies: RequestCookies | ReadonlyRequestCookies,
     options: GetCookiesTokensOptions
   ) {
-    const provider = new RequestCookiesProvider(cookies);
+    const provider = RequestCookiesProvider.fromRequestCookies(cookies);
+
+    return CookieParserFactory.fromProvider(provider, options);
+  }
+
+  static fromHeaders(headers: Headers, options: GetCookiesTokensOptions) {
+    const provider = RequestCookiesProvider.fromHeaders(headers);
 
     return CookieParserFactory.fromProvider(provider, options);
   }

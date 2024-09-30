@@ -1,7 +1,6 @@
-import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {InvalidTokenError, InvalidTokenReason} from '../../../auth/error.ts';
-import {GetCookiesTokensOptions} from '../../tokens.ts';
 import {Cookie} from '../builder/CookieBuilder.js';
+import {GetCookiesTokensOptions} from '../types.ts';
 import {CookieParserFactory} from './CookieParserFactory.js';
 import {MultipleCookiesParser} from './MultipleCookiesParser.ts';
 import {SingleCookieParser} from './SingleCookieParser.ts';
@@ -11,6 +10,12 @@ const testCookie = {
   value:
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6ImlkLXRva2VuIiwicmVmcmVzaF90b2tlbiI6InJlZnJlc2gtdG9rZW4iLCJjdXN0b21fdG9rZW4iOiJjdXN0b20tdG9rZW4ifQ.ExxN2rNayg2XCR6WNeZmY8tAyc_qyiZ2YdzITRbQocs'
 };
+
+const testCookieHeader = toHeader(testCookie);
+
+function toHeader(cookie: Cookie): string {
+  return `${cookie.name}=${cookie.value}`;
+}
 
 const testCookies: Cookie[] = [
   {
@@ -31,6 +36,8 @@ const testCookies: Cookie[] = [
   }
 ];
 
+const testCookiesHeader = testCookies.map(toHeader).join(';');
+
 const legacyTestCookies: Cookie[] = [
   {
     name: 'TestCookie',
@@ -45,6 +52,8 @@ const legacyTestCookies: Cookie[] = [
     value: 'QupyAMaPmI6d90CqB0lvec5Q517onmUvXEk6bONTQM0'
   }
 ];
+
+const legacyCookiesHeader = legacyTestCookies.map(toHeader).join(';');
 
 const testCookiesObj = testCookies.reduce(
   (acc, cookie) => ({
@@ -72,50 +81,18 @@ const mockOptions = {
 } as unknown as GetCookiesTokensOptions;
 
 describe('CookieParserFactory', () => {
-  describe('fromRequestCookies', () => {
-    let mockCookies: jest.Mocked<RequestCookies>;
-
-    beforeEach(() => {
-      mockCookies = {
-        get: jest.fn(),
-        has: jest.fn()
-      } as unknown as jest.Mocked<RequestCookies>;
-    });
-
+  describe('fromHeaders', () => {
     it('should create single cookie parser if request does not have multiple cookies', () => {
-      (mockCookies.get as jest.Mock).mockImplementation((name: string) => {
-        if (name === 'TestCookie') {
-          return testCookie;
-        }
+      const mockHeaders = new Headers();
+      mockHeaders.set('Cookie', testCookieHeader);
 
-        return undefined;
-      });
-      (mockCookies.has as jest.Mock).mockImplementation((name: string) => {
-        if (name === 'TestCookie') {
-          return true;
-        }
-
-        return false;
-      });
-
-      const result = CookieParserFactory.fromRequestCookies(
-        mockCookies,
-        mockOptions
-      );
-
+      const result = CookieParserFactory.fromHeaders(mockHeaders, mockOptions);
       expect(result).toBeInstanceOf(SingleCookieParser);
     });
 
     it('should create single cookie parser if request does not have any cookies', () => {
-      (mockCookies.get as jest.Mock).mockImplementation(() => {
-        return undefined;
-      });
-      (mockCookies.has as jest.Mock).mockImplementation(() => {
-        return false;
-      });
-
-      const result = CookieParserFactory.fromRequestCookies(
-        mockCookies,
+      const result = CookieParserFactory.fromHeaders(
+        new Headers(),
         mockOptions
       );
 
@@ -127,57 +104,31 @@ describe('CookieParserFactory', () => {
     });
 
     it('should create multiple cookie parser if request does have all required cookies', () => {
-      (mockCookies.get as jest.Mock).mockImplementation((name: string) => {
-        return testCookies.find((it) => it.name === name);
-      });
-      (mockCookies.has as jest.Mock).mockImplementation((name: string) => {
-        return testCookies.findIndex((it) => it.name === name) > -1;
-      });
+      const mockHeaders = new Headers();
+      mockHeaders.set('Cookie', testCookiesHeader);
 
-      const result = CookieParserFactory.fromRequestCookies(
-        mockCookies,
-        mockOptions
-      );
+      const result = CookieParserFactory.fromHeaders(mockHeaders, mockOptions);
 
       expect(result).toBeInstanceOf(MultipleCookiesParser);
     });
 
     it('should throw invalid credentials error if deprecated notation is used', () => {
-      (mockCookies.get as jest.Mock).mockImplementation((name: string) => {
-        if (name === 'TestCookie') {
-          return {
-            ...testCookie,
-            value: `${testCookies[0].value}:${testCookies[1].value}`
-          };
-        }
-
-        return undefined;
-      });
-      (mockCookies.has as jest.Mock).mockImplementation((name: string) => {
-        if (name === 'TestCookie') {
-          return true;
-        }
-
-        return false;
-      });
+      const mockHeaders = new Headers();
+      mockHeaders.set(
+        'Cookie',
+        `TestCookie=${testCookies[0].value}:${testCookies[1].value}`
+      );
 
       return expect(() =>
-        CookieParserFactory.fromRequestCookies(mockCookies, mockOptions)
+        CookieParserFactory.fromHeaders(mockHeaders, mockOptions)
       ).toThrow(new InvalidTokenError(InvalidTokenReason.INVALID_CREDENTIALS));
     });
 
     it('should create multiple cookie parser if request has legacy cookies', async () => {
-      (mockCookies.get as jest.Mock).mockImplementation((name: string) => {
-        return legacyTestCookies.find((it) => it.name === name);
-      });
-      (mockCookies.has as jest.Mock).mockImplementation((name: string) => {
-        return legacyTestCookies.findIndex((it) => it.name === name) > -1;
-      });
+      const mockHeaders = new Headers();
+      mockHeaders.set('Cookie', legacyCookiesHeader);
 
-      const parser = CookieParserFactory.fromRequestCookies(
-        mockCookies,
-        mockOptions
-      );
+      const parser = CookieParserFactory.fromHeaders(mockHeaders, mockOptions);
 
       expect(parser).toBeInstanceOf(MultipleCookiesParser);
 

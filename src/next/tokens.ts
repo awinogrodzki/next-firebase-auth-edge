@@ -135,7 +135,7 @@ export async function getTokens(
           cookieSerializeOptions
         };
         const authCookies = new AuthCookies(
-          new RequestCookiesProvider(cookies),
+          RequestCookiesProvider.fromRequestCookies(cookies),
           setAuthCookiesOptions
         );
 

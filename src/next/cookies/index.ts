@@ -15,7 +15,7 @@ import {CookieRemoverFactory} from './remover/CookieRemoverFactory.js';
 import {CookiesObject, SetAuthCookiesOptions} from './types.js';
 
 export async function appendAuthCookies(
-  cookies: RequestCookies | ReadonlyRequestCookies,
+  headers: Headers,
   response: NextResponse,
   tokens: CustomTokens,
   options: SetAuthCookiesOptions
@@ -23,7 +23,7 @@ export async function appendAuthCookies(
   debug('Updating response headers with authenticated cookies');
 
   const authCookies = new AuthCookies(
-    new RequestCookiesProvider(cookies),
+    RequestCookiesProvider.fromHeaders(headers),
     options
   );
 
@@ -31,7 +31,6 @@ export async function appendAuthCookies(
 }
 
 export async function setAuthCookies(
-  cookies: RequestCookies | ReadonlyRequestCookies,
   headers: Headers,
   options: SetAuthCookiesOptions
 ): Promise<NextResponse> {
@@ -70,7 +69,7 @@ export async function setAuthCookies(
     headers: {'content-type': 'application/json'}
   });
 
-  await appendAuthCookies(cookies, response, customTokens, options);
+  await appendAuthCookies(headers, response, customTokens, options);
 
   return response;
 }
@@ -81,13 +80,13 @@ export interface RemoveAuthCookiesOptions {
 }
 
 export function removeCookies(
-  cookies: RequestCookies | ReadonlyRequestCookies,
+  headers: Headers,
   response: NextResponse,
   options: RemoveAuthCookiesOptions
 ) {
   const remover = CookieRemoverFactory.fromHeaders(
     response.headers,
-    new RequestCookiesProvider(cookies),
+    RequestCookiesProvider.fromHeaders(headers),
     options.cookieName
   );
 
@@ -95,7 +94,7 @@ export function removeCookies(
 }
 
 export function removeAuthCookies(
-  cookies: RequestCookies | ReadonlyRequestCookies,
+  headers: Headers,
   options: RemoveAuthCookiesOptions
 ): NextResponse {
   const response = new NextResponse(JSON.stringify({success: true}), {
@@ -103,7 +102,7 @@ export function removeAuthCookies(
     headers: {'content-type': 'application/json'}
   });
 
-  removeCookies(cookies, response, options);
+  removeCookies(headers, response, options);
 
   debug('Updating response with empty authentication cookie headers', {
     cookieName: options.cookieName
@@ -189,7 +188,7 @@ export async function refreshCredentials(
   );
 
   const cookies = new AuthCookies(
-    new RequestCookiesProvider(request.cookies),
+    RequestCookiesProvider.fromHeaders(request.headers),
     options
   );
   await cookies.setAuthCookies(customTokens, request.cookies);
@@ -229,7 +228,7 @@ export async function refreshNextResponseCookiesWithToken(
     referer
   });
 
-  await appendAuthCookies(request.cookies, response, customTokens, options);
+  await appendAuthCookies(request.headers, response, customTokens, options);
 
   return response;
 }
@@ -255,7 +254,7 @@ export async function refreshCookiesWithIdToken(
   });
 
   const authCookies = new AuthCookies(
-    new RequestCookiesProvider(cookies),
+    RequestCookiesProvider.fromHeaders(headers),
     options
   );
 
@@ -273,7 +272,7 @@ export async function refreshNextResponseCookies(
     options
   );
 
-  await appendAuthCookies(request.cookies, response, customTokens, options);
+  await appendAuthCookies(request.headers, response, customTokens, options);
 
   return response;
 }
@@ -285,7 +284,7 @@ export async function refreshServerCookies(
 ): Promise<void> {
   const customTokens = await refreshNextCookies(cookies, headers, options);
   const authCookies = new AuthCookies(
-    new RequestCookiesProvider(cookies),
+    RequestCookiesProvider.fromHeaders(headers),
     options
   );
 

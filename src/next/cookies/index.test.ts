@@ -1,5 +1,5 @@
-import {NextResponse} from 'next/server';
 import type {NextRequest} from 'next/server';
+import {NextResponse} from 'next/server';
 import {
   SetAuthCookiesOptions,
   appendAuthCookies,
@@ -46,6 +46,8 @@ describe('cookies', () => {
   let MOCK_REQUEST: jest.Mocked<NextRequest>;
 
   beforeEach(() => {
+    const mockHeaders = new Headers();
+    mockHeaders.set('Cookie', `TestCookie=${jwt}`);
     MOCK_REQUEST = {
       cookies: {
         has: (key: string) => {
@@ -65,9 +67,7 @@ describe('cookies', () => {
         set: jest.fn(),
         delete: jest.fn()
       },
-      headers: {
-        get: jest.fn()
-      }
+      headers: mockHeaders
     } as unknown as jest.Mocked<NextRequest>;
   });
 
@@ -172,8 +172,8 @@ describe('cookies', () => {
         append: jest.fn()
       }
     } as unknown as jest.Mocked<NextResponse>;
-    (MOCK_REQUEST.cookies.get as jest.Mock).mockImplementation(() => undefined);
-    await appendAuthCookies(MOCK_REQUEST.cookies, MOCK_RESPONSE, customTokens, {
+    const mockHeaders = new Headers();
+    await appendAuthCookies(mockHeaders, MOCK_RESPONSE, customTokens, {
       ...MOCK_OPTIONS,
       enableMultipleCookies: true
     });
@@ -211,11 +211,7 @@ describe('cookies', () => {
       }
     } as unknown as jest.Mocked<NextResponse>;
 
-    await setAuthCookies(
-      MOCK_REQUEST.cookies,
-      MOCK_RESPONSE.headers,
-      MOCK_OPTIONS
-    );
+    await setAuthCookies(MOCK_RESPONSE.headers, MOCK_OPTIONS);
 
     expect(MOCK_RESPONSE.headers.get).toHaveBeenCalledWith(
       'Next-Authorization'
