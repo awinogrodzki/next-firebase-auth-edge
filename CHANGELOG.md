@@ -1,3 +1,10 @@
+# [1.8.0-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.6...v1.8.0-canary.7) (2024-09-30)
+
+
+### Bug Fixes
+
+* added circular import validation ([deaa2e3](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/deaa2e393b4e7630090d0dce96ed9e7e6b7fa8e0))
+
 # [1.8.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.5...v1.8.0-canary.6) (2024-09-29)
 
 
