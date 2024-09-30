@@ -1,3 +1,10 @@
+# [1.8.0-canary.8](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.7...v1.8.0-canary.8) (2024-09-30)
+
+
+### Bug Fixes
+
+* create request cookies provider from cloned headers ([d17c376](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d17c3762807ccba180116612c0463dec4357b0e9))
+
 # [1.8.0-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.6...v1.8.0-canary.7) (2024-09-30)
 
 
