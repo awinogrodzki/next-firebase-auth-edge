@@ -11,17 +11,16 @@ import {
 import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth/index.js';
 import {debug, enableDebugMode} from '../debug/index.js';
 import {AuthCookies} from './cookies/AuthCookies.js';
+import {removeAuthCookies, setAuthCookies} from './cookies/index.js';
+import {RequestCookiesProvider} from './cookies/parser/RequestCookiesProvider.js';
 import {
   markCookiesAsVerified,
-  removeAuthCookies,
   removeInternalVerifiedCookieIfExists,
-  setAuthCookies,
   wasResponseDecoratedWithModifiedRequestHeaders
-} from './cookies/index.js';
+} from './cookies/verification.js';
 import {refreshToken} from './refresh-token.js';
 import {getRequestCookiesTokens, validateOptions} from './tokens.js';
 import {getReferer} from './utils.js';
-import {RequestCookiesProvider} from './cookies/parser/RequestCookiesProvider.js';
 
 export interface CreateAuthMiddlewareOptions {
   loginPath: string;
@@ -284,6 +283,8 @@ export async function authMiddleware(
           options
         );
 
+        // @TODO: Clear legacy cookies only after setting headers
+        // Possible fix: clone request cookies in provider constructor
         await cookies.setAuthCookies(tokensToSign, request.cookies);
 
         markCookiesAsVerified(request.cookies);

@@ -6,18 +6,18 @@ import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {ServiceAccount} from '../auth/credential.js';
 import {CustomTokens, VerifiedTokens} from '../auth/custom-token/index.js';
 import {InvalidTokenError} from '../auth/error.js';
-import {Tokens, getFirebaseAuth} from '../auth/index.js';
+import {getFirebaseAuth, Tokens} from '../auth/index.js';
 import {mapJwtPayloadToDecodedIdToken} from '../auth/utils.js';
 import {debug, enableDebugMode} from '../debug/index.js';
 import {AuthCookies} from './cookies/AuthCookies.js';
+import {CookieParserFactory} from './cookies/parser/CookieParserFactory.js';
+import {RequestCookiesProvider} from './cookies/parser/RequestCookiesProvider.js';
+import {CookiesObject, GetCookiesTokensOptions} from './cookies/types.js';
 import {
-  CookiesObject,
   areCookiesVerifiedByMiddleware,
   isCookiesObjectVerifiedByMiddleware
-} from './cookies/index.js';
-import {CookieParserFactory} from './cookies/parser/CookieParserFactory.js';
+} from './cookies/verification.js';
 import {getReferer} from './utils.js';
-import {RequestCookiesProvider} from './cookies/parser/RequestCookiesProvider.js';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   cookieSerializeOptions?: CookieSerializeOptions;
@@ -37,11 +37,6 @@ export function validateOptions(options: GetTokensOptions) {
       )}`
     );
   }
-}
-
-export interface GetCookiesTokensOptions {
-  cookieName: string;
-  cookieSignatureKeys: string[];
 }
 
 export async function getRequestCookiesTokens(

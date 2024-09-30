@@ -4,7 +4,6 @@ import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {CustomTokens} from '../../auth/custom-token/index.js';
 import {Cookie, CookieBuilder} from './builder/CookieBuilder.js';
 import {CookieBuilderFactory} from './builder/CookieBuilderFactory.js';
-import {SetAuthCookiesOptions} from './index.js';
 import {CookieParserFactory} from './parser/CookieParserFactory.js';
 import {CookiesProvider} from './parser/CookiesProvider.js';
 import {MultipleCookieRemover} from './remover/MultipleCookieRemover.js';
@@ -12,6 +11,7 @@ import {SingleCookieRemover} from './remover/SingleCookieRemover.js';
 import {CookieSetter} from './setter/CookieSetter.js';
 import {CookieSetterFactory} from './setter/CookieSetterFactory.js';
 import {NextApiResponseCookieSetter} from './setter/NextApiResponseHeadersCookieSetter.js';
+import {SetAuthCookiesOptions} from './types.js';
 
 export class AuthCookies {
   private builder: CookieBuilder;

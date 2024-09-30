@@ -1,8 +1,8 @@
 import {JWTPayload} from 'jose';
 import {Credential, ServiceAccountCredential} from '../credential.js';
-import {ALGORITHM_RS256} from '../signature-verifier.js';
 import {fetchText} from '../utils.js';
 import {sign, signBlob} from './sign.js';
+import {ALGORITHM_RS256} from './verify.js';
 
 export interface CryptoSigner {
   sign(payload: JWTPayload): Promise<string>;

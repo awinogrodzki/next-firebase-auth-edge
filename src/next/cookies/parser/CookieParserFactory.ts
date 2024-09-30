@@ -2,8 +2,8 @@ import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/a
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {InvalidTokenError, InvalidTokenReason} from '../../../auth/error.js';
 import {debug} from '../../../debug/index.js';
-import {GetCookiesTokensOptions} from '../../tokens.js';
-import {CookiesObject} from '../index.js';
+import {GetCookiesTokensOptions} from '../types.js';
+import {CookiesObject} from '../types.js';
 import {CookiesProvider} from './CookiesProvider.js';
 import {MultipleCookiesParser} from './MultipleCookiesParser.js';
 import {ObjectCookiesProvider} from './ObjectCookiesProvider.js';

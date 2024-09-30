@@ -18,10 +18,12 @@ import {
   InvalidTokenReason
 } from './error';
 import {useEmulator} from './firebase.js';
-import {VerifyOptions} from './jwt/verify.js';
+import {DecodedIdToken, VerifyOptions} from './types.js';
 import {createFirebaseTokenGenerator} from './token-generator.js';
-import {createIdTokenVerifier, DecodedIdToken} from './token-verifier.js';
+import {createIdTokenVerifier} from './token-verifier.js';
 import {UserRecord} from './user-record.js';
+
+export * from './types.js';
 
 const getCustomTokenEndpoint = (apiKey: string) => {
   if (useEmulator() && process.env.FIREBASE_AUTH_EMULATOR_HOST) {

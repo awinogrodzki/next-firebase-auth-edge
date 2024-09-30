@@ -4,80 +4,15 @@ import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/a
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
-import {ServiceAccount} from '../../auth/credential.js';
 import {CustomTokens, VerifiedTokens} from '../../auth/custom-token/index.js';
 import {getFirebaseAuth} from '../../auth/index.js';
 import {debug} from '../../debug/index.js';
 import {getCookiesTokens, getRequestCookiesTokens} from '../tokens.js';
 import {getReferer} from '../utils.js';
 import {AuthCookies} from './AuthCookies.js';
-import {CookieRemoverFactory} from './remover/CookieRemoverFactory.js';
 import {RequestCookiesProvider} from './parser/RequestCookiesProvider.js';
-
-export interface SetAuthCookiesOptions {
-  cookieName: string;
-  cookieSignatureKeys: string[];
-  cookieSerializeOptions: CookieSerializeOptions;
-  enableMultipleCookies?: boolean;
-  serviceAccount?: ServiceAccount;
-  apiKey: string;
-  tenantId?: string;
-  authorizationHeaderName?: string;
-}
-
-export type CookiesObject = Partial<{[K in string]: string}>;
-
-const INTERNAL_VERIFIED_TOKEN_COOKIE_NAME =
-  'x-next-firebase-auth-edge-verified';
-const INTERNAL_VERIFIED_TOKEN_COOKIE_VALUE = 'true';
-
-export function removeInternalVerifiedCookieIfExists(
-  cookies: RequestCookies | ReadonlyRequestCookies
-) {
-  if (cookies.get(INTERNAL_VERIFIED_TOKEN_COOKIE_NAME)?.value) {
-    cookies.delete(INTERNAL_VERIFIED_TOKEN_COOKIE_NAME);
-  }
-}
-
-export function markCookiesAsVerified(
-  cookies: RequestCookies | ReadonlyRequestCookies
-) {
-  cookies.set(
-    INTERNAL_VERIFIED_TOKEN_COOKIE_NAME,
-    INTERNAL_VERIFIED_TOKEN_COOKIE_VALUE
-  );
-}
-
-export function wasResponseDecoratedWithModifiedRequestHeaders(
-  response: NextResponse
-) {
-  const cookie = response.headers.get('cookie');
-  const middlewareRequestCookie = response.headers.get(
-    'x-middleware-request-cookie'
-  );
-
-  return (
-    cookie?.includes(INTERNAL_VERIFIED_TOKEN_COOKIE_NAME) ||
-    middlewareRequestCookie?.includes(INTERNAL_VERIFIED_TOKEN_COOKIE_NAME) ||
-    false
-  );
-}
-
-export function areCookiesVerifiedByMiddleware(
-  cookies: RequestCookies | ReadonlyRequestCookies
-) {
-  return (
-    cookies.get(INTERNAL_VERIFIED_TOKEN_COOKIE_NAME)?.value ===
-    INTERNAL_VERIFIED_TOKEN_COOKIE_VALUE
-  );
-}
-
-export function isCookiesObjectVerifiedByMiddleware(cookies: CookiesObject) {
-  return (
-    cookies[INTERNAL_VERIFIED_TOKEN_COOKIE_NAME] ===
-    INTERNAL_VERIFIED_TOKEN_COOKIE_VALUE
-  );
-}
+import {CookieRemoverFactory} from './remover/CookieRemoverFactory.js';
+import {CookiesObject, SetAuthCookiesOptions} from './types.js';
 
 export async function appendAuthCookies(
   cookies: RequestCookies | ReadonlyRequestCookies,
@@ -357,3 +292,5 @@ export async function refreshServerCookies(
   await authCookies.setAuthCookies(customTokens, cookies);
   await authCookies.setAuthHeaders(customTokens, headers);
 }
+
+export * from './types.js';

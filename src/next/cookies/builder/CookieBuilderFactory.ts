@@ -1,4 +1,4 @@
-import {SetAuthCookiesOptions} from '../index.js';
+import {SetAuthCookiesOptions} from '../types.js';
 import {MultipleCookieBuilder} from './MultipleCookieBuilder.js';
 import {SingleCookieBuilder} from './SingleCookieBuilder.js';
 

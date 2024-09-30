@@ -2,44 +2,15 @@ import {decodeJwt, decodeProtectedHeader, errors} from 'jose';
 import {JOSEError} from 'jose/dist/types/util/errors';
 import {AuthError, AuthErrorCode} from './error.js';
 import {CLIENT_CERT_URL, FIREBASE_AUDIENCE, useEmulator} from './firebase.js';
-import {VerifyOptions} from './jwt/verify.js';
+import {ALGORITHM_RS256} from './jwt/verify.js';
 import {
-  ALGORITHM_RS256,
   DecodedToken,
   PublicKeySignatureVerifier,
   SignatureVerifier
 } from './signature-verifier';
+import {DecodedIdToken, VerifyOptions} from './types.js';
 import {mapJwtPayloadToDecodedIdToken} from './utils.js';
 import {isURL} from './validator.js';
-
-export interface FirebaseClaims {
-  identities: {
-    [key: string]: unknown;
-  };
-  sign_in_provider: string;
-  sign_in_second_factor?: string;
-  second_factor_identifier?: string;
-  tenant?: string;
-  [key: string]: unknown;
-}
-
-export interface DecodedIdToken {
-  aud: string;
-  auth_time: number;
-  email?: string;
-  email_verified?: boolean;
-  name?: string;
-  exp: number;
-  firebase: FirebaseClaims;
-  source_sign_in_provider: string;
-  iat: number;
-  iss: string;
-  phone_number?: string;
-  picture?: string;
-  sub: string;
-  uid: string;
-  [key: string]: unknown;
-}
 
 export class FirebaseTokenVerifier {
   private readonly signatureVerifier: SignatureVerifier;

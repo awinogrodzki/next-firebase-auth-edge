@@ -147,7 +147,8 @@
     "build:browser-umd": "rollup browser/index.bundle.js --format umd --name next-firebase-auth-edge -o browser/index.umd.js && rollup browser/index.bundle.min.js --compact --format umd --name next-firebase-auth-edge -o browser/index.umd.min.js",
     "clear": "rm -Rf lib esm browser",
     "test": "jest src --coverage",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "check-circular-imports": "madge --extensions js,jsx,ts,tsx --ts-config tsconfig.json --circular src"
   },
   "peerDependencies": {
     "next": "^14.0.0 || ^15.0.0-rc.0"
@@ -185,7 +186,8 @@
     "rollup": "^4.22.4",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.0.1",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "madge": "^8.0.0"
   },
   "keywords": [
     "firebase",
