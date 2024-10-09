@@ -40,4 +40,21 @@ describe('MultipleCookieRemover', () => {
       }
     );
   });
+
+  it('should remove custom cookie', () => {
+    const remover = new MultipleCookieRemover('TestCookie', mockSetter);
+
+    remover.removeCustomCookie(cookieSerializeOptions);
+
+    expect(mockSetter.setCookies).toHaveBeenCalledWith(
+      [{name: 'TestCookie.custom', value: ''}],
+      {
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax' as const,
+        expires: new Date(0)
+      }
+    );
+  });
 });

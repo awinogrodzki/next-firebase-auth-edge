@@ -8,7 +8,8 @@ import {authConfig} from '../../../config/server-config';
 const {setCustomUserClaims, getUser} = getFirebaseAuth({
   serviceAccount: authConfig.serviceAccount,
   apiKey: authConfig.apiKey,
-  tenantId: authConfig.tenantId
+  tenantId: authConfig.tenantId,
+  enableCustomToken: authConfig.enableCustomToken
 });
 
 export async function POST(request: NextRequest) {

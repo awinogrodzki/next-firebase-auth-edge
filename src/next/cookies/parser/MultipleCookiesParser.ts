@@ -1,5 +1,5 @@
 import {errors} from 'jose';
-import {CustomTokens} from '../../../auth/custom-token/index.js';
+import {ParsedTokens} from '../../../auth/custom-token/index.js';
 import {InvalidTokenError, InvalidTokenReason} from '../../../auth/error.js';
 import {RotatingCredential} from '../../../auth/rotating-credential.js';
 import {CookieParser} from './CookieParser.js';
@@ -12,28 +12,21 @@ export class MultipleCookiesParser implements CookieParser {
     private signatureKeys: string[]
   ) {}
 
-  async parseCookies(): Promise<CustomTokens> {
+  async parseCookies(): Promise<ParsedTokens> {
     const idTokenCookie = this.cookies.get(`${this.cookieName}.id`);
     const refreshTokenCookie = this.cookies.get(`${this.cookieName}.refresh`);
     const customTokenCookie = this.cookies.get(`${this.cookieName}.custom`);
     const signatureCookie = this.cookies.get(`${this.cookieName}.sig`);
 
-    if (
-      ![
-        idTokenCookie,
-        refreshTokenCookie,
-        customTokenCookie,
-        signatureCookie
-      ].every(Boolean)
-    ) {
+    if (![idTokenCookie, refreshTokenCookie, signatureCookie].every(Boolean)) {
       throw new InvalidTokenError(InvalidTokenReason.MISSING_CREDENTIALS);
     }
 
     const signature = signatureCookie!;
-    const customTokens: CustomTokens = {
+    const customTokens: ParsedTokens = {
       idToken: idTokenCookie!,
       refreshToken: refreshTokenCookie!,
-      customToken: customTokenCookie!
+      customToken: customTokenCookie
     };
 
     const credential = new RotatingCredential(this.signatureKeys);

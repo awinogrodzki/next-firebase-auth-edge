@@ -4,7 +4,7 @@ import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/a
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
-import {CustomTokens, VerifiedTokens} from '../../auth/custom-token/index.js';
+import {ParsedTokens, VerifiedTokens} from '../../auth/custom-token/index.js';
 import {getFirebaseAuth} from '../../auth/index.js';
 import {debug} from '../../debug/index.js';
 import {getCookiesTokens, getRequestCookiesTokens} from '../tokens.js';
@@ -17,7 +17,7 @@ import {CookiesObject, SetAuthCookiesOptions} from './types.js';
 export async function appendAuthCookies(
   headers: Headers,
   response: NextResponse,
-  tokens: CustomTokens,
+  tokens: ParsedTokens,
   options: SetAuthCookiesOptions
 ) {
   debug('Updating response headers with authenticated cookies');
@@ -138,7 +138,8 @@ export async function verifyNextCookies(
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
-    tenantId: options.tenantId
+    tenantId: options.tenantId,
+    enableCustomToken: options.enableCustomToken
   });
   const referer = getReferer(headers) ?? '';
   const tokens = await getRequestCookiesTokens(cookies, options);
@@ -162,7 +163,8 @@ export async function refreshNextCookies(
   const referer = getReferer(headers) ?? '';
   const tokens = await getRequestCookiesTokens(cookies, options);
   const tokenRefreshResult = await handleTokenRefresh(tokens.refreshToken, {
-    referer
+    referer,
+    enableCustomToken: options.enableCustomToken
   });
 
   return {
@@ -181,7 +183,7 @@ export async function refreshCredentials(
     tokens: VerifiedTokens;
   }) => NextResponse | Promise<NextResponse>
 ): Promise<NextResponse> {
-  const customTokens = await refreshNextCookies(
+  const tokens = await refreshNextCookies(
     request.cookies,
     request.headers,
     options
@@ -191,11 +193,11 @@ export async function refreshCredentials(
     RequestCookiesProvider.fromHeaders(request.headers),
     options
   );
-  await cookies.setAuthCookies(customTokens, request.cookies);
+  await cookies.setAuthCookies(tokens, request.cookies);
 
   const responseOrPromise = responseFactory({
     headers: request.headers,
-    tokens: customTokens
+    tokens
   });
 
   const response =
@@ -203,7 +205,7 @@ export async function refreshCredentials(
       ? await responseOrPromise
       : responseOrPromise;
 
-  await cookies.setAuthHeaders(customTokens, response.headers);
+  await cookies.setAuthHeaders(tokens, response.headers);
 
   return response;
 }

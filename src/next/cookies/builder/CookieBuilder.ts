@@ -1,4 +1,4 @@
-import {CustomTokens} from '../../../auth/custom-token/index.js';
+import {ParsedTokens} from '../../../auth/custom-token/index.js';
 
 export interface Cookie {
   name: string;
@@ -6,5 +6,5 @@ export interface Cookie {
 }
 
 export interface CookieBuilder {
-  buildCookies(tokens: CustomTokens): Promise<Cookie[]>;
+  buildCookies(tokens: ParsedTokens): Promise<Cookie[]>;
 }

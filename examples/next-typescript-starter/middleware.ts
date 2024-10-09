@@ -16,6 +16,7 @@ export async function middleware(request: NextRequest) {
     refreshTokenPath: '/api/refresh-token',
     debug: authConfig.debug,
     enableMultipleCookies: authConfig.enableMultipleCookies,
+    enableCustomToken: authConfig.enableCustomToken,
     apiKey: authConfig.apiKey,
     cookieName: authConfig.cookieName,
     cookieSerializeOptions: authConfig.cookieSerializeOptions,

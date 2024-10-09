@@ -1,6 +1,6 @@
 import type {IncomingHttpHeaders} from 'http';
 import {NextApiRequest, NextApiResponse} from 'next';
-import {CustomTokens, VerifiedTokens} from '../auth/custom-token/index.js';
+import {ParsedTokens, VerifiedTokens} from '../auth/custom-token/index.js';
 import {getFirebaseAuth} from '../auth/index.js';
 import {AuthCookies} from './cookies/AuthCookies.js';
 import {CookiesObject, SetAuthCookiesOptions} from './cookies/index.js';
@@ -12,12 +12,12 @@ export async function refreshApiResponseCookies(
   response: NextApiResponse,
   options: SetAuthCookiesOptions
 ): Promise<NextApiResponse> {
-  const customTokens = await refreshApiCookies(
+  const tokens = await refreshApiCookies(
     request.cookies,
     request.headers,
     options
   );
-  await appendAuthCookiesApi(request.cookies, response, customTokens, options);
+  await appendAuthCookiesApi(request.cookies, response, tokens, options);
 
   return response;
 }
@@ -25,7 +25,7 @@ export async function refreshApiResponseCookies(
 export async function appendAuthCookiesApi(
   cookies: CookiesObject,
   response: NextApiResponse,
-  tokens: CustomTokens,
+  tokens: ParsedTokens,
   options: SetAuthCookiesOptions
 ) {
   const authCookies = new AuthCookies(
@@ -50,7 +50,8 @@ export async function refreshApiCookies(
   });
 
   const tokenRefreshResult = await handleTokenRefresh(tokens.refreshToken, {
-    referer
+    referer,
+    enableCustomToken: options.enableCustomToken
   });
 
   return {

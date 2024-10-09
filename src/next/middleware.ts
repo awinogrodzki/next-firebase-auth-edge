@@ -33,6 +33,7 @@ export interface CreateAuthMiddlewareOptions {
   tenantId?: string;
   refreshTokenPath?: string;
   enableMultipleCookies?: boolean;
+  enableCustomToken?: boolean;
   authorizationHeaderName?: string;
 }
 
@@ -128,7 +129,8 @@ export async function createAuthMiddlewareResponse(
       apiKey: options.apiKey,
       tenantId: options.tenantId,
       enableMultipleCookies: options.enableMultipleCookies,
-      authorizationHeaderName: options.authorizationHeaderName
+      authorizationHeaderName: options.authorizationHeaderName,
+      enableCustomToken: options.enableCustomToken
     });
   }
 
@@ -226,16 +228,13 @@ export async function authMiddleware(
   });
 
   try {
-    const customTokens = await getRequestCookiesTokens(
-      request.cookies,
-      options
-    );
+    const tokens = await getRequestCookiesTokens(request.cookies, options);
 
     return await handleExpiredToken(
       async () => {
         debug('Verifying user credentials...');
 
-        const decodedToken = await verifyIdToken(customTokens.idToken, {
+        const decodedToken = await verifyIdToken(tokens.idToken, {
           checkRevoked: options.checkRevoked,
           referer
         });
@@ -245,9 +244,9 @@ export async function authMiddleware(
         markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
           {
-            token: customTokens.idToken,
+            token: tokens.idToken,
             decodedToken,
-            customToken: customTokens.customToken
+            customToken: tokens.customToken
           },
           request.headers
         );
@@ -264,8 +263,9 @@ export async function authMiddleware(
         debug('Token has expired. Refreshing token...');
 
         const {idToken, decodedIdToken, refreshToken, customToken} =
-          await handleTokenRefresh(customTokens.refreshToken, {
-            referer
+          await handleTokenRefresh(tokens.refreshToken, {
+            referer,
+            enableCustomToken: options.enableCustomToken
           });
 
         debug(

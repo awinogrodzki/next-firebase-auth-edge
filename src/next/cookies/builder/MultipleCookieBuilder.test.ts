@@ -29,4 +29,28 @@ describe('MultipleCookieBuilder', () => {
       }
     ]);
   });
+
+  it('should skip custom token if not provided', async () => {
+    const builder = new MultipleCookieBuilder('TestCookie', ['secret']);
+
+    expect(
+      await builder.buildCookies({
+        idToken: 'id-token',
+        refreshToken: 'refresh-token'
+      })
+    ).toEqual([
+      {
+        name: 'TestCookie.id',
+        value: 'id-token'
+      },
+      {
+        name: 'TestCookie.refresh',
+        value: 'refresh-token'
+      },
+      {
+        name: 'TestCookie.sig',
+        value: 'g-7yXxxJfMmzsR7BqkJjguoUWsOqCTGz2AndxjJBrkw'
+      }
+    ]);
+  });
 });

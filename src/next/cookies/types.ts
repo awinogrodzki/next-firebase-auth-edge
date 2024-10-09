@@ -6,6 +6,7 @@ export interface SetAuthCookiesOptions {
   cookieSignatureKeys: string[];
   cookieSerializeOptions: CookieSerializeOptions;
   enableMultipleCookies?: boolean;
+  enableCustomToken?: boolean;
   serviceAccount?: ServiceAccount;
   apiKey: string;
   tenantId?: string;
