@@ -1,3 +1,10 @@
+# [1.8.0-canary.9](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.8...v1.8.0-canary.9) (2024-10-09)
+
+
+### Features
+
+* make custom token optional ([4a18cb7](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/4a18cb7ed6aca3e8e72819437939fae1bc9eeffc))
+
 # [1.8.0-canary.8](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.7...v1.8.0-canary.8) (2024-09-30)
 
 
