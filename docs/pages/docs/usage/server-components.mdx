@@ -1,6 +1,6 @@
 # Usage in Server Components
 
-The library provides a `getTokens` function to extract and validate user credentials. This function can only be used in `Server Components` or [API Route Handlers](/docs/usage/app-router-api-routes). It returns `null` if there are no authentication cookies or if the credentials have expired. If the request contains valid credentials, the function returns an object with `token`, `decodedToken`, and `customToken`. The `token` is a JWT-encoded string, while `decodedToken` is the decoded object representation of that token.
+The library provides a `getTokens` function to extract and validate user credentials. This function can only be used in `Server Components` or [API Route Handlers](/docs/usage/app-router-api-routes). It returns `null` if there are no authentication cookies or if the credentials have expired. If the request contains valid credentials, the function returns an object with `token`, `decodedToken`. The object can contain `customToken`, if you passed `enableCustomToken` flag to `authMiddleware`. The `token` is a JWT-encoded string, while `decodedToken` is the decoded object representation of that token.
 
 ## getTokens
 
@@ -41,7 +41,7 @@ export default async function ServerComponentExample() {
         <br />
         User email: {decodedToken.email}
         <br />
-        Custom token: {customToken}
+        Custom token, if you enabled custom token support by passing `enableCustomToken` flag to `authMiddleware`: {customToken}
       </p>
     </div>
   );
