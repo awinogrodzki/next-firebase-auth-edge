@@ -23,6 +23,21 @@ const testCookies = [
   }
 ];
 
+const testCookiesNoCustom = [
+  {
+    name: 'TestCookie.id',
+    value: 'id-token'
+  },
+  {
+    name: 'TestCookie.refresh',
+    value: 'refresh-token'
+  },
+  {
+    name: 'TestCookie.sig',
+    value: 'g-7yXxxJfMmzsR7BqkJjguoUWsOqCTGz2AndxjJBrkw'
+  }
+];
+
 describe('MultipleCookiesParser', () => {
   let mockCookies: RequestCookies;
   let mockCookiesProvider: CookiesProvider;
@@ -33,7 +48,8 @@ describe('MultipleCookiesParser', () => {
         testCookies.find((cookie) => name === cookie.name)
       )
     } as unknown as RequestCookies;
-    mockCookiesProvider = new RequestCookiesProvider(mockCookies);
+    mockCookiesProvider =
+      RequestCookiesProvider.fromRequestCookies(mockCookies);
   });
 
   it('should parse multiple cookies', async () => {
@@ -93,7 +109,7 @@ describe('MultipleCookiesParser', () => {
     );
   });
 
-  it('should throw missing credentials error if custom token is empty', () => {
+  it('should throw invalid signature error if custom token is empty and multiple cookies signed with custom token are provided', () => {
     (mockCookies.get as jest.Mock).mockImplementation((name: string) =>
       testCookies
         .filter((it) => !it.name.endsWith('.custom'))
@@ -107,10 +123,32 @@ describe('MultipleCookiesParser', () => {
     );
 
     return expect(() => parser.parseCookies()).rejects.toEqual(
-      new InvalidTokenError(InvalidTokenReason.MISSING_CREDENTIALS)
+      new InvalidTokenError(InvalidTokenReason.INVALID_SIGNATURE)
     );
   });
 
+  it('should parse multiple cookies without custom token', async () => {
+    (mockCookies.get as jest.Mock).mockImplementation((name: string) =>
+      testCookiesNoCustom.find((cookie) => name === cookie.name)
+    );
+    const parser = new MultipleCookiesParser(
+      RequestCookiesProvider.fromRequestCookies(mockCookies),
+      'TestCookie',
+      ['secret']
+    );
+
+    const result = await parser.parseCookies();
+
+    expect(result).toEqual({
+      idToken: 'id-token',
+      refreshToken: 'refresh-token'
+    });
+
+    expect(mockCookies.get).toHaveBeenNthCalledWith(1, 'TestCookie.id');
+    expect(mockCookies.get).toHaveBeenNthCalledWith(2, 'TestCookie.refresh');
+    expect(mockCookies.get).toHaveBeenNthCalledWith(3, 'TestCookie.custom');
+    expect(mockCookies.get).toHaveBeenNthCalledWith(4, 'TestCookie.sig');
+  });
   it('should throw missing credentials error if signature is empty', () => {
     (mockCookies.get as jest.Mock).mockImplementation((name: string) =>
       testCookies

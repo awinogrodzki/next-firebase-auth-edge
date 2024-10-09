@@ -1,5 +1,5 @@
 import {errors} from 'jose';
-import {CustomTokens} from '../../../auth/custom-token/index.js';
+import {ParsedTokens} from '../../../auth/custom-token/index.js';
 import {InvalidTokenError, InvalidTokenReason} from '../../../auth/error.js';
 import {RotatingCredential} from '../../../auth/rotating-credential.js';
 import {CookieParser} from './CookieParser.js';
@@ -12,7 +12,7 @@ export class SingleCookieParser implements CookieParser {
     private signatureKeys: string[]
   ) {}
 
-  async parseCookies(): Promise<CustomTokens> {
+  async parseCookies(): Promise<ParsedTokens> {
     const jwtCookie = this.cookies.get(this.cookieName);
 
     if (!jwtCookie) {

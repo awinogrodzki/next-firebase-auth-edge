@@ -86,10 +86,17 @@ export async function getValidCustomToken({
 
   const response = await fetchApi<{customToken: string}>(refreshTokenUrl);
 
-  if (!response?.customToken) {
+  if (!response) {
     throw new AuthError(
       AuthErrorCode.INTERNAL_ERROR,
-      'Refresh token endpoint returned invalid response. This URL should point to endpoint exposed by the middleware and configured using refreshTokenPath option'
+      'Refresh token endpoint returned invalid response. This URL should point to endpoint exposed by the middleware and configured using refreshTokenPath option.'
+    );
+  }
+
+  if (!response.customToken) {
+    throw new AuthError(
+      AuthErrorCode.INTERNAL_ERROR,
+      'Refresh token endpoint returned empty custom token. Make sure you have set `enableCustomToken` option to `true` in `authMiddleware`'
     );
   }
 

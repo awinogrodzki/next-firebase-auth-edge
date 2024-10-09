@@ -1,4 +1,4 @@
-import {CustomTokens} from '../../../auth/custom-token/index.js';
+import {ParsedTokens} from '../../../auth/custom-token/index.js';
 import {RotatingCredential} from '../../../auth/rotating-credential.js';
 import {Cookie, CookieBuilder} from './CookieBuilder.js';
 
@@ -12,7 +12,7 @@ export class SingleCookieBuilder implements CookieBuilder {
     this.credential = new RotatingCredential(signatureKeys);
   }
 
-  public async buildCookies(tokens: CustomTokens): Promise<Cookie[]> {
+  public async buildCookies(tokens: ParsedTokens): Promise<Cookie[]> {
     const jwtToken = await this.credential.sign({
       id_token: tokens.idToken,
       refresh_token: tokens.refreshToken,

@@ -17,7 +17,8 @@ const setAuthCookiesOptions: SetAuthCookiesOptions = {
   cookieName,
   cookieSerializeOptions,
   cookieSignatureKeys: ['secret'],
-  apiKey: 'test-api-key'
+  apiKey: 'test-api-key',
+  enableCustomToken: true
 };
 
 const mockTokens: CustomTokens = {
@@ -107,6 +108,46 @@ describe('AuthCookies', () => {
       );
     });
 
+    it('should set multiple cookies and remove custom cookie if not enabled', async () => {
+      const provider = new ObjectCookiesProvider({
+        TestCookie: 'legacy-token',
+        'TestCookie.custom': 'custom-token'
+      });
+      const cookies = new AuthCookies(provider, {
+        ...setAuthCookiesOptions,
+        enableMultipleCookies: true,
+        enableCustomToken: false
+      });
+      const headers = {append: jest.fn()} as unknown as Headers;
+
+      await cookies.setAuthHeaders(mockTokens, headers);
+
+      expect(headers.append).toHaveBeenCalledTimes(5);
+      expect(headers.append).toHaveBeenNthCalledWith(
+        1,
+        'Set-Cookie',
+        'TestCookie.custom=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
+      );
+      expect(headers.append).toHaveBeenNthCalledWith(
+        2,
+        'Set-Cookie',
+        'TestCookie=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
+      );
+      expect(headers.append).toHaveBeenCalledWith(
+        'Set-Cookie',
+        'TestCookie.id=id-token; Max-Age=1036800; Path=/; Expires=Thu, 26 Sep 2024 18:04:30 GMT; HttpOnly; Secure; SameSite=Lax'
+      );
+      expect(headers.append).toHaveBeenCalledWith(
+        'Set-Cookie',
+        'TestCookie.refresh=refresh-token; Max-Age=1036800; Path=/; Expires=Thu, 26 Sep 2024 18:04:30 GMT; HttpOnly; Secure; SameSite=Lax'
+      );
+      expect(headers.append).toHaveBeenNthCalledWith(
+        5,
+        'Set-Cookie',
+        'TestCookie.sig=g-7yXxxJfMmzsR7BqkJjguoUWsOqCTGz2AndxjJBrkw; Max-Age=1036800; Path=/; Expires=Thu, 26 Sep 2024 18:04:30 GMT; HttpOnly; Secure; SameSite=Lax'
+      );
+    });
+
     it('should set single cookie and remove multiple cookie if exists', async () => {
       const provider = new ObjectCookiesProvider({
         'TestCookie.id': 'legacy-id-token',
@@ -143,6 +184,32 @@ describe('AuthCookies', () => {
       );
     });
 
+    it('should set single cookie and remove custom token if exists', async () => {
+      const provider = new ObjectCookiesProvider({
+        'TestCookie.custom': 'legacy-custom-token'
+      });
+      const cookies = new AuthCookies(provider, {
+        ...setAuthCookiesOptions,
+        enableCustomToken: false
+      });
+      const headers = {append: jest.fn()} as unknown as Headers;
+
+      await cookies.setAuthHeaders(mockTokens, headers);
+
+      expect(headers.append).toHaveBeenCalledTimes(2);
+
+      expect(headers.append).toHaveBeenCalledWith(
+        'Set-Cookie',
+        'TestCookie.custom=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
+      );
+
+      expect(headers.append).toHaveBeenNthCalledWith(
+        2,
+        'Set-Cookie',
+        'TestCookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6ImlkLXRva2VuIiwicmVmcmVzaF90b2tlbiI6InJlZnJlc2gtdG9rZW4ifQ.Zf81UFf9nyW96_0M0eymGmfPABKYben_nGMc1_9l86k; Max-Age=1036800; Path=/; Expires=Thu, 26 Sep 2024 18:04:30 GMT; HttpOnly; Secure; SameSite=Lax'
+      );
+    });
+
     it('should set single cookie and remove legacy multiple cookie if exists', async () => {
       const provider = new ObjectCookiesProvider({
         TestCookie: 'legacy-id-token:legacy-refresh-token',
@@ -175,6 +242,49 @@ describe('AuthCookies', () => {
         5,
         'Set-Cookie',
         'TestCookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6ImlkLXRva2VuIiwicmVmcmVzaF90b2tlbiI6InJlZnJlc2gtdG9rZW4iLCJjdXN0b21fdG9rZW4iOiJjdXN0b20tdG9rZW4ifQ.ExxN2rNayg2XCR6WNeZmY8tAyc_qyiZ2YdzITRbQocs; Max-Age=1036800; Path=/; Expires=Thu, 26 Sep 2024 18:04:30 GMT; HttpOnly; Secure; SameSite=Lax'
+      );
+    });
+
+    it('should set single cookie without custom token', async () => {
+      const provider = new ObjectCookiesProvider({});
+      const cookies = new AuthCookies(provider, {
+        ...setAuthCookiesOptions,
+        enableCustomToken: false
+      });
+      const headers = {append: jest.fn()} as unknown as Headers;
+
+      await cookies.setAuthHeaders(mockTokens, headers);
+
+      expect(headers.append).toHaveBeenCalledTimes(1);
+      expect(headers.append).toHaveBeenCalledWith(
+        'Set-Cookie',
+        'TestCookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6ImlkLXRva2VuIiwicmVmcmVzaF90b2tlbiI6InJlZnJlc2gtdG9rZW4ifQ.Zf81UFf9nyW96_0M0eymGmfPABKYben_nGMc1_9l86k; Max-Age=1036800; Path=/; Expires=Thu, 26 Sep 2024 18:04:30 GMT; HttpOnly; Secure; SameSite=Lax'
+      );
+    });
+
+    it('should set multiple cookies without custom token', async () => {
+      const provider = new ObjectCookiesProvider({});
+      const cookies = new AuthCookies(provider, {
+        ...setAuthCookiesOptions,
+        enableMultipleCookies: true,
+        enableCustomToken: false
+      });
+      const headers = {append: jest.fn()} as unknown as Headers;
+
+      await cookies.setAuthHeaders(mockTokens, headers);
+
+      expect(headers.append).toHaveBeenCalledTimes(3);
+      expect(headers.append).toHaveBeenCalledWith(
+        'Set-Cookie',
+        'TestCookie.id=id-token; Max-Age=1036800; Path=/; Expires=Thu, 26 Sep 2024 18:04:30 GMT; HttpOnly; Secure; SameSite=Lax'
+      );
+      expect(headers.append).toHaveBeenCalledWith(
+        'Set-Cookie',
+        'TestCookie.refresh=refresh-token; Max-Age=1036800; Path=/; Expires=Thu, 26 Sep 2024 18:04:30 GMT; HttpOnly; Secure; SameSite=Lax'
+      );
+      expect(headers.append).toHaveBeenCalledWith(
+        'Set-Cookie',
+        'TestCookie.sig=g-7yXxxJfMmzsR7BqkJjguoUWsOqCTGz2AndxjJBrkw; Max-Age=1036800; Path=/; Expires=Thu, 26 Sep 2024 18:04:30 GMT; HttpOnly; Secure; SameSite=Lax'
       );
     });
   });
@@ -275,6 +385,45 @@ describe('AuthCookies', () => {
       );
     });
 
+    it('should set multiple cookies and remove custom cookie if not enabled', async () => {
+      const provider = new ObjectCookiesProvider({
+        TestCookie: 'legacy-token',
+        'TestCookie.custom': 'custom-token'
+      });
+      const cookies = new AuthCookies(provider, {
+        ...setAuthCookiesOptions,
+        enableMultipleCookies: true,
+        enableCustomToken: false
+      });
+      const requestCookies = {
+        set: jest.fn(),
+        delete: jest.fn()
+      } as unknown as RequestCookies;
+
+      await cookies.setAuthCookies(mockTokens, requestCookies);
+
+      expect(requestCookies.delete).toHaveBeenCalledTimes(2);
+      expect(requestCookies.delete).toHaveBeenCalledWith('TestCookie');
+      expect(requestCookies.delete).toHaveBeenCalledWith('TestCookie.custom');
+
+      expect(requestCookies.set).toHaveBeenCalledTimes(3);
+      expect(requestCookies.set).toHaveBeenCalledWith(
+        'TestCookie.id',
+        'id-token',
+        cookieSerializeOptions
+      );
+      expect(requestCookies.set).toHaveBeenCalledWith(
+        'TestCookie.refresh',
+        'refresh-token',
+        cookieSerializeOptions
+      );
+      expect(requestCookies.set).toHaveBeenCalledWith(
+        'TestCookie.sig',
+        'g-7yXxxJfMmzsR7BqkJjguoUWsOqCTGz2AndxjJBrkw',
+        cookieSerializeOptions
+      );
+    });
+
     it('should set single cookie and remove multiple cookie if exists', async () => {
       const provider = new ObjectCookiesProvider({
         'TestCookie.id': 'legacy-id-token',
@@ -328,6 +477,86 @@ describe('AuthCookies', () => {
       expect(requestCookies.set).toHaveBeenCalledWith(
         'TestCookie',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6ImlkLXRva2VuIiwicmVmcmVzaF90b2tlbiI6InJlZnJlc2gtdG9rZW4iLCJjdXN0b21fdG9rZW4iOiJjdXN0b20tdG9rZW4ifQ.ExxN2rNayg2XCR6WNeZmY8tAyc_qyiZ2YdzITRbQocs',
+        cookieSerializeOptions
+      );
+    });
+
+    it('should set single cookie and remove custom cookie if exists', async () => {
+      const provider = new ObjectCookiesProvider({
+        'TestCookie.id': 'legacy-id-token',
+        'TestCookie.custom': 'legacy-custom-token'
+      });
+      const cookies = new AuthCookies(provider, {
+        ...setAuthCookiesOptions,
+        enableCustomToken: false
+      });
+      const requestCookies = {
+        set: jest.fn(),
+        delete: jest.fn()
+      } as unknown as RequestCookies;
+
+      await cookies.setAuthCookies(mockTokens, requestCookies);
+
+      expect(requestCookies.delete).toHaveBeenCalledTimes(1);
+      expect(requestCookies.delete).toHaveBeenCalledWith('TestCookie.custom');
+
+      expect(requestCookies.set).toHaveBeenCalledTimes(1);
+      expect(requestCookies.set).toHaveBeenCalledWith(
+        'TestCookie',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6ImlkLXRva2VuIiwicmVmcmVzaF90b2tlbiI6InJlZnJlc2gtdG9rZW4ifQ.Zf81UFf9nyW96_0M0eymGmfPABKYben_nGMc1_9l86k',
+        cookieSerializeOptions
+      );
+    });
+
+    it('should set single cookie without custom token', async () => {
+      const provider = new ObjectCookiesProvider({});
+      const cookies = new AuthCookies(provider, {
+        ...setAuthCookiesOptions,
+        enableCustomToken: false
+      });
+      const requestCookies = {
+        set: jest.fn(),
+        delete: jest.fn()
+      } as unknown as RequestCookies;
+
+      await cookies.setAuthCookies(mockTokens, requestCookies);
+
+      expect(requestCookies.set).toHaveBeenCalledTimes(1);
+      expect(requestCookies.set).toHaveBeenCalledWith(
+        'TestCookie',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6ImlkLXRva2VuIiwicmVmcmVzaF90b2tlbiI6InJlZnJlc2gtdG9rZW4ifQ.Zf81UFf9nyW96_0M0eymGmfPABKYben_nGMc1_9l86k',
+        cookieSerializeOptions
+      );
+    });
+
+    it('should set multiple cookies without custom token', async () => {
+      const provider = new ObjectCookiesProvider({});
+      const cookies = new AuthCookies(provider, {
+        ...setAuthCookiesOptions,
+        enableMultipleCookies: true,
+        enableCustomToken: false
+      });
+      const requestCookies = {
+        set: jest.fn(),
+        delete: jest.fn()
+      } as unknown as RequestCookies;
+
+      await cookies.setAuthCookies(mockTokens, requestCookies);
+
+      expect(requestCookies.set).toHaveBeenCalledTimes(3);
+      expect(requestCookies.set).toHaveBeenCalledWith(
+        'TestCookie.id',
+        'id-token',
+        cookieSerializeOptions
+      );
+      expect(requestCookies.set).toHaveBeenCalledWith(
+        'TestCookie.refresh',
+        'refresh-token',
+        cookieSerializeOptions
+      );
+      expect(requestCookies.set).toHaveBeenCalledWith(
+        'TestCookie.sig',
+        'g-7yXxxJfMmzsR7BqkJjguoUWsOqCTGz2AndxjJBrkw',
         cookieSerializeOptions
       );
     });

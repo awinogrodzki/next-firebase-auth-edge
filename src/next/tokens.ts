@@ -4,7 +4,7 @@ import {NextApiRequest} from 'next';
 import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {ServiceAccount} from '../auth/credential.js';
-import {CustomTokens, VerifiedTokens} from '../auth/custom-token/index.js';
+import {ParsedTokens, VerifiedTokens} from '../auth/custom-token/index.js';
 import {InvalidTokenError} from '../auth/error.js';
 import {getFirebaseAuth, Tokens} from '../auth/index.js';
 import {mapJwtPayloadToDecodedIdToken} from '../auth/utils.js';
@@ -42,7 +42,7 @@ export function validateOptions(options: GetTokensOptions) {
 export async function getRequestCookiesTokens(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetCookiesTokensOptions
-): Promise<CustomTokens> {
+): Promise<ParsedTokens> {
   const parser = CookieParserFactory.fromRequestCookies(cookies, options);
 
   return parser.parseCookies();
@@ -164,7 +164,7 @@ export async function getTokens(
 export async function getCookiesTokens(
   cookies: CookiesObject,
   options: GetCookiesTokensOptions
-): Promise<CustomTokens> {
+): Promise<ParsedTokens> {
   const parser = CookieParserFactory.fromObject(cookies, options);
 
   return parser.parseCookies();

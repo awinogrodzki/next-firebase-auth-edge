@@ -9,6 +9,17 @@ export class MultipleCookieRemover implements CookieRemover {
     private setter: CookieSetter
   ) {}
 
+  removeCustomCookie(options: CookieSerializeOptions) {
+    const cookies: Cookie[] = [
+      {
+        name: `${this.cookieName}.custom`,
+        value: ''
+      }
+    ];
+
+    this.setter.setCookies(cookies, getExpiredSerializeOptions(options));
+  }
+
   removeCookies(options: CookieSerializeOptions): void {
     const cookies: Cookie[] = [
       {

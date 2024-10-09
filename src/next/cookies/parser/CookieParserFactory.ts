@@ -14,9 +14,16 @@ export class CookieParserFactory {
     provider: CookiesProvider,
     cookieName: string
   ) {
-    return ['id', 'refresh', 'custom', 'sig']
+    return ['id', 'refresh', 'sig']
       .map((it) => `${cookieName}.${it}`)
       .every((it) => Boolean(provider.get(it)));
+  }
+
+  public static hasCustomTokenCookie(
+    provider: CookiesProvider,
+    cookieName: string
+  ) {
+    return Boolean(provider.get(`${cookieName}.custom`));
   }
 
   public static hasLegacyMultipleCookies(
