@@ -1,6 +1,6 @@
 import {JWTPayload} from 'jose';
-import {sign} from './jwt/sign';
-import {fetchJson, fetchText} from './utils';
+import {sign} from './jwt/sign.js';
+import {fetchJson, fetchText} from './utils.js';
 
 export interface GoogleOAuthAccessToken {
   access_token: string;

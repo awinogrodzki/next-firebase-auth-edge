@@ -1,4 +1,3 @@
-import {useEmulator} from '../firebase';
 import {
   decodeJwt,
   errors,
@@ -7,15 +6,10 @@ import {
   jwtVerify,
   KeyLike
 } from 'jose';
-import {ALGORITHM_RS256} from '../signature-verifier';
-import {DecodedIdToken} from '../token-verifier';
+import {useEmulator} from '../firebase.js';
+import {DecodedIdToken, VerifyOptions} from '../types.js';
 
-export interface VerifyOptions {
-  currentDate?: Date;
-  checkRevoked?: boolean;
-  referer?: string;
-  experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
-}
+export const ALGORITHM_RS256 = 'RS256' as const;
 
 const keyMap: Map<string, KeyLike> = new Map();
 

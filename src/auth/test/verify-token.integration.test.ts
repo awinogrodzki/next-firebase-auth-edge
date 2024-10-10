@@ -4,9 +4,9 @@ import {
   isUserNotFoundError
 } from '../index';
 import {v4} from 'uuid';
-import {AuthError, AuthErrorCode} from '../error';
-import {getAppCheck} from '../../app-check';
-import {AppCheckToken} from '../../app-check/types';
+import {AuthError, AuthErrorCode} from '../error.js';
+import {getAppCheck} from '../../app-check.js';
+import {AppCheckToken} from '../../app-check/types.js';
 
 const {
   FIREBASE_API_KEY,

@@ -1,15 +1,15 @@
+import {decodeJwt, decodeProtectedHeader, errors} from 'jose';
+import {JOSEError} from 'jose/dist/types/util/errors';
+import {Credential} from '../auth/credential.js';
+import {ALGORITHM_RS256} from '../auth/jwt/verify.js';
 import {
-  ALGORITHM_RS256,
   DecodedToken,
   JWKSSignatureVerifier,
   SignatureVerifier
 } from '../auth/signature-verifier';
-import {DecodedAppCheckToken} from './types';
-import {decodeJwt, decodeProtectedHeader, errors} from 'jose';
-import {VerifyOptions} from '../auth/jwt/verify';
-import {JOSEError} from 'jose/dist/types/util/errors';
-import {FirebaseAppCheckError} from './api-client';
-import {Credential} from '../auth/credential';
+import {VerifyOptions} from '../auth/types.js';
+import {FirebaseAppCheckError} from './api-client.js';
+import {DecodedAppCheckToken} from './types.js';
 
 const APP_CHECK_ISSUER = 'https://firebaseappcheck.googleapis.com/';
 const JWKS_URL = 'https://firebaseappcheck.googleapis.com/v1/jwks';

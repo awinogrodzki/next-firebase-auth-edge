@@ -1,11 +1,12 @@
 {
-  "extends": "./tsconfig",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
+    "types": ["node", "jest"],
+    "target": "ES2022",
+    "module": "CommonJS",
     "outDir": "./lib",
     "rootDir": "./src"
   },
-  "include": [
-    "./src/**/*.ts",
-    "./src/**/*.tsx"
-  ]
+  "include": ["./src/**/*.ts", "./src/**/*.tsx"],
+  "exclude": ["node_modules"]
 }

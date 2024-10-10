@@ -67,6 +67,8 @@ jobs:
         with:
           path: |
             lib
+            browser
+            esm
           key: ${{ runner.os }}-build-cache-v2-${{ github.ref_name }}-${{github.sha}}
           restore-keys: |
             ${{ runner.os }}-build-cache-v2-${{ github.ref_name }}-
@@ -99,6 +101,8 @@ jobs:
         with:
           path: |
             lib
+            browser
+            esm
           key: ${{ runner.os }}-build-cache-v2-${{ github.ref_name }}-${{github.sha}}
           restore-keys: |
             ${{ runner.os }}-build-cache-v2-${{ github.ref_name }}-

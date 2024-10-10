@@ -1,11 +1,10 @@
 # Usage in Server Components
 
-The library provides a `getTokens` function to extract and validate user credentials. This function can only be used in `Server Components` or [API Route Handlers](/docs/usage/app-router-api-routes). It returns `null` if there are no authentication cookies or if the credentials have expired. If the request contains valid credentials, the function returns an object with `token`, `decodedToken`, and `customToken`. The `token` is a JWT-encoded string, while `decodedToken` is the decoded object representation of that token.
+The library provides a `getTokens` function to extract and validate user credentials. This function can only be used in `Server Components` or [API Route Handlers](/docs/usage/app-router-api-routes). It returns `null` if there are no authentication cookies or if the credentials have expired. If the request contains valid credentials, the function returns an object with `token`, `decodedToken`. The object can contain `customToken`, if you passed `enableCustomToken` flag to `authMiddleware`. The `token` is a JWT-encoded string, while `decodedToken` is the decoded object representation of that token.
 
 ## getTokens
 
 Here’s an example of how to use the `getTokens` function from `next-firebase-auth-edge`:
-
 
 ```tsx
 import {getTokens} from 'next-firebase-auth-edge';
@@ -25,7 +24,8 @@ export default async function ServerComponentExample() {
         '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
     },
     // Optional
-    headers: headers()
+    headers: headers(),
+    tenantId: 'your-tenant-id'
   });
 
   if (!tokens) {
@@ -41,7 +41,7 @@ export default async function ServerComponentExample() {
         <br />
         User email: {decodedToken.email}
         <br />
-        Custom token: {customToken}
+        Custom token, if you enabled custom token support by passing `enableCustomToken` flag to `authMiddleware`: {customToken}
       </p>
     </div>
   );
@@ -59,6 +59,7 @@ export default async function ServerComponentExample() {
 
 ### Optional Options
 
-| Name    | Description                                                                                                                                                                                                                                                                         |
-| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| headers | **Optional**. The request `Headers`. These are used to pass the referer between the request and Google APIs. You can get `Headers` by calling the `headers` function from `next/headers` in Server Components. In Edge and Node.js environments, use `NextRequest.headers` instead. |
+| Name     | Description                                                                                                                                                                                                                                                                         |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| headers  | **Optional**. The request `Headers`. These are used to pass the referer between the request and Google APIs. You can get `Headers` by calling the `headers` function from `next/headers` in Server Components. In Edge and Node.js environments, use `NextRequest.headers` instead. |
+| tenantId | **Optional** `string`. Specify this if your project supports [multi-tenancy](https://cloud.google.com/identity-platform/docs/multi-tenancy-authentication).                                                                                                                         |

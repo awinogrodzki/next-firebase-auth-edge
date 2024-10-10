@@ -3,13 +3,13 @@ export {
   redirectToHome,
   redirectToLogin,
   redirectToPath
-} from './next/middleware';
+} from './next/middleware.js';
 
 export {
   getTokens,
   getTokensFromObject,
   getApiRequestTokens
-} from './next/tokens';
+} from './next/tokens.js';
 
-export {getFirebaseAuth} from './auth';
-export type {Tokens} from './auth';
+export {getFirebaseAuth} from './auth/index.js';
+export type {Tokens} from './auth/index.js';

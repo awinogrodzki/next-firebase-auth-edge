@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "module": "ES2022",
+    "outDir": "esm",
+    "paths": {
+      "next": ["./node_modules/next/index.d.ts"],
+      "next/server": ["./node_modules/next/server.d.ts"],
+      "next/dist/server/web/spec-extension/cookies": ["./node_modules/next/dist/server/web/spec-extension/cookies.d.ts"],
+      "jose": ["./node_modules/jose/dist/types/index.d.ts"],
+      "jose/dist/types/util/errors": ["./node_modules/jose/dist/types/util/errors.d.ts"],
+      "jose/dist/types/jwks/remote": ["./node_modules/jose/dist/types/jwks/remote.d.ts"],
+      "next/dist/server/web/spec-extension/adapters/request-cookies": ["./node_modules/next/dist/server/web/spec-extension/adapters/request-cookies.d.ts"]
+    }
+  }
+}

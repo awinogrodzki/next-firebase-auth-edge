@@ -1,3 +1,5 @@
+import {clientConfig} from './client-config';
+
 export const serverConfig = {
   useSecureCookies: process.env.USE_SECURE_COOKIES === 'true',
   firebaseApiKey: process.env.FIREBASE_API_KEY!,
@@ -30,6 +32,9 @@ export const authConfig = {
   serviceAccount: serverConfig.serviceAccount,
   // Set to false in Firebase Hosting environment due to https://stackoverflow.com/questions/44929653/firebase-cloud-function-wont-store-cookie-named-other-than-session
   enableMultipleCookies: true,
+  // Set to false if you're not planning to use `signInWithCustomToken` Firebase Client SDK method
+  enableCustomToken: true,
   experimental_enableTokenRefreshOnExpiredKidHeader: true,
   debug: true,
+  tenantId: clientConfig.tenantId
 };

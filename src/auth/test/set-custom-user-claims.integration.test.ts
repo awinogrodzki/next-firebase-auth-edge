@@ -1,7 +1,7 @@
-import {customTokenToIdAndRefreshTokens, getFirebaseAuth} from '../index';
+import {customTokenToIdAndRefreshTokens, getFirebaseAuth} from '../index.js';
 import {v4} from 'uuid';
-import {AppCheckToken} from '../../app-check/types';
-import {getAppCheck} from '../../app-check';
+import {AppCheckToken} from '../../app-check/types.js';
+import {getAppCheck} from '../../app-check.js';
 
 const {
   FIREBASE_API_KEY,

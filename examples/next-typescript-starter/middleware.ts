@@ -16,6 +16,7 @@ export async function middleware(request: NextRequest) {
     refreshTokenPath: '/api/refresh-token',
     debug: authConfig.debug,
     enableMultipleCookies: authConfig.enableMultipleCookies,
+    enableCustomToken: authConfig.enableCustomToken,
     apiKey: authConfig.apiKey,
     cookieName: authConfig.cookieName,
     cookieSerializeOptions: authConfig.cookieSerializeOptions,
@@ -23,6 +24,7 @@ export async function middleware(request: NextRequest) {
     serviceAccount: authConfig.serviceAccount,
     experimental_enableTokenRefreshOnExpiredKidHeader:
       authConfig.experimental_enableTokenRefreshOnExpiredKidHeader,
+    tenantId: authConfig.tenantId,
     handleValidToken: async ({token, decodedToken, customToken}, headers) => {
       // Authenticated user should not be able to access /login, /register and /reset-password routes
       if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {

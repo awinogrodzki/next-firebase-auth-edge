@@ -91,7 +91,13 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
         return;
       }
 
-      await incrementCounterUsingClientFirestore(user.customToken);
+      if (user.customToken) {
+        await incrementCounterUsingClientFirestore(user.customToken);
+      } else {
+        console.warn(
+          'Custom token is not present. Have you set `enableCustomToken` option to `true` in `authMiddleware`?'
+        );
+      }
 
       router.refresh();
     });

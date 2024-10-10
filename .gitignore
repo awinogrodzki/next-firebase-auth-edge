@@ -4,7 +4,7 @@ yarn-error.log
 .yarn
 .next
 .env
-lib
+
 cjs
 tmp
 package-lock.json
@@ -16,3 +16,8 @@ webpack-stats.json
 *.log
 dist
 .fleet
+
+#dist
+lib
+browser
+esm

@@ -9,7 +9,6 @@ While this approach is recommended, it can lead to a few challenges:
 
 However, `next-firebase-auth-edge` includes several features that address these issues:
 
-
 ### Enable Refresh Token API Endpoint in Auth Middleware
 
 In long-running client sessions (e.g., when a user reopens a tab after an hour), the server-side token may expire. This can cause problems when validating external API calls or when using the `customToken` with Firebase's `signInWithCustomToken`.
@@ -21,24 +20,29 @@ To enable this endpoint, define the `refreshTokenPath` option in the middleware.
 ```tsx
 export async function middleware(request: NextRequest) {
   return authMiddleware(request, {
-    loginPath: "/api/login",
-    logoutPath: "/api/logout",
-    refreshTokenPath: "/api/refresh-token"
+    loginPath: '/api/login',
+    logoutPath: '/api/logout',
+    refreshTokenPath: '/api/refresh-token'
     // other options...
   });
 }
 
 export const config = {
   // Make sure to include the path in `matcher`
-  matcher: ["/api/login", "/api/logout", "/api/refresh-token", "/", "/((?!_next|favicon.ico|api|.*\\.).*)"],
+  matcher: [
+    '/api/login',
+    '/api/logout',
+    '/api/refresh-token',
+    '/',
+    '/((?!_next|favicon.ico|api|.*\\.).*)'
+  ]
 };
 ```
 
 Calling `/api/refresh-token` will:
 
 1. Check if the current token has expired. If it has, it regenerates the token and updates the cookies with a `Set-Cookie` header containing the fresh token.
-2. Return JSON with a valid `idToken` and `customToken`.
-
+2. Return JSON with a valid `idToken`. It can also return `customToken`, if `enableCustomToken` is set to `true` in `authMiddleware`.
 
 ### getValidIdToken
 
@@ -49,6 +53,7 @@ It requires `serverIdToken`, which is the `token` returned by the [getTokens](/d
 The function is optimized to be fast and safe for repeated calls. The `/api/refresh-token` endpoint will only be called if the token has expired.
 
 Example usage:
+
 ```ts
 import {getValidIdToken} from 'next-firebase-auth-edge/lib/next/client';
 
@@ -58,17 +63,22 @@ export async function fetchSomethingFromExternalApi(serverIdToken: string) {
     refreshTokenUrl: '/api/refresh-token'
   });
 
-  return fetch("https://some-external-api.com/api/example", {
-    method: "GET",
+  return fetch('https://some-external-api.com/api/example', {
+    method: 'GET',
     headers: {
-      Authorization: `Bearer ${idToken}`,
-    },
-  })
+      Authorization: `Bearer ${idToken}`
+    }
+  });
 }
 ```
 
-
 ### getValidCustomToken
+
+Please note that since v1.8 custom token is disabled by default. In order to enable custom cookies, pass `enableCustomToken: true` option to `authMiddleware`.
+
+Custom token introduces significant footprint on authentication cookie and is not required for most use-cases.
+
+If you want to avoid cookie size issues, learn how to [split session into multiple cookies](/docs/usage/middleware#multiple-cookies)
 
 Similar to `getValidIdToken`, the `getValidCustomToken` function works with the [refresh token endpoint](/docs/usage/client-side-apis#enable-refresh-token-api-endpoint-in-auth-middleware) to provide a valid custom token. This is useful when using the custom token with Firebase’s [signInWithCustomToken](https://firebase.google.com/docs/auth/web/custom-auth#authenticate-with-firebase) method.
 
@@ -77,10 +87,9 @@ It requires `serverCustomToken`, which is the `customToken` returned by the [get
 Like `getValidIdToken`, this function is designed to be efficient and only calls the `/api/refresh-token` endpoint if necessary.
 
 Example usage:
+
 ```ts
-export async function signInWithServerCustomToken(
-  serverCustomToken: string
-) {
+export async function signInWithServerCustomToken(serverCustomToken: string) {
   const auth = getAuth(getFirebaseApp());
 
   const customToken = await getValidCustomToken({
@@ -95,7 +104,6 @@ export async function signInWithServerCustomToken(
   return signInWithCustomToken(auth, customToken);
 }
 ```
-
 
 ## Using Firebase Client SDKs
 

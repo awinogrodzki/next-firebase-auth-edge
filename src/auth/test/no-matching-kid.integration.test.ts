@@ -1,7 +1,7 @@
 import {v4} from 'uuid';
-import {CLIENT_CERT_URL} from '../firebase';
-import {customTokenToIdAndRefreshTokens, getFirebaseAuth} from '../index';
-import {InvalidTokenError, InvalidTokenReason} from '../error';
+import {CLIENT_CERT_URL} from '../firebase.js';
+import {customTokenToIdAndRefreshTokens, getFirebaseAuth} from '../index.js';
+import {InvalidTokenError, InvalidTokenReason} from '../error.js';
 
 const {
   FIREBASE_API_KEY,

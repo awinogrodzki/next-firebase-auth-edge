@@ -1,3 +1,66 @@
+# [1.8.0-canary.9](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.8...v1.8.0-canary.9) (2024-10-09)
+
+
+### Features
+
+* make custom token optional ([4a18cb7](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/4a18cb7ed6aca3e8e72819437939fae1bc9eeffc))
+
+# [1.8.0-canary.8](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.7...v1.8.0-canary.8) (2024-09-30)
+
+
+### Bug Fixes
+
+* create request cookies provider from cloned headers ([d17c376](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d17c3762807ccba180116612c0463dec4357b0e9))
+
+# [1.8.0-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.6...v1.8.0-canary.7) (2024-09-30)
+
+
+### Bug Fixes
+
+* added circular import validation ([deaa2e3](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/deaa2e393b4e7630090d0dce96ed9e7e6b7fa8e0))
+
+# [1.8.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.5...v1.8.0-canary.6) (2024-09-29)
+
+
+### Features
+
+* refactor cookies to separate multiple from single type ([9aba786](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/9aba786f04ab20c8e57e1daeacab670d59c770f0))
+
+# [1.8.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.4...v1.8.0-canary.5) (2024-09-22)
+
+
+### Bug Fixes
+
+* include missing directories in package.json exports ([668ae8b](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/668ae8bc4dc55b05623de71e97a2faf1eb417928))
+
+# [1.8.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.3...v1.8.0-canary.4) (2024-09-22)
+
+
+### Bug Fixes
+
+* automated release build cache ([b6abf5a](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/b6abf5aea77efdfb3827b18864fe0d08c8a2f7e6))
+
+# [1.8.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.2...v1.8.0-canary.3) (2024-09-22)
+
+
+### Bug Fixes
+
+* remove declarations from esm build ([025e4c8](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/025e4c8a501201618df4fb77a6532d22aed9ddaf))
+
+# [1.8.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0-canary.1...v1.8.0-canary.2) (2024-09-22)
+
+
+### Features
+
+* support esm, commonjs and browser build targets ([93a17bd](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/93a17bde917817d7191cfaf5bce4f17a836c454b))
+
+# [1.8.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.1...v1.8.0-canary.1) (2024-09-21)
+
+
+### Features
+
+* validate tenantId when verifying id token ([798d0f1](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/798d0f1037b387a691284b22f6a092dfbfd0d156))
+
 ## [1.7.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.0...v1.7.1) (2024-09-13)
 
 

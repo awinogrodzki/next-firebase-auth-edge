@@ -1,5 +1,5 @@
-import {sign} from './sign';
-import {getPublicCryptoKey, verify} from './verify';
+import {sign} from './sign.js';
+import {getPublicCryptoKey, verify} from './verify.js';
 
 describe('verify', () => {
   it('verifies jwt', async () => {

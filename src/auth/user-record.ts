@@ -1,7 +1,7 @@
-import {addReadonlyGetter, deepCopy} from './utils';
-import {isNonNullObject} from './validator';
+import {addReadonlyGetter, deepCopy} from './utils.js';
+import {isNonNullObject} from './validator.js';
 import {base64url} from 'jose';
-import {AuthError, AuthErrorCode} from './error';
+import {AuthError, AuthErrorCode} from './error.js';
 
 const B64_REDACTED = base64url.encode('REDACTED');
 

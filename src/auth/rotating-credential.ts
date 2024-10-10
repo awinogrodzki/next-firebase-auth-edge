@@ -1,12 +1,12 @@
 import {errors} from 'jose';
 import {
   CustomJWTPayload,
-  CustomTokens,
+  ParsedTokens,
   createCustomJWT,
   createCustomSignature,
   verifyCustomJWT,
   verifyCustomSignature
-} from './custom-token';
+} from './custom-token/index.js';
 
 export class RotatingCredential {
   constructor(private keys: string[]) {}
@@ -15,7 +15,7 @@ export class RotatingCredential {
     return createCustomJWT(payload, this.keys[0]);
   }
 
-  public async createSignature(tokens: CustomTokens): Promise<string> {
+  public async createSignature(tokens: ParsedTokens): Promise<string> {
     return createCustomSignature(tokens, this.keys[0]);
   }
 
@@ -42,7 +42,7 @@ export class RotatingCredential {
   }
 
   public async verifySignature(
-    tokens: CustomTokens,
+    tokens: ParsedTokens,
     signature: string
   ): Promise<void> {
     for (const key of this.keys) {

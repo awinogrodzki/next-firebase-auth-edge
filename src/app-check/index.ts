@@ -3,12 +3,12 @@ import {
   ServiceAccount,
   ServiceAccountCredential
 } from '../auth/credential';
-import {getApplicationDefault} from '../auth/default-credential';
-import {VerifyOptions} from '../auth/jwt/verify';
-import {cryptoSignerFromCredential} from '../auth/token-generator';
-import {AppCheckApiClient} from './api-client';
-import {AppCheckTokenGenerator} from './token-generator';
-import {AppCheckTokenVerifier} from './token-verifier';
+import {getApplicationDefault} from '../auth/default-credential.js';
+import {cryptoSignerFromCredential} from '../auth/token-generator.js';
+import {VerifyOptions} from '../auth/types.js';
+import {AppCheckApiClient} from './api-client.js';
+import {AppCheckTokenGenerator} from './token-generator.js';
+import {AppCheckTokenVerifier} from './token-verifier.js';
 import {
   AppCheckToken,
   AppCheckTokenOptions,

@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2020", "DOM", "esnext", "DOM.iterable"],
+    "types": [],
+    "strict": true,
+    "noUnusedParameters": true,
+    "removeComments": true,
+    "verbatimModuleSyntax": false,
+    "sourceMap": false,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true
+  },
+  "include": ["./src/**/*.ts", "./src/**/*.tsx",  "./src/*.tsx"],
+  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
+}

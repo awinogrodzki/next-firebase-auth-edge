@@ -1,42 +1,43 @@
-import {IncomingHttpHeaders} from 'http';
+import type {IncomingHttpHeaders} from 'http';
 import {NextApiRequest, NextApiResponse} from 'next';
-import {getFirebaseAuth} from '../auth';
-import {signCookies} from '../auth/cookies/sign';
-import {CustomTokens, VerifiedTokens} from '../auth/custom-token';
-import {serializeCookies, SetAuthCookiesOptions} from './cookies';
-import {getCookiesTokens} from './tokens';
+import {ParsedTokens, VerifiedTokens} from '../auth/custom-token/index.js';
+import {getFirebaseAuth} from '../auth/index.js';
+import {AuthCookies} from './cookies/AuthCookies.js';
+import {CookiesObject, SetAuthCookiesOptions} from './cookies/index.js';
+import {ObjectCookiesProvider} from './cookies/parser/ObjectCookiesProvider.js';
+import {getCookiesTokens} from './tokens.js';
 
 export async function refreshApiResponseCookies(
   request: NextApiRequest,
   response: NextApiResponse,
   options: SetAuthCookiesOptions
 ): Promise<NextApiResponse> {
-  const customTokens = await refreshApiCookies(
+  const tokens = await refreshApiCookies(
     request.cookies,
     request.headers,
     options
   );
-  await appendAuthCookiesApi(response, customTokens, options);
+  await appendAuthCookiesApi(request.cookies, response, tokens, options);
 
   return response;
 }
 
 export async function appendAuthCookiesApi(
+  cookies: CookiesObject,
   response: NextApiResponse,
-  tokens: CustomTokens,
+  tokens: ParsedTokens,
   options: SetAuthCookiesOptions
 ) {
-  const cookies = await signCookies(tokens, options.cookieSignatureKeys);
+  const authCookies = new AuthCookies(
+    new ObjectCookiesProvider(cookies),
+    options
+  );
 
-  serializeCookies(cookies, options, (value) => {
-    response.setHeader('Set-Cookie', [value]);
-  });
+  await authCookies.setAuthNextApiResponseHeaders(tokens, response);
 }
 
 export async function refreshApiCookies(
-  cookies: Partial<{
-    [key: string]: string;
-  }>,
+  cookies: CookiesObject,
   headers: IncomingHttpHeaders,
   options: SetAuthCookiesOptions
 ): Promise<VerifiedTokens> {
@@ -49,7 +50,8 @@ export async function refreshApiCookies(
   });
 
   const tokenRefreshResult = await handleTokenRefresh(tokens.refreshToken, {
-    referer
+    referer,
+    enableCustomToken: options.enableCustomToken
   });
 
   return {

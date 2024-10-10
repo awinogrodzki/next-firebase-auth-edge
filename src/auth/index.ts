@@ -1,4 +1,4 @@
-import {debug} from '../debug';
+import {debug} from '../debug/index.js';
 import {
   AuthRequestHandler,
   CreateRequest,
@@ -9,19 +9,25 @@ import {
   ServiceAccount,
   ServiceAccountCredential
 } from './credential';
-import {CustomTokens, VerifiedTokens} from './custom-token';
-import {getApplicationDefault} from './default-credential';
+import {
+  CustomTokens,
+  ParsedTokens,
+  VerifiedTokens
+} from './custom-token/index.js';
+import {getApplicationDefault} from './default-credential.js';
 import {
   AuthError,
   AuthErrorCode,
   InvalidTokenError,
   InvalidTokenReason
 } from './error';
-import {useEmulator} from './firebase';
-import {VerifyOptions} from './jwt/verify';
-import {createFirebaseTokenGenerator} from './token-generator';
-import {createIdTokenVerifier, DecodedIdToken} from './token-verifier';
-import {UserRecord} from './user-record';
+import {useEmulator} from './firebase.js';
+import {createFirebaseTokenGenerator} from './token-generator.js';
+import {createIdTokenVerifier} from './token-verifier.js';
+import {DecodedIdToken, VerifyOptions} from './types.js';
+import {UserRecord} from './user-record.js';
+
+export * from './types.js';
 
 const getCustomTokenEndpoint = (apiKey: string) => {
   if (useEmulator() && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
@@ -242,9 +248,10 @@ export interface IdAndRefreshTokens {
 }
 
 export interface Tokens {
-  customToken: string;
   decodedToken: DecodedIdToken;
   token: string;
+  // Set `enableCustomToken` to true in `authMiddleware` to enable custom token
+  customToken?: string;
 }
 
 export interface UsersList {
@@ -262,6 +269,7 @@ interface AuthOptions {
   apiKey: string;
   tenantId?: string;
   serviceAccountId?: string;
+  enableCustomToken?: boolean;
 }
 
 export type Auth = ReturnType<typeof getAuth>;
@@ -270,17 +278,15 @@ const DEFAULT_VERIFY_OPTIONS = {referer: ''};
 
 function getAuth(options: AuthOptions) {
   const credential = options.credential ?? getApplicationDefault();
+  const tenantId = options.tenantId;
   const authRequestHandler = new AuthRequestHandler(credential, {
-    tenantId: options.tenantId
+    tenantId
   });
-  const tokenGenerator = createFirebaseTokenGenerator(
-    credential,
-    options.tenantId
-  );
+  const tokenGenerator = createFirebaseTokenGenerator(credential, tenantId);
 
   const handleTokenRefresh = async (
     refreshToken: string,
-    tokenRefreshOptions: {referer?: string} = {}
+    tokenRefreshOptions: {referer?: string; enableCustomToken?: boolean} = {}
   ): Promise<VerifiedTokens> => {
     const {idToken, refreshToken: newRefreshToken} =
       await refreshExpiredIdToken(refreshToken, {
@@ -291,6 +297,14 @@ function getAuth(options: AuthOptions) {
     const decodedIdToken = await verifyIdToken(idToken, {
       referer: tokenRefreshOptions.referer
     });
+
+    if (!tokenRefreshOptions.enableCustomToken) {
+      return {
+        decodedIdToken,
+        idToken,
+        refreshToken: newRefreshToken
+      };
+    }
 
     const customToken = await createCustomToken(decodedIdToken.uid, {
       email_verified: decodedIdToken.email_verified,
@@ -304,6 +318,18 @@ function getAuth(options: AuthOptions) {
       customToken
     };
   };
+
+  async function createSessionCookie(
+    idToken: string,
+    expiresInMs: number
+  ): Promise<string> {
+    // Verify tenant ID before creating session cookie
+    if (tenantId) {
+      await verifyIdToken(idToken);
+    }
+
+    return authRequestHandler.createSessionCookie(idToken, expiresInMs);
+  }
 
   async function getUser(uid: string): Promise<UserRecord | null> {
     return authRequestHandler.getAccountInfoByUid(uid).then((response) => {
@@ -369,7 +395,7 @@ function getAuth(options: AuthOptions) {
     options: VerifyOptions = DEFAULT_VERIFY_OPTIONS
   ): Promise<DecodedIdToken> {
     const projectId = await credential.getProjectId();
-    const idTokenVerifier = createIdTokenVerifier(projectId);
+    const idTokenVerifier = createIdTokenVerifier(projectId, tenantId);
     const decodedIdToken = await idTokenVerifier.verifyJWT(idToken, options);
     const checkRevoked = options.checkRevoked ?? false;
 
@@ -381,7 +407,7 @@ function getAuth(options: AuthOptions) {
   }
 
   async function verifyAndRefreshExpiredIdToken(
-    customTokens: CustomTokens,
+    parsedTokens: ParsedTokens,
     verifyOptions: VerifyOptions & {
       onTokenRefresh?: (tokens: VerifiedTokens) => Promise<void>;
     } = DEFAULT_VERIFY_OPTIONS
@@ -389,20 +415,21 @@ function getAuth(options: AuthOptions) {
     return await handleExpiredToken(
       async () => {
         const decodedIdToken = await verifyIdToken(
-          customTokens.idToken,
+          parsedTokens.idToken,
           verifyOptions
         );
         return {
-          idToken: customTokens.idToken,
+          idToken: parsedTokens.idToken,
           decodedIdToken,
-          refreshToken: customTokens.refreshToken,
-          customToken: customTokens.customToken
+          refreshToken: parsedTokens.refreshToken,
+          customToken: parsedTokens.customToken
         };
       },
       async () => {
-        if (customTokens.refreshToken) {
-          const result = await handleTokenRefresh(customTokens.refreshToken, {
-            referer: verifyOptions.referer
+        if (parsedTokens.refreshToken) {
+          const result = await handleTokenRefresh(parsedTokens.refreshToken, {
+            referer: verifyOptions.referer,
+            enableCustomToken: options.enableCustomToken
           });
 
           await verifyOptions.onTokenRefresh?.(result);
@@ -523,7 +550,8 @@ function getAuth(options: AuthOptions) {
     getUserByEmail,
     updateUser,
     createUser,
-    listUsers
+    listUsers,
+    createSessionCookie
   };
 }
 
@@ -544,6 +572,7 @@ export interface FirebaseAuthOptions {
   apiKey: string;
   tenantId?: string;
   serviceAccountId?: string;
+  enableCustomToken?: boolean;
 }
 export function getFirebaseAuth(options: FirebaseAuthOptions): Auth;
 /** @deprecated Use `FirebaseAuthOptions` configuration object instead */
@@ -571,6 +600,7 @@ export function getFirebaseAuth(
       : getApplicationDefault(),
     apiKey: options.apiKey,
     tenantId: options.tenantId,
-    serviceAccountId: options.serviceAccountId
+    serviceAccountId: options.serviceAccountId,
+    enableCustomToken: options.enableCustomToken
   });
 }
