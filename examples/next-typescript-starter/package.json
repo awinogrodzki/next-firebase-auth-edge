@@ -10,7 +10,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@types/node": "18.11.9",
     "firebase": "^10.4.0",
     "firebase-admin": "^11.10.1",
     "next": "15.0.0-rc.0",
@@ -21,6 +20,7 @@
     "typescript": "5.2.2"
   },
   "devDependencies": {
+    "@types/node": "18.11.9",
     "@types/react": "18.3.3",
     "eslint": "8.57.0",
     "eslint-config-next": "15.0.0-rc.0"
