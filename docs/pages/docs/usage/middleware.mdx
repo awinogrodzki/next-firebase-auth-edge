@@ -109,9 +109,10 @@ By default, the session data is stored in a single cookie. This works for most c
 
 To prevent cookie size issues, it's recommended to set `enableMultipleCookies` to `true`.
 
-When enabled, the session will be split into three cookies:
+When enabled, the session will be split into four cookies:
 
-- `${cookieName}` – stores the `idToken` and `refreshToken`
+- `${cookieName}.id` – stores the `idToken`
+– `${cookieName}.refresh` – stores the `refreshToken`
 - `${cookieName}.custom` – stores the `customToken`
 - `${cookieName}.sig` – stores the `signature` used to validate the tokens
 
