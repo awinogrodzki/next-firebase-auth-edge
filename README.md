@@ -44,18 +44,16 @@ To make adopting the newest Next.js features easier, this library works seamless
 * **Minimal setup**: Unlike other libraries, you won’t need to create your own API routes or modify your `next.config.js`. Everything’s handled by [middleware](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware).
 * **Secure**: Uses [jose](https://github.com/panva/jose) for JWT validation, and signs user cookies with rotating keys to prevent cryptanalysis attacks.
 
-### What's New in v1.7
+### What's New in v1.8
 
 Key updates in this release include:
+* Custom token is now optional. To enable custom token support use [enableCustomToken](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#custom-token) option
+* Support ESM, Browser and Node.js imports for better tree-shaking features
 * Support for **Node.js 22**
 * Support for **Next.js 15 RC**
 * Support for **React 19**
-* New `experimental_enableTokenRefreshOnExpiredKidHeader` option in `authMiddleware` and `getTokens`, which refreshes user tokens when Google’s public certificates expire (instead of throwing an error).
-* New `authorizationHeaderName` option in `authMiddleware`, letting you customize the authorization header for login endpoints.
-* New `redirectToPath` helper function, allowing you to easily redirect users from within Middleware.
-* Updated `redirectToLogin` helper function, now accepts `RegExp` for `publicPaths`.
+* New `experimental_enableTokenRefreshOnExpiredKidHeader` option in `authMiddleware` and `getTokens`, which refreshes user tokens when Google’s public certificates expire (instead of throwing an error)
 
-For more details, check out the [1.7.x canary release](https://github.com/awinogrodzki/next-firebase-auth-edge/pull/216).
 
 ## Installation
 
