@@ -1,37 +1,10 @@
 {
-  "compilerOptions": {
-    "outDir": "./lib",
-    "rootDir": "./src",
-    "target": "es2017",
-    "lib": [
-      "es5",
-      "es6",
-      "es7",
-      "es2017",
-      "es2019",
-      "esnext",
-      "dom"
-    ],
-    "sourceMap": true,
-    "allowJs": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "noUnusedLocals": true,
-    "declaration": true,
-    "allowSyntheticDefaultImports": true,
-    "preserveSymlinks": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "module": "commonjs",
-    "resolveJsonModule": true,
-    "isolatedModules": true
-  },
-  "include": [
-    "./src/**/*.ts",
-    "./src/**/*.tsx"
-  ]
-}
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+      "types": ["node"],
+      "target": "ES2022",
+      "module": "CommonJS",
+      "outDir": "lib",
+      "declaration": true
+    }
+  }

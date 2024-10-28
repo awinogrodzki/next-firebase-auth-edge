@@ -8,7 +8,8 @@ export enum AuthErrorCode {
   INTERNAL_ERROR = 'INTERNAL_ERROR',
   NO_KID_IN_HEADER = 'NO_KID_IN_HEADER',
   INVALID_SIGNATURE = 'INVALID_SIGNATURE',
-  NO_MATCHING_KID = 'NO_MATCHING_KID'
+  NO_MATCHING_KID = 'NO_MATCHING_KID',
+  MISMATCHING_TENANT_ID = 'MISMATCHING_TENANT_ID'
 }
 
 const AuthErrorMessages: Record<AuthErrorCode, string> = {
@@ -21,7 +22,9 @@ const AuthErrorMessages: Record<AuthErrorCode, string> = {
   [AuthErrorCode.INTERNAL_ERROR]: 'Internal error',
   [AuthErrorCode.NO_KID_IN_HEADER]: 'No kid in jwt header',
   [AuthErrorCode.INVALID_SIGNATURE]: 'Invalid token signature.',
-  [AuthErrorCode.NO_MATCHING_KID]: 'Kid is not matching any certificate'
+  [AuthErrorCode.NO_MATCHING_KID]: 'Kid is not matching any certificate',
+  [AuthErrorCode.MISMATCHING_TENANT_ID]:
+    'Provided tenant ID does not match firebase tenant ID from the token'
 };
 
 function getErrorMessage(code: AuthErrorCode, customMessage?: string) {

@@ -1,22 +1,23 @@
+import type {CookieSerializeOptions} from 'cookie';
 import {decodeJwt} from 'jose';
 import {NextApiRequest} from 'next';
 import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
-import {Tokens, getFirebaseAuth} from '../auth';
-import {parseCookies, parseTokens} from '../auth/cookies/sign';
-import {ServiceAccount} from '../auth/credential';
-import {CustomTokens, VerifiedTokens} from '../auth/custom-token';
-import {InvalidTokenError, InvalidTokenReason} from '../auth/error';
-import {mapJwtPayloadToDecodedIdToken} from '../auth/utils';
-import {debug, enableDebugMode} from '../debug';
+import {ServiceAccount} from '../auth/credential.js';
+import {ParsedTokens, VerifiedTokens} from '../auth/custom-token/index.js';
+import {InvalidTokenError} from '../auth/error.js';
+import {getFirebaseAuth, Tokens} from '../auth/index.js';
+import {mapJwtPayloadToDecodedIdToken} from '../auth/utils.js';
+import {debug, enableDebugMode} from '../debug/index.js';
+import {AuthCookies} from './cookies/AuthCookies.js';
+import {CookieParserFactory} from './cookies/parser/CookieParserFactory.js';
+import {RequestCookiesProvider} from './cookies/parser/RequestCookiesProvider.js';
+import {CookiesObject, GetCookiesTokensOptions} from './cookies/types.js';
 import {
-  CookiesObject,
   areCookiesVerifiedByMiddleware,
-  createVerifier,
   isCookiesObjectVerifiedByMiddleware
-} from './cookies';
-import {getReferer} from './utils';
-import {CookieSerializeOptions} from 'cookie';
+} from './cookies/verification.js';
+import {getReferer} from './utils.js';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   cookieSerializeOptions?: CookieSerializeOptions;
@@ -25,6 +26,7 @@ export interface GetTokensOptions extends GetCookiesTokensOptions {
   debug?: boolean;
   headers?: Headers;
   experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
+  tenantId?: string;
 }
 
 export function validateOptions(options: GetTokensOptions) {
@@ -37,47 +39,13 @@ export function validateOptions(options: GetTokensOptions) {
   }
 }
 
-export interface GetCookiesTokensOptions {
-  cookieName: string;
-  cookieSignatureKeys: string[];
-}
-
 export async function getRequestCookiesTokens(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetCookiesTokensOptions
-): Promise<CustomTokens> {
-  const signedCookie = cookies.get(options.cookieName);
-  const signatureCookie = cookies.get(`${options.cookieName}.sig`);
-  const customCookie = cookies.get(`${options.cookieName}.custom`);
+): Promise<ParsedTokens> {
+  const parser = CookieParserFactory.fromRequestCookies(cookies, options);
 
-  const enableMultipleCookies = signatureCookie?.value && customCookie?.value;
-
-  if (!enableMultipleCookies && signedCookie?.value.includes(':')) {
-    debug(
-      "Authentication cookie is in multiple cookie format, but lacks signature and custom cookies. Clear your browser cookies and try again. If the issue keeps happening and you're using `enableMultipleCookies` option, make sure that server returns all required cookies: https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#multiple-cookies"
-    );
-
-    throw new InvalidTokenError(InvalidTokenReason.INVALID_CREDENTIALS);
-  }
-
-  if (!signedCookie?.value) {
-    debug('Missing authentication cookies');
-
-    throw new InvalidTokenError(InvalidTokenReason.MISSING_CREDENTIALS);
-  }
-
-  if (enableMultipleCookies) {
-    return parseCookies(
-      {
-        signed: signedCookie.value,
-        custom: customCookie.value,
-        signature: signatureCookie.value
-      },
-      options.cookieSignatureKeys
-    );
-  }
-
-  return parseTokens(signedCookie.value, options.cookieSignatureKeys);
+  return parser.parseCookies();
 }
 
 function toTokens(result: VerifiedTokens | null): Tokens | null {
@@ -114,7 +82,8 @@ export async function getTokens(
 
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
-    apiKey: options.apiKey
+    apiKey: options.apiKey,
+    tenantId: options.tenantId
   });
 
   try {
@@ -161,14 +130,16 @@ export async function getTokens(
           customToken
         };
 
-        const verifier = createVerifier(tokensToSign, {
+        const setAuthCookiesOptions = {
           ...options,
           cookieSerializeOptions
-        });
+        };
+        const authCookies = new AuthCookies(
+          RequestCookiesProvider.fromRequestCookies(cookies),
+          setAuthCookiesOptions
+        );
 
-        await verifier.init();
-
-        verifier.appendCookies(cookies);
+        await authCookies.setAuthCookies(tokensToSign, cookies);
       }
     });
 
@@ -191,30 +162,12 @@ export async function getTokens(
 }
 
 export async function getCookiesTokens(
-  cookies: Partial<{[K in string]: string}>,
+  cookies: CookiesObject,
   options: GetCookiesTokensOptions
-): Promise<CustomTokens> {
-  const signedCookie = cookies[options.cookieName];
-  const signatureCookie = cookies[`${options.cookieName}.sig`];
-  const customCookie = cookies[`${options.cookieName}.custom`];
-  const enableMultipleCookie = signatureCookie && customCookie;
+): Promise<ParsedTokens> {
+  const parser = CookieParserFactory.fromObject(cookies, options);
 
-  if (!signedCookie) {
-    throw new InvalidTokenError(InvalidTokenReason.MISSING_CREDENTIALS);
-  }
-
-  if (enableMultipleCookie) {
-    return await parseCookies(
-      {
-        signed: signedCookie,
-        custom: customCookie,
-        signature: signatureCookie
-      },
-      options.cookieSignatureKeys
-    );
-  }
-
-  return await parseTokens(signedCookie, options.cookieSignatureKeys);
+  return parser.parseCookies();
 }
 
 export async function getApiRequestTokens(
@@ -224,7 +177,8 @@ export async function getApiRequestTokens(
   const referer = request.headers.referer ?? '';
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
-    apiKey: options.apiKey
+    apiKey: options.apiKey,
+    tenantId: options.tenantId
   });
 
   try {
@@ -260,7 +214,8 @@ export async function getTokensFromObject(
 ): Promise<Tokens | null> {
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
-    apiKey: options.apiKey
+    apiKey: options.apiKey,
+    tenantId: options.tenantId
   });
 
   try {

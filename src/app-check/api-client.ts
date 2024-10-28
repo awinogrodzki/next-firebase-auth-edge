@@ -1,7 +1,7 @@
-import {getSdkVersion} from '../auth/auth-request-handler';
-import {Credential} from '../auth/credential';
-import {formatString} from '../auth/utils';
-import {AppCheckToken} from './types';
+import {getSdkVersion} from '../auth/auth-request-handler.js';
+import {Credential} from '../auth/credential.js';
+import {formatString} from '../auth/utils.js';
+import {AppCheckToken} from './types.js';
 
 const FIREBASE_APP_CHECK_V1_API_URL_FORMAT =
   'https://firebaseappcheck.googleapis.com/v1/projects/{projectId}/apps/{appId}:exchangeCustomToken';

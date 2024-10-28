@@ -1,12 +1,12 @@
 import {JWTPayload} from 'jose';
-import {Credential, ServiceAccountCredential} from './credential';
-import {AuthError, AuthErrorCode} from './error';
+import {Credential, ServiceAccountCredential} from './credential.js';
+import {AuthError, AuthErrorCode} from './error.js';
 import {
   CryptoSigner,
   IAMSigner,
   ServiceAccountSigner
 } from './jwt/crypto-signer';
-import {isNonNullObject} from './validator';
+import {isNonNullObject} from './validator.js';
 
 const ONE_HOUR_IN_SECONDS = 60 * 60;
 

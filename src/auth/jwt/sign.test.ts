@@ -1,4 +1,4 @@
-import {sign} from './sign';
+import {sign} from './sign.js';
 
 type GlobalAny = {
   [key: string]: unknown;

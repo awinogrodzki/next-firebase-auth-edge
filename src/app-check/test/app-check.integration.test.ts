@@ -1,5 +1,5 @@
-import {getAppCheck} from '../index';
-import {FirebaseAppCheckError} from '../api-client';
+import {getAppCheck} from '../index.js';
+import {FirebaseAppCheckError} from '../api-client.js';
 
 const {
   FIREBASE_PROJECT_ID,

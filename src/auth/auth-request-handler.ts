@@ -3,11 +3,11 @@ import {
   FirebaseAccessToken,
   getFirebaseAdminTokenProvider
 } from './credential';
-import {AuthError, AuthErrorCode} from './error';
-import {emulatorHost, useEmulator} from './firebase';
-import {GetAccountInfoUserResponse} from './user-record';
-import {formatString} from './utils';
-import {isEmail, isNonNullObject} from './validator';
+import {AuthError, AuthErrorCode} from './error.js';
+import {emulatorHost, useEmulator} from './firebase.js';
+import {GetAccountInfoUserResponse} from './user-record.js';
+import {formatString} from './utils.js';
+import {isEmail, isNonNullObject} from './validator.js';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD';
 
@@ -68,6 +68,11 @@ class AuthResourceUrlBuilder {
     return formatString(baseUrl, params || {});
   }
 }
+
+export const FIREBASE_AUTH_CREATE_SESSION_COOKIE = new ApiSettings(
+  ':createSessionCookie',
+  'POST'
+);
 
 export const FIREBASE_AUTH_GET_ACCOUNT_INFO = new ApiSettings(
   '/accounts:lookup',
@@ -247,6 +252,23 @@ export abstract class AbstractAuthRequestHandler {
     ).then((response) => {
       return response.localId;
     });
+  }
+
+  public createSessionCookie(
+    idToken: string,
+    expiresInMs: number
+  ): Promise<string> {
+    const request = {
+      idToken,
+      // To seconds
+      validDuration: expiresInMs / 1000
+    };
+
+    return this.invokeRequestHandler<{sessionCookie: string}>(
+      this.getAuthUrlBuilder(),
+      FIREBASE_AUTH_CREATE_SESSION_COOKIE,
+      request
+    ).then((response) => response.sessionCookie);
   }
 
   public updateExistingAccount(

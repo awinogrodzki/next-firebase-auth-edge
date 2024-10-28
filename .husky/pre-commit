@@ -1,3 +1,4 @@
 yarn test
 yarn lint --fix
+yarn check-circular-imports
 git add --all

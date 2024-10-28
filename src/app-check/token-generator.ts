@@ -1,6 +1,6 @@
-import {CryptoSigner} from '../auth/jwt/crypto-signer';
-import {AppCheckTokenOptions} from './types';
-import {FirebaseAppCheckError} from './api-client';
+import {CryptoSigner} from '../auth/jwt/crypto-signer.js';
+import {AppCheckTokenOptions} from './types.js';
+import {FirebaseAppCheckError} from './api-client.js';
 
 const ONE_MINUTE_IN_SECONDS = 60;
 const ONE_MINUTE_IN_MILLIS = ONE_MINUTE_IN_SECONDS * 1000;

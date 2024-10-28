@@ -1,45 +1,16 @@
 import {decodeJwt, decodeProtectedHeader, errors} from 'jose';
 import {JOSEError} from 'jose/dist/types/util/errors';
-import {AuthError, AuthErrorCode} from './error';
-import {CLIENT_CERT_URL, FIREBASE_AUDIENCE, useEmulator} from './firebase';
-import {VerifyOptions} from './jwt/verify';
+import {AuthError, AuthErrorCode} from './error.js';
+import {CLIENT_CERT_URL, FIREBASE_AUDIENCE, useEmulator} from './firebase.js';
+import {ALGORITHM_RS256} from './jwt/verify.js';
 import {
-  ALGORITHM_RS256,
   DecodedToken,
   PublicKeySignatureVerifier,
   SignatureVerifier
 } from './signature-verifier';
-import {mapJwtPayloadToDecodedIdToken} from './utils';
-import {isURL} from './validator';
-
-export interface FirebaseClaims {
-  identities: {
-    [key: string]: unknown;
-  };
-  sign_in_provider: string;
-  sign_in_second_factor?: string;
-  second_factor_identifier?: string;
-  tenant?: string;
-  [key: string]: unknown;
-}
-
-export interface DecodedIdToken {
-  aud: string;
-  auth_time: number;
-  email?: string;
-  email_verified?: boolean;
-  name?: string;
-  exp: number;
-  firebase: FirebaseClaims;
-  source_sign_in_provider: string;
-  iat: number;
-  iss: string;
-  phone_number?: string;
-  picture?: string;
-  sub: string;
-  uid: string;
-  [key: string]: unknown;
-}
+import {DecodedIdToken, VerifyOptions} from './types.js';
+import {mapJwtPayloadToDecodedIdToken} from './utils.js';
+import {isURL} from './validator.js';
 
 export class FirebaseTokenVerifier {
   private readonly signatureVerifier: SignatureVerifier;
@@ -47,7 +18,8 @@ export class FirebaseTokenVerifier {
   constructor(
     clientCertUrl: string,
     private issuer: string,
-    private projectId: string
+    private projectId: string,
+    private tenantId?: string
   ) {
     if (!isURL(clientCertUrl)) {
       throw new AuthError(
@@ -70,7 +42,13 @@ export class FirebaseTokenVerifier {
       options
     );
 
-    return mapJwtPayloadToDecodedIdToken(decoded.payload);
+    const decodedIdToken = mapJwtPayloadToDecodedIdToken(decoded.payload);
+
+    if (this.tenantId && decodedIdToken.firebase.tenant !== this.tenantId) {
+      throw new AuthError(AuthErrorCode.MISMATCHING_TENANT_ID);
+    }
+
+    return decodedIdToken;
   }
 
   private async decodeAndVerify(
@@ -152,11 +130,13 @@ export class FirebaseTokenVerifier {
 }
 
 export function createIdTokenVerifier(
-  projectId: string
+  projectId: string,
+  tenantId?: string
 ): FirebaseTokenVerifier {
   return new FirebaseTokenVerifier(
     CLIENT_CERT_URL,
     'https://securetoken.google.com/',
-    projectId
+    projectId,
+    tenantId
   );
 }

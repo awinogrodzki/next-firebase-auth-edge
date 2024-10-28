@@ -1,5 +1,5 @@
-import {DecodedIdToken} from './token-verifier';
 import {JWTPayload} from 'jose';
+import {DecodedIdToken} from './types.js';
 
 export function formatString(str: string, params?: object): string {
   let formatted = str;

@@ -10,14 +10,14 @@ The `InvalidTokenReason` is primarily for informational purposes. The `handleInv
 
 The table below describes the different types of `InvalidTokenReason`:
 
-| Name | Description |
-| ---- | ----------- |
-| `MISSING_CREDENTIALS` | The request does not contain an authentication cookie |
-| `MISSING_REFRESH_TOKEN` | Credentials have expired, and no refresh token is available |
-| `MALFORMED_CREDENTIALS` | The cookies cannot be parsed or the structure has changed |
-| `INVALID_SIGNATURE` | The cookie signature cannot be verified or the signature keys have changed |
-| `INVALID_CREDENTIALS` | The cookies have a valid structure, but the `idToken` cannot be verified |
-| `INVALID_KID` | This error usually means the certificate used to sign the token has expired, which is **expected**. Google periodically refreshes certificates as part of [key rotation](https://developer.okta.com/docs/concepts/key-rotation/) |
+| Name                    | Description                                                                                                                                                                                                                      |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MISSING_CREDENTIALS`   | The request does not contain an authentication cookie                                                                                                                                                                            |
+| `MISSING_REFRESH_TOKEN` | Credentials have expired, and no refresh token is available                                                                                                                                                                      |
+| `MALFORMED_CREDENTIALS` | The cookies cannot be parsed or the structure has changed                                                                                                                                                                        |
+| `INVALID_SIGNATURE`     | The cookie signature cannot be verified or the signature keys have changed                                                                                                                                                       |
+| `INVALID_CREDENTIALS`   | The cookies have a valid structure, but the `idToken` cannot be verified                                                                                                                                                         |
+| `INVALID_KID`           | This error usually means the certificate used to sign the token has expired, which is **expected**. Google periodically refreshes certificates as part of [key rotation](https://developer.okta.com/docs/concepts/key-rotation/) |
 
 ## handleError
 
@@ -38,3 +38,4 @@ The error codes are divided as follows:
 | `INTERNAL_ERROR` | An internal error occurred. Check the error message for more details |
 | `NO_KID_IN_HEADER` | Handled internally to verify the token against all public certificates. Re-throws `INVALID_SIGNATURE` if none of the public keys match the token's signature |
 | `INVALID_SIGNATURE` | The token signature cannot be verified |
+| `MISMATCHING_TENANT_ID` | Provided tenant ID does not match Firebase tenant ID from the token |

@@ -1,11 +1,11 @@
-import {NextResponse} from 'next/server';
 import type {NextRequest} from 'next/server';
+import {NextResponse} from 'next/server';
 import {
   SetAuthCookiesOptions,
   appendAuthCookies,
   refreshCredentials,
   setAuthCookies
-} from './cookies';
+} from '../cookies/index.js';
 
 // Suppress "Property 'headers' does not exist on type NextRequest/NextResponse" error
 declare module 'next/server' {
@@ -18,7 +18,7 @@ declare module 'next/server' {
   }
 }
 
-jest.mock('../auth', () => ({
+jest.mock('../../auth/index.js', () => ({
   getFirebaseAuth: () => ({
     handleTokenRefresh: () => ({
       idToken: 'TEST_ID_TOKEN',
@@ -33,33 +33,43 @@ const jwt =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6Ik1PQ0tfSURfVE9LRU4iLCJjdXN0b21fdG9rZW4iOiJNT0NLX0NVU1RPTV9UT0tFTiIsInJlZnJlc2hfdG9rZW4iOiJNT0NLX1JFRlJFU0hfVE9LRU4ifQ.K5jwTcAlfffzuM2_WaKJ93QwgqeCpWjg7TMx1lulSO4';
 const refreshedJwt =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6IlRFU1RfSURfVE9LRU4iLCJyZWZyZXNoX3Rva2VuIjoiVEVTVF9SRUZSRVNIX1RPS0VOIiwiY3VzdG9tX3Rva2VuIjoiVEVTVF9DVVNUT01fVE9LRU4ifQ.2tjn-__AKP3J7w9vIDuFDFkYmPzpuGpWvHvBFksMh5E';
-const MOCK_REQUEST = {
-  cookies: {
-    get: (key: string) => {
-      if (key === 'TestCookie') {
-        return {value: jwt};
-      }
-
-      return undefined;
-    },
-    set: jest.fn()
-  },
-  headers: {
-    get: jest.fn()
-  }
-} as unknown as jest.Mocked<NextRequest>;
 
 const MOCK_OPTIONS: SetAuthCookiesOptions = {
   cookieName: 'TestCookie',
   cookieSignatureKeys: [secret],
   cookieSerializeOptions: {maxAge: 123, path: '/test-path', sameSite: 'lax'},
   apiKey: 'API_KEY',
-  authorizationHeaderName: 'Next-Authorization'
+  authorizationHeaderName: 'Next-Authorization',
+  enableCustomToken: true
 };
 
 describe('cookies', () => {
+  let MOCK_REQUEST: jest.Mocked<NextRequest>;
+
   beforeEach(() => {
-    jest.resetAllMocks();
+    const mockHeaders = new Headers();
+    mockHeaders.set('Cookie', `TestCookie=${jwt}`);
+    MOCK_REQUEST = {
+      cookies: {
+        has: (key: string) => {
+          if (key === 'TestCookie') {
+            return true;
+          }
+
+          return false;
+        },
+        get: jest.fn((key: string) => {
+          if (key === 'TestCookie') {
+            return {value: jwt};
+          }
+
+          return undefined;
+        }),
+        set: jest.fn(),
+        delete: jest.fn()
+      },
+      headers: mockHeaders
+    } as unknown as jest.Mocked<NextRequest>;
   });
 
   const customTokens = {
@@ -89,6 +99,32 @@ describe('cookies', () => {
     expect(MOCK_RESPONSE.headers.append).toHaveBeenCalledWith(
       'Set-Cookie',
       `TestCookie=${refreshedJwt}; Max-Age=123; Path=/test-path; SameSite=Lax`
+    );
+
+    expect(result).toBe(MOCK_RESPONSE);
+  });
+
+  it('appends fresh cookie headers without custom token to the response', async () => {
+    const MOCK_RESPONSE = {
+      headers: {
+        append: jest.fn()
+      }
+    } as unknown as jest.Mocked<NextResponse>;
+    const result = await refreshCredentials(
+      MOCK_REQUEST,
+      {...MOCK_OPTIONS, enableCustomToken: false},
+      () => MOCK_RESPONSE
+    );
+
+    expect(MOCK_REQUEST.cookies.set).toHaveBeenCalledWith(
+      'TestCookie',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6IlRFU1RfSURfVE9LRU4iLCJyZWZyZXNoX3Rva2VuIjoiVEVTVF9SRUZSRVNIX1RPS0VOIn0.Na_3Et62K3bs5WcTnvh6sEW_pnoiFw022gKXDCkuW-s',
+      {maxAge: 123, path: '/test-path', sameSite: 'lax'}
+    );
+
+    expect(MOCK_RESPONSE.headers.append).toHaveBeenCalledWith(
+      'Set-Cookie',
+      `TestCookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6IlRFU1RfSURfVE9LRU4iLCJyZWZyZXNoX3Rva2VuIjoiVEVTVF9SRUZSRVNIX1RPS0VOIn0.Na_3Et62K3bs5WcTnvh6sEW_pnoiFw022gKXDCkuW-s; Max-Age=123; Path=/test-path; SameSite=Lax`
     );
 
     expect(result).toBe(MOCK_RESPONSE);
@@ -127,17 +163,29 @@ describe('cookies', () => {
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       1,
       'Set-Cookie',
-      'TestCookie=TEST_ID_TOKEN%3ATEST_REFRESH_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+      'TestCookie=; Path=/test-path; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax'
     );
 
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       2,
       'Set-Cookie',
-      'TestCookie.custom=TEST_CUSTOM_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+      'TestCookie.id=TEST_ID_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
     );
 
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       3,
+      'Set-Cookie',
+      'TestCookie.refresh=TEST_REFRESH_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+    );
+
+    expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
+      4,
+      'Set-Cookie',
+      'TestCookie.custom=TEST_CUSTOM_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+    );
+
+    expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
+      5,
       'Set-Cookie',
       'TestCookie.sig=MqBNRBcWwj7xL948-Yy89kj5dwPEf7fTACNx93rOFX4; Max-Age=123; Path=/test-path; SameSite=Lax'
     );
@@ -151,7 +199,8 @@ describe('cookies', () => {
         append: jest.fn()
       }
     } as unknown as jest.Mocked<NextResponse>;
-    await appendAuthCookies(MOCK_RESPONSE, customTokens, {
+    const mockHeaders = new Headers();
+    await appendAuthCookies(mockHeaders, MOCK_RESPONSE, customTokens, {
       ...MOCK_OPTIONS,
       enableMultipleCookies: true
     });
@@ -159,19 +208,57 @@ describe('cookies', () => {
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       1,
       'Set-Cookie',
-      'TestCookie=MOCK_ID_TOKEN%3AMOCK_REFRESH_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+      'TestCookie.id=MOCK_ID_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
     );
 
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       2,
       'Set-Cookie',
-      'TestCookie.custom=MOCK_CUSTOM_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+      'TestCookie.refresh=MOCK_REFRESH_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
     );
 
     expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
       3,
       'Set-Cookie',
+      'TestCookie.custom=MOCK_CUSTOM_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+    );
+
+    expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
+      4,
+      'Set-Cookie',
       'TestCookie.sig=AuSOlUSJENTLtShQpjf7SMRiPY4aILyFNmjr7Tc3Fig; Max-Age=123; Path=/test-path; SameSite=Lax'
+    );
+  });
+
+  it('skips custom token in multiple cookie headers', async () => {
+    const MOCK_RESPONSE = {
+      headers: {
+        append: jest.fn()
+      }
+    } as unknown as jest.Mocked<NextResponse>;
+    const mockHeaders = new Headers();
+    await appendAuthCookies(mockHeaders, MOCK_RESPONSE, customTokens, {
+      ...MOCK_OPTIONS,
+      enableMultipleCookies: true,
+      enableCustomToken: false
+    });
+
+    expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
+      1,
+      'Set-Cookie',
+      'TestCookie.id=MOCK_ID_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+    );
+
+    expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
+      2,
+      'Set-Cookie',
+      'TestCookie.refresh=MOCK_REFRESH_TOKEN; Max-Age=123; Path=/test-path; SameSite=Lax'
+    );
+
+    expect(MOCK_RESPONSE.headers.append).toHaveBeenNthCalledWith(
+      3,
+      'Set-Cookie',
+      'TestCookie.sig=kD-gd5CZhwndsyIvECTkfFsumUjj5UE1UpuxlxX5HWk; Max-Age=123; Path=/test-path; SameSite=Lax'
     );
   });
 

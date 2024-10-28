@@ -8,13 +8,12 @@ import {
   errors
 } from 'jose';
 import {RemoteJWKSetOptions} from 'jose/dist/types/jwks/remote';
-import {debug} from '../debug';
-import {AuthError, AuthErrorCode} from './error';
-import {useEmulator} from './firebase';
-import {VerifyOptions, getPublicCryptoKey, verify} from './jwt/verify';
-import {isNonNullObject, isURL} from './validator';
-
-export const ALGORITHM_RS256 = 'RS256' as const;
+import {debug} from '../debug/index.js';
+import {AuthError, AuthErrorCode} from './error.js';
+import {useEmulator} from './firebase.js';
+import {getPublicCryptoKey, verify} from './jwt/verify.js';
+import {VerifyOptions} from './types.js';
+import {isNonNullObject, isURL} from './validator.js';
 
 export type PublicKeys = {[key: string]: string};
 

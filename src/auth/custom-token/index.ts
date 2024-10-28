@@ -6,8 +6,8 @@ import {
   errors,
   jwtVerify
 } from 'jose';
-import {toUint8Array} from '../utils';
-import {DecodedIdToken} from '../token-verifier';
+import {DecodedIdToken} from '../types.js';
+import {toUint8Array} from '../utils.js';
 
 export interface CustomTokens {
   idToken: string;
@@ -15,10 +15,16 @@ export interface CustomTokens {
   customToken: string;
 }
 
+export interface ParsedTokens {
+  idToken: string;
+  refreshToken: string;
+  customToken?: string;
+}
+
 export interface VerifiedTokens {
   idToken: string;
   refreshToken: string;
-  customToken: string;
+  customToken?: string;
   decodedIdToken: DecodedIdToken;
 }
 
@@ -30,13 +36,15 @@ export interface CustomJWTHeader {
 export interface CustomJWTPayload extends JWTPayload {
   id_token: string;
   refresh_token: string;
-  custom_token: string;
+  custom_token?: string;
 }
 
-export async function createCustomSignature(tokens: CustomTokens, key: string) {
+export async function createCustomSignature(tokens: ParsedTokens, key: string) {
   const jws = await new FlattenedSign(
     toUint8Array(
-      `${tokens.idToken}.${tokens.refreshToken}.${tokens.customToken}`
+      tokens.customToken
+        ? `${tokens.idToken}.${tokens.refreshToken}.${tokens.customToken}`
+        : `${tokens.idToken}.${tokens.refreshToken}`
     )
   )
     .setProtectedHeader({alg: 'HS256'})
@@ -46,7 +54,7 @@ export async function createCustomSignature(tokens: CustomTokens, key: string) {
 }
 
 export async function verifyCustomSignature(
-  tokens: CustomTokens,
+  tokens: ParsedTokens,
   signature: string,
   key: string
 ): Promise<void> {
