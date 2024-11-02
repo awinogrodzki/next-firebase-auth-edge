@@ -25,7 +25,7 @@ You can find the source code for this demo at [examples/next-typescript-starter]
   </picture>
 </a>
 
-a no code web editor
+<small>a no code web editor</small>
 
 
 ## Guide
