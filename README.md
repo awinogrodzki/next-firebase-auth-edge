@@ -25,9 +25,6 @@ You can find the source code for this demo at [examples/next-typescript-starter]
   </picture>
 </a>
 
-<caption>a no code web editor</caption>
-
-
 ## Guide
 
 New to Firebase or Next.js? No worries! Follow this easy, step-by-step guide to set up Firebase Authentication in Next.js app using the **next-firebase-auth-edge** library:
