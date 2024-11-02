@@ -17,7 +17,9 @@ Next.js Firebase Authentication for Edge and Node.js runtimes. Use Firebase Auth
     <source media="(prefers-color-scheme: light)" srcset="images/ensite-logo-horizontal.svg">
     <img alt="ensite.in" src="images/ensite-logo-horizontal.svg" height="24">
   </picture>
-</a>  a no code web editor
+</a>
+
+a no code web editor
 
 ## Example
 
