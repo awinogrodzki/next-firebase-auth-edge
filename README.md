@@ -10,6 +10,15 @@ Next.js Firebase Authentication for Edge and Node.js runtimes. Use Firebase Auth
 
 [![npm version](https://badge.fury.io/js/next-firebase-auth-edge.svg)](https://badge.fury.io/js/next-firebase-auth-edge)
 
+## Featured in
+<a href="https://ensite.in">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="images/ensite-logo-horizontal-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="images/ensite-logo-horizontal.svg">
+    <img alt="ensite.in" src="images/ensite-logo-horizontal.svg" height="24">
+  </picture>
+</a> – a no code web editor
+
 ## Example
 
 Check out a working demo here: [next-firebase-auth-edge-starter.vercel.app](https://next-firebase-auth-edge-starter.vercel.app/)

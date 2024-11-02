@@ -88,7 +88,7 @@ export class CookieParserFactory {
       );
     }
 
-    if (!enableMultipleCookies && hasLegacyCookie) {
+    if (hasLegacyCookie) {
       debug(
         "Authentication cookie is in multiple cookie format, but lacks signature and custom cookies. Clear your browser cookies and try again. If the issue keeps happening and you're using `enableMultipleCookies` option, make sure that server returns all required cookies: https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#multiple-cookies"
       );
