@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0...v1.8.1) (2024-11-05)
+
+
+### Bug Fixes
+
+* update cookie library to avoid vulnerability in cookie < 0.7.0 ([0940e28](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/0940e2875a3f8d0b9769317914df074d70caa741))
+
 # [1.8.0](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.7.1...v1.8.0) (2024-10-28)
 
 
