@@ -114,8 +114,5 @@ export class InvalidTokenError extends Error {
 export function isInvalidTokenError(
   error: unknown
 ): error is InvalidTokenError {
-  console.log(
-    `next-firebase-auth edge debugging message; comparing invalid error constructors; error constructor name: ${(error as Error)?.constructor?.name}; error has boolean flag: ${String((error as InvalidTokenError)?.isInvalidTokenError ?? false)}; invalid error constructor name: ${InvalidTokenError?.name};`
-  );
   return (error as InvalidTokenError | undefined)?.isInvalidTokenError ?? false;
 }

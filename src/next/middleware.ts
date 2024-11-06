@@ -229,6 +229,8 @@ export async function authMiddleware(
   });
 
   try {
+    debug('Attempt to fetch request cookies tokens');
+
     const tokens = await getRequestCookiesTokens(request.cookies, options);
 
     return await handleExpiredToken(
