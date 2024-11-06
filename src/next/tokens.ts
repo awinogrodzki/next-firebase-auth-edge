@@ -45,17 +45,7 @@ export async function getRequestCookiesTokens(
 ): Promise<ParsedTokens> {
   const parser = CookieParserFactory.fromRequestCookies(cookies, options);
 
-  try {
-    debug('Parsing cookies...');
-    const result = await parser.parseCookies();
-    debug('Cookies parsed', {result});
-
-    return result;
-  } catch (error) {
-    debug('Cookie parsing error', {error});
-
-    throw error;
-  }
+  return await parser.parseCookies();
 }
 
 function toTokens(result: VerifiedTokens | null): Tokens | null {
