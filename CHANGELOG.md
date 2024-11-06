@@ -1,3 +1,10 @@
+## [1.8.2-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.1...v1.8.2-canary.2) (2024-11-06)
+
+
+### Bug Fixes
+
+* export error module explicitly ([575281c](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/575281c45e037eccdf48c833ae605cd373388896))
+
 ## [1.8.2-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.1...v1.8.2-canary.1) (2024-11-06)
 
 
