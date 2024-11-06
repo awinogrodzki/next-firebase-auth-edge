@@ -1,3 +1,10 @@
+## [1.8.2-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.4...v1.8.2-canary.5) (2024-11-06)
+
+
+### Bug Fixes
+
+* remove console.log and improve debug logs around token fetching ([31dfbd2](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/31dfbd2226dcd775bd4a76cdb4a5c5f04f72954e))
+
 ## [1.8.2-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.3...v1.8.2-canary.4) (2024-11-06)
 
 
