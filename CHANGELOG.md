@@ -1,3 +1,10 @@
+## [1.8.2-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.5...v1.8.2-canary.6) (2024-11-06)
+
+
+### Bug Fixes
+
+* debug Vercel logging by removing inheritance from Error ([46ca356](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/46ca35632f46d92dc4f0229552c09e4f455fee58))
+
 ## [1.8.2-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.4...v1.8.2-canary.5) (2024-11-06)
 
 
