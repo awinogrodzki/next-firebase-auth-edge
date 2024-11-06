@@ -1,3 +1,10 @@
+## [1.8.2-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.2...v1.8.2-canary.3) (2024-11-06)
+
+
+### Bug Fixes
+
+* **#271:** use runtime flag to identify invalid token error ([d7220b0](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d7220b0e1dd642385d3320efd812b2e08117e51e)), closes [#271](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/271)
+
 ## [1.8.2-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.1...v1.8.2-canary.2) (2024-11-06)
 
 
