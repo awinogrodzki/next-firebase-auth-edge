@@ -1,3 +1,10 @@
+## [1.8.2-canary.9](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.8...v1.8.2-canary.9) (2024-11-06)
+
+
+### Bug Fixes
+
+* await on parse cookie result to work around [#271](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/271) ([f6b5106](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/f6b51062b4308e32d1ef1d123912d21dc93d3f85))
+
 ## [1.8.2-canary.8](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.7...v1.8.2-canary.8) (2024-11-06)
 
 
