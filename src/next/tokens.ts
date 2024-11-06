@@ -39,13 +39,13 @@ export function validateOptions(options: GetTokensOptions) {
   }
 }
 
-export async function getRequestCookiesTokens(
+export function getRequestCookiesTokens(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetCookiesTokensOptions
 ): Promise<ParsedTokens> {
   const parser = CookieParserFactory.fromRequestCookies(cookies, options);
 
-  return await parser.parseCookies();
+  return parser.parseCookies();
 }
 
 function toTokens(result: VerifiedTokens | null): Tokens | null {
@@ -161,13 +161,13 @@ export async function getTokens(
   }
 }
 
-export async function getCookiesTokens(
+export function getCookiesTokens(
   cookies: CookiesObject,
   options: GetCookiesTokensOptions
 ): Promise<ParsedTokens> {
   const parser = CookieParserFactory.fromObject(cookies, options);
 
-  return await parser.parseCookies();
+  return parser.parseCookies();
 }
 
 export async function getApiRequestTokens(
