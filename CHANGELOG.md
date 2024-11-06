@@ -1,3 +1,11 @@
+## [1.8.2-canary.10](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.9...v1.8.2-canary.10) (2024-11-06)
+
+
+### Bug Fixes
+
+* remove unnecessary async in get tokens functions ([c0f530c](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/c0f530c3ecfe9c0e120f20d4a9e3bcab264a28db))
+* work around [#271](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/271) in getCookiesTokens ([5fef799](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/5fef799648daa2a0fcf20829dd82b443b9f511e7))
+
 ## [1.8.2-canary.9](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.8...v1.8.2-canary.9) (2024-11-06)
 
 
