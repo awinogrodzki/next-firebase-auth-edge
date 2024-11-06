@@ -316,6 +316,12 @@ export async function authMiddleware(
       options.experimental_enableTokenRefreshOnExpiredKidHeader ?? false
     );
   } catch (error: unknown) {
+    debug('Token verification failed', {
+      error,
+      isInstanceOfInvalidTokenError: error instanceof InvalidTokenError,
+      InvalidTokenError
+    });
+
     if (error instanceof InvalidTokenError) {
       debug(
         `Token is missing or has incorrect formatting. This is expected and usually means that user has not yet logged in`,
