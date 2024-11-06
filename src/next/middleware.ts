@@ -6,7 +6,8 @@ import {
   AuthError,
   AuthErrorCode,
   InvalidTokenError,
-  InvalidTokenReason
+  InvalidTokenReason,
+  isInvalidTokenError
 } from '../auth/error.js';
 import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth/index.js';
 import {debug, enableDebugMode} from '../debug/index.js';
@@ -316,16 +317,7 @@ export async function authMiddleware(
       options.experimental_enableTokenRefreshOnExpiredKidHeader ?? false
     );
   } catch (error: unknown) {
-    debug(
-      'Token verification failed: ' +
-        JSON.stringify({
-          error,
-          isInstanceOfInvalidTokenError: error instanceof InvalidTokenError,
-          InvalidTokenError
-        })
-    );
-
-    if (error instanceof InvalidTokenError) {
+    if (isInvalidTokenError(error)) {
       debug(
         `Token is missing or has incorrect formatting. This is expected and usually means that user has not yet logged in`,
         {
