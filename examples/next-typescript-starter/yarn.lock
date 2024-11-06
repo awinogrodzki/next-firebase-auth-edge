@@ -1406,10 +1406,10 @@ concat-map@0.0.1:
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
   integrity sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==
 
-cookie@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.6.0.tgz#2798b04b071b0ecbff0dbb62a505a8efa4e19051"
-  integrity sha512-U71cyTamuh1CRNCfpGY6to28lxvNwPG4Guz/EVjgf3Jmzv0vlDp1atT9eS5dDjMYHucpHbWns6Lwf3BKz6svdw==
+cookie@^0.7.0:
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.7.2.tgz#556369c472a2ba910f2979891b526b3436237ed7"
+  integrity sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==
 
 cross-spawn@^7.0.0, cross-spawn@^7.0.2:
   version "7.0.3"
@@ -3122,12 +3122,12 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
-next-firebase-auth-edge@1.8.0-canary.9:
-  version "1.8.0-canary.9"
-  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-1.8.0-canary.9.tgz#db436797b212e5ceef0986d22582e61c5d676ca1"
-  integrity sha512-9nvgYu6ej9AyR/2DhB6dzNUfN2GawxyEstaJvVF6RYCo2U0rX2dVr2Yq8OCeIM+ifc79UnqVfPUNoGhpydPo9g==
+next-firebase-auth-edge@1.8.2-canary.1:
+  version "1.8.2-canary.1"
+  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-1.8.2-canary.1.tgz#eec27171464139e26498d58dc904c163edebf59a"
+  integrity sha512-hK6UVon2qdDqmP0msVfoy3cZXpmTRz4rd7kP0Unc0ruMpZLwpv2t36n2Sz5uex4J88hLIpUcbXI1V2UzsnTgwg==
   dependencies:
-    cookie "^0.6.0"
+    cookie "^0.7.0"
     encoding "^0.1.13"
     jose "^5.6.3"
 

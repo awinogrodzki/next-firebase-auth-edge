@@ -45,6 +45,16 @@
       "import": "./esm/auth/index.js",
       "require": "./lib/auth/index.js"
     },
+    "./auth/error": {
+      "types": "./lib/auth/error.d.ts",
+      "bun": "./browser/auth/error.js",
+      "deno": "./browser/auth/error.js",
+      "browser": "./browser/auth/error.js",
+      "worker": "./browser/auth/error.js",
+      "workerd": "./browser/auth/error.js",
+      "import": "./esm/auth/error.js",
+      "require": "./lib/auth/error.js"
+    },
     "./auth/claims": {
       "types": "./lib/auth/claims.d.ts",
       "bun": "./browser/auth/claims.js",
@@ -128,6 +138,7 @@
     "./lib": "./lib/index.js",
     "./lib/app-check": "./lib/app-check/index.js",
     "./lib/auth": "./lib/auth/index.js",
+    "./lib/auth/error": "./lib/auth/error.js",
     "./lib/auth/claims": "./lib/auth/claims.js",
     "./lib/next/utils": "./lib/next/utils.js",
     "./lib/next/cookies": "./lib/next/cookies/index.js",

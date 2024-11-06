@@ -7,7 +7,7 @@ import {
   AuthErrorCode,
   InvalidTokenError,
   InvalidTokenReason
-} from '../auth/error';
+} from '../auth/error.js';
 import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth/index.js';
 import {debug, enableDebugMode} from '../debug/index.js';
 import {AuthCookies} from './cookies/AuthCookies.js';
@@ -316,11 +316,14 @@ export async function authMiddleware(
       options.experimental_enableTokenRefreshOnExpiredKidHeader ?? false
     );
   } catch (error: unknown) {
-    debug('Token verification failed', {
-      error,
-      isInstanceOfInvalidTokenError: error instanceof InvalidTokenError,
-      InvalidTokenError
-    });
+    debug(
+      'Token verification failed: ' +
+        JSON.stringify({
+          error,
+          isInstanceOfInvalidTokenError: error instanceof InvalidTokenError,
+          InvalidTokenError
+        })
+    );
 
     if (error instanceof InvalidTokenError) {
       debug(

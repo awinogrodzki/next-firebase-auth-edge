@@ -4,6 +4,7 @@ import {InvalidTokenError, InvalidTokenReason} from '../../../auth/error.js';
 import {RotatingCredential} from '../../../auth/rotating-credential.js';
 import {CookieParser} from './CookieParser.js';
 import {CookiesProvider} from './CookiesProvider.js';
+import {debug} from '../../../debug/index.js';
 
 export class SingleCookieParser implements CookieParser {
   constructor(
@@ -16,6 +17,13 @@ export class SingleCookieParser implements CookieParser {
     const jwtCookie = this.cookies.get(this.cookieName);
 
     if (!jwtCookie) {
+      debug(
+        'Cookie is missing. This is expected. Throwing InvalidTokenError: ' +
+          JSON.stringify({
+            InvalidTokenError: InvalidTokenError
+          })
+      );
+
       throw new InvalidTokenError(InvalidTokenReason.MISSING_CREDENTIALS);
     }
 
