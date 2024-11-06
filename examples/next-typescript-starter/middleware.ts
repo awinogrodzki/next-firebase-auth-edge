@@ -6,11 +6,26 @@ import {
   redirectToLogin
 } from 'next-firebase-auth-edge';
 import {authConfig} from './config/server-config';
-import {InvalidTokenError} from 'next-firebase-auth-edge/auth';
+import {
+  InvalidTokenError,
+  InvalidTokenReason
+} from 'next-firebase-auth-edge/auth';
 
 const PUBLIC_PATHS = ['/register', '/login', '/reset-password'];
 
+async function iWillThrowAnError() {
+  throw new InvalidTokenError(InvalidTokenReason.INVALID_KID);
+}
+
 export async function middleware(request: NextRequest) {
+  console.log('REQUEST START', request.nextUrl.pathname);
+
+  try {
+    await iWillThrowAnError();
+  } catch (error) {
+    console.log("I didn't throw nothing!", {error: {...(error as Error)}});
+  }
+
   try {
     console.log('BEFORE RUN MIDDLEWARE', request.nextUrl.pathname);
     const response = await authMiddleware(request, {
@@ -41,21 +56,21 @@ export async function middleware(request: NextRequest) {
         });
       },
       handleInvalidToken: async (_reason) => {
+        console.log('HANDLE INVALID TOKEN');
         return redirectToLogin(request, {
           path: '/login',
           publicPaths: PUBLIC_PATHS
         });
       },
       handleError: async (error) => {
-        console.error('Unhandled authentication error', {error});
-
+        console.log('HANDLE ERROR');
         return redirectToLogin(request, {
           path: '/login',
           publicPaths: PUBLIC_PATHS
         });
       }
     });
-    console.log("RESPONSE GENERATED");
+    console.log('RESPONSE GENERATED');
     return response;
   } catch (error) {
     console.log('ERROR RESULTED FROM AUTH MIDDLEWARE', {
