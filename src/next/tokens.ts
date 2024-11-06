@@ -167,7 +167,7 @@ export async function getCookiesTokens(
 ): Promise<ParsedTokens> {
   const parser = CookieParserFactory.fromObject(cookies, options);
 
-  return parser.parseCookies();
+  return await parser.parseCookies();
 }
 
 export async function getApiRequestTokens(
