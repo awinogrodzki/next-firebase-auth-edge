@@ -1,3 +1,10 @@
+## [1.8.2-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.1...v1.8.2-canary.1) (2024-11-06)
+
+
+### Bug Fixes
+
+* added additional logs to debug a failed verification in auth middleware ([30ddc5e](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/30ddc5e6f4cb7c7d713cc210d77648d8722d924c))
+
 ## [1.8.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0...v1.8.1) (2024-11-05)
 
 
