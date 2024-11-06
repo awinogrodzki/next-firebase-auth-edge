@@ -94,7 +94,7 @@ const InvalidTokenMessages: Record<InvalidTokenReason, string> = {
     'Token has kid claim that cannot be matched with any known Google certificate. This usually indicates that Google certificates have expired and user has to reauthenticate.'
 };
 
-export class InvalidTokenError {
+export class InvalidTokenError extends Error {
   public static fromError(error: unknown, reason: InvalidTokenReason) {
     const invalidTokenError = new InvalidTokenError(reason);
 
@@ -104,14 +104,9 @@ export class InvalidTokenError {
   }
 
   public isInvalidTokenError = true;
-  public name: string;
-  public message: string;
-  public stack: string;
 
   constructor(public readonly reason: InvalidTokenReason) {
-    this.name = 'InvalidTokenError';
-    this.message = `${reason}: ${InvalidTokenMessages[reason]}`;
-    this.stack = `debug`;
+    super(`${reason}: ${InvalidTokenMessages[reason]}`);
     Object.setPrototypeOf(this, InvalidTokenError.prototype);
   }
 }
