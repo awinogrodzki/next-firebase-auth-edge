@@ -1,3 +1,10 @@
+## [1.8.2-canary.8](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.7...v1.8.2-canary.8) (2024-11-06)
+
+
+### Bug Fixes
+
+* remove debug logs from cookie parser ([2ce3190](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/2ce3190cbffa476fd228f6cc1bf578cae6c8591f))
+
 ## [1.8.2-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.6...v1.8.2-canary.7) (2024-11-06)
 
 
