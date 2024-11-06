@@ -1,3 +1,10 @@
+## [1.8.2-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.6...v1.8.2-canary.7) (2024-11-06)
+
+
+### Bug Fixes
+
+* added additional logs around cookie parser ([1550c80](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/1550c80e504e7e49ff44a89dd20c59c2878b6dbc))
+
 ## [1.8.2-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.5...v1.8.2-canary.6) (2024-11-06)
 
 
