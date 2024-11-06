@@ -1,3 +1,10 @@
+## [1.8.2-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.3...v1.8.2-canary.4) (2024-11-06)
+
+
+### Bug Fixes
+
+* add logs to invalid token comparator func ([11eaede](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/11eaedee236b4cf93f5b2542ae10eebbe0c86884))
+
 ## [1.8.2-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.2...v1.8.2-canary.3) (2024-11-06)
 
 
