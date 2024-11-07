@@ -12,9 +12,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const tokens = await getTokens(cookies(), {
+  const tokens = await getTokens(await cookies(), {
     ...authConfig,
-    headers: headers()
+    headers: await headers()
   });
   const user = tokens ? toUser(tokens) : null;
 

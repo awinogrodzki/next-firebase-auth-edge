@@ -5,7 +5,7 @@ import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/a
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {ServiceAccount} from '../auth/credential.js';
 import {ParsedTokens, VerifiedTokens} from '../auth/custom-token/index.js';
-import {InvalidTokenError} from '../auth/error.js';
+import {isInvalidTokenError} from '../auth/error.js';
 import {getFirebaseAuth, Tokens} from '../auth/index.js';
 import {mapJwtPayloadToDecodedIdToken} from '../auth/utils.js';
 import {debug, enableDebugMode} from '../debug/index.js';
@@ -39,7 +39,7 @@ export function validateOptions(options: GetTokensOptions) {
   }
 }
 
-export async function getRequestCookiesTokens(
+export function getRequestCookiesTokens(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetCookiesTokensOptions
 ): Promise<ParsedTokens> {
@@ -145,7 +145,7 @@ export async function getTokens(
 
     return toTokens(result);
   } catch (error: unknown) {
-    if (error instanceof InvalidTokenError) {
+    if (isInvalidTokenError(error)) {
       debug(
         `Token is missing or has incorrect formatting. This is expected and usually means that user has not yet logged in`,
         {
@@ -161,7 +161,7 @@ export async function getTokens(
   }
 }
 
-export async function getCookiesTokens(
+export function getCookiesTokens(
   cookies: CookiesObject,
   options: GetCookiesTokensOptions
 ): Promise<ParsedTokens> {
@@ -196,7 +196,7 @@ export async function getApiRequestTokens(
 
     return toTokens(await verifyAndRefreshExpiredIdToken(tokens, {referer}));
   } catch (error: unknown) {
-    if (error instanceof InvalidTokenError) {
+    if (isInvalidTokenError(error)) {
       return null;
     }
 
@@ -237,7 +237,7 @@ export async function getTokensFromObject(
       })
     );
   } catch (error: unknown) {
-    if (error instanceof InvalidTokenError) {
+    if (isInvalidTokenError(error)) {
       return null;
     }
 

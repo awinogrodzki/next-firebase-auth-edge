@@ -5,7 +5,7 @@ import {cookies} from 'next/headers';
 import {authConfig} from '../../../config/server-config';
 
 export async function GET(_request: NextRequest) {
-  const tokens = await getTokens(cookies(), authConfig);
+  const tokens = await getTokens(await cookies(), authConfig);
 
   if (!tokens) {
     throw new Error('Unauthenticated');

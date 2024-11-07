@@ -6,8 +6,9 @@ import {
   AuthError,
   AuthErrorCode,
   InvalidTokenError,
-  InvalidTokenReason
-} from '../auth/error';
+  InvalidTokenReason,
+  isInvalidTokenError
+} from '../auth/error.js';
 import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth/index.js';
 import {debug, enableDebugMode} from '../debug/index.js';
 import {AuthCookies} from './cookies/AuthCookies.js';
@@ -228,6 +229,8 @@ export async function authMiddleware(
   });
 
   try {
+    debug('Attempt to fetch request cookies tokens');
+
     const tokens = await getRequestCookiesTokens(request.cookies, options);
 
     return await handleExpiredToken(
@@ -316,7 +319,7 @@ export async function authMiddleware(
       options.experimental_enableTokenRefreshOnExpiredKidHeader ?? false
     );
   } catch (error: unknown) {
-    if (error instanceof InvalidTokenError) {
+    if (isInvalidTokenError(error)) {
       debug(
         `Token is missing or has incorrect formatting. This is expected and usually means that user has not yet logged in`,
         {

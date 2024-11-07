@@ -4,6 +4,7 @@ import {InvalidTokenError, InvalidTokenReason} from '../../../auth/error.js';
 import {RotatingCredential} from '../../../auth/rotating-credential.js';
 import {CookieParser} from './CookieParser.js';
 import {CookiesProvider} from './CookiesProvider.js';
+import {debug} from '../../../debug/index.js';
 
 export class SingleCookieParser implements CookieParser {
   constructor(
@@ -15,7 +16,14 @@ export class SingleCookieParser implements CookieParser {
   async parseCookies(): Promise<ParsedTokens> {
     const jwtCookie = this.cookies.get(this.cookieName);
 
+    debug('Extracted jwt cookie', {
+      jwtCookie
+    });
+
     if (!jwtCookie) {
+      debug('Jwt cookie not found. Throwing InvalidTokenError.', {
+        jwtCookie
+      });
       throw new InvalidTokenError(InvalidTokenReason.MISSING_CREDENTIALS);
     }
 

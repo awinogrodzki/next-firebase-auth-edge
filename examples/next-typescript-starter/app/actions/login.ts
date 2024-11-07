@@ -15,6 +15,11 @@ export async function loginAction(username: string, password: string) {
   );
 
   const idToken = await credential.user.getIdToken();
-  await refreshCookiesWithIdToken(idToken, headers(), cookies(), authConfig);
+  await refreshCookiesWithIdToken(
+    idToken,
+    await headers(),
+    await cookies(),
+    authConfig
+  );
   redirect('/');
 }

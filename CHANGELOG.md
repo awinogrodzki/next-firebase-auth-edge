@@ -1,3 +1,81 @@
+## [1.8.2-canary.11](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.10...v1.8.2-canary.11) (2024-11-07)
+
+
+### Bug Fixes
+
+* **docs:** added `await` before calling `cookies` and `headers` due to change in Next.js 15 ([d14c9df](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d14c9df55aa3476ea30d56b884599f4e8af9e3ff))
+
+## [1.8.2-canary.10](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.9...v1.8.2-canary.10) (2024-11-06)
+
+
+### Bug Fixes
+
+* remove unnecessary async in get tokens functions ([c0f530c](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/c0f530c3ecfe9c0e120f20d4a9e3bcab264a28db))
+* work around [#271](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/271) in getCookiesTokens ([5fef799](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/5fef799648daa2a0fcf20829dd82b443b9f511e7))
+
+## [1.8.2-canary.9](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.8...v1.8.2-canary.9) (2024-11-06)
+
+
+### Bug Fixes
+
+* await on parse cookie result to work around [#271](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/271) ([f6b5106](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/f6b51062b4308e32d1ef1d123912d21dc93d3f85))
+
+## [1.8.2-canary.8](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.7...v1.8.2-canary.8) (2024-11-06)
+
+
+### Bug Fixes
+
+* remove debug logs from cookie parser ([2ce3190](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/2ce3190cbffa476fd228f6cc1bf578cae6c8591f))
+
+## [1.8.2-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.6...v1.8.2-canary.7) (2024-11-06)
+
+
+### Bug Fixes
+
+* added additional logs around cookie parser ([1550c80](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/1550c80e504e7e49ff44a89dd20c59c2878b6dbc))
+
+## [1.8.2-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.5...v1.8.2-canary.6) (2024-11-06)
+
+
+### Bug Fixes
+
+* debug Vercel logging by removing inheritance from Error ([46ca356](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/46ca35632f46d92dc4f0229552c09e4f455fee58))
+
+## [1.8.2-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.4...v1.8.2-canary.5) (2024-11-06)
+
+
+### Bug Fixes
+
+* remove console.log and improve debug logs around token fetching ([31dfbd2](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/31dfbd2226dcd775bd4a76cdb4a5c5f04f72954e))
+
+## [1.8.2-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.3...v1.8.2-canary.4) (2024-11-06)
+
+
+### Bug Fixes
+
+* add logs to invalid token comparator func ([11eaede](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/11eaedee236b4cf93f5b2542ae10eebbe0c86884))
+
+## [1.8.2-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.2...v1.8.2-canary.3) (2024-11-06)
+
+
+### Bug Fixes
+
+* **#271:** use runtime flag to identify invalid token error ([d7220b0](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d7220b0e1dd642385d3320efd812b2e08117e51e)), closes [#271](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/271)
+
+## [1.8.2-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.1...v1.8.2-canary.2) (2024-11-06)
+
+
+### Bug Fixes
+
+* export error module explicitly ([575281c](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/575281c45e037eccdf48c833ae605cd373388896))
+
+## [1.8.2-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.1...v1.8.2-canary.1) (2024-11-06)
+
+
+### Bug Fixes
+
+* added additional logs to debug a failed verification in auth middleware ([30ddc5e](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/30ddc5e6f4cb7c7d713cc210d77648d8722d924c))
+
 ## [1.8.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.0...v1.8.1) (2024-11-05)
 
 

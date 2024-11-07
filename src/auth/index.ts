@@ -28,6 +28,7 @@ import {DecodedIdToken, VerifyOptions} from './types.js';
 import {UserRecord} from './user-record.js';
 
 export * from './types.js';
+export * from './error.js';
 
 const getCustomTokenEndpoint = (apiKey: string) => {
   if (useEmulator() && process.env.FIREBASE_AUTH_EMULATOR_HOST) {

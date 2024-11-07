@@ -8,7 +8,7 @@ import {getFirebaseAdminApp} from '../firebase';
 import {authConfig} from '../../config/server-config';
 
 export async function incrementCounter() {
-  const tokens = await getTokens(cookies(), authConfig);
+  const tokens = await getTokens(await cookies(), authConfig);
 
   if (!tokens) {
     throw new Error('Cannot update counter of unauthenticated user');

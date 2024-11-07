@@ -103,8 +103,16 @@ export class InvalidTokenError extends Error {
     return invalidTokenError;
   }
 
+  public isInvalidTokenError = true;
+
   constructor(public readonly reason: InvalidTokenReason) {
     super(`${reason}: ${InvalidTokenMessages[reason]}`);
     Object.setPrototypeOf(this, InvalidTokenError.prototype);
   }
+}
+
+export function isInvalidTokenError(
+  error: unknown
+): error is InvalidTokenError {
+  return (error as InvalidTokenError | undefined)?.isInvalidTokenError ?? false;
 }
