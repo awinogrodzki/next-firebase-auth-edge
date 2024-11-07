@@ -1,3 +1,10 @@
+## [1.8.2-canary.11](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.10...v1.8.2-canary.11) (2024-11-07)
+
+
+### Bug Fixes
+
+* **docs:** added `await` before calling `cookies` and `headers` due to change in Next.js 15 ([d14c9df](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d14c9df55aa3476ea30d56b884599f4e8af9e3ff))
+
 ## [1.8.2-canary.10](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2-canary.9...v1.8.2-canary.10) (2024-11-06)
 
 
