@@ -15,9 +15,10 @@ import {getTokens} from 'next-firebase-auth-edge';
 import {cookies, headers} from 'next/headers';
 
 export default async function ServerComponentExample() {
-  const tokens = await getTokens(cookies(), {
+  // Since Next.js 15, `cookies` and `headers` functions returns a Promise, so we need to precede them with `await`.
+  const tokens = await getTokens(await cookies(), {
     // ...other options
-    headers: headers()
+    headers: await headers()
   });
 
   return <div>{/* ... */}</div>;
@@ -33,7 +34,6 @@ See the [getTokens](/docs/usage/server-components) options section for more deta
 ```ts
 import {getFirebaseAuth} from 'next-firebase-auth-edge/lib/auth';
 import {getReferer} from 'next-firebase-auth-edge/lib/next/utils';
-import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
 import type {NextRequest} from 'next/server';
 
 const {verifyIdToken} = getFirebaseAuth(/*{...}*/);

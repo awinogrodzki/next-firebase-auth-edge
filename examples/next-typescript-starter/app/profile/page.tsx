@@ -13,7 +13,7 @@ import {incrementCounter} from '../actions/user-counters';
 
 const db = getFirestore(getFirebaseAdminApp());
 async function getUserCounter(): Promise<number> {
-  const tokens = await getTokens(cookies(), authConfig);
+  const tokens = await getTokens(await cookies(), authConfig);
 
   if (!tokens) {
     throw new Error('Cannot get counter of unauthenticated user');
@@ -51,7 +51,7 @@ export default async function Profile() {
 // Generate customized metadata based on user cookies
 // https://nextjs.org/docs/app/building-your-application/optimizing/metadata
 export async function generateMetadata(): Promise<Metadata> {
-  const tokens = await getTokens(cookies(), authConfig);
+  const tokens = await getTokens(await cookies(), authConfig);
 
   if (!tokens) {
     return {};

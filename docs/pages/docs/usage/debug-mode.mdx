@@ -45,7 +45,8 @@ import { cookies } from "next/headers";
 ```
 
 ```tsx
-const tokens = await getTokens(cookies(), {
+  // Since Next.js 15, `cookies` function returns a Promise, so we need to precede it with `await`.
+const tokens = await getTokens(await cookies(), {
   debug: true,
   apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
   cookieName: 'AuthToken',

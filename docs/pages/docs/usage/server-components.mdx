@@ -12,7 +12,8 @@ import {cookies, headers} from 'next/headers';
 import {notFound} from 'next/navigation';
 
 export default async function ServerComponentExample() {
-  const tokens = await getTokens(cookies(), {
+  // Since Next.js 15, `cookies` function returns a Promise, so we need to precede it with `await`.
+  const tokens = await getTokens(await cookies(), {
     apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',
     cookieName: 'AuthToken',
     cookieSignatureKeys: ['Key-Should-Be-at-least-32-bytes-in-length'],

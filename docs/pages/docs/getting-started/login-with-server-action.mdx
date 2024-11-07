@@ -37,11 +37,16 @@ export async function loginAction(username: string, password: string) {
 
   const idToken = await credential.user.getIdToken();
 
-  await refreshCookiesWithIdToken(idToken, headers(), cookies(), authConfig);
+  // Since Next.js 15, `headers` and `cookies` functions return a Promise, hence we precede the calls with `await`.
+  await refreshCookiesWithIdToken(
+    idToken,
+    await headers(),
+    await cookies(),
+    authConfig
+  );
   redirect('/');
 }
 ```
-
 
 Next, create LoginPage client component that will call login action:
 
