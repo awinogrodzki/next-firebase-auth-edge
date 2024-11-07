@@ -59,8 +59,8 @@ Key updates in this release include:
 * Custom token is now optional. To enable custom token support use [enableCustomToken](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#custom-token) option
 * Support ESM, Browser and Node.js imports for better tree-shaking features
 * Support for **Node.js 22**
-* Support for **Next.js 15 RC**
-* Support for **React 19**
+* Support for **Next.js 15**
+* Support for **React 19 RC**
 * New `experimental_enableTokenRefreshOnExpiredKidHeader` option in `authMiddleware` and `getTokens`, which refreshes user tokens when Google’s public certificates expire (instead of throwing an error)
 
 
