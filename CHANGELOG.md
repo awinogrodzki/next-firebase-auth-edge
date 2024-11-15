@@ -1,3 +1,10 @@
+# [1.9.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2...v1.9.0-canary.1) (2024-11-15)
+
+
+### Features
+
+* full firebase emulator support ([9dcf5e9](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/9dcf5e94be548b0f3bb0277bee6abce43592a7d2))
+
 ## [1.8.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.1...v1.8.2) (2024-11-07)
 
 

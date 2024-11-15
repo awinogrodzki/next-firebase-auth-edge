@@ -323,9 +323,7 @@ export async function authMiddleware(
       debug(
         `Token is missing or has incorrect formatting. This is expected and usually means that user has not yet logged in`,
         {
-          message: error.message,
-          reason: error.reason,
-          stack: error.stack
+          reason: error.reason
         }
       );
       return handleInvalidToken(error.reason);

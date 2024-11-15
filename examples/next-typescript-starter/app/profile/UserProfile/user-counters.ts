@@ -2,13 +2,29 @@ import {signInWithCustomToken} from 'firebase/auth';
 import {getValidCustomToken} from 'next-firebase-auth-edge/lib/next/client';
 
 import {getFirebaseApp, getFirebaseAuth} from '../../auth/firebase';
-import {doc, getDoc, getFirestore, updateDoc, setDoc} from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  getFirestore,
+  updateDoc,
+  setDoc,
+  connectFirestoreEmulator
+} from 'firebase/firestore';
+
+const db = getFirestore(getFirebaseApp());
+
+// Use together with Firestore Emulator https://cloud.google.com/firestore/docs/emulator#android_apple_platforms_and_web_sdks
+if (process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST) {
+  const [host, port] =
+    process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST.split(':');
+  connectFirestoreEmulator(db, host, Number(port));
+}
+
+const auth = getFirebaseAuth();
 
 export async function incrementCounterUsingClientFirestore(
   serverCustomToken: string
 ) {
-  const auth = getFirebaseAuth();
-
   // We use `getValidCustomToken` to fetch fresh `customToken` using /api/refresh-token endpoint if original custom token has expired.
   // This ensures custom token is valid, even in long-running client sessions
   const customToken = await getValidCustomToken({
@@ -21,7 +37,7 @@ export async function incrementCounterUsingClientFirestore(
   }
 
   const {user: firebaseUser} = await signInWithCustomToken(auth, customToken);
-  const db = getFirestore(getFirebaseApp());
+
   const docRef = doc(db, 'user-counters', firebaseUser.uid);
   const docSnap = await getDoc(docRef);
 
