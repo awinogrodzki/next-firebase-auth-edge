@@ -53,9 +53,12 @@ To make adopting the newest Next.js features easier, this library works seamless
 * **Minimal setup**: Unlike other libraries, you won’t need to create your own API routes or modify your `next.config.js`. Everything’s handled by [middleware](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware).
 * **Secure**: Uses [jose](https://github.com/panva/jose) for JWT validation, and signs user cookies with rotating keys to prevent cryptanalysis attacks.
 
-### What's New in v1.8
+### What's New
 
-Key updates in this release include:
+Key updates in latest release include:
+
+* Full Firebase Emulator Support.
+The library now fully supports the Firebase Emulator, enabling you to run your development app without needing to create a Firebase Project. Follow [starter example README](https://github.com/awinogrodzki/next-firebase-auth-edge/tree/main/examples/next-typescript-starter#emulator-support) for details
 * Custom token is now optional. To enable custom token support use [enableCustomToken](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#custom-token) option
 * Support ESM, Browser and Node.js imports for better tree-shaking features
 * Support for **Node.js 22**

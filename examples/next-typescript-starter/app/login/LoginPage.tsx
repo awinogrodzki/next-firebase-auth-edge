@@ -30,6 +30,8 @@ import {
 } from './firebase';
 import styles from './login.module.css';
 
+const auth = getFirebaseAuth();
+
 export function LoginPage({
   loginAction
 }: {
@@ -88,7 +90,6 @@ export function LoginPage({
   });
 
   async function handleLoginWithRedirect() {
-    const auth = getFirebaseAuth();
     const credential = await getRedirectResult(auth);
 
     if (credential?.user) {

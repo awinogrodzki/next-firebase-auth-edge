@@ -6,6 +6,13 @@ const initializeApp = () => {
     return admin.initializeApp();
   }
 
+  // Don't use real credentials with Firebase Emulator https://firebase.google.com/docs/emulator-suite/connect_auth#admin_sdks
+  if (process.env.FIREBASE_AUTH_EMULATOR_HOST) {
+    return admin.initializeApp({
+      projectId: authConfig.serviceAccount.projectId
+    });
+  }
+
   return admin.initializeApp({
     credential: admin.credential.cert(authConfig.serviceAccount)
   });
