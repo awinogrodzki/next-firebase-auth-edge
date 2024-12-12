@@ -36,6 +36,7 @@ export interface CreateAuthMiddlewareOptions {
   enableMultipleCookies?: boolean;
   enableCustomToken?: boolean;
   authorizationHeaderName?: string;
+  experimental_createAnonymousUserIfUserNotFound?: boolean;
 }
 
 interface RedirectToPathOptions {
@@ -222,11 +223,12 @@ export async function authMiddleware(
     return createAuthMiddlewareResponse(request, options);
   }
 
-  const {verifyIdToken, handleTokenRefresh} = getFirebaseAuth({
-    serviceAccount: options.serviceAccount,
-    apiKey: options.apiKey,
-    tenantId: options.tenantId
-  });
+  const {verifyIdToken, handleTokenRefresh, createAnonymousUser} =
+    getFirebaseAuth({
+      serviceAccount: options.serviceAccount,
+      apiKey: options.apiKey,
+      tenantId: options.tenantId
+    });
 
   try {
     debug('Attempt to fetch request cookies tokens');
@@ -328,6 +330,42 @@ export async function authMiddleware(
           stack: error.stack
         }
       );
+      if (options.experimental_createAnonymousUserIfUserNotFound) {
+        const {idToken, refreshToken} = await createAnonymousUser(
+          options.apiKey
+        );
+
+        const tokensToSign = {
+          idToken,
+          refreshToken
+        };
+
+        const cookies = new AuthCookies(
+          RequestCookiesProvider.fromHeaders(request.headers),
+          options
+        );
+
+        // @TODO: Clear legacy cookies only after setting headers
+        // Possible fix: clone request cookies in provider constructor
+        await cookies.setAuthCookies(tokensToSign, request.cookies);
+
+        const decodedToken = await verifyIdToken(idToken, {
+          checkRevoked: options.checkRevoked,
+          referer
+        });
+
+        markCookiesAsVerified(request.cookies);
+        const response = await handleValidToken(
+          {token: idToken, decodedToken},
+          request.headers
+        );
+
+        validateResponse(response);
+
+        await cookies.setAuthHeaders(tokensToSign, response.headers);
+
+        return response;
+      }
       return handleInvalidToken(error.reason);
     }
 
