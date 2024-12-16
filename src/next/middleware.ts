@@ -288,8 +288,6 @@ export async function authMiddleware(
           options
         );
 
-        // @TODO: Clear legacy cookies only after setting headers
-        // Possible fix: clone request cookies in provider constructor
         await cookies.setAuthCookies(tokensToSign, request.cookies);
 
         markCookiesAsVerified(request.cookies);
@@ -345,8 +343,6 @@ export async function authMiddleware(
           options
         );
 
-        // @TODO: Clear legacy cookies only after setting headers
-        // Possible fix: clone request cookies in provider constructor
         await cookies.setAuthCookies(tokensToSign, request.cookies);
 
         const decodedToken = await verifyIdToken(idToken, {
