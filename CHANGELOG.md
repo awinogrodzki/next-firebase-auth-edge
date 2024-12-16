@@ -1,3 +1,18 @@
+# [1.9.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.0-canary.1...v1.9.0-canary.2) (2024-12-16)
+
+
+### Bug Fixes
+
+* return cached token or server token ([c1a04a9](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/c1a04a96f12aea574aa5c44b2d41a053bf746f6c))
+* return cached valid token ([a73f9ec](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/a73f9ecd04860c72613664c3ab857fe4efd46954))
+
+# [1.9.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2...v1.9.0-canary.1) (2024-11-15)
+
+
+### Features
+
+* full firebase emulator support ([9dcf5e9](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/9dcf5e94be548b0f3bb0277bee6abce43592a7d2))
+
 ## [1.8.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.1...v1.8.2) (2024-11-07)
 
 

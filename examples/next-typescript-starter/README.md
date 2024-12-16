@@ -54,19 +54,22 @@ service cloud.firestore {
 
 Library provides Firebase Authentication Emulator support
 
-Use [the official guide](https://firebase.google.com/docs/functions/local-emulator) to run the emulator locally.
+Use [the official guide](https://firebase.google.com/docs/emulator-suite/connect_auth) to run the emulator locally.
 
-In order to connect the example with emulator add two env variables to your `.env.local` file (you can copy them from `.env.dist`).
+In order to use emulator, copy the contents of `.env.dist` to `.env.local` and uncomment following variables:
 
 ```shell
-NEXT_PUBLIC_EMULATOR_HOST=http://127.0.0.1:9099
+NEXT_PUBLIC_AUTH_EMULATOR_HOST=localhost:9099
+NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST=localhost:8080
+
 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099
 ```
 
-`FIREBASE_AUTH_EMULATOR_HOST` is used internally by the library
-`NEXT_PUBLIC_EMULATOR_HOST` is used only by provided example
+`FIREBASE_AUTH_EMULATOR_HOST` is used internally by the library. It's required.
 
-Please note that even in emulator mode, library needs actual service account credentials to sign user tokens, a step that does not currently support emulation. Make sure to provide valid service account credentials even if using emulator.
+`NEXT_PUBLIC_AUTH_EMULATOR_HOST` is used only by the example app. It can be redefined.
+
+`NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST` is used only by the example app. It can be redefined.
 
 Also, don't forget to put correct Firebase Project ID in `.firebaserc` file.
 

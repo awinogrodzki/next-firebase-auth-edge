@@ -1,5 +1,5 @@
 {
   "projects": {
-    "default": "next-firebase-auth-edge-demo"
+    "default": "fake-project"
   }
 }
