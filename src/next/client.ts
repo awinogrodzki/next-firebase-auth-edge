@@ -43,7 +43,7 @@ export async function getValidIdToken({
   const exp = payload?.exp ?? 0;
 
   if (!checkRevoked && exp > Date.now() / 1000) {
-    return serverIdToken;
+    return token || serverIdToken;
   }
 
   const response = await fetchApi<{idToken: string}>(refreshTokenUrl);
@@ -81,7 +81,7 @@ export async function getValidCustomToken({
   const exp = payload?.exp ?? 0;
 
   if (!checkRevoked && exp > Date.now() / 1000) {
-    return serverCustomToken;
+    return token || serverCustomToken;
   }
 
   const response = await fetchApi<{customToken: string}>(refreshTokenUrl);
