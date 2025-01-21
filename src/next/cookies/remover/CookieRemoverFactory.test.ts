@@ -77,7 +77,7 @@ describe('CookieRemoverFactory', () => {
       cookieName
     );
 
-    remover.removeCookies(cookieSerializeOptions);
+    remover.expireCookies(cookieSerializeOptions);
 
     expect(headers.append).toHaveBeenCalledTimes(1);
     expect(headers.append).toHaveBeenCalledWith(
@@ -96,7 +96,7 @@ describe('CookieRemoverFactory', () => {
       cookieName
     );
 
-    remover.removeCookies(cookieSerializeOptions);
+    remover.expireCookies(cookieSerializeOptions);
 
     expect(headers.append).toHaveBeenCalledTimes(4);
     expect(headers.append).toHaveBeenCalledWith(
@@ -131,7 +131,7 @@ describe('CookieRemoverFactory', () => {
       cookieName
     );
 
-    remover.removeCookies(cookieSerializeOptions);
+    remover.expireCookies(cookieSerializeOptions);
 
     expect(headers.append).toHaveBeenCalledTimes(5);
     expect(headers.append).toHaveBeenCalledWith(
@@ -170,7 +170,7 @@ describe('CookieRemoverFactory', () => {
       cookieName
     );
 
-    remover.removeCookies(cookieSerializeOptions);
+    remover.expireCookies(cookieSerializeOptions);
 
     expect(headers.append).toHaveBeenCalledTimes(5);
     expect(headers.append).toHaveBeenCalledWith(

@@ -9,7 +9,7 @@ export class MultipleCookieRemover implements CookieRemover {
     private setter: CookieSetter
   ) {}
 
-  removeCustomCookie(options: CookieSerializeOptions) {
+  expireCustomCookie(options: CookieSerializeOptions) {
     const cookies: Cookie[] = [
       {
         name: `${this.cookieName}.custom`,
@@ -20,7 +20,7 @@ export class MultipleCookieRemover implements CookieRemover {
     this.setter.setCookies(cookies, getExpiredSerializeOptions(options));
   }
 
-  removeCookies(options: CookieSerializeOptions): void {
+  expireCookies(options: CookieSerializeOptions): void {
     const cookies: Cookie[] = [
       {
         name: `${this.cookieName}.id`,

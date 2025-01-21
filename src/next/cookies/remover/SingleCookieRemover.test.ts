@@ -22,7 +22,7 @@ describe('SingleCookieRemover', () => {
   it('should remove single cookie', () => {
     const remover = new SingleCookieRemover('TestCookie', mockSetter);
 
-    remover.removeCookies(cookieSerializeOptions);
+    remover.expireCookies(cookieSerializeOptions);
 
     expect(mockSetter.setCookies).toHaveBeenCalledWith(
       [{name: 'TestCookie', value: ''}],

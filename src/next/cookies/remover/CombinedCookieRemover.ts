@@ -9,8 +9,8 @@ export class CombinedCookieRemover implements CookieRemover {
     private singleRemover: SingleCookieRemover
   ) {}
 
-  removeCookies(options: CookieSerializeOptions): void {
-    this.singleRemover.removeCookies(options);
-    this.multiRemover.removeCookies(options);
+  expireCookies(options: CookieSerializeOptions): void {
+    this.singleRemover.expireCookies(options);
+    this.multiRemover.expireCookies(options);
   }
 }

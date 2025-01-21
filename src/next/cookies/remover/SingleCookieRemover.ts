@@ -9,7 +9,7 @@ export class SingleCookieRemover implements CookieRemover {
     private setter: CookieSetter
   ) {}
 
-  removeCookies(options: CookieSerializeOptions): void {
+  expireCookies(options: CookieSerializeOptions): void {
     const cookies: Cookie[] = [
       {
         name: this.cookieName,

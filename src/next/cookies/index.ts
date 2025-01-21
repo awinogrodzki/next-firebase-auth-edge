@@ -90,7 +90,7 @@ export function removeCookies(
     options.cookieName
   );
 
-  return remover.removeCookies(options.cookieSerializeOptions);
+  return remover.expireCookies(options.cookieSerializeOptions);
 }
 
 export function removeAuthCookies(

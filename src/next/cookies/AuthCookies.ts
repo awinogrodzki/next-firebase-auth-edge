@@ -61,20 +61,20 @@ export class AuthCookies {
         setter
       );
 
-      remover.removeCookies(this.options.cookieSerializeOptions);
+      remover.expireCookies(this.options.cookieSerializeOptions);
     } else if (this.shouldClearCustomTokenCookie()) {
       const remover = new MultipleCookieRemover(
         this.options.cookieName,
         setter
       );
 
-      remover.removeCustomCookie(this.options.cookieSerializeOptions);
+      remover.expireCustomCookie(this.options.cookieSerializeOptions);
     }
 
     if (this.shouldClearSingleCookie()) {
       const remover = new SingleCookieRemover(this.options.cookieName, setter);
 
-      remover.removeCookies(this.options.cookieSerializeOptions);
+      remover.expireCookies(this.options.cookieSerializeOptions);
     }
   }
 

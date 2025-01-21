@@ -22,7 +22,7 @@ describe('MultipleCookieRemover', () => {
   it('should remove multiple cookies', () => {
     const remover = new MultipleCookieRemover('TestCookie', mockSetter);
 
-    remover.removeCookies(cookieSerializeOptions);
+    remover.expireCookies(cookieSerializeOptions);
 
     expect(mockSetter.setCookies).toHaveBeenCalledWith(
       [
@@ -44,7 +44,7 @@ describe('MultipleCookieRemover', () => {
   it('should remove custom cookie', () => {
     const remover = new MultipleCookieRemover('TestCookie', mockSetter);
 
-    remover.removeCustomCookie(cookieSerializeOptions);
+    remover.expireCustomCookie(cookieSerializeOptions);
 
     expect(mockSetter.setCookies).toHaveBeenCalledWith(
       [{name: 'TestCookie.custom', value: ''}],
