@@ -14,15 +14,15 @@ const cookieSerializeOptions = {
   expires: new Date(1727373870 * 1000)
 };
 
-describe('MultipleCookieRemover', () => {
+describe('MultipleCookieExpiration', () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });
 
   it('should remove multiple cookies', () => {
-    const remover = new MultipleCookieExpiration('TestCookie', mockSetter);
+    const expiration = new MultipleCookieExpiration('TestCookie', mockSetter);
 
-    remover.expireCookies(cookieSerializeOptions);
+    expiration.expireCookies(cookieSerializeOptions);
 
     expect(mockSetter.setCookies).toHaveBeenCalledWith(
       [
@@ -42,9 +42,9 @@ describe('MultipleCookieRemover', () => {
   });
 
   it('should remove custom cookie', () => {
-    const remover = new MultipleCookieExpiration('TestCookie', mockSetter);
+    const expiration = new MultipleCookieExpiration('TestCookie', mockSetter);
 
-    remover.expireCustomCookie(cookieSerializeOptions);
+    expiration.expireCustomCookie(cookieSerializeOptions);
 
     expect(mockSetter.setCookies).toHaveBeenCalledWith(
       [{name: 'TestCookie.custom', value: ''}],

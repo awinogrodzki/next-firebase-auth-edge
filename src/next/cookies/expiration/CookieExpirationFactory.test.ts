@@ -66,18 +66,18 @@ function getSingleCookie(name: string) {
   return undefined;
 }
 
-describe('CookieRemoverFactory', () => {
+describe('CookieExpirationFactory', () => {
   it('should remove a single cookie', () => {
     const headers = {append: jest.fn()} as unknown as Headers;
     const cookies = {get: jest.fn()} as unknown as RequestCookies;
 
-    const remover = CookieExpirationFactory.fromHeaders(
+    const expiration = CookieExpirationFactory.fromHeaders(
       headers,
       new RequestCookiesProvider(cookies),
       cookieName
     );
 
-    remover.expireCookies(cookieSerializeOptions);
+    expiration.expireCookies(cookieSerializeOptions);
 
     expect(headers.append).toHaveBeenCalledTimes(1);
     expect(headers.append).toHaveBeenCalledWith(
@@ -90,13 +90,13 @@ describe('CookieRemoverFactory', () => {
     const headers = {append: jest.fn()} as unknown as Headers;
     const cookies = {get: jest.fn(getTestCookie)} as unknown as RequestCookies;
 
-    const remover = CookieExpirationFactory.fromHeaders(
+    const expiration = CookieExpirationFactory.fromHeaders(
       headers,
       new RequestCookiesProvider(cookies),
       cookieName
     );
 
-    remover.expireCookies(cookieSerializeOptions);
+    expiration.expireCookies(cookieSerializeOptions);
 
     expect(headers.append).toHaveBeenCalledTimes(4);
     expect(headers.append).toHaveBeenCalledWith(
@@ -125,13 +125,13 @@ describe('CookieRemoverFactory', () => {
       })
     } as unknown as RequestCookies;
 
-    const remover = CookieExpirationFactory.fromHeaders(
+    const expiration = CookieExpirationFactory.fromHeaders(
       headers,
       new RequestCookiesProvider(cookies),
       cookieName
     );
 
-    remover.expireCookies(cookieSerializeOptions);
+    expiration.expireCookies(cookieSerializeOptions);
 
     expect(headers.append).toHaveBeenCalledTimes(5);
     expect(headers.append).toHaveBeenCalledWith(
@@ -164,13 +164,13 @@ describe('CookieRemoverFactory', () => {
       })
     } as unknown as RequestCookies;
 
-    const remover = CookieExpirationFactory.fromHeaders(
+    const expiration = CookieExpirationFactory.fromHeaders(
       headers,
       new RequestCookiesProvider(cookies),
       cookieName
     );
 
-    remover.expireCookies(cookieSerializeOptions);
+    expiration.expireCookies(cookieSerializeOptions);
 
     expect(headers.append).toHaveBeenCalledTimes(5);
     expect(headers.append).toHaveBeenCalledWith(

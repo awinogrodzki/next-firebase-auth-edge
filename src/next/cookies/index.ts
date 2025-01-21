@@ -13,6 +13,7 @@ import {AuthCookies} from './AuthCookies.js';
 import {RequestCookiesProvider} from './parser/RequestCookiesProvider.js';
 import {CookieExpirationFactory} from './expiration/CookieExpirationFactory.js';
 import {CookiesObject, SetAuthCookiesOptions} from './types.js';
+import {CookieRemoverFactory} from './remover/CookieRemoverFactory.js';
 
 export async function appendAuthCookies(
   headers: Headers,
@@ -72,6 +73,22 @@ export async function setAuthCookies(
   await appendAuthCookies(headers, response, customTokens, options);
 
   return response;
+}
+
+export interface RemoveServerCookiesOptions {
+  cookieName: string;
+}
+export function removeServerCookies(
+  cookies: RequestCookies | ReadonlyRequestCookies,
+  options: RemoveServerCookiesOptions
+) {
+  const remover = CookieRemoverFactory.fromRequestCookies(
+    cookies,
+    RequestCookiesProvider.fromRequestCookies(cookies),
+    options.cookieName
+  );
+
+  return remover.removeCookies();
 }
 
 export interface RemoveAuthCookiesOptions {

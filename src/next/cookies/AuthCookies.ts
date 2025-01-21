@@ -56,28 +56,28 @@ export class AuthCookies {
 
   private clearUnusedCookies(setter: CookieSetter) {
     if (this.shouldClearMultipleCookies()) {
-      const remover = new MultipleCookieExpiration(
+      const expiration = new MultipleCookieExpiration(
         this.options.cookieName,
         setter
       );
 
-      remover.expireCookies(this.options.cookieSerializeOptions);
+      expiration.expireCookies(this.options.cookieSerializeOptions);
     } else if (this.shouldClearCustomTokenCookie()) {
-      const remover = new MultipleCookieExpiration(
+      const expiration = new MultipleCookieExpiration(
         this.options.cookieName,
         setter
       );
 
-      remover.expireCustomCookie(this.options.cookieSerializeOptions);
+      expiration.expireCustomCookie(this.options.cookieSerializeOptions);
     }
 
     if (this.shouldClearSingleCookie()) {
-      const remover = new SingleCookieExpiration(
+      const expiration = new SingleCookieExpiration(
         this.options.cookieName,
         setter
       );
 
-      remover.expireCookies(this.options.cookieSerializeOptions);
+      expiration.expireCookies(this.options.cookieSerializeOptions);
     }
   }
 

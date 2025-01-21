@@ -14,15 +14,15 @@ const cookieSerializeOptions = {
   expires: new Date(1727373870 * 1000)
 };
 
-describe('SingleCookieRemover', () => {
+describe('SingleCookieExpiration', () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });
 
   it('should remove single cookie', () => {
-    const remover = new SingleCookieExpiration('TestCookie', mockSetter);
+    const expiration = new SingleCookieExpiration('TestCookie', mockSetter);
 
-    remover.expireCookies(cookieSerializeOptions);
+    expiration.expireCookies(cookieSerializeOptions);
 
     expect(mockSetter.setCookies).toHaveBeenCalledWith(
       [{name: 'TestCookie', value: ''}],
