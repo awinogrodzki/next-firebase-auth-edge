@@ -26,6 +26,7 @@ import {createFirebaseTokenGenerator} from './token-generator.js';
 import {createIdTokenVerifier} from './token-verifier.js';
 import {DecodedIdToken, VerifyOptions} from './types.js';
 import {UserRecord} from './user-record.js';
+import {filterStandardClaims} from './claims';
 
 export * from './types.js';
 export * from './error.js';
@@ -517,7 +518,10 @@ function getAuth(options: AuthOptions) {
     const decodedToken = await verifyIdToken(idToken, {
       referer: customTokensOptions.referer
     });
+
+    const customClaims = filterStandardClaims(decodedToken);
     const customToken = await createCustomToken(decodedToken.uid, {
+      ...customClaims,
       email_verified: decodedToken.email_verified,
       source_sign_in_provider: decodedToken.firebase.sign_in_provider
     });
