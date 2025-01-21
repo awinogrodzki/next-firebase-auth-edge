@@ -1,3 +1,10 @@
+# [1.9.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.0-canary.2...v1.9.0-canary.3) (2025-01-21)
+
+
+### Bug Fixes
+
+* **#297:** propagate custom claims when exchanging id token for custom, id and refresh tokens ([55254b8](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/55254b87196c9fb7f16c36785131b34edd3b219e)), closes [#297](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/297)
+
 # [1.9.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.0-canary.1...v1.9.0-canary.2) (2024-12-16)
 
 
