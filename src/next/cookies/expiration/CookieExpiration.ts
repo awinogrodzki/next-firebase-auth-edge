@@ -1,6 +1,6 @@
 import type {CookieSerializeOptions} from 'cookie';
 
-export interface CookieRemover {
+export interface CookieExpiration {
   expireCookies(options: CookieSerializeOptions): void;
 }
 

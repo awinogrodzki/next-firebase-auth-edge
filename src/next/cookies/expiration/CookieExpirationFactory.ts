@@ -2,11 +2,11 @@ import {CookieParserFactory} from '../parser/CookieParserFactory.js';
 import {CookiesProvider} from '../parser/CookiesProvider.js';
 import {CookieSetter} from '../setter/CookieSetter.js';
 import {HeadersCookieSetter} from '../setter/HeadersCookieSetter.js';
-import {CombinedCookieRemover} from './CombinedCookieRemover.js';
-import {MultipleCookieRemover} from './MultipleCookieRemover.js';
-import {SingleCookieRemover} from './SingleCookieRemover.js';
+import {CombinedCookieExpiration} from './CombinedCookieExpiration.js';
+import {MultipleCookieExpiration} from './MultipleCookieExpiration.js';
+import {SingleCookieExpiration} from './SingleCookieExpiration.js';
 
-export class CookieRemoverFactory {
+export class CookieExpirationFactory {
   private static fromSetter(
     setter: CookieSetter,
     provider: CookiesProvider,
@@ -24,17 +24,17 @@ export class CookieRemoverFactory {
       singleCookie &&
       (hasEnabledMultipleCookies || hasEnabledLegacyMultipleCookies)
     ) {
-      return new CombinedCookieRemover(
-        new MultipleCookieRemover(cookieName, setter),
-        new SingleCookieRemover(cookieName, setter)
+      return new CombinedCookieExpiration(
+        new MultipleCookieExpiration(cookieName, setter),
+        new SingleCookieExpiration(cookieName, setter)
       );
     }
 
     if (hasEnabledMultipleCookies) {
-      return new MultipleCookieRemover(cookieName, setter);
+      return new MultipleCookieExpiration(cookieName, setter);
     }
 
-    return new SingleCookieRemover(cookieName, setter);
+    return new SingleCookieExpiration(cookieName, setter);
   }
 
   static fromHeaders(
@@ -44,6 +44,6 @@ export class CookieRemoverFactory {
   ) {
     const setter = new HeadersCookieSetter(headers);
 
-    return CookieRemoverFactory.fromSetter(setter, provider, cookieName);
+    return CookieExpirationFactory.fromSetter(setter, provider, cookieName);
   }
 }

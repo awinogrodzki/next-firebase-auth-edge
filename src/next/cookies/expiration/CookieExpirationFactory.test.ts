@@ -1,6 +1,6 @@
 import {Cookie} from '../builder/CookieBuilder.js';
 import {RequestCookiesProvider} from '../parser/RequestCookiesProvider.js';
-import {CookieRemoverFactory} from './CookieRemoverFactory.js';
+import {CookieExpirationFactory} from './CookieExpirationFactory.js';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 
 const cookieName = 'TestCookie';
@@ -71,7 +71,7 @@ describe('CookieRemoverFactory', () => {
     const headers = {append: jest.fn()} as unknown as Headers;
     const cookies = {get: jest.fn()} as unknown as RequestCookies;
 
-    const remover = CookieRemoverFactory.fromHeaders(
+    const remover = CookieExpirationFactory.fromHeaders(
       headers,
       new RequestCookiesProvider(cookies),
       cookieName
@@ -90,7 +90,7 @@ describe('CookieRemoverFactory', () => {
     const headers = {append: jest.fn()} as unknown as Headers;
     const cookies = {get: jest.fn(getTestCookie)} as unknown as RequestCookies;
 
-    const remover = CookieRemoverFactory.fromHeaders(
+    const remover = CookieExpirationFactory.fromHeaders(
       headers,
       new RequestCookiesProvider(cookies),
       cookieName
@@ -125,7 +125,7 @@ describe('CookieRemoverFactory', () => {
       })
     } as unknown as RequestCookies;
 
-    const remover = CookieRemoverFactory.fromHeaders(
+    const remover = CookieExpirationFactory.fromHeaders(
       headers,
       new RequestCookiesProvider(cookies),
       cookieName
@@ -164,7 +164,7 @@ describe('CookieRemoverFactory', () => {
       })
     } as unknown as RequestCookies;
 
-    const remover = CookieRemoverFactory.fromHeaders(
+    const remover = CookieExpirationFactory.fromHeaders(
       headers,
       new RequestCookiesProvider(cookies),
       cookieName

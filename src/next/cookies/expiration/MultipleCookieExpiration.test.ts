@@ -1,5 +1,5 @@
 import {CookieSetter} from '../setter/CookieSetter.js';
-import {MultipleCookieRemover} from './MultipleCookieRemover.js';
+import {MultipleCookieExpiration} from './MultipleCookieExpiration.js';
 
 const mockSetter: CookieSetter = {
   setCookies: jest.fn()
@@ -20,7 +20,7 @@ describe('MultipleCookieRemover', () => {
   });
 
   it('should remove multiple cookies', () => {
-    const remover = new MultipleCookieRemover('TestCookie', mockSetter);
+    const remover = new MultipleCookieExpiration('TestCookie', mockSetter);
 
     remover.expireCookies(cookieSerializeOptions);
 
@@ -42,7 +42,7 @@ describe('MultipleCookieRemover', () => {
   });
 
   it('should remove custom cookie', () => {
-    const remover = new MultipleCookieRemover('TestCookie', mockSetter);
+    const remover = new MultipleCookieExpiration('TestCookie', mockSetter);
 
     remover.expireCustomCookie(cookieSerializeOptions);
 

@@ -1,5 +1,5 @@
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
-import {RequestCookieSetter} from './RequestCookieSetter.ts';
+import {RequestCookieSetter} from './RequestCookieSetter.js';
 
 describe('RequestCookieSetter', () => {
   it('should set cookie with options on provided request', () => {

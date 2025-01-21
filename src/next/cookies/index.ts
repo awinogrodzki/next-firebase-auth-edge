@@ -11,7 +11,7 @@ import {getCookiesTokens, getRequestCookiesTokens} from '../tokens.js';
 import {getReferer} from '../utils.js';
 import {AuthCookies} from './AuthCookies.js';
 import {RequestCookiesProvider} from './parser/RequestCookiesProvider.js';
-import {CookieRemoverFactory} from './remover/CookieRemoverFactory.js';
+import {CookieExpirationFactory} from './expiration/CookieExpirationFactory.js';
 import {CookiesObject, SetAuthCookiesOptions} from './types.js';
 
 export async function appendAuthCookies(
@@ -84,13 +84,13 @@ export function removeCookies(
   response: NextResponse,
   options: RemoveAuthCookiesOptions
 ) {
-  const remover = CookieRemoverFactory.fromHeaders(
+  const expiration = CookieExpirationFactory.fromHeaders(
     response.headers,
     RequestCookiesProvider.fromHeaders(headers),
     options.cookieName
   );
 
-  return remover.expireCookies(options.cookieSerializeOptions);
+  return expiration.expireCookies(options.cookieSerializeOptions);
 }
 
 export function removeAuthCookies(

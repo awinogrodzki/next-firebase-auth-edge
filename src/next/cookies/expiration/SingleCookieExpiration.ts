@@ -1,9 +1,12 @@
 import type {CookieSerializeOptions} from 'cookie';
 import {Cookie} from '../builder/CookieBuilder.js';
 import {CookieSetter} from '../setter/CookieSetter.js';
-import {CookieRemover, getExpiredSerializeOptions} from './CookieRemover.js';
+import {
+  CookieExpiration,
+  getExpiredSerializeOptions
+} from './CookieExpiration.js';
 
-export class SingleCookieRemover implements CookieRemover {
+export class SingleCookieExpiration implements CookieExpiration {
   public constructor(
     private cookieName: string,
     private setter: CookieSetter

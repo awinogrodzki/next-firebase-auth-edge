@@ -1,5 +1,5 @@
 import {CookieSetter} from '../setter/CookieSetter.js';
-import {SingleCookieRemover} from './SingleCookieRemover.js';
+import {SingleCookieExpiration} from './SingleCookieExpiration.js';
 
 const mockSetter: CookieSetter = {
   setCookies: jest.fn()
@@ -20,7 +20,7 @@ describe('SingleCookieRemover', () => {
   });
 
   it('should remove single cookie', () => {
-    const remover = new SingleCookieRemover('TestCookie', mockSetter);
+    const remover = new SingleCookieExpiration('TestCookie', mockSetter);
 
     remover.expireCookies(cookieSerializeOptions);
 
