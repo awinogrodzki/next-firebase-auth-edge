@@ -1,17 +1,9 @@
 import {Cookie} from '../builder/CookieBuilder.js';
 import {RequestCookiesProvider} from '../parser/RequestCookiesProvider.js';
-import {CookieRemoverFactory} from './CookieRemoverFactory.js';
+import {CookieRemoverFactory} from './CookieRemoverFactory';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 
 const cookieName = 'TestCookie';
-const cookieSerializeOptions = {
-  path: '/',
-  httpOnly: true,
-  secure: true,
-  sameSite: 'lax' as const,
-  maxAge: 12 * 60 * 60 * 24,
-  expires: new Date(1727373870 * 1000)
-};
 
 const testCookies: Cookie[] = [
   {
@@ -68,130 +60,89 @@ function getSingleCookie(name: string) {
 
 describe('CookieRemoverFactory', () => {
   it('should remove a single cookie', () => {
-    const headers = {append: jest.fn()} as unknown as Headers;
-    const cookies = {get: jest.fn()} as unknown as RequestCookies;
+    const cookies = {
+      get: jest.fn(),
+      delete: jest.fn()
+    } as unknown as RequestCookies;
 
-    const remover = CookieRemoverFactory.fromHeaders(
-      headers,
+    const remover = CookieRemoverFactory.fromRequestCookies(
+      cookies,
       new RequestCookiesProvider(cookies),
       cookieName
     );
 
-    remover.removeCookies(cookieSerializeOptions);
+    remover.removeCookies();
 
-    expect(headers.append).toHaveBeenCalledTimes(1);
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
+    expect(cookies.delete).toHaveBeenCalledTimes(1);
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie');
   });
 
   it('should remove multiple cookies', () => {
-    const headers = {append: jest.fn()} as unknown as Headers;
-    const cookies = {get: jest.fn(getTestCookie)} as unknown as RequestCookies;
+    const cookies = {
+      get: jest.fn(getTestCookie),
+      delete: jest.fn()
+    } as unknown as RequestCookies;
 
-    const remover = CookieRemoverFactory.fromHeaders(
-      headers,
+    const remover = CookieRemoverFactory.fromRequestCookies(
+      cookies,
       new RequestCookiesProvider(cookies),
       cookieName
     );
 
-    remover.removeCookies(cookieSerializeOptions);
+    remover.removeCookies();
 
-    expect(headers.append).toHaveBeenCalledTimes(4);
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie.id=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie.refresh=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie.custom=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie.sig=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
+    expect(cookies.delete).toHaveBeenCalledTimes(4);
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.id');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.refresh');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.custom');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.sig');
   });
 
   it('should remove multiple and single cookies when there are both', () => {
-    const headers = {append: jest.fn()} as unknown as Headers;
     const cookies = {
       get: jest.fn((name) => {
         return getSingleCookie(name) ?? getTestCookie(name);
-      })
+      }),
+      delete: jest.fn()
     } as unknown as RequestCookies;
 
-    const remover = CookieRemoverFactory.fromHeaders(
-      headers,
+    const remover = CookieRemoverFactory.fromRequestCookies(
+      cookies,
       new RequestCookiesProvider(cookies),
       cookieName
     );
 
-    remover.removeCookies(cookieSerializeOptions);
+    remover.removeCookies();
 
-    expect(headers.append).toHaveBeenCalledTimes(5);
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie.id=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie.refresh=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie.custom=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie.sig=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
+    expect(cookies.delete).toHaveBeenCalledTimes(5);
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.id');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.refresh');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.custom');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.sig');
   });
 
   it('should remove multiple and single cookies when there are legacy cookies', () => {
-    const headers = {append: jest.fn()} as unknown as Headers;
     const cookies = {
       get: jest.fn((name) => {
         return getLegacyTestCookie(name);
-      })
+      }),
+      delete: jest.fn()
     } as unknown as RequestCookies;
 
-    const remover = CookieRemoverFactory.fromHeaders(
-      headers,
+    const remover = CookieRemoverFactory.fromRequestCookies(
+      cookies,
       new RequestCookiesProvider(cookies),
       cookieName
     );
 
-    remover.removeCookies(cookieSerializeOptions);
+    remover.removeCookies();
 
-    expect(headers.append).toHaveBeenCalledTimes(5);
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie.id=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie.refresh=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie.custom=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
-    expect(headers.append).toHaveBeenCalledWith(
-      'Set-Cookie',
-      'TestCookie.sig=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-    );
+    expect(cookies.delete).toHaveBeenCalledTimes(5);
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.id');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.refresh');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.custom');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.sig');
   });
 });

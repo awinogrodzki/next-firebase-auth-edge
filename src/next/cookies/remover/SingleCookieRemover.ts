@@ -1,22 +1,14 @@
-import type {CookieSerializeOptions} from 'cookie';
-import {Cookie} from '../builder/CookieBuilder.js';
-import {CookieSetter} from '../setter/CookieSetter.js';
-import {CookieRemover, getExpiredSerializeOptions} from './CookieRemover.js';
+import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
+import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import {CookieRemover} from './CookieRemover.js';
 
 export class SingleCookieRemover implements CookieRemover {
   public constructor(
     private cookieName: string,
-    private setter: CookieSetter
+    private cookies: RequestCookies | ReadonlyRequestCookies
   ) {}
 
-  removeCookies(options: CookieSerializeOptions): void {
-    const cookies: Cookie[] = [
-      {
-        name: this.cookieName,
-        value: ''
-      }
-    ];
-
-    this.setter.setCookies(cookies, getExpiredSerializeOptions(options));
+  removeCookies(): void {
+    this.cookies.delete(this.cookieName);
   }
 }
