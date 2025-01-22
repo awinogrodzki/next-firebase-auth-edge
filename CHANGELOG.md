@@ -1,3 +1,10 @@
+# [1.9.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.0-canary.3...v1.9.0-canary.4) (2025-01-22)
+
+
+### Features
+
+* **#300:** added removeServerCookies method to logout from Server Actions ([cab2d23](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/cab2d238012ed7fb20cdbb09da7e69eab3867c14)), closes [#300](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/300)
+
 # [1.9.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.0-canary.2...v1.9.0-canary.3) (2025-01-21)
 
 
