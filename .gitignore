@@ -5,7 +5,7 @@ yarn-error.log
 .next
 .env
 
-cjs
+
 tmp
 package-lock.json
 coverage
@@ -16,8 +16,10 @@ webpack-stats.json
 *.log
 dist
 .fleet
+.history
 
 #dist
 lib
 browser
 esm
+cjs
