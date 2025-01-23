@@ -3,9 +3,9 @@
 ## removeServerCookies [v 1.9.0-canary.4]
 
 The `removeServerCookies` method removes server cookies from the browser. This method works with **Server Actions** and **Middleware**. 
-After logging out with Firebase in a Server Action, you can use this method to remove the server cookies from the browser.
+After logging out with Firebase in a Server Action, you can use this method to remove the auth cookies from the browser.
 
-Prior to version `1.9.0-canary.4`, the `removeServerCookies` method was not available. Instead, you had to manually remove them from the browser.
+Prior to version `1.9.0-canary.4`, the `removeServerCookies` method was not available. Instead, you had to manually remove the cookies from the browser.
 
 ```tsx
 cookies.delete(authConfig.cookieName + ".id");
@@ -15,7 +15,7 @@ cookies.delete(authConfig.cookieName + ".sig");
 
 ## Example logoutAction and LogoutPage
 
-Below is a simple example of a logout page client component that lets users sign out using a Server Action and the `removeServerCookies` method.
+Below is a simple example of a logout page component that lets users sign out using a Server Action and the `removeServerCookies` method.
 
 First, let’s define our Server Action:
 
@@ -38,13 +38,9 @@ export async function logoutAction() {
 }
 ```
 
-Next, create LogoutPage client component that will call logout action:
+Next, create LogoutPage component that will call logout action:
 
 ```tsx filename="LogoutPage.tsx"
-'use client';
-
-import * as React from 'react';
-
 interface LogoutPageProps {
   logoutAction: () => void;
 }
