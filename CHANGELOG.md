@@ -1,3 +1,10 @@
+# [1.9.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.0-canary.5...v1.9.0-canary.6) (2025-01-28)
+
+
+### Bug Fixes
+
+* **#306:** support Node.js 23 ([f27d210](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/f27d21023b8f0120fd7ddfd17e9c9d42b2a28f31)), closes [#306](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/306)
+
 # [1.9.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.0-canary.4...v1.9.0-canary.5) (2025-01-23)
 
 
