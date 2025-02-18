@@ -37,6 +37,7 @@ export interface CreateAuthMiddlewareOptions {
   enableCustomToken?: boolean;
   authorizationHeaderName?: string;
   experimental_createAnonymousUserIfUserNotFound?: boolean;
+  dynamicCustomClaimsKeys?: string[];
 }
 
 interface RedirectToPathOptions {
@@ -132,7 +133,8 @@ export async function createAuthMiddlewareResponse(
       tenantId: options.tenantId,
       enableMultipleCookies: options.enableMultipleCookies,
       authorizationHeaderName: options.authorizationHeaderName,
-      enableCustomToken: options.enableCustomToken
+      enableCustomToken: options.enableCustomToken,
+      dynamicCustomClaimsKeys: options.dynamicCustomClaimsKeys
     });
   }
 

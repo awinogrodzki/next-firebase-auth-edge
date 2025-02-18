@@ -60,7 +60,8 @@ export async function setAuthCookies(
 
   const customTokens = await getCustomIdAndRefreshTokens(token, {
     appCheckToken,
-    referer
+    referer,
+    dynamicCustomClaimsKeys: options.dynamicCustomClaimsKeys
   });
 
   debug('Successfully generated custom tokens');

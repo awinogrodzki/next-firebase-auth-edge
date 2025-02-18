@@ -11,6 +11,7 @@ export interface SetAuthCookiesOptions {
   apiKey: string;
   tenantId?: string;
   authorizationHeaderName?: string;
+  dynamicCustomClaimsKeys?: string[];
 }
 
 export type CookiesObject = Partial<{[K in string]: string}>;

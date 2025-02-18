@@ -310,6 +310,7 @@ export interface UsersList {
 export interface GetCustomIdAndRefreshTokensOptions {
   appCheckToken?: string;
   referer?: string;
+  dynamicCustomClaimsKeys?: string[];
 }
 
 interface AuthOptions {
@@ -520,6 +521,13 @@ function getAuth(options: AuthOptions) {
     });
 
     const customClaims = filterStandardClaims(decodedToken);
+
+    if (customTokensOptions.dynamicCustomClaimsKeys?.length) {
+      customTokensOptions.dynamicCustomClaimsKeys.forEach((key) => {
+        delete customClaims[key];
+      });
+    }
+
     const customToken = await createCustomToken(decodedToken.uid, {
       ...customClaims,
       email_verified: decodedToken.email_verified,
