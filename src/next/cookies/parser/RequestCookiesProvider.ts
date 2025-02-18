@@ -12,9 +12,7 @@ export class RequestCookiesProvider {
     return new RequestCookiesProvider(cookies);
   }
 
-  private constructor(
-    private cookies: RequestCookies | ReadonlyRequestCookies
-  ) {}
+  constructor(private cookies: RequestCookies | ReadonlyRequestCookies) {}
 
   get(key: string) {
     return this.cookies.get(key)?.value;

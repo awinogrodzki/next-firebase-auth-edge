@@ -3,10 +3,12 @@ import {Credential, ServiceAccountCredential} from './credential.js';
 import {AuthError, AuthErrorCode} from './error.js';
 import {
   CryptoSigner,
+  EmulatorSigner,
   IAMSigner,
   ServiceAccountSigner
 } from './jwt/crypto-signer';
 import {isNonNullObject} from './validator.js';
+import {useEmulator} from './firebase.js';
 
 const ONE_HOUR_IN_SECONDS = 60 * 60;
 
@@ -114,6 +116,10 @@ export function createFirebaseTokenGenerator(
   tenantId?: string,
   serviceAccountId?: string
 ): FirebaseTokenGenerator {
+  if (useEmulator()) {
+    return new FirebaseTokenGenerator(new EmulatorSigner(tenantId));
+  }
+
   const signer = cryptoSignerFromCredential(
     credential,
     tenantId,

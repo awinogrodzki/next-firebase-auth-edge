@@ -1,18 +1,9 @@
-import {CookieSetter} from '../setter/CookieSetter.js';
 import {MultipleCookieRemover} from './MultipleCookieRemover.js';
+import {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 
-const mockSetter: CookieSetter = {
-  setCookies: jest.fn()
-};
-
-const cookieSerializeOptions = {
-  path: '/',
-  httpOnly: true,
-  secure: true,
-  sameSite: 'lax' as const,
-  maxAge: 12 * 60 * 60 * 24,
-  expires: new Date(1727373870 * 1000)
-};
+const mockCookies: RequestCookies = {
+  delete: jest.fn()
+} as unknown as RequestCookies;
 
 describe('MultipleCookieRemover', () => {
   beforeEach(() => {
@@ -20,41 +11,13 @@ describe('MultipleCookieRemover', () => {
   });
 
   it('should remove multiple cookies', () => {
-    const remover = new MultipleCookieRemover('TestCookie', mockSetter);
+    const remover = new MultipleCookieRemover('TestCookie', mockCookies);
 
-    remover.removeCookies(cookieSerializeOptions);
+    remover.removeCookies();
 
-    expect(mockSetter.setCookies).toHaveBeenCalledWith(
-      [
-        {name: 'TestCookie.id', value: ''},
-        {name: 'TestCookie.refresh', value: ''},
-        {name: 'TestCookie.custom', value: ''},
-        {name: 'TestCookie.sig', value: ''}
-      ],
-      {
-        path: '/',
-        httpOnly: true,
-        secure: true,
-        sameSite: 'lax' as const,
-        expires: new Date(0)
-      }
-    );
-  });
-
-  it('should remove custom cookie', () => {
-    const remover = new MultipleCookieRemover('TestCookie', mockSetter);
-
-    remover.removeCustomCookie(cookieSerializeOptions);
-
-    expect(mockSetter.setCookies).toHaveBeenCalledWith(
-      [{name: 'TestCookie.custom', value: ''}],
-      {
-        path: '/',
-        httpOnly: true,
-        secure: true,
-        sameSite: 'lax' as const,
-        expires: new Date(0)
-      }
-    );
+    expect(mockCookies.delete).toHaveBeenNthCalledWith(1, 'TestCookie.id');
+    expect(mockCookies.delete).toHaveBeenNthCalledWith(2, 'TestCookie.refresh');
+    expect(mockCookies.delete).toHaveBeenNthCalledWith(3, 'TestCookie.custom');
+    expect(mockCookies.delete).toHaveBeenNthCalledWith(4, 'TestCookie.sig');
   });
 });

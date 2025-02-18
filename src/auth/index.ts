@@ -26,6 +26,7 @@ import {createFirebaseTokenGenerator} from './token-generator.js';
 import {createIdTokenVerifier} from './token-verifier.js';
 import {DecodedIdToken, VerifyOptions} from './types.js';
 import {UserRecord} from './user-record.js';
+import {filterStandardClaims} from './claims';
 
 export * from './types.js';
 export * from './error.js';
@@ -43,6 +44,10 @@ const getCustomTokenEndpoint = (apiKey: string) => {
   }
 
   return `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${apiKey}`;
+};
+
+const getSignUpEndpoint = (apiKey: string) => {
+  return `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`;
 };
 
 const getRefreshTokenEndpoint = (apiKey: string) => {
@@ -112,6 +117,36 @@ export async function customTokenToIdAndRefreshTokens(
     idToken: refreshTokenJSON.idToken as string,
     refreshToken: refreshTokenJSON.refreshToken as string
   };
+}
+
+export async function createAnonymousAccount(
+  firebaseApiKey: string,
+  options: CreateAnonymousRequest = {}
+): Promise<AnonymousTokens> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.referer ? {Referer: options.referer} : {})
+  };
+
+  const body: Record<string, string | boolean> = {
+    returnSecureToken: true
+  };
+
+  if (options.appCheckToken) {
+    headers['X-Firebase-AppCheck'] = options.appCheckToken;
+  }
+
+  if (options.tenantId) {
+    body['tenantId'] = options.tenantId;
+  }
+
+  const createResponse = await fetch(getSignUpEndpoint(firebaseApiKey), {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body)
+  });
+
+  return (await createResponse.json()) as AnonymousTokens;
 }
 
 interface ErrorResponse {
@@ -248,11 +283,23 @@ export interface IdAndRefreshTokens {
   refreshToken: string;
 }
 
+export interface CreateAnonymousRequest {
+  tenantId?: string;
+  appCheckToken?: string;
+  referer?: string;
+}
+
 export interface Tokens {
   decodedToken: DecodedIdToken;
   token: string;
   // Set `enableCustomToken` to true in `authMiddleware` to enable custom token
   customToken?: string;
+}
+
+export interface AnonymousTokens {
+  idToken: string;
+  refreshToken: string;
+  localId: string;
 }
 
 export interface UsersList {
@@ -471,7 +518,10 @@ function getAuth(options: AuthOptions) {
     const decodedToken = await verifyIdToken(idToken, {
       referer: customTokensOptions.referer
     });
+
+    const customClaims = filterStandardClaims(decodedToken);
     const customToken = await createCustomToken(decodedToken.uid, {
+      ...customClaims,
       email_verified: decodedToken.email_verified,
       source_sign_in_provider: decodedToken.firebase.sign_in_provider
     });
@@ -520,6 +570,12 @@ function getAuth(options: AuthOptions) {
       });
   }
 
+  async function createAnonymousUser(
+    firebaseApiKey: string
+  ): Promise<AnonymousTokens> {
+    return createAnonymousAccount(firebaseApiKey);
+  }
+
   async function updateUser(
     uid: string,
     properties: UpdateRequest
@@ -551,6 +607,7 @@ function getAuth(options: AuthOptions) {
     getUserByEmail,
     updateUser,
     createUser,
+    createAnonymousUser,
     listUsers,
     createSessionCookie
   };

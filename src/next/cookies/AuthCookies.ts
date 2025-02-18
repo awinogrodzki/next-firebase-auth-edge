@@ -6,8 +6,8 @@ import {Cookie, CookieBuilder} from './builder/CookieBuilder.js';
 import {CookieBuilderFactory} from './builder/CookieBuilderFactory.js';
 import {CookieParserFactory} from './parser/CookieParserFactory.js';
 import {CookiesProvider} from './parser/CookiesProvider.js';
-import {MultipleCookieRemover} from './remover/MultipleCookieRemover.js';
-import {SingleCookieRemover} from './remover/SingleCookieRemover.js';
+import {MultipleCookieExpiration} from './expiration/MultipleCookieExpiration.js';
+import {SingleCookieExpiration} from './expiration/SingleCookieExpiration.js';
 import {CookieSetter} from './setter/CookieSetter.js';
 import {CookieSetterFactory} from './setter/CookieSetterFactory.js';
 import {NextApiResponseCookieSetter} from './setter/NextApiResponseHeadersCookieSetter.js';
@@ -56,25 +56,28 @@ export class AuthCookies {
 
   private clearUnusedCookies(setter: CookieSetter) {
     if (this.shouldClearMultipleCookies()) {
-      const remover = new MultipleCookieRemover(
+      const expiration = new MultipleCookieExpiration(
         this.options.cookieName,
         setter
       );
 
-      remover.removeCookies(this.options.cookieSerializeOptions);
+      expiration.expireCookies(this.options.cookieSerializeOptions);
     } else if (this.shouldClearCustomTokenCookie()) {
-      const remover = new MultipleCookieRemover(
+      const expiration = new MultipleCookieExpiration(
         this.options.cookieName,
         setter
       );
 
-      remover.removeCustomCookie(this.options.cookieSerializeOptions);
+      expiration.expireCustomCookie(this.options.cookieSerializeOptions);
     }
 
     if (this.shouldClearSingleCookie()) {
-      const remover = new SingleCookieRemover(this.options.cookieName, setter);
+      const expiration = new SingleCookieExpiration(
+        this.options.cookieName,
+        setter
+      );
 
-      remover.removeCookies(this.options.cookieSerializeOptions);
+      expiration.expireCookies(this.options.cookieSerializeOptions);
     }
   }
 

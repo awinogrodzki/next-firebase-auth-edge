@@ -1,14 +1,14 @@
 import {CookieParserFactory} from '../parser/CookieParserFactory.js';
 import {CookiesProvider} from '../parser/CookiesProvider.js';
-import {CookieSetter} from '../setter/CookieSetter.js';
-import {HeadersCookieSetter} from '../setter/HeadersCookieSetter.js';
-import {CombinedCookieRemover} from './CombinedCookieRemover.js';
-import {MultipleCookieRemover} from './MultipleCookieRemover.js';
-import {SingleCookieRemover} from './SingleCookieRemover.js';
+import {CombinedCookieRemover} from './CombinedCookieRemover';
+import {MultipleCookieRemover} from './MultipleCookieRemover';
+import {SingleCookieRemover} from './SingleCookieRemover';
+import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
+import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 
 export class CookieRemoverFactory {
-  private static fromSetter(
-    setter: CookieSetter,
+  static fromRequestCookies(
+    cookies: RequestCookies | ReadonlyRequestCookies,
     provider: CookiesProvider,
     cookieName: string
   ) {
@@ -25,25 +25,15 @@ export class CookieRemoverFactory {
       (hasEnabledMultipleCookies || hasEnabledLegacyMultipleCookies)
     ) {
       return new CombinedCookieRemover(
-        new MultipleCookieRemover(cookieName, setter),
-        new SingleCookieRemover(cookieName, setter)
+        new MultipleCookieRemover(cookieName, cookies),
+        new SingleCookieRemover(cookieName, cookies)
       );
     }
 
     if (hasEnabledMultipleCookies) {
-      return new MultipleCookieRemover(cookieName, setter);
+      return new MultipleCookieRemover(cookieName, cookies);
     }
 
-    return new SingleCookieRemover(cookieName, setter);
-  }
-
-  static fromHeaders(
-    headers: Headers,
-    provider: CookiesProvider,
-    cookieName: string
-  ) {
-    const setter = new HeadersCookieSetter(headers);
-
-    return CookieRemoverFactory.fromSetter(setter, provider, cookieName);
+    return new SingleCookieRemover(cookieName, cookies);
   }
 }

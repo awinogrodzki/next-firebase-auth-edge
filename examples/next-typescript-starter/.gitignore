@@ -5,6 +5,7 @@ yarn-error.log
 .next
 .env
 .env.local
+.env.temp
 lib
 cjs
 tmp

@@ -138,7 +138,13 @@ export abstract class AbstractAuthRequestHandler {
     credential: Credential,
     protected options: AuthRequestHandlerOptions = {}
   ) {
-    this.getToken = getFirebaseAdminTokenProvider(credential).getToken;
+    this.getToken = useEmulator()
+      ? () =>
+          Promise.resolve({
+            accessToken: 'owner',
+            expirationTime: Infinity
+          })
+      : getFirebaseAdminTokenProvider(credential).getToken;
   }
 
   private prepareRequest(request: object) {
