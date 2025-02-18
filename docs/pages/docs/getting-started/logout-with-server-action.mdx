@@ -1,0 +1,70 @@
+# Sign out with Server Action
+
+## removeServerCookies [v1.9.0]
+
+The `removeServerCookies` method removes server cookies from the browser. This method works with **Server Actions** and **Middleware**. 
+After logging out with Firebase in a Server Action, you can use this method to remove the auth cookies from the browser.
+
+Prior to version `1.9.0`, the `removeServerCookies` method was not available. Instead, you had to manually remove the cookies from the browser.
+
+With multiple cookies enabled:
+
+```tsx
+cookies.delete(authConfig.cookieName + ".id");
+cookies.delete(authConfig.cookieName + ".refresh");
+cookies.delete(authConfig.cookieName + ".sig");
+
+// Optionally, if you enabled custom token:
+cookies.delete(authConfig.cookieName + ".custom");
+```
+
+Without multiple cookies enabled:
+
+```tsx
+cookies.delete(authConfig.cookieName);
+```
+
+
+## Example logoutAction and LogoutPage
+
+Below is a simple example of a logout page component that lets users sign out using a Server Action and the `removeServerCookies` method.
+
+First, let’s define our Server Action:
+
+```tsx filename="logout.tsx"
+'use server';
+
+import {removeServerCookies} from "next-firebase-auth-edge/next/cookies";
+import {signOut} from 'firebase/auth';
+import {cookies} from 'next/headers';
+import {redirect} from 'next/navigation';
+import {getFirebaseAuth} from '@/app/auth/firebase';
+import {authConfig} from '@/config/server-config';
+
+export async function logoutAction() {
+  await signOut(getFirebaseAuth());
+
+  // Since Next.js 15, `headers` and `cookies` functions return a Promise, hence we precede the calls with `await`.
+  removeServerCookies(await cookies(), { cookieName: authConfig.cookieName });
+  redirect('/');
+}
+```
+
+Next, create LogoutPage component that will call logout action:
+
+```tsx filename="LogoutPage.tsx"
+interface LogoutPageProps {
+  logoutAction: () => void;
+}
+
+export default function LogoutPage({logoutAction}: LogoutPageProps) {
+    return (
+        <div>
+            <h1>Logout</h1>
+            <form action={logoutAction}>
+                <button type="submit">Sign out</button>
+            </form>
+        </div>
+    );
+}
+```
