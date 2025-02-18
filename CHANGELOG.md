@@ -1,3 +1,20 @@
+# [1.9.0](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2...v1.9.0) (2025-02-18)
+
+
+### Bug Fixes
+
+* **#297:** propagate custom claims when exchanging id token for custom, id and refresh tokens ([55254b8](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/55254b87196c9fb7f16c36785131b34edd3b219e)), closes [#297](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/297)
+* **#303:** support npm 11 ([88328e5](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/88328e51abfebf2eef63895b37d91784a0e982ce)), closes [#303](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/303)
+* **#306:** support Node.js 23 ([f27d210](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/f27d21023b8f0120fd7ddfd17e9c9d42b2a28f31)), closes [#306](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/306)
+* return cached token or server token ([c1a04a9](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/c1a04a96f12aea574aa5c44b2d41a053bf746f6c))
+* return cached valid token ([a73f9ec](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/a73f9ecd04860c72613664c3ab857fe4efd46954))
+
+
+### Features
+
+* **#300:** added removeServerCookies method to logout from Server Actions ([cab2d23](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/cab2d238012ed7fb20cdbb09da7e69eab3867c14)), closes [#300](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/300)
+* full firebase emulator support ([9dcf5e9](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/9dcf5e94be548b0f3bb0277bee6abce43592a7d2))
+
 # [1.9.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.0-canary.5...v1.9.0-canary.6) (2025-01-28)
 
 
