@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.0...v1.9.1) (2025-02-18)
+
+
+### Bug Fixes
+
+* **dynamic-custom-claims:** allow to update claims after token refresh ([475e767](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/475e76709ece48294746b334522c0c16dbc5ce6d))
+
 # [1.9.0](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.8.2...v1.9.0) (2025-02-18)
 
 
