@@ -56,12 +56,13 @@ To make adopting the newest Next.js features easier, this library works seamless
 ### What's New
 
 Key updates in latest release include:
-
+* Added `removeServerCookies` method to handle logout from inside Server Action 
+* Added `experimental_createAnonymousUserIfUserNotFound` option to create anonymous user if no user was found #296 
 * Full Firebase Emulator Support.
 The library now fully supports the Firebase Emulator, enabling you to run your development app without needing to create a Firebase Project. Follow [starter example README](https://github.com/awinogrodzki/next-firebase-auth-edge/tree/main/examples/next-typescript-starter#emulator-support) for details
 * Custom token is now optional. To enable custom token support use [enableCustomToken](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#custom-token) option
 * Support ESM, Browser and Node.js imports for better tree-shaking features
-* Support for **Node.js 22**
+* Support for **Node.js 23** and **NPM 11**
 * Support for **Next.js 15**
 * Support for **React 19 RC**
 * New `experimental_enableTokenRefreshOnExpiredKidHeader` option in `authMiddleware` and `getTokens`, which refreshes user tokens when Google’s public certificates expire (instead of throwing an error)
