@@ -16,15 +16,6 @@ Check out a working demo here: [next-firebase-auth-edge-starter.vercel.app](http
 
 You can find the source code for this demo at [examples/next-typescript-starter](https://github.com/ensite-in/next-firebase-auth-edge/tree/main/examples/next-typescript-starter)
 
-## Featured in
-<a href="https://ensite.in">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="images/ensite-logo-horizontal-white.svg">
-    <source media="(prefers-color-scheme: light)" srcset="images/ensite-logo-horizontal.svg">
-    <img alt="ensite.in" src="images/ensite-logo-horizontal.svg" height="24">
-  </picture>
-</a>
-
 ## Guide
 
 New to Firebase or Next.js? No worries! Follow this easy, step-by-step guide to set up Firebase Authentication in Next.js app using the **next-firebase-auth-edge** library:
