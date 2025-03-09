@@ -67,9 +67,9 @@ export async function getTokens<Metadata extends object>(
       debug('getTokens: Cookies are marked as verified.');
     } else {
       console.warn(
-        '⚠️ next-firebase-auth-edge:',
+        '⚠️ [next-firebase-auth-edge]',
         'Called `getTokens`, but the request cookies were not verified by Middleware.',
-        'Ensure that Middleware is enabled for this route before calling `getTokens` to avoid authentication issues.'
+        'Ensure that this route is included in the matcher config of your Next.js Middleware so that tokens remain up-to-date.'
       );
     }
 
@@ -116,9 +116,9 @@ export async function getApiRequestTokens<Metadata extends object>(
 
     if (!isCookiesObjectVerifiedByMiddleware(request.cookies)) {
       console.warn(
-        '⚠️ next-firebase-auth-edge:',
+        '⚠️ [next-firebase-auth-edge]',
         'Called `getTokens`, but the request cookies were not verified by Middleware.',
-        'Ensure that Middleware is enabled for this route before calling `getTokens` to avoid authentication issues.'
+        'Ensure that this route is included in the matcher config of your Next.js Middleware so that tokens remain up-to-date.'
       );
     }
 
@@ -152,9 +152,9 @@ export async function getTokensFromObject<Metadata extends object>(
 
     if (!isCookiesObjectVerifiedByMiddleware(cookies)) {
       console.warn(
-        '⚠️ next-firebase-auth-edge:',
+        '⚠️ [next-firebase-auth-edge]',
         'Called `getTokens`, but the request cookies were not verified by Middleware.',
-        'Ensure that Middleware is enabled for this route before calling `getTokens` to avoid authentication issues.'
+        'Ensure that this route is included in the matcher config of your Next.js Middleware so that tokens remain up-to-date.'
       );
     }
 
