@@ -59,8 +59,12 @@ export const config = {
   matcher: [
     '/',
     '/((?!_next|favicon.ico|__/auth|__/firebase|api|.*\\.).*)',
+    // Middleware api routes
     '/api/login',
     '/api/logout',
-    '/api/refresh-token'
+    '/api/refresh-token',
+    // App api routes
+    '/api/custom-claims',
+    '/api/user-counters',
   ]
 };

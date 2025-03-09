@@ -137,7 +137,8 @@ describe('CookieParserFactory', () => {
       expect(result).toEqual({
         customToken: 'custom-token',
         idToken: 'id-token',
-        refreshToken: 'refresh-token'
+        refreshToken: 'refresh-token',
+        metadata: {}
       });
     });
   });
@@ -156,7 +157,8 @@ describe('CookieParserFactory', () => {
       expect(result).toEqual({
         customToken: 'custom-token',
         idToken: 'id-token',
-        refreshToken: 'refresh-token'
+        refreshToken: 'refresh-token',
+        metadata: {}
       });
     });
 
@@ -183,7 +185,8 @@ describe('CookieParserFactory', () => {
       expect(result).toEqual({
         customToken: 'custom-token',
         idToken: 'id-token',
-        refreshToken: 'refresh-token'
+        refreshToken: 'refresh-token',
+        metadata: {}
       });
     });
 
@@ -200,7 +203,8 @@ describe('CookieParserFactory', () => {
       expect(result).toEqual({
         customToken: 'custom-token',
         idToken: 'id-token',
-        refreshToken: 'refresh-token'
+        refreshToken: 'refresh-token',
+        metadata: {}
       });
     });
 

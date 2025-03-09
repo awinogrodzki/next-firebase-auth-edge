@@ -1,25 +1,25 @@
 import type {NextApiResponse} from 'next';
 import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
-import {ParsedTokens} from '../../auth/custom-token/index.js';
+import {ParsedCookies} from '../../auth/custom-token/index.js';
 import {Cookie, CookieBuilder} from './builder/CookieBuilder.js';
 import {CookieBuilderFactory} from './builder/CookieBuilderFactory.js';
-import {CookieParserFactory} from './parser/CookieParserFactory.js';
-import {CookiesProvider} from './parser/CookiesProvider.js';
 import {MultipleCookieExpiration} from './expiration/MultipleCookieExpiration.js';
 import {SingleCookieExpiration} from './expiration/SingleCookieExpiration.js';
+import {CookieParserFactory} from './parser/CookieParserFactory.js';
+import {CookiesProvider} from './parser/CookiesProvider.js';
 import {CookieSetter} from './setter/CookieSetter.js';
 import {CookieSetterFactory} from './setter/CookieSetterFactory.js';
 import {NextApiResponseCookieSetter} from './setter/NextApiResponseHeadersCookieSetter.js';
 import {SetAuthCookiesOptions} from './types.js';
 
-export class AuthCookies {
-  private builder: CookieBuilder;
+export class AuthCookies<Metadata extends object> {
+  private builder: CookieBuilder<Metadata>;
   private targetCookies: Cookie[] | null = null;
 
   constructor(
     private provider: CookiesProvider,
-    private options: SetAuthCookiesOptions
+    private options: SetAuthCookiesOptions<Metadata>
   ) {
     this.builder = CookieBuilderFactory.fromOptions(options);
   }
@@ -81,31 +81,38 @@ export class AuthCookies {
     }
   }
 
-  private async getCookies(tokens: ParsedTokens): Promise<Cookie[]> {
-    const tokensToSave = this.options.enableCustomToken
-      ? tokens
-      : {idToken: tokens.idToken, refreshToken: tokens.refreshToken};
+  private async getCookies(value: ParsedCookies<Metadata>): Promise<Cookie[]> {
+    const targetValue = this.options.enableCustomToken
+      ? value
+      : {
+          idToken: value.idToken,
+          refreshToken: value.refreshToken,
+          metadata: value.metadata
+        };
 
     if (this.targetCookies) {
       return this.targetCookies;
     }
 
-    return (this.targetCookies = await this.builder.buildCookies(tokensToSave));
+    return (this.targetCookies = await this.builder.buildCookies(targetValue));
   }
 
   public async setAuthCookies(
-    tokens: ParsedTokens,
+    value: ParsedCookies<Metadata>,
     requestCookies: RequestCookies | ReadonlyRequestCookies
   ) {
-    const cookies = await this.getCookies(tokens);
+    const cookies = await this.getCookies(value);
     const setter = CookieSetterFactory.fromRequestCookies(requestCookies);
 
     this.clearUnusedCookies(setter);
     setter.setCookies(cookies, this.options.cookieSerializeOptions);
   }
 
-  public async setAuthHeaders(tokens: ParsedTokens, headers: Headers) {
-    const cookies = await this.getCookies(tokens);
+  public async setAuthHeaders(
+    value: ParsedCookies<Metadata>,
+    headers: Headers
+  ) {
+    const cookies = await this.getCookies(value);
     const setter = CookieSetterFactory.fromHeaders(headers);
 
     this.clearUnusedCookies(setter);
@@ -113,10 +120,10 @@ export class AuthCookies {
   }
 
   public async setAuthNextApiResponseHeaders(
-    tokens: ParsedTokens,
+    value: ParsedCookies<Metadata>,
     response: NextApiResponse
   ) {
-    const cookies = await this.getCookies(tokens);
+    const cookies = await this.getCookies(value);
     const setter = new NextApiResponseCookieSetter(response);
 
     this.clearUnusedCookies(setter);
