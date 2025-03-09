@@ -13,13 +13,13 @@ import {CookieSetterFactory} from './setter/CookieSetterFactory.js';
 import {NextApiResponseCookieSetter} from './setter/NextApiResponseHeadersCookieSetter.js';
 import {SetAuthCookiesOptions} from './types.js';
 
-export class AuthCookies {
+export class AuthCookies<Metadata extends object> {
   private builder: CookieBuilder;
   private targetCookies: Cookie[] | null = null;
 
   constructor(
     private provider: CookiesProvider,
-    private options: SetAuthCookiesOptions
+    private options: SetAuthCookiesOptions<Metadata>
   ) {
     this.builder = CookieBuilderFactory.fromOptions(options);
   }

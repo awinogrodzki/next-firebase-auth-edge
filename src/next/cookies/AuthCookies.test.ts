@@ -13,7 +13,7 @@ const cookieSerializeOptions = {
   maxAge: 12 * 60 * 60 * 24,
   expires: new Date(1727373870 * 1000)
 };
-const setAuthCookiesOptions: SetAuthCookiesOptions = {
+const setAuthCookiesOptions: SetAuthCookiesOptions<never> = {
   cookieName,
   cookieSerializeOptions,
   cookieSignatureKeys: ['secret'],

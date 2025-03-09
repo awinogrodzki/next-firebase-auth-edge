@@ -7,10 +7,10 @@ import {CookiesObject, SetAuthCookiesOptions} from './cookies/index.js';
 import {ObjectCookiesProvider} from './cookies/parser/ObjectCookiesProvider.js';
 import {getCookiesTokens} from './tokens.js';
 
-export async function refreshApiResponseCookies(
+export async function refreshApiResponseCookies<Metadata extends object>(
   request: NextApiRequest,
   response: NextApiResponse,
-  options: SetAuthCookiesOptions
+  options: SetAuthCookiesOptions<Metadata>
 ): Promise<NextApiResponse> {
   const tokens = await refreshApiCookies(
     request.cookies,
@@ -22,11 +22,11 @@ export async function refreshApiResponseCookies(
   return response;
 }
 
-export async function appendAuthCookiesApi(
+export async function appendAuthCookiesApi<Metadata extends object>(
   cookies: CookiesObject,
   response: NextApiResponse,
   tokens: ParsedTokens,
-  options: SetAuthCookiesOptions
+  options: SetAuthCookiesOptions<Metadata>
 ) {
   const authCookies = new AuthCookies(
     new ObjectCookiesProvider(cookies),
@@ -36,10 +36,10 @@ export async function appendAuthCookiesApi(
   await authCookies.setAuthNextApiResponseHeaders(tokens, response);
 }
 
-export async function refreshApiCookies(
+export async function refreshApiCookies<Metadata extends object>(
   cookies: CookiesObject,
   headers: IncomingHttpHeaders,
-  options: SetAuthCookiesOptions
+  options: SetAuthCookiesOptions<Metadata>
 ): Promise<VerifiedTokens> {
   const referer = headers['referer'] ?? '';
   const tokens = await getCookiesTokens(cookies, options);

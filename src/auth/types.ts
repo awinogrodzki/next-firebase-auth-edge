@@ -33,3 +33,10 @@ export interface VerifyOptions {
   referer?: string;
   experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
 }
+
+export interface Tokens {
+  decodedToken: DecodedIdToken;
+  token: string;
+  // Set `enableCustomToken` to true in `authMiddleware` to enable custom token
+  customToken?: string;
+}

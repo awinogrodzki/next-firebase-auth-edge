@@ -1,4 +1,3 @@
-import type {CookieSerializeOptions} from 'cookie';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
 import {ServiceAccount} from '../auth/credential.js';
@@ -12,7 +11,11 @@ import {
 import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth/index.js';
 import {debug, enableDebugMode} from '../debug/index.js';
 import {AuthCookies} from './cookies/AuthCookies.js';
-import {removeAuthCookies, setAuthCookies} from './cookies/index.js';
+import {
+  removeAuthCookies,
+  setAuthCookies,
+  SetAuthCookiesOptions
+} from './cookies/index.js';
 import {RequestCookiesProvider} from './cookies/parser/RequestCookiesProvider.js';
 import {
   markCookiesAsVerified,
@@ -23,21 +26,12 @@ import {refreshToken} from './refresh-token.js';
 import {getRequestCookiesTokens, validateOptions} from './tokens.js';
 import {getReferer} from './utils.js';
 
-export interface CreateAuthMiddlewareOptions {
+export interface CreateAuthMiddlewareOptions<Metadata extends object>
+  extends SetAuthCookiesOptions<Metadata> {
   loginPath: string;
   logoutPath: string;
-  cookieName: string;
-  cookieSignatureKeys: string[];
-  cookieSerializeOptions: CookieSerializeOptions;
-  serviceAccount?: ServiceAccount;
-  apiKey: string;
-  tenantId?: string;
   refreshTokenPath?: string;
-  enableMultipleCookies?: boolean;
-  enableCustomToken?: boolean;
-  authorizationHeaderName?: string;
   experimental_createAnonymousUserIfUserNotFound?: boolean;
-  dynamicCustomClaimsKeys?: string[];
 }
 
 interface RedirectToPathOptions {
@@ -123,9 +117,9 @@ export function redirectToLogin(
   return NextResponse.redirect(url);
 }
 
-export async function createAuthMiddlewareResponse(
+export async function createAuthMiddlewareResponse<Metadata extends object>(
   request: NextRequest,
-  options: CreateAuthMiddlewareOptions
+  options: CreateAuthMiddlewareOptions<Metadata>
 ): Promise<NextResponse> {
   const url = getUrlWithoutTrailingSlash(request.nextUrl.pathname);
   if (url === getUrlWithoutTrailingSlash(options.loginPath)) {
@@ -169,7 +163,8 @@ export type HandleValidToken = (
 ) => Promise<NextResponse>;
 export type HandleError = (e: unknown) => Promise<NextResponse>;
 
-export interface AuthMiddlewareOptions extends CreateAuthMiddlewareOptions {
+export interface AuthMiddlewareOptions<Metadata extends object>
+  extends CreateAuthMiddlewareOptions<Metadata> {
   serviceAccount?: ServiceAccount;
   apiKey: string;
   debug?: boolean;
@@ -201,9 +196,9 @@ function validateResponse(response: NextResponse) {
   }
 }
 
-export async function authMiddleware(
+export async function authMiddleware<Metadata extends object>(
   request: NextRequest,
-  options: AuthMiddlewareOptions
+  options: AuthMiddlewareOptions<Metadata>
 ): Promise<NextResponse> {
   if (options.debug) {
     enableDebugMode();

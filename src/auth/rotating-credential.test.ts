@@ -1,5 +1,5 @@
 import {errors} from 'jose';
-import {CustomJWTPayload, CustomTokens} from './custom-token.js';
+import {CustomJWTPayload, CustomTokens} from './custom-token/index.js';
 import {RotatingCredential} from './rotating-credential.js';
 
 describe('rotating-credential', () => {

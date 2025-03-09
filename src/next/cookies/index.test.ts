@@ -34,7 +34,7 @@ const jwt =
 const refreshedJwt =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6IlRFU1RfSURfVE9LRU4iLCJyZWZyZXNoX3Rva2VuIjoiVEVTVF9SRUZSRVNIX1RPS0VOIiwiY3VzdG9tX3Rva2VuIjoiVEVTVF9DVVNUT01fVE9LRU4ifQ.2tjn-__AKP3J7w9vIDuFDFkYmPzpuGpWvHvBFksMh5E';
 
-const MOCK_OPTIONS: SetAuthCookiesOptions = {
+const MOCK_OPTIONS: SetAuthCookiesOptions<never> = {
   cookieName: 'TestCookie',
   cookieSignatureKeys: [secret],
   cookieSerializeOptions: {maxAge: 123, path: '/test-path', sameSite: 'lax'},
