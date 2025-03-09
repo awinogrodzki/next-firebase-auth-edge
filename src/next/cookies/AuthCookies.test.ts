@@ -1,5 +1,5 @@
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
-import {CustomTokens} from '../../auth/custom-token/index.ts';
+import {ParsedCookies} from '../../auth/custom-token/index.ts';
 import {AuthCookies} from './AuthCookies.ts';
 import {SetAuthCookiesOptions} from './index.ts';
 import {ObjectCookiesProvider} from './parser/ObjectCookiesProvider.ts';
@@ -21,10 +21,11 @@ const setAuthCookiesOptions: SetAuthCookiesOptions<never> = {
   enableCustomToken: true
 };
 
-const mockTokens: CustomTokens = {
+const mockTokens: ParsedCookies<never> = {
   idToken: 'id-token',
   refreshToken: 'refresh-token',
-  customToken: 'custom-token'
+  customToken: 'custom-token',
+  metadata: {} as never
 };
 
 describe('AuthCookies', () => {

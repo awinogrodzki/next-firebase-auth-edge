@@ -24,8 +24,6 @@ export default async function ServerComponentExample() {
       privateKey:
         '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
     },
-    // Optional
-    headers: headers(),
     tenantId: 'your-tenant-id'
   });
 
@@ -62,5 +60,4 @@ export default async function ServerComponentExample() {
 
 | Name     | Description                                                                                                                                                                                                                                                                         |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| headers  | **Optional**. The request `Headers`. These are used to pass the referer between the request and Google APIs. You can get `Headers` by calling the `headers` function from `next/headers` in Server Components. In Edge and Node.js environments, use `NextRequest.headers` instead. |
 | tenantId | **Optional** `string`. Specify this if your project supports [multi-tenancy](https://cloud.google.com/identity-platform/docs/multi-tenancy-authentication).                                                                                                                         |

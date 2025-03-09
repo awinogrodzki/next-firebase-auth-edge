@@ -4,27 +4,23 @@ import {NextApiRequest} from 'next';
 import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import {ServiceAccount} from '../auth/credential.js';
-import {ParsedTokens, VerifiedTokens} from '../auth/custom-token/index.js';
+import {ParsedCookies} from '../auth/custom-token/index.js';
 import {isInvalidTokenError} from '../auth/error.js';
-import {getFirebaseAuth, Tokens} from '../auth/index.js';
+import {Tokens} from '../auth/index.js';
 import {mapJwtPayloadToDecodedIdToken} from '../auth/utils.js';
 import {debug, enableDebugMode} from '../debug/index.js';
-import {AuthCookies} from './cookies/AuthCookies.js';
 import {CookieParserFactory} from './cookies/parser/CookieParserFactory.js';
-import {RequestCookiesProvider} from './cookies/parser/RequestCookiesProvider.js';
 import {CookiesObject, GetCookiesTokensOptions} from './cookies/types.js';
 import {
   areCookiesVerifiedByMiddleware,
   isCookiesObjectVerifiedByMiddleware
 } from './cookies/verification.js';
-import {getReferer} from './utils.js';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   cookieSerializeOptions?: CookieSerializeOptions;
   serviceAccount?: ServiceAccount;
   apiKey: string;
   debug?: boolean;
-  headers?: Headers;
   experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
   tenantId?: string;
 }
@@ -39,37 +35,22 @@ export function validateOptions(options: GetTokensOptions) {
   }
 }
 
-export function getRequestCookiesTokens(
+export function getRequestCookiesTokens<Metadata extends object>(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetCookiesTokensOptions
-): Promise<ParsedTokens> {
-  const parser = CookieParserFactory.fromRequestCookies(cookies, options);
+): Promise<ParsedCookies<Metadata>> {
+  const parser = CookieParserFactory.fromRequestCookies<Metadata>(
+    cookies,
+    options
+  );
 
   return parser.parseCookies();
 }
 
-function toTokens(result: VerifiedTokens | null): Tokens | null {
-  if (!result) {
-    return null;
-  }
-
-  return {
-    token: result.idToken,
-    decodedToken: result.decodedIdToken,
-    customToken: result.customToken
-  };
-}
-
-function isReadonly(
-  cookies: RequestCookies | ReadonlyRequestCookies
-): cookies is ReadonlyRequestCookies {
-  return !Object.hasOwn(cookies, 'set');
-}
-
-export async function getTokens(
+export async function getTokens<Metadata extends object>(
   cookies: RequestCookies | ReadonlyRequestCookies,
   options: GetTokensOptions
-): Promise<Tokens | null> {
+): Promise<Tokens<Metadata> | null> {
   const now = Date.now();
 
   if (options.debug) {
@@ -78,72 +59,28 @@ export async function getTokens(
 
   validateOptions(options);
 
-  const referer = options.headers ? getReferer(options.headers) : '';
-
-  const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
-    serviceAccount: options.serviceAccount,
-    apiKey: options.apiKey,
-    tenantId: options.tenantId
-  });
-
   try {
-    const tokens = await getRequestCookiesTokens(cookies, options);
+    const tokens = await getRequestCookiesTokens<Metadata>(cookies, options);
     debug('getTokens: Tokens successfully extracted from cookies');
 
     if (areCookiesVerifiedByMiddleware(cookies)) {
-      debug('getTokens: Cookies are marked as verified. Skipping verification');
-      const payload = decodeJwt(tokens.idToken);
-
-      return {
-        token: tokens.idToken,
-        decodedToken: mapJwtPayloadToDecodedIdToken(payload),
-        customToken: tokens.customToken
-      };
+      debug('getTokens: Cookies are marked as verified.');
+    } else {
+      console.warn(
+        '⚠️ next-firebase-auth-edge:',
+        'Called `getTokens`, but the request cookies were not verified by Middleware.',
+        'Ensure that Middleware is enabled for this route before calling `getTokens` to avoid authentication issues.'
+      );
     }
 
-    const result = await verifyAndRefreshExpiredIdToken(tokens, {
-      referer,
-      experimental_enableTokenRefreshOnExpiredKidHeader:
-        options.experimental_enableTokenRefreshOnExpiredKidHeader,
-      async onTokenRefresh({idToken, refreshToken, customToken}) {
-        const cookieSerializeOptions = options.cookieSerializeOptions;
+    const payload = decodeJwt(tokens.idToken);
 
-        if (isReadonly(cookies) || !cookieSerializeOptions) {
-          debug(
-            'getTokens: Expired tokens have been refreshed, but were not set on the response',
-            {
-              hasCookieSerializeOptions: !!cookieSerializeOptions,
-              isReadonly: isReadonly(cookies)
-            }
-          );
-
-          return;
-        }
-
-        debug(
-          'getTokens: Expired tokens have been refreshed and new credentials will be set on the response'
-        );
-
-        const tokensToSign = {
-          idToken,
-          refreshToken,
-          customToken
-        };
-
-        const setAuthCookiesOptions = {
-          ...options,
-          cookieSerializeOptions
-        };
-        const authCookies = new AuthCookies(
-          RequestCookiesProvider.fromRequestCookies(cookies),
-          setAuthCookiesOptions
-        );
-
-        await authCookies.setAuthCookies(tokensToSign, cookies);
-      }
-    });
-
-    return toTokens(result);
+    return {
+      token: tokens.idToken,
+      decodedToken: mapJwtPayloadToDecodedIdToken(payload),
+      customToken: tokens.customToken,
+      metadata: tokens.metadata
+    };
   } catch (error: unknown) {
     if (isInvalidTokenError(error)) {
       debug(
@@ -161,40 +98,38 @@ export async function getTokens(
   }
 }
 
-export function getCookiesTokens(
+export function getCookiesTokens<Metadata extends object>(
   cookies: CookiesObject,
   options: GetCookiesTokensOptions
-): Promise<ParsedTokens> {
-  const parser = CookieParserFactory.fromObject(cookies, options);
+): Promise<ParsedCookies<Metadata>> {
+  const parser = CookieParserFactory.fromObject<Metadata>(cookies, options);
 
   return parser.parseCookies();
 }
 
-export async function getApiRequestTokens(
+export async function getApiRequestTokens<Metadata extends object>(
   request: NextApiRequest,
   options: GetTokensOptions
-): Promise<Tokens | null> {
-  const referer = request.headers.referer ?? '';
-  const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
-    serviceAccount: options.serviceAccount,
-    apiKey: options.apiKey,
-    tenantId: options.tenantId
-  });
-
+): Promise<Tokens<Metadata> | null> {
   try {
-    const tokens = await getCookiesTokens(request.cookies, options);
+    const tokens = await getCookiesTokens<Metadata>(request.cookies, options);
 
-    if (isCookiesObjectVerifiedByMiddleware(request.cookies)) {
-      const payload = decodeJwt(tokens.idToken);
-
-      return {
-        token: tokens.idToken,
-        decodedToken: mapJwtPayloadToDecodedIdToken(payload),
-        customToken: tokens.customToken
-      };
+    if (!isCookiesObjectVerifiedByMiddleware(request.cookies)) {
+      console.warn(
+        '⚠️ next-firebase-auth-edge:',
+        'Called `getTokens`, but the request cookies were not verified by Middleware.',
+        'Ensure that Middleware is enabled for this route before calling `getTokens` to avoid authentication issues.'
+      );
     }
 
-    return toTokens(await verifyAndRefreshExpiredIdToken(tokens, {referer}));
+    const payload = decodeJwt(tokens.idToken);
+
+    return {
+      token: tokens.idToken,
+      decodedToken: mapJwtPayloadToDecodedIdToken(payload),
+      customToken: tokens.customToken,
+      metadata: tokens.metadata
+    };
   } catch (error: unknown) {
     if (isInvalidTokenError(error)) {
       return null;
@@ -208,34 +143,29 @@ export async function getApiRequestTokens(
  * @deprecated
  * Use `getApiRequestTokens` instead
  */
-export async function getTokensFromObject(
+export async function getTokensFromObject<Metadata extends object>(
   cookies: CookiesObject,
   options: GetTokensOptions
-): Promise<Tokens | null> {
-  const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
-    serviceAccount: options.serviceAccount,
-    apiKey: options.apiKey,
-    tenantId: options.tenantId
-  });
-
+): Promise<Tokens<Metadata> | null> {
   try {
-    const tokens = await getCookiesTokens(cookies, options);
+    const tokens = await getCookiesTokens<Metadata>(cookies, options);
 
-    if (isCookiesObjectVerifiedByMiddleware(cookies)) {
-      const payload = decodeJwt(tokens.idToken);
-
-      return {
-        token: tokens.idToken,
-        decodedToken: mapJwtPayloadToDecodedIdToken(payload),
-        customToken: tokens.customToken
-      };
+    if (!isCookiesObjectVerifiedByMiddleware(cookies)) {
+      console.warn(
+        '⚠️ next-firebase-auth-edge:',
+        'Called `getTokens`, but the request cookies were not verified by Middleware.',
+        'Ensure that Middleware is enabled for this route before calling `getTokens` to avoid authentication issues.'
+      );
     }
 
-    return toTokens(
-      await verifyAndRefreshExpiredIdToken(tokens, {
-        referer: ''
-      })
-    );
+    const payload = decodeJwt(tokens.idToken);
+
+    return {
+      token: tokens.idToken,
+      decodedToken: mapJwtPayloadToDecodedIdToken(payload),
+      customToken: tokens.customToken,
+      metadata: tokens.metadata
+    };
   } catch (error: unknown) {
     if (isInvalidTokenError(error)) {
       return null;

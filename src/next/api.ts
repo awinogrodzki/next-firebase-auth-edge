@@ -1,23 +1,24 @@
 import type {IncomingHttpHeaders} from 'http';
 import {NextApiRequest, NextApiResponse} from 'next';
-import {ParsedTokens, VerifiedTokens} from '../auth/custom-token/index.js';
+import {ParsedCookies, VerifiedCookies} from '../auth/custom-token/index.js';
 import {getFirebaseAuth} from '../auth/index.js';
 import {AuthCookies} from './cookies/AuthCookies.js';
 import {CookiesObject, SetAuthCookiesOptions} from './cookies/index.js';
 import {ObjectCookiesProvider} from './cookies/parser/ObjectCookiesProvider.js';
 import {getCookiesTokens} from './tokens.js';
+import {getMetadataInternal} from './metadata.js';
 
 export async function refreshApiResponseCookies<Metadata extends object>(
   request: NextApiRequest,
   response: NextApiResponse,
   options: SetAuthCookiesOptions<Metadata>
 ): Promise<NextApiResponse> {
-  const tokens = await refreshApiCookies(
+  const value = await refreshApiCookies(
     request.cookies,
     request.headers,
     options
   );
-  await appendAuthCookiesApi(request.cookies, response, tokens, options);
+  await appendAuthCookiesApi(request.cookies, response, value, options);
 
   return response;
 }
@@ -25,7 +26,7 @@ export async function refreshApiResponseCookies<Metadata extends object>(
 export async function appendAuthCookiesApi<Metadata extends object>(
   cookies: CookiesObject,
   response: NextApiResponse,
-  tokens: ParsedTokens,
+  value: ParsedCookies<Metadata>,
   options: SetAuthCookiesOptions<Metadata>
 ) {
   const authCookies = new AuthCookies(
@@ -33,14 +34,14 @@ export async function appendAuthCookiesApi<Metadata extends object>(
     options
   );
 
-  await authCookies.setAuthNextApiResponseHeaders(tokens, response);
+  await authCookies.setAuthNextApiResponseHeaders(value, response);
 }
 
 export async function refreshApiCookies<Metadata extends object>(
   cookies: CookiesObject,
   headers: IncomingHttpHeaders,
   options: SetAuthCookiesOptions<Metadata>
-): Promise<VerifiedTokens> {
+): Promise<VerifiedCookies<Metadata>> {
   const referer = headers['referer'] ?? '';
   const tokens = await getCookiesTokens(cookies, options);
   const {handleTokenRefresh} = getFirebaseAuth({
@@ -54,10 +55,16 @@ export async function refreshApiCookies<Metadata extends object>(
     enableCustomToken: options.enableCustomToken
   });
 
+  const metadata = await getMetadataInternal<Metadata>(
+    tokenRefreshResult,
+    options
+  );
+
   return {
     customToken: tokenRefreshResult.customToken,
     idToken: tokenRefreshResult.idToken,
     refreshToken: tokenRefreshResult.refreshToken,
-    decodedIdToken: tokenRefreshResult.decodedIdToken
+    decodedIdToken: tokenRefreshResult.decodedIdToken,
+    metadata
   };
 }

@@ -4,16 +4,13 @@ import {
   CreateRequest,
   UpdateRequest
 } from './auth-request-handler';
+import {filterStandardClaims} from './claims';
 import {
   Credential,
   ServiceAccount,
   ServiceAccountCredential
 } from './credential';
-import {
-  CustomTokens,
-  ParsedTokens,
-  VerifiedTokens
-} from './custom-token/index.js';
+import {CustomTokens, ParsedCookies} from './custom-token/index.js';
 import {getApplicationDefault} from './default-credential.js';
 import {
   AuthError,
@@ -24,12 +21,11 @@ import {
 import {useEmulator} from './firebase.js';
 import {createFirebaseTokenGenerator} from './token-generator.js';
 import {createIdTokenVerifier} from './token-verifier.js';
-import {DecodedIdToken, VerifyOptions} from './types.js';
+import {DecodedIdToken, TokenSet, VerifyOptions} from './types.js';
 import {UserRecord} from './user-record.js';
-import {filterStandardClaims} from './claims';
 
-export * from './types.js';
 export * from './error.js';
+export * from './types.js';
 
 const getCustomTokenEndpoint = (apiKey: string) => {
   if (useEmulator() && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
@@ -329,7 +325,7 @@ function getAuth(options: AuthOptions) {
   const handleTokenRefresh = async (
     refreshToken: string,
     tokenRefreshOptions: {referer?: string; enableCustomToken?: boolean} = {}
-  ): Promise<VerifiedTokens> => {
+  ): Promise<TokenSet> => {
     const {idToken, refreshToken: newRefreshToken} =
       await refreshExpiredIdToken(refreshToken, {
         apiKey: options.apiKey,
@@ -448,28 +444,28 @@ function getAuth(options: AuthOptions) {
     return decodedIdToken;
   }
 
-  async function verifyAndRefreshExpiredIdToken(
-    parsedTokens: ParsedTokens,
+  async function verifyAndRefreshExpiredIdToken<Metadata extends object>(
+    parsedCookies: ParsedCookies<Metadata>,
     verifyOptions: VerifyOptions & {
-      onTokenRefresh?: (tokens: VerifiedTokens) => Promise<void>;
+      onTokenRefresh?: (tokens: TokenSet) => Promise<void>;
     } = DEFAULT_VERIFY_OPTIONS
-  ): Promise<VerifiedTokens> {
+  ): Promise<TokenSet> {
     return await handleExpiredToken(
       async () => {
         const decodedIdToken = await verifyIdToken(
-          parsedTokens.idToken,
+          parsedCookies.idToken,
           verifyOptions
         );
         return {
-          idToken: parsedTokens.idToken,
+          idToken: parsedCookies.idToken,
           decodedIdToken,
-          refreshToken: parsedTokens.refreshToken,
-          customToken: parsedTokens.customToken
+          refreshToken: parsedCookies.refreshToken,
+          customToken: parsedCookies.customToken
         };
       },
       async () => {
-        if (parsedTokens.refreshToken) {
-          const result = await handleTokenRefresh(parsedTokens.refreshToken, {
+        if (parsedCookies.refreshToken) {
+          const result = await handleTokenRefresh(parsedCookies.refreshToken, {
             referer: verifyOptions.referer,
             enableCustomToken: options.enableCustomToken
           });

@@ -59,7 +59,7 @@ export class CookieParserFactory {
     return new ObjectCookiesProvider(adaptedCookies);
   }
 
-  private static fromProvider(
+  private static fromProvider<Metadata extends object>(
     provider: CookiesProvider,
     options: GetCookiesTokensOptions
   ) {
@@ -71,7 +71,7 @@ export class CookieParserFactory {
     );
 
     if (enableMultipleCookies) {
-      return new MultipleCookiesParser(
+      return new MultipleCookiesParser<Metadata>(
         provider,
         options.cookieName,
         options.cookieSignatureKeys
@@ -81,7 +81,7 @@ export class CookieParserFactory {
     if (
       CookieParserFactory.hasLegacyMultipleCookies(provider, options.cookieName)
     ) {
-      return new MultipleCookiesParser(
+      return new MultipleCookiesParser<Metadata>(
         CookieParserFactory.getCompatibleProvider(provider, options),
         options.cookieName,
         options.cookieSignatureKeys
@@ -96,31 +96,37 @@ export class CookieParserFactory {
       throw new InvalidTokenError(InvalidTokenReason.INVALID_CREDENTIALS);
     }
 
-    return new SingleCookieParser(
+    return new SingleCookieParser<Metadata>(
       provider,
       options.cookieName,
       options.cookieSignatureKeys
     );
   }
 
-  static fromRequestCookies(
+  static fromRequestCookies<Metadata extends object>(
     cookies: RequestCookies | ReadonlyRequestCookies,
     options: GetCookiesTokensOptions
   ) {
     const provider = RequestCookiesProvider.fromRequestCookies(cookies);
 
-    return CookieParserFactory.fromProvider(provider, options);
+    return CookieParserFactory.fromProvider<Metadata>(provider, options);
   }
 
-  static fromHeaders(headers: Headers, options: GetCookiesTokensOptions) {
+  static fromHeaders<Metadata extends object>(
+    headers: Headers,
+    options: GetCookiesTokensOptions
+  ) {
     const provider = RequestCookiesProvider.fromHeaders(headers);
 
-    return CookieParserFactory.fromProvider(provider, options);
+    return CookieParserFactory.fromProvider<Metadata>(provider, options);
   }
 
-  static fromObject(cookies: CookiesObject, options: GetCookiesTokensOptions) {
+  static fromObject<Metadata extends object>(
+    cookies: CookiesObject,
+    options: GetCookiesTokensOptions
+  ) {
     const provider = new ObjectCookiesProvider(cookies);
 
-    return CookieParserFactory.fromProvider(provider, options);
+    return CookieParserFactory.fromProvider<Metadata>(provider, options);
   }
 }

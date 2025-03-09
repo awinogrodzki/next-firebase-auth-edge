@@ -1,6 +1,6 @@
 import type {CookieSerializeOptions} from 'cookie';
 import {ServiceAccount} from '../../auth/credential.js';
-import {Tokens} from '../../auth/types.js';
+import {TokenSet} from '../../auth/types.js';
 
 export interface SetAuthCookiesOptions<Metadata extends object> {
   cookieName: string;
@@ -13,7 +13,7 @@ export interface SetAuthCookiesOptions<Metadata extends object> {
   tenantId?: string;
   authorizationHeaderName?: string;
   dynamicCustomClaimsKeys?: string[];
-  getMetadata?: (tokens: Tokens) => Promise<Metadata>;
+  getMetadata?: (tokens: TokenSet) => Promise<Metadata>;
 }
 
 export type CookiesObject = Partial<{[K in string]: string}>;
