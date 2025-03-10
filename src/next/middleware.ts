@@ -85,10 +85,10 @@ function doesRequestPathnameMatchPublicPath(
   publicPath: PublicPath
 ) {
   if (typeof publicPath === 'string') {
-    return publicPath === getUrlWithoutTrailingSlash(request);
+    return publicPath === getUrlWithoutTrailingSlash(request.nextUrl.pathname);
   }
 
-  return publicPath.test(getUrlWithoutTrailingSlash(request));
+  return publicPath.test(getUrlWithoutTrailingSlash(request.nextUrl.pathname));
 }
 
 function doesRequestPathnameMatchOneOfPublicPaths(
@@ -100,8 +100,8 @@ function doesRequestPathnameMatchOneOfPublicPaths(
   );
 }
 
-function getUrlWithoutTrailingSlash(request: NextRequest) {
-  return request.nextUrl.pathname.endsWith('/') ? request.nextUrl.pathname.slice(0, -1) : request.nextUrl.pathname
+function getUrlWithoutTrailingSlash(url: string) {
+  return url.endsWith('/') ? url.slice(0, -1) : url
 }
 
 export function redirectToLogin(
@@ -127,8 +127,8 @@ export async function createAuthMiddlewareResponse(
   request: NextRequest,
   options: CreateAuthMiddlewareOptions
 ): Promise<NextResponse> {
-  const url = getUrlWithoutTrailingSlash(request);
-  if (url === options.loginPath) {
+  const url = getUrlWithoutTrailingSlash(request.nextUrl.pathname);
+  if (url === getUrlWithoutTrailingSlash(options.loginPath)) {
     return setAuthCookies(request.headers, {
       cookieName: options.cookieName,
       cookieSerializeOptions: options.cookieSerializeOptions,
@@ -143,7 +143,7 @@ export async function createAuthMiddlewareResponse(
     });
   }
 
-  if (url === options.logoutPath) {
+  if (url === getUrlWithoutTrailingSlash(options.logoutPath)) {
     return removeAuthCookies(request.headers, {
       cookieName: options.cookieName,
       cookieSerializeOptions: options.cookieSerializeOptions
@@ -152,7 +152,7 @@ export async function createAuthMiddlewareResponse(
 
   if (
     options.refreshTokenPath &&
-    url === options.refreshTokenPath
+    url === getUrlWithoutTrailingSlash(options.refreshTokenPath)
   ) {
     return refreshToken(request, options);
   }
@@ -219,12 +219,14 @@ export async function authMiddleware(
 
   removeInternalVerifiedCookieIfExists(request.cookies);
 
-  debug('Handle request', {path: getUrlWithoutTrailingSlash(request)});
+  debug('Handle request', {path: getUrlWithoutTrailingSlash(request.nextUrl.pathname)});
+
+  const authMiddlewareResponseRoutes = [options.loginPath, options.logoutPath, options.refreshTokenPath]
+    .filter(Boolean)
+    .map(url => getUrlWithoutTrailingSlash(url as string));
 
   if (
-    [options.loginPath, options.logoutPath, options.refreshTokenPath]
-      .filter(Boolean)
-      .includes(getUrlWithoutTrailingSlash(request))
+    authMiddlewareResponseRoutes.includes(getUrlWithoutTrailingSlash(request.nextUrl.pathname))
   ) {
     debug('Handle authentication API route');
     return createAuthMiddlewareResponse(request, options);
