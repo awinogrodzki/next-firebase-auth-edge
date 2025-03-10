@@ -85,10 +85,10 @@ function doesRequestPathnameMatchPublicPath(
   publicPath: PublicPath
 ) {
   if (typeof publicPath === 'string') {
-    return publicPath === request.nextUrl.pathname;
+    return publicPath === getUrlWithoutTrailingSlash(request);
   }
 
-  return publicPath.test(request.nextUrl.pathname);
+  return publicPath.test(getUrlWithoutTrailingSlash(request));
 }
 
 function doesRequestPathnameMatchOneOfPublicPaths(
@@ -98,6 +98,10 @@ function doesRequestPathnameMatchOneOfPublicPaths(
   return publicPaths.some((path) =>
     doesRequestPathnameMatchPublicPath(request, path)
   );
+}
+
+function getUrlWithoutTrailingSlash(request: NextRequest) {
+  return request.nextUrl.pathname.endsWith('/') ? request.nextUrl.pathname.slice(0, -1) : request.nextUrl.pathname
 }
 
 export function redirectToLogin(
@@ -123,7 +127,8 @@ export async function createAuthMiddlewareResponse(
   request: NextRequest,
   options: CreateAuthMiddlewareOptions
 ): Promise<NextResponse> {
-  if (request.nextUrl.pathname === options.loginPath) {
+  const url = getUrlWithoutTrailingSlash(request);
+  if (url === options.loginPath) {
     return setAuthCookies(request.headers, {
       cookieName: options.cookieName,
       cookieSerializeOptions: options.cookieSerializeOptions,
@@ -138,7 +143,7 @@ export async function createAuthMiddlewareResponse(
     });
   }
 
-  if (request.nextUrl.pathname === options.logoutPath) {
+  if (url === options.logoutPath) {
     return removeAuthCookies(request.headers, {
       cookieName: options.cookieName,
       cookieSerializeOptions: options.cookieSerializeOptions
@@ -147,7 +152,7 @@ export async function createAuthMiddlewareResponse(
 
   if (
     options.refreshTokenPath &&
-    request.nextUrl.pathname === options.refreshTokenPath
+    url === options.refreshTokenPath
   ) {
     return refreshToken(request, options);
   }
@@ -214,12 +219,12 @@ export async function authMiddleware(
 
   removeInternalVerifiedCookieIfExists(request.cookies);
 
-  debug('Handle request', {path: request.nextUrl.pathname});
+  debug('Handle request', {path: getUrlWithoutTrailingSlash(request)});
 
   if (
     [options.loginPath, options.logoutPath, options.refreshTokenPath]
       .filter(Boolean)
-      .includes(request.nextUrl.pathname)
+      .includes(getUrlWithoutTrailingSlash(request))
   ) {
     debug('Handle authentication API route');
     return createAuthMiddlewareResponse(request, options);
