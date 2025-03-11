@@ -1,3 +1,13 @@
+# [1.10.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.1...v1.10.0-canary.1) (2025-03-11)
+
+
+### Features
+
+* **metadata:** added metadata support ([9dda6dc](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/9dda6dc8ea88291b286cb6a6be47899f0e647d90))
+* **metadata:** improved getTokens warning readability ([6945e55](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/6945e55f4b6157d5d46799a07d0bb437954b594a))
+* **metadata:** integrate metadata with starter example ([5ed8cf3](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/5ed8cf3880bf15fd153dcd3c00cbe44faeeb7145))
+* **metadata:** update types with getMetadata method ([5d9dbaa](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/5d9dbaa4f692dc76b667197e3f20ed7a83d10310))
+
 ## [1.9.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.0...v1.9.1) (2025-02-18)
 
 
