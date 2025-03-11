@@ -85,10 +85,10 @@ function doesRequestPathnameMatchPublicPath(
   publicPath: PublicPath
 ) {
   if (typeof publicPath === 'string') {
-    return publicPath === request.nextUrl.pathname;
+    return publicPath === getUrlWithoutTrailingSlash(request.nextUrl.pathname);
   }
 
-  return publicPath.test(request.nextUrl.pathname);
+  return publicPath.test(getUrlWithoutTrailingSlash(request.nextUrl.pathname));
 }
 
 function doesRequestPathnameMatchOneOfPublicPaths(
@@ -98,6 +98,10 @@ function doesRequestPathnameMatchOneOfPublicPaths(
   return publicPaths.some((path) =>
     doesRequestPathnameMatchPublicPath(request, path)
   );
+}
+
+function getUrlWithoutTrailingSlash(url: string) {
+  return url.endsWith('/') ? url.slice(0, -1) : url
 }
 
 export function redirectToLogin(
@@ -123,7 +127,8 @@ export async function createAuthMiddlewareResponse(
   request: NextRequest,
   options: CreateAuthMiddlewareOptions
 ): Promise<NextResponse> {
-  if (request.nextUrl.pathname === options.loginPath) {
+  const url = getUrlWithoutTrailingSlash(request.nextUrl.pathname);
+  if (url === getUrlWithoutTrailingSlash(options.loginPath)) {
     return setAuthCookies(request.headers, {
       cookieName: options.cookieName,
       cookieSerializeOptions: options.cookieSerializeOptions,
@@ -138,7 +143,7 @@ export async function createAuthMiddlewareResponse(
     });
   }
 
-  if (request.nextUrl.pathname === options.logoutPath) {
+  if (url === getUrlWithoutTrailingSlash(options.logoutPath)) {
     return removeAuthCookies(request.headers, {
       cookieName: options.cookieName,
       cookieSerializeOptions: options.cookieSerializeOptions
@@ -147,7 +152,7 @@ export async function createAuthMiddlewareResponse(
 
   if (
     options.refreshTokenPath &&
-    request.nextUrl.pathname === options.refreshTokenPath
+    url === getUrlWithoutTrailingSlash(options.refreshTokenPath)
   ) {
     return refreshToken(request, options);
   }
@@ -214,12 +219,14 @@ export async function authMiddleware(
 
   removeInternalVerifiedCookieIfExists(request.cookies);
 
-  debug('Handle request', {path: request.nextUrl.pathname});
+  debug('Handle request', {path: getUrlWithoutTrailingSlash(request.nextUrl.pathname)});
+
+  const authMiddlewareResponseRoutes = [options.loginPath, options.logoutPath, options.refreshTokenPath]
+    .filter(Boolean)
+    .map(url => getUrlWithoutTrailingSlash(url as string));
 
   if (
-    [options.loginPath, options.logoutPath, options.refreshTokenPath]
-      .filter(Boolean)
-      .includes(request.nextUrl.pathname)
+    authMiddlewareResponseRoutes.includes(getUrlWithoutTrailingSlash(request.nextUrl.pathname))
   ) {
     debug('Handle authentication API route');
     return createAuthMiddlewareResponse(request, options);
