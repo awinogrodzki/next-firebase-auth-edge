@@ -161,7 +161,7 @@ describe('AuthCookies', () => {
 
       await cookies.setAuthHeaders(mockTokens, headers);
 
-      expect(headers.append).toHaveBeenCalledTimes(5);
+      expect(headers.append).toHaveBeenCalledTimes(6);
       expect(headers.append).toHaveBeenCalledWith(
         'Set-Cookie',
         'TestCookie.id=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
@@ -176,10 +176,14 @@ describe('AuthCookies', () => {
       );
       expect(headers.append).toHaveBeenCalledWith(
         'Set-Cookie',
+        'TestCookie.metadata=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
+      );
+      expect(headers.append).toHaveBeenCalledWith(
+        'Set-Cookie',
         'TestCookie.sig=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
       );
       expect(headers.append).toHaveBeenNthCalledWith(
-        5,
+        6,
         'Set-Cookie',
         'TestCookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6ImlkLXRva2VuIiwicmVmcmVzaF90b2tlbiI6InJlZnJlc2gtdG9rZW4iLCJjdXN0b21fdG9rZW4iOiJjdXN0b20tdG9rZW4ifQ.ExxN2rNayg2XCR6WNeZmY8tAyc_qyiZ2YdzITRbQocs; Max-Age=1036800; Path=/; Expires=Thu, 26 Sep 2024 18:04:30 GMT; HttpOnly; Secure; SameSite=Lax'
       );
@@ -222,7 +226,7 @@ describe('AuthCookies', () => {
 
       await cookies.setAuthHeaders(mockTokens, headers);
 
-      expect(headers.append).toHaveBeenCalledTimes(5);
+      expect(headers.append).toHaveBeenCalledTimes(6);
       expect(headers.append).toHaveBeenCalledWith(
         'Set-Cookie',
         'TestCookie.id=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
@@ -237,10 +241,14 @@ describe('AuthCookies', () => {
       );
       expect(headers.append).toHaveBeenCalledWith(
         'Set-Cookie',
+        'TestCookie.metadata=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
+      );
+      expect(headers.append).toHaveBeenCalledWith(
+        'Set-Cookie',
         'TestCookie.sig=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
       );
       expect(headers.append).toHaveBeenNthCalledWith(
-        5,
+        6,
         'Set-Cookie',
         'TestCookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6ImlkLXRva2VuIiwicmVmcmVzaF90b2tlbiI6InJlZnJlc2gtdG9rZW4iLCJjdXN0b21fdG9rZW4iOiJjdXN0b20tdG9rZW4ifQ.ExxN2rNayg2XCR6WNeZmY8tAyc_qyiZ2YdzITRbQocs; Max-Age=1036800; Path=/; Expires=Thu, 26 Sep 2024 18:04:30 GMT; HttpOnly; Secure; SameSite=Lax'
       );
@@ -440,10 +448,11 @@ describe('AuthCookies', () => {
 
       await cookies.setAuthCookies(mockTokens, requestCookies);
 
-      expect(requestCookies.delete).toHaveBeenCalledTimes(4);
+      expect(requestCookies.delete).toHaveBeenCalledTimes(5);
       expect(requestCookies.delete).toHaveBeenCalledWith('TestCookie.id');
       expect(requestCookies.delete).toHaveBeenCalledWith('TestCookie.refresh');
       expect(requestCookies.delete).toHaveBeenCalledWith('TestCookie.custom');
+      expect(requestCookies.delete).toHaveBeenCalledWith('TestCookie.metadata');
       expect(requestCookies.delete).toHaveBeenCalledWith('TestCookie.sig');
 
       expect(requestCookies.set).toHaveBeenCalledTimes(1);
@@ -468,10 +477,11 @@ describe('AuthCookies', () => {
 
       await cookies.setAuthCookies(mockTokens, requestCookies);
 
-      expect(requestCookies.delete).toHaveBeenCalledTimes(4);
+      expect(requestCookies.delete).toHaveBeenCalledTimes(5);
       expect(requestCookies.delete).toHaveBeenCalledWith('TestCookie.id');
       expect(requestCookies.delete).toHaveBeenCalledWith('TestCookie.refresh');
       expect(requestCookies.delete).toHaveBeenCalledWith('TestCookie.custom');
+      expect(requestCookies.delete).toHaveBeenCalledWith('TestCookie.metadata');
       expect(requestCookies.delete).toHaveBeenCalledWith('TestCookie.sig');
 
       expect(requestCookies.set).toHaveBeenCalledTimes(1);

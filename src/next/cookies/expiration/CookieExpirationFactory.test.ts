@@ -98,7 +98,7 @@ describe('CookieExpirationFactory', () => {
 
     expiration.expireCookies(cookieSerializeOptions);
 
-    expect(headers.append).toHaveBeenCalledTimes(4);
+    expect(headers.append).toHaveBeenCalledTimes(5);
     expect(headers.append).toHaveBeenCalledWith(
       'Set-Cookie',
       'TestCookie.id=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
@@ -110,6 +110,10 @@ describe('CookieExpirationFactory', () => {
     expect(headers.append).toHaveBeenCalledWith(
       'Set-Cookie',
       'TestCookie.custom=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
+    );
+    expect(headers.append).toHaveBeenCalledWith(
+      'Set-Cookie',
+      'TestCookie.metadata=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
     );
     expect(headers.append).toHaveBeenCalledWith(
       'Set-Cookie',
@@ -133,7 +137,7 @@ describe('CookieExpirationFactory', () => {
 
     expiration.expireCookies(cookieSerializeOptions);
 
-    expect(headers.append).toHaveBeenCalledTimes(5);
+    expect(headers.append).toHaveBeenCalledTimes(6);
     expect(headers.append).toHaveBeenCalledWith(
       'Set-Cookie',
       'TestCookie=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
@@ -149,6 +153,10 @@ describe('CookieExpirationFactory', () => {
     expect(headers.append).toHaveBeenCalledWith(
       'Set-Cookie',
       'TestCookie.custom=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
+    );
+    expect(headers.append).toHaveBeenCalledWith(
+      'Set-Cookie',
+      'TestCookie.metadata=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
     );
     expect(headers.append).toHaveBeenCalledWith(
       'Set-Cookie',
@@ -172,7 +180,7 @@ describe('CookieExpirationFactory', () => {
 
     expiration.expireCookies(cookieSerializeOptions);
 
-    expect(headers.append).toHaveBeenCalledTimes(5);
+    expect(headers.append).toHaveBeenCalledTimes(6);
     expect(headers.append).toHaveBeenCalledWith(
       'Set-Cookie',
       'TestCookie=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
@@ -188,6 +196,10 @@ describe('CookieExpirationFactory', () => {
     expect(headers.append).toHaveBeenCalledWith(
       'Set-Cookie',
       'TestCookie.custom=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
+    );
+    expect(headers.append).toHaveBeenCalledWith(
+      'Set-Cookie',
+      'TestCookie.metadata=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
     );
     expect(headers.append).toHaveBeenCalledWith(
       'Set-Cookie',
