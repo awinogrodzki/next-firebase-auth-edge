@@ -1,3 +1,10 @@
+# [1.10.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.1...v1.10.0-canary.2) (2025-03-11)
+
+
+### Features
+
+* **metadata:** clear metadata cookies after logout ([d148629](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d148629daa226314fcd994ffafe094fc226b890a))
+
 # [1.10.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.1...v1.10.0-canary.1) (2025-03-11)
 
 
