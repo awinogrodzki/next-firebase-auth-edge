@@ -1,5 +1,5 @@
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
-import {CustomTokens} from '../../auth/custom-token/index.ts';
+import {ParsedCookies} from '../../auth/custom-token/index.ts';
 import {AuthCookies} from './AuthCookies.ts';
 import {SetAuthCookiesOptions} from './index.ts';
 import {ObjectCookiesProvider} from './parser/ObjectCookiesProvider.ts';
@@ -13,7 +13,7 @@ const cookieSerializeOptions = {
   maxAge: 12 * 60 * 60 * 24,
   expires: new Date(1727373870 * 1000)
 };
-const setAuthCookiesOptions: SetAuthCookiesOptions = {
+const setAuthCookiesOptions: SetAuthCookiesOptions<never> = {
   cookieName,
   cookieSerializeOptions,
   cookieSignatureKeys: ['secret'],
@@ -21,10 +21,11 @@ const setAuthCookiesOptions: SetAuthCookiesOptions = {
   enableCustomToken: true
 };
 
-const mockTokens: CustomTokens = {
+const mockTokens: ParsedCookies<never> = {
   idToken: 'id-token',
   refreshToken: 'refresh-token',
-  customToken: 'custom-token'
+  customToken: 'custom-token',
+  metadata: {} as never
 };
 
 describe('AuthCookies', () => {

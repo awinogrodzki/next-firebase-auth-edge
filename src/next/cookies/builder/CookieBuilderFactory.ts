@@ -3,7 +3,9 @@ import {MultipleCookieBuilder} from './MultipleCookieBuilder.js';
 import {SingleCookieBuilder} from './SingleCookieBuilder.js';
 
 export class CookieBuilderFactory {
-  static fromOptions(options: SetAuthCookiesOptions) {
+  static fromOptions<Metadata extends object>(
+    options: SetAuthCookiesOptions<Metadata>
+  ) {
     if (options.enableMultipleCookies) {
       return new MultipleCookieBuilder(
         options.cookieName,

@@ -38,6 +38,29 @@ const testCookiesNoCustom = [
   }
 ];
 
+const testCookiesWithMetadata = [
+  {
+    name: 'TestCookie.id',
+    value: 'id-token'
+  },
+  {
+    name: 'TestCookie.refresh',
+    value: 'refresh-token'
+  },
+  {
+    name: 'TestCookie.custom',
+    value: 'custom-token'
+  },
+  {
+    name: 'TestCookie.metadata',
+    value: 'eyJmb28iOiJiYXIifQ'
+  },
+  {
+    name: 'TestCookie.sig',
+    value: '4LS2ty2sdecHjVR9dSSMO8jY0gvITmMgJH1stLFKVlA'
+  }
+];
+
 describe('MultipleCookiesParser', () => {
   let mockCookies: RequestCookies;
   let mockCookiesProvider: CookiesProvider;
@@ -64,13 +87,41 @@ describe('MultipleCookiesParser', () => {
     expect(result).toEqual({
       customToken: 'custom-token',
       idToken: 'id-token',
-      refreshToken: 'refresh-token'
+      refreshToken: 'refresh-token',
+      metadata: {}
     });
 
     expect(mockCookies.get).toHaveBeenNthCalledWith(1, 'TestCookie.id');
     expect(mockCookies.get).toHaveBeenNthCalledWith(2, 'TestCookie.refresh');
     expect(mockCookies.get).toHaveBeenNthCalledWith(3, 'TestCookie.custom');
-    expect(mockCookies.get).toHaveBeenNthCalledWith(4, 'TestCookie.sig');
+    expect(mockCookies.get).toHaveBeenNthCalledWith(4, 'TestCookie.metadata');
+    expect(mockCookies.get).toHaveBeenNthCalledWith(5, 'TestCookie.sig');
+  });
+
+  it('should parse multiple cookies with metadata', async () => {
+    (mockCookies.get as jest.Mock).mockImplementation((name: string) =>
+      testCookiesWithMetadata.find((cookie) => name === cookie.name)
+    );
+    const parser = new MultipleCookiesParser(
+      mockCookiesProvider,
+      'TestCookie',
+      ['secret']
+    );
+
+    const result = await parser.parseCookies();
+
+    expect(result).toEqual({
+      customToken: 'custom-token',
+      idToken: 'id-token',
+      refreshToken: 'refresh-token',
+      metadata: {foo: 'bar'}
+    });
+
+    expect(mockCookies.get).toHaveBeenNthCalledWith(1, 'TestCookie.id');
+    expect(mockCookies.get).toHaveBeenNthCalledWith(2, 'TestCookie.refresh');
+    expect(mockCookies.get).toHaveBeenNthCalledWith(3, 'TestCookie.custom');
+    expect(mockCookies.get).toHaveBeenNthCalledWith(4, 'TestCookie.metadata');
+    expect(mockCookies.get).toHaveBeenNthCalledWith(5, 'TestCookie.sig');
   });
 
   it('should throw missing credentials error if id token is empty', () => {
@@ -141,13 +192,15 @@ describe('MultipleCookiesParser', () => {
 
     expect(result).toEqual({
       idToken: 'id-token',
-      refreshToken: 'refresh-token'
+      refreshToken: 'refresh-token',
+      metadata: {}
     });
 
     expect(mockCookies.get).toHaveBeenNthCalledWith(1, 'TestCookie.id');
     expect(mockCookies.get).toHaveBeenNthCalledWith(2, 'TestCookie.refresh');
     expect(mockCookies.get).toHaveBeenNthCalledWith(3, 'TestCookie.custom');
-    expect(mockCookies.get).toHaveBeenNthCalledWith(4, 'TestCookie.sig');
+    expect(mockCookies.get).toHaveBeenNthCalledWith(4, 'TestCookie.metadata');
+    expect(mockCookies.get).toHaveBeenNthCalledWith(5, 'TestCookie.sig');
   });
   it('should throw missing credentials error if signature is empty', () => {
     (mockCookies.get as jest.Mock).mockImplementation((name: string) =>

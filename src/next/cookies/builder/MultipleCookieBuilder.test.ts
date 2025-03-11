@@ -8,7 +8,8 @@ describe('MultipleCookieBuilder', () => {
       await builder.buildCookies({
         idToken: 'id-token',
         refreshToken: 'refresh-token',
-        customToken: 'custom-token'
+        customToken: 'custom-token',
+        metadata: {}
       })
     ).toEqual([
       {
@@ -30,13 +31,48 @@ describe('MultipleCookieBuilder', () => {
     ]);
   });
 
+  it('should create cookies with metadata and signature', async () => {
+    const builder = new MultipleCookieBuilder('TestCookie', ['secret']);
+
+    expect(
+      await builder.buildCookies({
+        idToken: 'id-token',
+        refreshToken: 'refresh-token',
+        customToken: 'custom-token',
+        metadata: {foo: 'bar'}
+      })
+    ).toEqual([
+      {
+        name: 'TestCookie.id',
+        value: 'id-token'
+      },
+      {
+        name: 'TestCookie.refresh',
+        value: 'refresh-token'
+      },
+      {
+        name: 'TestCookie.custom',
+        value: 'custom-token'
+      },
+      {
+        name: 'TestCookie.metadata',
+        value: 'eyJmb28iOiJiYXIifQ'
+      },
+      {
+        name: 'TestCookie.sig',
+        value: '4LS2ty2sdecHjVR9dSSMO8jY0gvITmMgJH1stLFKVlA'
+      }
+    ]);
+  });
+
   it('should skip custom token if not provided', async () => {
     const builder = new MultipleCookieBuilder('TestCookie', ['secret']);
 
     expect(
       await builder.buildCookies({
         idToken: 'id-token',
-        refreshToken: 'refresh-token'
+        refreshToken: 'refresh-token',
+        metadata: {}
       })
     ).toEqual([
       {

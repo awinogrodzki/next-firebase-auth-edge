@@ -152,6 +152,10 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
             <h5>Custom claims</h5>
             <pre>{JSON.stringify(user.customClaims, undefined, 2)}</pre>
           </div>
+          <div className={styles.claims}>
+            <h5>Metadata</h5>
+            <pre>{JSON.stringify(user.metadata, undefined, 2)}</pre>
+          </div>
           <Button
             loading={isClaimsLoading}
             disabled={isClaimsLoading}

@@ -1,5 +1,5 @@
-import {ParsedTokens} from '../../../auth/custom-token/index.js';
+import {ParsedCookies} from '../../../auth/custom-token/index.js';
 
-export interface CookieParser {
-  parseCookies(): Promise<ParsedTokens>;
+export interface CookieParser<Metadata extends object> {
+  parseCookies(): Promise<ParsedCookies<Metadata>>;
 }

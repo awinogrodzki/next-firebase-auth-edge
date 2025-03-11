@@ -6,30 +6,9 @@ You can update your API key restrictions in the [Google Cloud Console](https://c
 
 ## Enable Referer Validation
 
-To support API key domain restrictions, you need to inform Google APIs about the referer of your requests. To do this, follow these steps for each operation:
+To support API key domain restrictions, you need to inform Google APIs about the referer of your requests.
 
-1. Ensure you pass the `headers` option with each `getTokens` call. The library will extract the referer from the headers and use it when verifying tokens with Google APIs.
-
-```tsx
-import {getTokens} from 'next-firebase-auth-edge';
-import {cookies, headers} from 'next/headers';
-
-export default async function ServerComponentExample() {
-  // Since Next.js 15, `cookies` and `headers` functions returns a Promise, so we need to precede them with `await`.
-  const tokens = await getTokens(await cookies(), {
-    // ...other options
-    headers: await headers()
-  });
-
-  return <div>{/* ... */}</div>;
-}
-```
-
-See the [getTokens](/docs/usage/server-components) options section for more details.
-
-2. If you're using the deprecated `getTokensFromObject` method, switch to `getApiRequestTokens` instead. Refer to the [getApiRequestTokens](/docs/usage/pages-router-api-routes) documentation for more information.
-
-3. If you are using any of the advanced methods like `getCustomIdAndRefreshTokens`, `verifyIdToken`, `handleTokenRefresh`, or `verifyAndRefreshExpiredIdToken` from the [advanced usage](/docs/usage/advanced-usage) section, make sure to pass the `referer` option. The `referer` should be the authorized domain, derived from the request headers. You can use the `getReferer` function (imported from `next-firebase-auth-edge/lib/next/utils`) to extract the referer from the headers of `NextRequest`.
+If you are using any of the advanced methods like `getCustomIdAndRefreshTokens`, `verifyIdToken`, `handleTokenRefresh`, or `verifyAndRefreshExpiredIdToken` from the [advanced usage](/docs/usage/advanced-usage) section, make sure to pass the `referer` option. The `referer` should be the authorized domain, derived from the request headers. You can use the `getReferer` function (imported from `next-firebase-auth-edge/lib/next/utils`) to extract the referer from the headers of `NextRequest`.
 
 ```ts
 import {getFirebaseAuth} from 'next-firebase-auth-edge/lib/auth';

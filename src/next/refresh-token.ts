@@ -6,9 +6,9 @@ import {
   verifyNextCookies
 } from './cookies/index.js';
 
-export async function refreshToken(
+export async function refreshToken<Metadata extends object>(
   request: NextRequest,
-  options: SetAuthCookiesOptions
+  options: SetAuthCookiesOptions<Metadata>
 ) {
   const result = await verifyNextCookies(
     request.cookies,
