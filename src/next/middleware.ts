@@ -101,7 +101,7 @@ function doesRequestPathnameMatchOneOfPublicPaths(
 }
 
 function getUrlWithoutTrailingSlash(url: string) {
-  return url.endsWith('/') ? url.slice(0, -1) : url
+  return url.endsWith('/') ? url.slice(0, -1) : url;
 }
 
 export function redirectToLogin(
@@ -219,14 +219,22 @@ export async function authMiddleware(
 
   removeInternalVerifiedCookieIfExists(request.cookies);
 
-  debug('Handle request', {path: getUrlWithoutTrailingSlash(request.nextUrl.pathname)});
+  debug('Handle request', {
+    path: getUrlWithoutTrailingSlash(request.nextUrl.pathname)
+  });
 
-  const authMiddlewareResponseRoutes = [options.loginPath, options.logoutPath, options.refreshTokenPath]
+  const authMiddlewareResponseRoutes = [
+    options.loginPath,
+    options.logoutPath,
+    options.refreshTokenPath
+  ]
     .filter(Boolean)
-    .map(url => getUrlWithoutTrailingSlash(url as string));
+    .map((url) => getUrlWithoutTrailingSlash(url as string));
 
   if (
-    authMiddlewareResponseRoutes.includes(getUrlWithoutTrailingSlash(request.nextUrl.pathname))
+    authMiddlewareResponseRoutes.includes(
+      getUrlWithoutTrailingSlash(request.nextUrl.pathname)
+    )
   ) {
     debug('Handle authentication API route');
     return createAuthMiddlewareResponse(request, options);
