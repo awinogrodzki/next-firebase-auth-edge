@@ -2,11 +2,17 @@ import {createContext, useContext} from 'react';
 import {UserInfo} from 'firebase/auth';
 import {Claims} from 'next-firebase-auth-edge/lib/auth/claims';
 
+export interface Metadata {
+  uid: string;
+  timestamp: number;
+}
+
 export interface User extends UserInfo {
   idToken: string;
   customToken?: string;
   emailVerified: boolean;
   customClaims: Claims;
+  metadata: Metadata;
 }
 
 export interface AuthContextValue {

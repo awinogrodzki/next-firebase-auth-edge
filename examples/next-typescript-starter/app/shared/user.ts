@@ -1,8 +1,8 @@
 import {Tokens} from 'next-firebase-auth-edge';
-import {User} from '../auth/AuthContext';
+import {Metadata, User} from '../auth/AuthContext';
 import {filterStandardClaims} from 'next-firebase-auth-edge/lib/auth/claims';
 
-export const toUser = ({token, customToken, decodedToken}: Tokens): User => {
+export const toUser = ({token, customToken, decodedToken, metadata}: Tokens<Metadata>): User => {
   const {
     uid,
     email,
@@ -25,6 +25,7 @@ export const toUser = ({token, customToken, decodedToken}: Tokens): User => {
     providerId: signInProvider,
     customClaims,
     idToken: token,
-    customToken
+    customToken,
+    metadata
   };
 };

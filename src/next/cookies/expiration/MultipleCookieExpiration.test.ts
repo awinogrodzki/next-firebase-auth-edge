@@ -29,6 +29,7 @@ describe('MultipleCookieExpiration', () => {
         {name: 'TestCookie.id', value: ''},
         {name: 'TestCookie.refresh', value: ''},
         {name: 'TestCookie.custom', value: ''},
+        {name: 'TestCookie.metadata', value: ''},
         {name: 'TestCookie.sig', value: ''}
       ],
       {

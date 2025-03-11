@@ -1,21 +1,18 @@
+import { getTokens } from 'next-firebase-auth-edge';
+import { cookies } from 'next/headers';
+import { authConfig } from '../config/server-config';
+import { AuthProvider } from './auth/AuthProvider';
 import './globals.css';
 import styles from './layout.module.css';
-import {Metadata} from 'next';
-import {getTokens} from 'next-firebase-auth-edge';
-import {cookies, headers} from 'next/headers';
-import {authConfig} from '../config/server-config';
-import {AuthProvider} from './auth/AuthProvider';
-import {toUser} from './shared/user';
+import { toUser } from './shared/user';
+import { Metadata } from './auth/AuthContext';
 
 export default async function RootLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  const tokens = await getTokens(await cookies(), {
-    ...authConfig,
-    headers: await headers()
-  });
+  const tokens = await getTokens<Metadata>(await cookies(), authConfig);
   const user = tokens ? toUser(tokens) : null;
 
   return (
@@ -40,7 +37,7 @@ export default async function RootLayout({
   );
 }
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'next-firebase-auth-edge example page',
   description: 'Next.js page showcasing next-firebase-auth-edge features',
   icons: '/favicon.ico'

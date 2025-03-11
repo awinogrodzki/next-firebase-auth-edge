@@ -38,6 +38,10 @@ export class MultipleCookieExpiration implements CookieExpiration {
         value: ''
       },
       {
+        name: `${this.cookieName}.metadata`,
+        value: ''
+      },
+      {
         name: `${this.cookieName}.sig`,
         value: ''
       }

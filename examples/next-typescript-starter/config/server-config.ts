@@ -1,3 +1,4 @@
+import {TokenSet} from 'next-firebase-auth-edge/auth';
 import {clientConfig} from './client-config';
 
 export const serverConfig = {
@@ -35,6 +36,9 @@ export const authConfig = {
   // Set to false if you're not planning to use `signInWithCustomToken` Firebase Client SDK method
   enableCustomToken: true,
   experimental_enableTokenRefreshOnExpiredKidHeader: true,
-  debug: true,
-  tenantId: clientConfig.tenantId
+  debug: false,
+  tenantId: clientConfig.tenantId,
+  getMetadata: async (tokens: TokenSet) => {
+    return {uid: tokens.decodedIdToken.uid, timestamp: new Date().getTime()};
+  }
 };
