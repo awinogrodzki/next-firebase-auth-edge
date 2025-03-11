@@ -34,7 +34,7 @@ export interface VerifyOptions {
   experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
 }
 
-export interface Tokens<Metadata extends object> {
+export interface Tokens<Metadata extends object = object> {
   decodedToken: DecodedIdToken;
   token: string;
   // Set `enableCustomToken` to true in `authMiddleware` to enable custom token

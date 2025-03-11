@@ -136,7 +136,8 @@ export async function createAuthMiddlewareResponse<Metadata extends object>(
       enableMultipleCookies: options.enableMultipleCookies,
       authorizationHeaderName: options.authorizationHeaderName,
       enableCustomToken: options.enableCustomToken,
-      dynamicCustomClaimsKeys: options.dynamicCustomClaimsKeys
+      dynamicCustomClaimsKeys: options.dynamicCustomClaimsKeys,
+      getMetadata: options.getMetadata
     });
   }
 

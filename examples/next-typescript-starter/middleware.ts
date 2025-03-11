@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
     experimental_enableTokenRefreshOnExpiredKidHeader:
       authConfig.experimental_enableTokenRefreshOnExpiredKidHeader,
     tenantId: authConfig.tenantId,
-    dynamicCustomClaimsKeys: ["someCustomClaim"],
+    dynamicCustomClaimsKeys: ['someCustomClaim'],
     handleValidToken: async ({token, decodedToken, customToken}, headers) => {
       // Authenticated user should not be able to access /login, /register and /reset-password routes
       if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
@@ -51,7 +51,8 @@ export async function middleware(request: NextRequest) {
         path: '/login',
         publicPaths: PUBLIC_PATHS
       });
-    }
+    },
+    getMetadata: authConfig.getMetadata
   });
 }
 
@@ -65,6 +66,6 @@ export const config = {
     '/api/refresh-token',
     // App api routes
     '/api/custom-claims',
-    '/api/user-counters',
+    '/api/user-counters'
   ]
 };
