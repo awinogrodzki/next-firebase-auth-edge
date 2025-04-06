@@ -140,6 +140,7 @@
     "./lib/auth": "./lib/auth/index.js",
     "./lib/auth/error": "./lib/auth/error.js",
     "./lib/auth/claims": "./lib/auth/claims.js",
+    "./lib/auth/token-verifier": "./lib/auth/token-verifier.js",
     "./lib/next/utils": "./lib/next/utils.js",
     "./lib/next/cookies": "./lib/next/cookies/index.js",
     "./lib/next/tokens": "./lib/next/tokens.js",
