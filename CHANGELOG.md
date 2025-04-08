@@ -1,3 +1,10 @@
+# [1.10.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.2...v1.10.0-canary.3) (2025-04-08)
+
+
+### Features
+
+* exposing token-verifier for public use ([d4a3796](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d4a379692f41376608ecf4b865ed249f07daffd1))
+
 # [1.10.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.1...v1.10.0-canary.2) (2025-03-11)
 
 
