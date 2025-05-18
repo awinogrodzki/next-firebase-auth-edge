@@ -115,7 +115,10 @@ export function redirectToLogin(
 
   const url = request.nextUrl.clone();
   url.pathname = options.path;
-  url.search = `${redirectKey}=${request.nextUrl.pathname}${url.search}`;
+  const encodedRedirect = encodeURIComponent(
+    `${request.nextUrl.pathname}${url.search}`
+  );
+  url.search = `${redirectKey}=${encodedRedirect}`;
   return NextResponse.redirect(url);
 }
 
