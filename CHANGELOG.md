@@ -1,3 +1,10 @@
+# [1.10.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.3...v1.10.0-canary.4) (2025-05-29)
+
+
+### Bug Fixes
+
+* encode redirect param ([2afeef3](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/2afeef38e0fab0214b0c06da2b258871c909414f))
+
 # [1.10.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.2...v1.10.0-canary.3) (2025-04-08)
 
 
