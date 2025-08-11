@@ -69,36 +69,50 @@ export function redirectToHome(
   return redirectToPath(request, options.path, {shouldClearSearchParams: true});
 }
 
-export type PublicPath = string | RegExp;
+export type Path = string | RegExp;
 
-interface RedirectToLoginOptions {
+// @deprecated - Use `Path` instead
+export type PublicPath = Path;
+
+export interface RedirectToLoginOptions {
   path: string;
-  publicPaths: PublicPath[];
   redirectParamKeyName?: string;
+  publicPaths?: Path[];
+  privatePaths?: Path[];
 }
 
-function doesRequestPathnameMatchPublicPath(
-  request: NextRequest,
-  publicPath: PublicPath
-) {
-  if (typeof publicPath === 'string') {
-    return publicPath === getUrlWithoutTrailingSlash(request.nextUrl.pathname);
+function doesRequestPathnameMatchPath(request: NextRequest, path: Path) {
+  if (typeof path === 'string') {
+    return path === getUrlWithoutTrailingSlash(request.nextUrl.pathname);
   }
 
-  return publicPath.test(getUrlWithoutTrailingSlash(request.nextUrl.pathname));
+  return path.test(getUrlWithoutTrailingSlash(request.nextUrl.pathname));
 }
 
-function doesRequestPathnameMatchOneOfPublicPaths(
+function doesRequestPathnameMatchOneOfPaths(
   request: NextRequest,
-  publicPaths: PublicPath[]
+  paths: Path[]
 ) {
-  return publicPaths.some((path) =>
-    doesRequestPathnameMatchPublicPath(request, path)
-  );
+  return paths.some((path) => doesRequestPathnameMatchPath(request, path));
 }
 
 function getUrlWithoutTrailingSlash(url: string) {
   return url.endsWith('/') ? url.slice(0, -1) : url;
+}
+
+function createLoginRedirectResponse(
+  request: NextRequest,
+  options: RedirectToLoginOptions
+) {
+  const redirectKey = options.redirectParamKeyName || 'redirect';
+  const url = request.nextUrl.clone();
+  url.pathname = options.path;
+  const encodedRedirect = encodeURIComponent(
+    `${request.nextUrl.pathname}${url.search}`
+  );
+  url.search = `${redirectKey}=${encodedRedirect}`;
+
+  return NextResponse.redirect(url);
 }
 
 export function redirectToLogin(
@@ -108,19 +122,21 @@ export function redirectToLogin(
     publicPaths: ['/login']
   }
 ) {
-  const redirectKey = options.redirectParamKeyName || 'redirect';
-
-  if (doesRequestPathnameMatchOneOfPublicPaths(request, options.publicPaths)) {
+  if (
+    options.publicPaths &&
+    doesRequestPathnameMatchOneOfPaths(request, options.publicPaths)
+  ) {
     return NextResponse.next();
   }
 
-  const url = request.nextUrl.clone();
-  url.pathname = options.path;
-  const encodedRedirect = encodeURIComponent(
-    `${request.nextUrl.pathname}${url.search}`
-  );
-  url.search = `${redirectKey}=${encodedRedirect}`;
-  return NextResponse.redirect(url);
+  if (
+    options.privatePaths &&
+    !doesRequestPathnameMatchOneOfPaths(request, options.privatePaths)
+  ) {
+    return NextResponse.next();
+  }
+
+  return createLoginRedirectResponse(request, options);
 }
 
 export async function createAuthMiddlewareResponse<Metadata extends object>(
