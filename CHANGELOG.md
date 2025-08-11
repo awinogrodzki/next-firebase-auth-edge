@@ -1,3 +1,10 @@
+# [1.10.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.5...v1.10.0-canary.6) (2025-08-11)
+
+
+### Features
+
+* **middleware:** redirectToLogin supports privatePaths ([1a5450c](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/1a5450cade9266275c036b23752b66f0327d4669))
+
 # [1.10.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.4...v1.10.0-canary.5) (2025-08-11)
 
 
