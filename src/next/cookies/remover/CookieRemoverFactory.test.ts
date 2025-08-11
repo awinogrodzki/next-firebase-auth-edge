@@ -91,10 +91,11 @@ describe('CookieRemoverFactory', () => {
 
     remover.removeCookies();
 
-    expect(cookies.delete).toHaveBeenCalledTimes(4);
+    expect(cookies.delete).toHaveBeenCalledTimes(5);
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie.id');
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie.refresh');
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie.custom');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.metadata');
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie.sig');
   });
 
@@ -114,11 +115,12 @@ describe('CookieRemoverFactory', () => {
 
     remover.removeCookies();
 
-    expect(cookies.delete).toHaveBeenCalledTimes(5);
+    expect(cookies.delete).toHaveBeenCalledTimes(6);
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie');
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie.id');
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie.refresh');
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie.custom');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.metadata');
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie.sig');
   });
 
@@ -138,11 +140,12 @@ describe('CookieRemoverFactory', () => {
 
     remover.removeCookies();
 
-    expect(cookies.delete).toHaveBeenCalledTimes(5);
+    expect(cookies.delete).toHaveBeenCalledTimes(6);
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie');
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie.id');
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie.refresh');
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie.custom');
+    expect(cookies.delete).toHaveBeenCalledWith('TestCookie.metadata');
     expect(cookies.delete).toHaveBeenCalledWith('TestCookie.sig');
   });
 });

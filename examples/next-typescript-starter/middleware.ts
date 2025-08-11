@@ -7,6 +7,7 @@ import {
 } from 'next-firebase-auth-edge';
 import {authConfig} from './config/server-config';
 
+const PRIVATE_PATHS = ['/', '/profile'];
 const PUBLIC_PATHS = ['/register', '/login', '/reset-password'];
 
 export async function middleware(request: NextRequest) {
@@ -25,7 +26,7 @@ export async function middleware(request: NextRequest) {
     experimental_enableTokenRefreshOnExpiredKidHeader:
       authConfig.experimental_enableTokenRefreshOnExpiredKidHeader,
     tenantId: authConfig.tenantId,
-    dynamicCustomClaimsKeys: ["someCustomClaim"],
+    dynamicCustomClaimsKeys: ['someCustomClaim'],
     handleValidToken: async ({token, decodedToken, customToken}, headers) => {
       // Authenticated user should not be able to access /login, /register and /reset-password routes
       if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
@@ -41,7 +42,7 @@ export async function middleware(request: NextRequest) {
     handleInvalidToken: async (_reason) => {
       return redirectToLogin(request, {
         path: '/login',
-        publicPaths: PUBLIC_PATHS
+        privatePaths: PRIVATE_PATHS
       });
     },
     handleError: async (error) => {
@@ -49,9 +50,10 @@ export async function middleware(request: NextRequest) {
 
       return redirectToLogin(request, {
         path: '/login',
-        publicPaths: PUBLIC_PATHS
+        privatePaths: PRIVATE_PATHS
       });
-    }
+    },
+    getMetadata: authConfig.getMetadata
   });
 }
 
@@ -59,8 +61,12 @@ export const config = {
   matcher: [
     '/',
     '/((?!_next|favicon.ico|__/auth|__/firebase|api|.*\\.).*)',
+    // Middleware api routes
     '/api/login',
     '/api/logout',
-    '/api/refresh-token'
+    '/api/refresh-token',
+    // App api routes
+    '/api/custom-claims',
+    '/api/user-counters'
   ]
 };

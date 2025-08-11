@@ -1,3 +1,55 @@
+# [1.10.0-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.6...v1.10.0-canary.7) (2025-08-11)
+
+
+### Bug Fixes
+
+* allow to use `/` as private path ([00eaeca](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/00eaeca9b2ea73a736fab5d2ba60f9f22a764f2b))
+
+# [1.10.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.5...v1.10.0-canary.6) (2025-08-11)
+
+
+### Features
+
+* **middleware:** redirectToLogin supports privatePaths ([1a5450c](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/1a5450cade9266275c036b23752b66f0327d4669))
+
+# [1.10.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.4...v1.10.0-canary.5) (2025-08-11)
+
+
+### Features
+
+* update firebase, firebase-admin and react dependencies ([41b94f7](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/41b94f7b16a9012b3707bf6942dee75eea1ea5bc))
+
+# [1.10.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.3...v1.10.0-canary.4) (2025-05-29)
+
+
+### Bug Fixes
+
+* encode redirect param ([2afeef3](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/2afeef38e0fab0214b0c06da2b258871c909414f))
+
+# [1.10.0-canary.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.2...v1.10.0-canary.3) (2025-04-08)
+
+
+### Features
+
+* exposing token-verifier for public use ([d4a3796](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d4a379692f41376608ecf4b865ed249f07daffd1))
+
+# [1.10.0-canary.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.1...v1.10.0-canary.2) (2025-03-11)
+
+
+### Features
+
+* **metadata:** clear metadata cookies after logout ([d148629](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d148629daa226314fcd994ffafe094fc226b890a))
+
+# [1.10.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.1...v1.10.0-canary.1) (2025-03-11)
+
+
+### Features
+
+* **metadata:** added metadata support ([9dda6dc](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/9dda6dc8ea88291b286cb6a6be47899f0e647d90))
+* **metadata:** improved getTokens warning readability ([6945e55](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/6945e55f4b6157d5d46799a07d0bb437954b594a))
+* **metadata:** integrate metadata with starter example ([5ed8cf3](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/5ed8cf3880bf15fd153dcd3c00cbe44faeeb7145))
+* **metadata:** update types with getMetadata method ([5d9dbaa](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/5d9dbaa4f692dc76b667197e3f20ed7a83d10310))
+
 ## [1.9.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.0...v1.9.1) (2025-02-18)
 
 

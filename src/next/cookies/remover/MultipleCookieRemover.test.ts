@@ -18,6 +18,10 @@ describe('MultipleCookieRemover', () => {
     expect(mockCookies.delete).toHaveBeenNthCalledWith(1, 'TestCookie.id');
     expect(mockCookies.delete).toHaveBeenNthCalledWith(2, 'TestCookie.refresh');
     expect(mockCookies.delete).toHaveBeenNthCalledWith(3, 'TestCookie.custom');
-    expect(mockCookies.delete).toHaveBeenNthCalledWith(4, 'TestCookie.sig');
+    expect(mockCookies.delete).toHaveBeenNthCalledWith(
+      4,
+      'TestCookie.metadata'
+    );
+    expect(mockCookies.delete).toHaveBeenNthCalledWith(5, 'TestCookie.sig');
   });
 });

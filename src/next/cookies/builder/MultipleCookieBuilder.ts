@@ -1,9 +1,12 @@
-import {ParsedTokens} from '../../../auth/custom-token/index.js';
+import {base64url} from 'jose';
+import {ParsedCookies} from '../../../auth/custom-token/index.js';
 import {RotatingCredential} from '../../../auth/rotating-credential.js';
 import {Cookie, CookieBuilder} from './CookieBuilder.js';
 
-export class MultipleCookieBuilder implements CookieBuilder {
-  private credential: RotatingCredential;
+export class MultipleCookieBuilder<Metadata extends object>
+  implements CookieBuilder<Metadata>
+{
+  private credential: RotatingCredential<Metadata>;
 
   constructor(
     private cookieName: string,
@@ -12,43 +15,39 @@ export class MultipleCookieBuilder implements CookieBuilder {
     this.credential = new RotatingCredential(signatureKeys);
   }
 
-  public async buildCookies(tokens: ParsedTokens): Promise<Cookie[]> {
-    const signature = await this.credential.createSignature(tokens);
+  public async buildCookies(value: ParsedCookies<Metadata>): Promise<Cookie[]> {
+    const signature = await this.credential.createSignature(value);
 
-    if (!tokens.customToken) {
-      return [
-        {
-          name: `${this.cookieName}.id`,
-          value: tokens.idToken
-        },
-        {
-          name: `${this.cookieName}.refresh`,
-          value: tokens.refreshToken
-        },
-        {
-          name: `${this.cookieName}.sig`,
-          value: signature
-        }
-      ];
-    }
-
-    return [
+    const result: Cookie[] = [
       {
         name: `${this.cookieName}.id`,
-        value: tokens.idToken
+        value: value.idToken
       },
       {
         name: `${this.cookieName}.refresh`,
-        value: tokens.refreshToken
-      },
-      {
-        name: `${this.cookieName}.custom`,
-        value: tokens.customToken
-      },
-      {
-        name: `${this.cookieName}.sig`,
-        value: signature
+        value: value.refreshToken
       }
     ];
+
+    if (value.customToken) {
+      result.push({
+        name: `${this.cookieName}.custom`,
+        value: value.customToken
+      });
+    }
+
+    if (value.metadata && Object.keys(value.metadata).length > 0) {
+      result.push({
+        name: `${this.cookieName}.metadata`,
+        value: base64url.encode(JSON.stringify(value.metadata))
+      });
+    }
+
+    result.push({
+      name: `${this.cookieName}.sig`,
+      value: signature
+    });
+
+    return result;
   }
 }

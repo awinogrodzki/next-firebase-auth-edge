@@ -1,4 +1,3 @@
-import type {CookieSerializeOptions} from 'cookie';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
 import {ServiceAccount} from '../auth/credential.js';
@@ -12,7 +11,11 @@ import {
 import {getFirebaseAuth, handleExpiredToken, Tokens} from '../auth/index.js';
 import {debug, enableDebugMode} from '../debug/index.js';
 import {AuthCookies} from './cookies/AuthCookies.js';
-import {removeAuthCookies, setAuthCookies} from './cookies/index.js';
+import {
+  removeAuthCookies,
+  setAuthCookies,
+  SetAuthCookiesOptions
+} from './cookies/index.js';
 import {RequestCookiesProvider} from './cookies/parser/RequestCookiesProvider.js';
 import {
   markCookiesAsVerified,
@@ -22,22 +25,16 @@ import {
 import {refreshToken} from './refresh-token.js';
 import {getRequestCookiesTokens, validateOptions} from './tokens.js';
 import {getReferer} from './utils.js';
+import {getMetadataInternal} from './metadata.js';
+import {mapJwtPayloadToDecodedIdToken} from '../auth/utils.js';
+import {decodeJwt} from 'jose';
 
-export interface CreateAuthMiddlewareOptions {
+export interface CreateAuthMiddlewareOptions<Metadata extends object>
+  extends SetAuthCookiesOptions<Metadata> {
   loginPath: string;
   logoutPath: string;
-  cookieName: string;
-  cookieSignatureKeys: string[];
-  cookieSerializeOptions: CookieSerializeOptions;
-  serviceAccount?: ServiceAccount;
-  apiKey: string;
-  tenantId?: string;
   refreshTokenPath?: string;
-  enableMultipleCookies?: boolean;
-  enableCustomToken?: boolean;
-  authorizationHeaderName?: string;
   experimental_createAnonymousUserIfUserNotFound?: boolean;
-  dynamicCustomClaimsKeys?: string[];
 }
 
 interface RedirectToPathOptions {
@@ -72,32 +69,54 @@ export function redirectToHome(
   return redirectToPath(request, options.path, {shouldClearSearchParams: true});
 }
 
-export type PublicPath = string | RegExp;
+export type Path = string | RegExp;
 
-interface RedirectToLoginOptions {
+// @deprecated - Use `Path` instead
+export type PublicPath = Path;
+
+export interface RedirectToLoginOptions {
   path: string;
-  publicPaths: PublicPath[];
   redirectParamKeyName?: string;
+  publicPaths?: Path[];
+  privatePaths?: Path[];
 }
 
-function doesRequestPathnameMatchPublicPath(
-  request: NextRequest,
-  publicPath: PublicPath
-) {
-  if (typeof publicPath === 'string') {
-    return publicPath === request.nextUrl.pathname;
+function doesRequestPathnameMatchPath(request: NextRequest, path: Path) {
+  if (typeof path === 'string') {
+    return path === getUrlWithoutTrailingSlash(request.nextUrl.pathname);
   }
 
-  return publicPath.test(request.nextUrl.pathname);
+  return path.test(getUrlWithoutTrailingSlash(request.nextUrl.pathname));
 }
 
-function doesRequestPathnameMatchOneOfPublicPaths(
+function doesRequestPathnameMatchOneOfPaths(
   request: NextRequest,
-  publicPaths: PublicPath[]
+  paths: Path[]
 ) {
-  return publicPaths.some((path) =>
-    doesRequestPathnameMatchPublicPath(request, path)
+  return paths.some((path) => doesRequestPathnameMatchPath(request, path));
+}
+
+function getUrlWithoutTrailingSlash(url: string) {
+  if (url === '/') {
+    return '/';
+  }
+
+  return url.endsWith('/') ? url.slice(0, -1) : url;
+}
+
+function createLoginRedirectResponse(
+  request: NextRequest,
+  options: RedirectToLoginOptions
+) {
+  const redirectKey = options.redirectParamKeyName || 'redirect';
+  const url = request.nextUrl.clone();
+  url.pathname = options.path;
+  const encodedRedirect = encodeURIComponent(
+    `${request.nextUrl.pathname}${url.search}`
   );
+  url.search = `${redirectKey}=${encodedRedirect}`;
+
+  return NextResponse.redirect(url);
 }
 
 export function redirectToLogin(
@@ -107,23 +126,29 @@ export function redirectToLogin(
     publicPaths: ['/login']
   }
 ) {
-  const redirectKey = options.redirectParamKeyName || 'redirect';
-
-  if (doesRequestPathnameMatchOneOfPublicPaths(request, options.publicPaths)) {
+  if (
+    options.publicPaths &&
+    doesRequestPathnameMatchOneOfPaths(request, options.publicPaths)
+  ) {
     return NextResponse.next();
   }
 
-  const url = request.nextUrl.clone();
-  url.pathname = options.path;
-  url.search = `${redirectKey}=${request.nextUrl.pathname}${url.search}`;
-  return NextResponse.redirect(url);
+  if (
+    options.privatePaths &&
+    !doesRequestPathnameMatchOneOfPaths(request, options.privatePaths)
+  ) {
+    return NextResponse.next();
+  }
+
+  return createLoginRedirectResponse(request, options);
 }
 
-export async function createAuthMiddlewareResponse(
+export async function createAuthMiddlewareResponse<Metadata extends object>(
   request: NextRequest,
-  options: CreateAuthMiddlewareOptions
+  options: CreateAuthMiddlewareOptions<Metadata>
 ): Promise<NextResponse> {
-  if (request.nextUrl.pathname === options.loginPath) {
+  const url = getUrlWithoutTrailingSlash(request.nextUrl.pathname);
+  if (url === getUrlWithoutTrailingSlash(options.loginPath)) {
     return setAuthCookies(request.headers, {
       cookieName: options.cookieName,
       cookieSerializeOptions: options.cookieSerializeOptions,
@@ -134,11 +159,12 @@ export async function createAuthMiddlewareResponse(
       enableMultipleCookies: options.enableMultipleCookies,
       authorizationHeaderName: options.authorizationHeaderName,
       enableCustomToken: options.enableCustomToken,
-      dynamicCustomClaimsKeys: options.dynamicCustomClaimsKeys
+      dynamicCustomClaimsKeys: options.dynamicCustomClaimsKeys,
+      getMetadata: options.getMetadata
     });
   }
 
-  if (request.nextUrl.pathname === options.logoutPath) {
+  if (url === getUrlWithoutTrailingSlash(options.logoutPath)) {
     return removeAuthCookies(request.headers, {
       cookieName: options.cookieName,
       cookieSerializeOptions: options.cookieSerializeOptions
@@ -147,7 +173,7 @@ export async function createAuthMiddlewareResponse(
 
   if (
     options.refreshTokenPath &&
-    request.nextUrl.pathname === options.refreshTokenPath
+    url === getUrlWithoutTrailingSlash(options.refreshTokenPath)
   ) {
     return refreshToken(request, options);
   }
@@ -158,28 +184,29 @@ export async function createAuthMiddlewareResponse(
 export type HandleInvalidToken = (
   reason: InvalidTokenReason
 ) => Promise<NextResponse>;
-export type HandleValidToken = (
-  tokens: Tokens,
+export type HandleValidToken<Metadata extends object> = (
+  tokens: Tokens<Metadata>,
   headers: Headers
 ) => Promise<NextResponse>;
 export type HandleError = (e: unknown) => Promise<NextResponse>;
 
-export interface AuthMiddlewareOptions extends CreateAuthMiddlewareOptions {
+export interface AuthMiddlewareOptions<Metadata extends object>
+  extends CreateAuthMiddlewareOptions<Metadata> {
   serviceAccount?: ServiceAccount;
   apiKey: string;
   debug?: boolean;
   headers?: Headers;
   checkRevoked?: boolean;
   handleInvalidToken?: HandleInvalidToken;
-  handleValidToken?: HandleValidToken;
+  handleValidToken?: HandleValidToken<Metadata>;
   handleError?: HandleError;
   experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
 }
 
 const defaultInvalidTokenHandler = async () => NextResponse.next();
 
-const defaultValidTokenHandler: HandleValidToken = async (
-  _tokens: Tokens,
+const defaultValidTokenHandler = async <Metadata extends object>(
+  _tokens: Tokens<Metadata>,
   headers: Headers
 ) =>
   NextResponse.next({
@@ -196,9 +223,9 @@ function validateResponse(response: NextResponse) {
   }
 }
 
-export async function authMiddleware(
+export async function authMiddleware<Metadata extends object>(
   request: NextRequest,
-  options: AuthMiddlewareOptions
+  options: AuthMiddlewareOptions<Metadata>
 ): Promise<NextResponse> {
   if (options.debug) {
     enableDebugMode();
@@ -214,12 +241,22 @@ export async function authMiddleware(
 
   removeInternalVerifiedCookieIfExists(request.cookies);
 
-  debug('Handle request', {path: request.nextUrl.pathname});
+  debug('Handle request', {
+    path: getUrlWithoutTrailingSlash(request.nextUrl.pathname)
+  });
+
+  const authMiddlewareResponseRoutes = [
+    options.loginPath,
+    options.logoutPath,
+    options.refreshTokenPath
+  ]
+    .filter(Boolean)
+    .map((url) => getUrlWithoutTrailingSlash(url as string));
 
   if (
-    [options.loginPath, options.logoutPath, options.refreshTokenPath]
-      .filter(Boolean)
-      .includes(request.nextUrl.pathname)
+    authMiddlewareResponseRoutes.includes(
+      getUrlWithoutTrailingSlash(request.nextUrl.pathname)
+    )
   ) {
     debug('Handle authentication API route');
     return createAuthMiddlewareResponse(request, options);
@@ -235,7 +272,10 @@ export async function authMiddleware(
   try {
     debug('Attempt to fetch request cookies tokens');
 
-    const tokens = await getRequestCookiesTokens(request.cookies, options);
+    const tokens = await getRequestCookiesTokens<Metadata>(
+      request.cookies,
+      options
+    );
 
     return await handleExpiredToken(
       async () => {
@@ -253,7 +293,8 @@ export async function authMiddleware(
           {
             token: tokens.idToken,
             decodedToken,
-            customToken: tokens.customToken
+            customToken: tokens.customToken,
+            metadata: tokens.metadata
           },
           request.headers
         );
@@ -279,10 +320,21 @@ export async function authMiddleware(
           'Token refreshed successfully. Updating response cookie headers...'
         );
 
-        const tokensToSign = {
+        const metadata = await getMetadataInternal<Metadata>(
+          {
+            idToken,
+            decodedIdToken,
+            refreshToken,
+            customToken
+          },
+          options
+        );
+
+        const valueToSign = {
           idToken,
           refreshToken,
-          customToken
+          customToken,
+          metadata
         };
 
         const cookies = new AuthCookies(
@@ -290,11 +342,11 @@ export async function authMiddleware(
           options
         );
 
-        await cookies.setAuthCookies(tokensToSign, request.cookies);
+        await cookies.setAuthCookies(valueToSign, request.cookies);
 
         markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
-          {token: idToken, decodedToken: decodedIdToken, customToken},
+          {token: idToken, decodedToken: decodedIdToken, customToken, metadata},
           request.headers
         );
 
@@ -302,7 +354,7 @@ export async function authMiddleware(
 
         validateResponse(response);
 
-        await cookies.setAuthHeaders(tokensToSign, response.headers);
+        await cookies.setAuthHeaders(valueToSign, response.headers);
 
         return response;
       },
@@ -333,9 +385,23 @@ export async function authMiddleware(
           options.apiKey
         );
 
-        const tokensToSign = {
+        const decodedIdToken = mapJwtPayloadToDecodedIdToken(
+          decodeJwt(idToken)
+        );
+
+        const metadata = await getMetadataInternal<Metadata>(
+          {
+            idToken,
+            decodedIdToken,
+            refreshToken
+          },
+          options
+        );
+
+        const valueToSign = {
           idToken,
-          refreshToken
+          refreshToken,
+          metadata
         };
 
         const cookies = new AuthCookies(
@@ -343,7 +409,7 @@ export async function authMiddleware(
           options
         );
 
-        await cookies.setAuthCookies(tokensToSign, request.cookies);
+        await cookies.setAuthCookies(valueToSign, request.cookies);
 
         const decodedToken = await verifyIdToken(idToken, {
           checkRevoked: options.checkRevoked,
@@ -352,13 +418,13 @@ export async function authMiddleware(
 
         markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
-          {token: idToken, decodedToken},
+          {token: idToken, decodedToken, metadata},
           request.headers
         );
 
         validateResponse(response);
 
-        await cookies.setAuthHeaders(tokensToSign, response.headers);
+        await cookies.setAuthHeaders(valueToSign, response.headers);
 
         return response;
       }

@@ -13,6 +13,7 @@ export class MultipleCookieRemover implements CookieRemover {
       `${this.cookieName}.id`,
       `${this.cookieName}.refresh`,
       `${this.cookieName}.custom`,
+      `${this.cookieName}.metadata`,
       `${this.cookieName}.sig`
     ].forEach((name) => this.cookies.delete(name));
   }

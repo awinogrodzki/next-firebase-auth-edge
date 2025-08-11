@@ -4,8 +4,8 @@ import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/a
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
-import {ParsedTokens, VerifiedTokens} from '../../auth/custom-token/index.js';
-import {getFirebaseAuth} from '../../auth/index.js';
+import {ParsedCookies, VerifiedCookies} from '../../auth/custom-token/index.js';
+import {getFirebaseAuth, TokenSet} from '../../auth/index.js';
 import {debug} from '../../debug/index.js';
 import {getCookiesTokens, getRequestCookiesTokens} from '../tokens.js';
 import {getReferer} from '../utils.js';
@@ -14,12 +14,15 @@ import {RequestCookiesProvider} from './parser/RequestCookiesProvider.js';
 import {CookieExpirationFactory} from './expiration/CookieExpirationFactory.js';
 import {CookiesObject, SetAuthCookiesOptions} from './types.js';
 import {CookieRemoverFactory} from './remover/CookieRemoverFactory.js';
+import {getMetadataInternal} from '../metadata.js';
+import {mapJwtPayloadToDecodedIdToken} from '../../auth/utils.js';
+import {decodeJwt} from 'jose';
 
-export async function appendAuthCookies(
+export async function appendAuthCookies<Metadata extends object>(
   headers: Headers,
   response: NextResponse,
-  tokens: ParsedTokens,
-  options: SetAuthCookiesOptions
+  value: ParsedCookies<Metadata>,
+  options: SetAuthCookiesOptions<Metadata>
 ) {
   debug('Updating response headers with authenticated cookies');
 
@@ -28,12 +31,12 @@ export async function appendAuthCookies(
     options
   );
 
-  await authCookies.setAuthHeaders(tokens, response.headers);
+  await authCookies.setAuthHeaders(value, response.headers);
 }
 
-export async function setAuthCookies(
+export async function setAuthCookies<Metadata extends object>(
   headers: Headers,
-  options: SetAuthCookiesOptions
+  options: SetAuthCookiesOptions<Metadata>
 ): Promise<NextResponse> {
   const {getCustomIdAndRefreshTokens} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
@@ -66,12 +69,25 @@ export async function setAuthCookies(
 
   debug('Successfully generated custom tokens');
 
+  const decodedIdToken = mapJwtPayloadToDecodedIdToken(
+    decodeJwt(customTokens.idToken)
+  );
+  const metadata = await getMetadataInternal(
+    {...customTokens, decodedIdToken},
+    options
+  );
+
   const response = new NextResponse(JSON.stringify({success: true}), {
     status: 200,
     headers: {'content-type': 'application/json'}
   });
 
-  await appendAuthCookies(headers, response, customTokens, options);
+  await appendAuthCookies(
+    headers,
+    response,
+    {...customTokens, metadata},
+    options
+  );
 
   return response;
 }
@@ -129,11 +145,11 @@ export function removeAuthCookies(
   return response;
 }
 
-export async function verifyApiCookies(
+export async function verifyApiCookies<Metadata extends object>(
   cookies: CookiesObject,
   headers: IncomingHttpHeaders,
-  options: SetAuthCookiesOptions
-): Promise<VerifiedTokens> {
+  options: SetAuthCookiesOptions<Metadata>
+): Promise<VerifiedCookies<Metadata>> {
   const tokens = await getCookiesTokens(cookies, options);
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
@@ -145,14 +161,19 @@ export async function verifyApiCookies(
     referer: headers.referer ?? ''
   });
 
-  return verifyTokenResult;
+  const metadata = await getMetadataInternal<Metadata>(
+    verifyTokenResult,
+    options
+  );
+
+  return {...verifyTokenResult, metadata};
 }
 
-export async function verifyNextCookies(
+export async function verifyNextCookies<Metadata extends object>(
   cookies: RequestCookies | ReadonlyRequestCookies,
   headers: Headers,
-  options: SetAuthCookiesOptions
-): Promise<VerifiedTokens> {
+  options: SetAuthCookiesOptions<Metadata>
+): Promise<VerifiedCookies<Metadata>> {
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
@@ -165,14 +186,19 @@ export async function verifyNextCookies(
     referer
   });
 
-  return verifyTokenResult;
+  const metadata = await getMetadataInternal<Metadata>(
+    verifyTokenResult,
+    options
+  );
+
+  return {...verifyTokenResult, metadata};
 }
 
-export async function refreshNextCookies(
+export async function refreshNextCookies<Metadata extends object>(
   cookies: RequestCookies | ReadonlyRequestCookies,
   headers: Headers,
-  options: SetAuthCookiesOptions
-): Promise<VerifiedTokens> {
+  options: SetAuthCookiesOptions<Metadata>
+): Promise<VerifiedCookies<Metadata>> {
   const {handleTokenRefresh} = getFirebaseAuth({
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
@@ -185,23 +211,30 @@ export async function refreshNextCookies(
     enableCustomToken: options.enableCustomToken
   });
 
+  const metadata = await getMetadataInternal<Metadata>(
+    tokenRefreshResult,
+    options
+  );
+
   return {
     idToken: tokenRefreshResult.idToken,
     refreshToken: tokenRefreshResult.refreshToken,
     customToken: tokenRefreshResult.customToken,
-    decodedIdToken: tokenRefreshResult.decodedIdToken
+    decodedIdToken: tokenRefreshResult.decodedIdToken,
+    metadata
   };
 }
 
-export async function refreshCredentials(
+export async function refreshCredentials<Metadata extends object>(
   request: NextRequest,
-  options: SetAuthCookiesOptions,
+  options: SetAuthCookiesOptions<Metadata>,
   responseFactory: (options: {
     headers: Headers;
-    tokens: VerifiedTokens;
+    tokens: TokenSet;
+    metadata: Metadata;
   }) => NextResponse | Promise<NextResponse>
 ): Promise<NextResponse> {
-  const tokens = await refreshNextCookies(
+  const value = await refreshNextCookies(
     request.cookies,
     request.headers,
     options
@@ -211,11 +244,18 @@ export async function refreshCredentials(
     RequestCookiesProvider.fromHeaders(request.headers),
     options
   );
-  await cookies.setAuthCookies(tokens, request.cookies);
+
+  await cookies.setAuthCookies(value, request.cookies);
 
   const responseOrPromise = responseFactory({
     headers: request.headers,
-    tokens
+    tokens: {
+      idToken: value.idToken,
+      decodedIdToken: value.decodedIdToken,
+      refreshToken: value.refreshToken,
+      customToken: value.customToken
+    },
+    metadata: value.metadata
   });
 
   const response =
@@ -223,16 +263,18 @@ export async function refreshCredentials(
       ? await responseOrPromise
       : responseOrPromise;
 
-  await cookies.setAuthHeaders(tokens, response.headers);
+  await cookies.setAuthHeaders(value, response.headers);
 
   return response;
 }
 
-export async function refreshNextResponseCookiesWithToken(
+export async function refreshNextResponseCookiesWithToken<
+  Metadata extends object
+>(
   idToken: string,
   request: NextRequest,
   response: NextResponse,
-  options: SetAuthCookiesOptions
+  options: SetAuthCookiesOptions<Metadata>
 ): Promise<NextResponse> {
   const appCheckToken = request.headers.get('X-Firebase-AppCheck') ?? undefined;
   const referer = getReferer(request.headers) ?? '';
@@ -248,16 +290,29 @@ export async function refreshNextResponseCookiesWithToken(
     referer
   });
 
-  await appendAuthCookies(request.headers, response, customTokens, options);
+  const decodedIdToken = mapJwtPayloadToDecodedIdToken(
+    decodeJwt(customTokens.idToken)
+  );
+  const metadata = await getMetadataInternal<Metadata>(
+    {...customTokens, decodedIdToken},
+    options
+  );
+
+  await appendAuthCookies(
+    request.headers,
+    response,
+    {...customTokens, metadata},
+    options
+  );
 
   return response;
 }
 
-export async function refreshCookiesWithIdToken(
+export async function refreshCookiesWithIdToken<Metadata extends object>(
   idToken: string,
   headers: Headers,
   cookies: RequestCookies | ReadonlyRequestCookies,
-  options: SetAuthCookiesOptions
+  options: SetAuthCookiesOptions<Metadata>
 ): Promise<void> {
   const appCheckToken = headers.get('X-Firebase-AppCheck') ?? undefined;
   const referer = getReferer(headers) ?? '';
@@ -273,18 +328,27 @@ export async function refreshCookiesWithIdToken(
     referer
   });
 
+  const decodedIdToken = mapJwtPayloadToDecodedIdToken(
+    decodeJwt(customTokens.idToken)
+  );
+
+  const metadata = await getMetadataInternal<Metadata>(
+    {...customTokens, decodedIdToken},
+    options
+  );
+
   const authCookies = new AuthCookies(
     RequestCookiesProvider.fromHeaders(headers),
     options
   );
 
-  await authCookies.setAuthCookies(customTokens, cookies);
+  await authCookies.setAuthCookies({...customTokens, metadata}, cookies);
 }
 
-export async function refreshNextResponseCookies(
+export async function refreshNextResponseCookies<Metadata extends object>(
   request: NextRequest,
   response: NextResponse,
-  options: SetAuthCookiesOptions
+  options: SetAuthCookiesOptions<Metadata>
 ): Promise<NextResponse> {
   const customTokens = await refreshNextCookies(
     request.cookies,
@@ -297,10 +361,10 @@ export async function refreshNextResponseCookies(
   return response;
 }
 
-export async function refreshServerCookies(
+export async function refreshServerCookies<Metadata extends object>(
   cookies: RequestCookies | ReadonlyRequestCookies,
   headers: Headers,
-  options: SetAuthCookiesOptions
+  options: SetAuthCookiesOptions<Metadata>
 ): Promise<void> {
   const customTokens = await refreshNextCookies(cookies, headers, options);
   const authCookies = new AuthCookies(

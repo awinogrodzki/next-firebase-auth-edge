@@ -9,6 +9,12 @@ const mockCookie = {
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6ImlkLXRva2VuIiwicmVmcmVzaF90b2tlbiI6InJlZnJlc2gtdG9rZW4iLCJjdXN0b21fdG9rZW4iOiJjdXN0b20tdG9rZW4ifQ.ExxN2rNayg2XCR6WNeZmY8tAyc_qyiZ2YdzITRbQocs'
 };
 
+const mockCookieWithMetadata = {
+  name: 'TestCookie',
+  value:
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF90b2tlbiI6ImlkLXRva2VuIiwicmVmcmVzaF90b2tlbiI6InJlZnJlc2gtdG9rZW4iLCJjdXN0b21fdG9rZW4iOiJjdXN0b20tdG9rZW4iLCJtZXRhZGF0YSI6eyJmb28iOiJiYXIifX0.tm6HY-N7NZMq9ipez53--tXfixsHhcF59hj9s13iEII'
+};
+
 describe('SingleCookieParser', () => {
   let mockCookies: RequestCookies;
   let mockCookiesProvider: RequestCookiesProvider;
@@ -30,7 +36,29 @@ describe('SingleCookieParser', () => {
     expect(result).toEqual({
       customToken: 'custom-token',
       idToken: 'id-token',
-      refreshToken: 'refresh-token'
+      refreshToken: 'refresh-token',
+      metadata: {}
+    });
+
+    expect(mockCookies.get).toHaveBeenCalledWith('TestCookie');
+  });
+
+  it('should parse a jwt cookie with metadata', async () => {
+    (mockCookies.get as jest.Mock).mockImplementationOnce(
+      () => mockCookieWithMetadata
+    );
+
+    const parser = new SingleCookieParser(mockCookiesProvider, 'TestCookie', [
+      'secret'
+    ]);
+
+    const result = await parser.parseCookies();
+
+    expect(result).toEqual({
+      customToken: 'custom-token',
+      idToken: 'id-token',
+      refreshToken: 'refresh-token',
+      metadata: {foo: 'bar'}
     });
 
     expect(mockCookies.get).toHaveBeenCalledWith('TestCookie');
