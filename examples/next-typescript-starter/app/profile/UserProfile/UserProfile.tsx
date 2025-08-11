@@ -107,6 +107,14 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
     router.refresh();
   });
 
+  const [handleTestRefresh, isTestRefreshLoading] = useLoadingCallback(async () => {
+    const response = await fetch('/api/test-refresh-credentials');
+
+    console.log("RESPONSE", await response.text());
+
+    router.refresh();
+  });
+
   let [isIncrementCounterActionPending, startTransition] =
     React.useTransition();
 
@@ -171,6 +179,15 @@ export function UserProfile({count, incrementCounter}: UserProfileProps) {
             }
           >
             Refresh cookies w/ server action
+          </Button>
+          <Button
+            loading={isTestRefreshLoading}
+            disabled={isTestRefreshLoading}
+            onClick={() =>
+              handleTestRefresh()
+            }
+          >
+            Test refresh
           </Button>
           {process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_KEY && (
             <Button

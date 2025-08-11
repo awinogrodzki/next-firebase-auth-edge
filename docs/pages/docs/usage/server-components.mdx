@@ -31,7 +31,7 @@ export default async function ServerComponentExample() {
     return notFound();
   }
 
-  const {token, decodedToken, customToken} = tokens;
+  const {token, decodedToken, customToken, metadata} = tokens;
 
   return (
     <div style={{wordBreak: 'break-word', width: '600px'}}>
@@ -41,6 +41,11 @@ export default async function ServerComponentExample() {
         User email: {decodedToken.email}
         <br />
         Custom token, if you enabled custom token support by passing `enableCustomToken` flag to `authMiddleware`: {customToken}
+        <br />
+        Metadata:
+        <pre>
+          {JSON.stringify(metadata, undefined, 2)}
+        </pre>
       </p>
     </div>
   );
@@ -61,3 +66,9 @@ export default async function ServerComponentExample() {
 | Name     | Description                                                                                                                                                                                                                                                                         |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | tenantId | **Optional** `string`. Specify this if your project supports [multi-tenancy](https://cloud.google.com/identity-platform/docs/multi-tenancy-authentication).                                                                                                                         |
+
+### Metadata
+
+`getTokens` can return `metadata` property, which is a custom data that can be saved within the cookies using `getMetadata` property passed to [Authentication Middleware](/docs/usage/middleware).
+
+`getMetadata` is called when user logs in or the credential are refreshed. The resulting object is then saved within user cookies.

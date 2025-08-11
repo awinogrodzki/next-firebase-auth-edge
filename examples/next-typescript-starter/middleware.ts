@@ -6,6 +6,7 @@ import {
   redirectToLogin
 } from 'next-firebase-auth-edge';
 import {authConfig} from './config/server-config';
+import { refreshCredentials } from 'next-firebase-auth-edge/next/cookies';
 
 const PRIVATE_PATHS = ['/', '/profile'];
 const PUBLIC_PATHS = ['/register', '/login', '/reset-password'];
@@ -28,6 +29,14 @@ export async function middleware(request: NextRequest) {
     tenantId: authConfig.tenantId,
     dynamicCustomClaimsKeys: ['someCustomClaim'],
     handleValidToken: async ({token, decodedToken, customToken}, headers) => {
+      console.log("PATH", request.nextUrl.pathname)
+      if (request.nextUrl.pathname === "/api/test-refresh-credentials") {
+        console.log("REFRESH!!!")
+        return refreshCredentials(request, authConfig, ({headers}) => NextResponse.json({"success": true}, {
+          headers
+        }))
+      }
+      
       // Authenticated user should not be able to access /login, /register and /reset-password routes
       if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
         return redirectToHome(request);
@@ -65,6 +74,7 @@ export const config = {
     '/api/login',
     '/api/logout',
     '/api/refresh-token',
+    '/api/test-refresh-credentials',
     // App api routes
     '/api/custom-claims',
     '/api/user-counters'
