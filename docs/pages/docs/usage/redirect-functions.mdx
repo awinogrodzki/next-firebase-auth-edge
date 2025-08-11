@@ -53,7 +53,11 @@ redirectToHome(request);
 
 ## redirectToLogin
 
-`redirectToLogin` redirects unauthenticated users to a public login page. It will skip the redirect if the request matches one of the paths listed in `publicPaths`.
+`redirectToLogin` redirects unauthenticated users to a public login page. 
+
+### Public paths
+
+`redirectToLogin` will skip the redirect if the request matches one of the paths listed in `publicPaths`.
 
 ```ts
 import {redirectToLogin} from 'next-firebase-auth-edge';
@@ -63,5 +67,20 @@ import {redirectToLogin} from 'next-firebase-auth-edge';
 redirectToLogin(request, {
   path: '/sign-in',
   publicPaths: ['/sign-in', '/register', /^\/post\/(\w+)/]
+});
+```
+
+### Private paths
+
+`redirectToLogin` will skip the redirect if the request does not match one of the paths listed in `privatePaths`.
+
+```ts
+import {redirectToLogin} from 'next-firebase-auth-edge';
+```
+
+```ts
+redirectToLogin(request, {
+  path: '/sign-in',
+  privatePaths: ['/dashboard', /^\/settings\/(\w+)/]
 });
 ```
