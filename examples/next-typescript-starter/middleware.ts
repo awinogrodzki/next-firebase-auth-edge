@@ -7,6 +7,7 @@ import {
 } from 'next-firebase-auth-edge';
 import {authConfig} from './config/server-config';
 
+const PRIVATE_PATHS = ['/', '/profile'];
 const PUBLIC_PATHS = ['/register', '/login', '/reset-password'];
 
 export async function middleware(request: NextRequest) {
@@ -41,7 +42,7 @@ export async function middleware(request: NextRequest) {
     handleInvalidToken: async (_reason) => {
       return redirectToLogin(request, {
         path: '/login',
-        publicPaths: PUBLIC_PATHS
+        privatePaths: PRIVATE_PATHS
       });
     },
     handleError: async (error) => {
@@ -49,7 +50,7 @@ export async function middleware(request: NextRequest) {
 
       return redirectToLogin(request, {
         path: '/login',
-        publicPaths: PUBLIC_PATHS
+        privatePaths: PRIVATE_PATHS
       });
     },
     getMetadata: authConfig.getMetadata
