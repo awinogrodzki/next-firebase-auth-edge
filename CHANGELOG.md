@@ -1,3 +1,10 @@
+# [1.10.0-canary.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.4...v1.10.0-canary.5) (2025-08-11)
+
+
+### Features
+
+* update firebase, firebase-admin and react dependencies ([41b94f7](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/41b94f7b16a9012b3707bf6942dee75eea1ea5bc))
+
 # [1.10.0-canary.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.3...v1.10.0-canary.4) (2025-05-29)
 
 
