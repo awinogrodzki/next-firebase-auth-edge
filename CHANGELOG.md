@@ -1,3 +1,10 @@
+# [1.10.0-canary.7](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.6...v1.10.0-canary.7) (2025-08-11)
+
+
+### Bug Fixes
+
+* allow to use `/` as private path ([00eaeca](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/00eaeca9b2ea73a736fab5d2ba60f9f22a764f2b))
+
 # [1.10.0-canary.6](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0-canary.5...v1.10.0-canary.6) (2025-08-11)
 
 
