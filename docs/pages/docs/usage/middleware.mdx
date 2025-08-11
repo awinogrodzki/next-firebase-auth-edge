@@ -100,6 +100,29 @@ export const config = {
 };
 ```
 
+## Metadata
+
+Starting from v1.10.0, Authentication Middleware allows **you** to store custom data within cookies. The data is signed and verified together with the token, so it's safe to use it to**,** **for example,** load user permissions from the database.
+
+Example usage:
+```tsx filename="middleware.ts"
+export async function middleware(request: NextRequest) {
+  return authMiddleware(request, {
+    // Store additional data in the cookies
+    getMetadata: async (tokens: TokenSet) => {
+      const roles = await loadRolesFromDb();
+      return { roles };
+    },
+    // ...other options
+  });
+}
+```
+
+Access the data using [getTokens](/docs/usage/server-components):
+```tsx filename="middleware.ts"
+const { metadata: { roles } } = await getTokens(await cookies(), authConfig)
+```
+
 ## Custom Token
 
 Starting from v1.8.0, **custom token is no longer enabled by default**. If you wish to enable custom token, set `enableCustomToken` option to `true` in `authMiddleware`.
@@ -131,28 +154,6 @@ Due to an issue with Firebase Hosting ([details here](https://stackoverflow.com/
 
 If you run into cookie size problems on Firebase Hosting, you may want to either reduce the size of custom claims in your tokens or consider switching to a different hosting provider.
 
-## Metadata
-
-Authentication Middleware allows **you** to store custom data within cookies. The data is signed and verified together with the token, so it's safe to use it to**,** **for example,** load user permissions from the database.
-
-Example usage:
-```tsx filename="middleware.ts"
-export async function middleware(request: NextRequest) {
-  return authMiddleware(request, {
-    // Store additional data in the cookies
-    getMetadata: async (tokens: TokenSet) => {
-      const roles = await loadRolesFromDb();
-      return { roles };
-    },
-    // ...other options
-  });
-}
-```
-
-Access the data using [getTokens](/docs/usage/server-components):
-```tsx filename="middleware.ts"
-const { metadata: { roles } } = await getTokens(await cookies(), authConfig)
-```
 
 ## Middleware Token Verification Caching
 
