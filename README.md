@@ -48,8 +48,8 @@ To make adopting the newest Next.js features easier, this library works seamless
 
 Key updates in latest release include:
 
-* Added `privatePaths` option to [redirectToLogin](/docs/usage/redirect-functions#redirecttologin) helper function 
-* Added [Metadata](/docs/usage/middleware#metadata) feature that allows to store custom data inside session cookies
+* Added `privatePaths` option to [redirectToLogin](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/redirect-functions#redirecttologin) helper function 
+* Added [Metadata](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#metadata) feature that allows to store custom data inside session cookies
 * Added `removeServerCookies` method to handle logout from inside Server Action 
 * Added `experimental_createAnonymousUserIfUserNotFound` option to create anonymous user if no user was found 
 * Full Firebase Emulator Support.
