@@ -1,5 +1,6 @@
-import styles from "./MainTitle.module.css";
-import { cx } from "../classNames";
-export function MainTitle(props: JSX.IntrinsicElements["h1"]) {
+import styles from './MainTitle.module.css';
+import {cx} from '../classNames';
+import {JSX} from 'react';
+export function MainTitle(props: JSX.IntrinsicElements['h1']) {
   return <h1 {...props} className={cx(styles.title, props.className)} />;
 }

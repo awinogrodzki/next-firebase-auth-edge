@@ -1,11 +1,12 @@
-import * as React from "react";
-import styles from "./icons.module.css";
+import * as React from 'react';
+import styles from './icons.module.css';
+import {JSX} from 'react';
 
-export function HomeIcon(props: JSX.IntrinsicElements["span"]) {
+export function HomeIcon(props: JSX.IntrinsicElements['span']) {
   return (
     <span
       {...props}
-      className={[styles.icon, props.className].filter(Boolean).join(" ")}
+      className={[styles.icon, props.className].filter(Boolean).join(' ')}
     >
       <svg
         focusable="false"

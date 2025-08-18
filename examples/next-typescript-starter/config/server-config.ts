@@ -40,5 +40,6 @@ export const authConfig = {
   tenantId: clientConfig.tenantId,
   getMetadata: async (tokens: TokenSet) => {
     return {uid: tokens.decodedIdToken.uid, timestamp: new Date().getTime()};
-  }
+  },
+  dynamicCustomClaimsKeys: ['someCustomClaim']
 };

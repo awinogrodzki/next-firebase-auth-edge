@@ -8,6 +8,7 @@ import {HiddenIcon} from '../icons/HiddenIcon';
 import {Button} from '../Button';
 import {FirebaseError} from '@firebase/util';
 import {FormError} from '../FormError';
+import {JSX} from 'react';
 
 export interface PasswordFormValue {
   email: string;
