@@ -1,21 +1,22 @@
-import * as React from "react";
-import styles from "./Button.module.css";
-import { LoadingIcon } from "../icons";
-import { cx } from "../classNames";
+import * as React from 'react';
+import styles from './Button.module.css';
+import {LoadingIcon} from '../icons';
+import {cx} from '../classNames';
+import {JSX} from 'react';
 
 const variantClassNames = {
   contained: styles.contained,
-  outlined: styles.outlined,
+  outlined: styles.outlined
 };
 
 export function Button({
   loading,
   children,
-  variant = "outlined",
+  variant = 'outlined',
   ...props
-}: JSX.IntrinsicElements["button"] & {
+}: JSX.IntrinsicElements['button'] & {
   loading?: boolean;
-  variant?: "contained" | "outlined";
+  variant?: 'contained' | 'outlined';
 }) {
   return (
     <button

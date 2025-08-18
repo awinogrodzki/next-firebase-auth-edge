@@ -287,7 +287,8 @@ export async function refreshNextResponseCookiesWithToken<
 
   const customTokens = await getCustomIdAndRefreshTokens(idToken, {
     appCheckToken,
-    referer
+    referer,
+    dynamicCustomClaimsKeys: options.dynamicCustomClaimsKeys
   });
 
   const decodedIdToken = mapJwtPayloadToDecodedIdToken(
@@ -325,7 +326,8 @@ export async function refreshCookiesWithIdToken<Metadata extends object>(
 
   const customTokens = await getCustomIdAndRefreshTokens(idToken, {
     appCheckToken,
-    referer
+    referer,
+    dynamicCustomClaimsKeys: options.dynamicCustomClaimsKeys
   });
 
   const decodedIdToken = mapJwtPayloadToDecodedIdToken(

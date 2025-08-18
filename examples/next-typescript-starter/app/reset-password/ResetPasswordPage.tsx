@@ -12,6 +12,7 @@ import {MainTitle} from '../../ui/MainTitle';
 import {appendRedirectParam} from '../shared/redirect';
 import {useRedirectParam} from '../shared/useRedirectParam';
 import styles from './ResetPasswordPage.module.css';
+import {ChangeEvent} from 'react';
 
 export function ResetPasswordPage() {
   const [email, setEmail] = React.useState('');
@@ -37,7 +38,9 @@ export function ResetPasswordPage() {
         <Input
           required
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setEmail(e.target.value)
+          }
           name="email"
           type="email"
           placeholder="Email address"
