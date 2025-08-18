@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0...v1.10.1) (2025-08-18)
+
+
+### Bug Fixes
+
+* pass dynamicCustomClaimsKeys in refreshCookiesWithIdToken ([cbae23f](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/cbae23f461b84fc1642805f1602bb81f99b4dc63))
+
 # [1.10.0](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.9.1...v1.10.0) (2025-08-11)
 
 
