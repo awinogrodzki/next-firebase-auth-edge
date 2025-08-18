@@ -4,37 +4,20 @@ import {Metadata} from 'next';
 import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
 import {cookies} from 'next/headers';
 import {authConfig} from '../../config/server-config';
-import {getFirebaseAdminApp} from '../firebase';
-import {getFirestore} from 'firebase-admin/firestore';
 import {Badge} from '../../ui/Badge';
 import {HomeLink} from '../../ui/HomeLink';
 import {MainTitle} from '../../ui/MainTitle';
 import {incrementCounter} from '../actions/user-counters';
+import {getUserCounter} from './UserProfile/user-counters-server';
 
-const db = getFirestore(getFirebaseAdminApp());
-async function getUserCounter(): Promise<number> {
+export default async function Profile() {
   const tokens = await getTokens(await cookies(), authConfig);
 
   if (!tokens) {
     throw new Error('Cannot get counter of unauthenticated user');
   }
 
-  const snapshot = await db
-    .collection('user-counters')
-    .doc(tokens.decodedToken.uid)
-    .get();
-
-  const currentUserCounter = await snapshot.data();
-
-  if (!currentUserCounter) {
-    return 0;
-  }
-
-  return currentUserCounter.count;
-}
-
-export default async function Profile() {
-  const count = await getUserCounter();
+  const counter = await getUserCounter(tokens.decodedToken.uid, tokens.token);
 
   return (
     <div className={styles.container}>
@@ -43,7 +26,10 @@ export default async function Profile() {
         <span>Profile</span>
         <Badge>Rendered on server</Badge>
       </MainTitle>
-      <UserProfile count={count} incrementCounter={incrementCounter} />
+      <UserProfile
+        count={counter?.count ?? 0}
+        incrementCounter={incrementCounter}
+      />
     </div>
   );
 }
