@@ -1,3 +1,16 @@
+# [1.11.0](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.1...v1.11.0) (2025-08-21)
+
+
+### Bug Fixes
+
+* **refresh-token:** respond with 401: Unauthorized when verify fails with InvalidTokenError ([cf84cec](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/cf84cecf77ae14bbadf5c1441abe74a2e0c65b58))
+
+
+### Features
+
+* **enableTokenRefreshOnExpiredKidHeader:** token refresh on expired kid is no longer experimental ([6800605](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/6800605360aae0d45680c8252ad432f453d1c4f5))
+* **refresh-token:** handle 401: Unauthorized in getValidIdToken and getValidCustomToken ([d96d89f](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d96d89f3be6edbcd0d10174017e62aea886fbd33))
+
 ## [1.10.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.0...v1.10.1) (2025-08-18)
 
 
