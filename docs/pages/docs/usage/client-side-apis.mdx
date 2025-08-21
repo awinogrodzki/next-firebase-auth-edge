@@ -105,6 +105,12 @@ export async function signInWithServerCustomToken(serverCustomToken: string) {
 }
 ```
 
+## Handling errors
+
+`getValidIdToken` and `getValidCustomToken` can fail with [AuthError](/docs/errors#autherror).
+
+Whenever the error happens, it usually means that the credentials have expired due to various reasons, and **user should be redirected to the sign in page**.
+
 ## Using Firebase Client SDKs
 
 The Firebase Client SDK exposes the [signInWithCustomToken](https://firebase.google.com/docs/auth/web/custom-auth#authenticate-with-firebase) method, which allows you to access the current user using a custom token.
