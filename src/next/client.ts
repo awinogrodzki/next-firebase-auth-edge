@@ -1,5 +1,5 @@
 import {decodeJwt} from 'jose';
-import {AuthError, AuthErrorCode} from '../auth/error.js';
+import {AuthError, AuthErrorCode, HttpError} from '../auth/error.js';
 
 class ClientTokenCache {
   private cacheMap: Record<string, string> = {};
@@ -110,6 +110,12 @@ async function mapResponseToAuthError(
   input: RequestInfo | URL,
   init?: RequestInit
 ) {
+  if (response.status === 401) {
+    const data = await safeResponse<HttpError>(response);
+
+    return new AuthError(AuthErrorCode.INVALID_CREDENTIAL, data?.message);
+  }
+
   const text = await safeResponse(response);
 
   return new AuthError(

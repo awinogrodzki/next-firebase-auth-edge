@@ -12,6 +12,11 @@ export enum AuthErrorCode {
   MISMATCHING_TENANT_ID = 'MISMATCHING_TENANT_ID'
 }
 
+export interface HttpError {
+  reason: string;
+  message: string;
+}
+
 const AuthErrorMessages: Record<AuthErrorCode, string> = {
   [AuthErrorCode.USER_NOT_FOUND]: 'User not found',
   [AuthErrorCode.INVALID_CREDENTIAL]: 'Invalid credentials',

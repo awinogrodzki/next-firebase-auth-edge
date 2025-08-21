@@ -5,7 +5,7 @@ import {
   appendAuthCookies,
   verifyNextCookies
 } from './cookies/index.js';
-import {isInvalidTokenError} from '../auth/index.js';
+import {HttpError, isInvalidTokenError} from '../auth/index.js';
 
 export async function refreshToken<Metadata extends object>(
   request: NextRequest,
@@ -46,7 +46,10 @@ export async function refreshToken<Metadata extends object>(
   } catch (error: unknown) {
     if (isInvalidTokenError(error)) {
       return new NextResponse(
-        JSON.stringify({reason: error.reason, message: error.message}),
+        JSON.stringify({
+          reason: error.reason,
+          message: error.message
+        } as HttpError),
         {
           status: 401
         }
