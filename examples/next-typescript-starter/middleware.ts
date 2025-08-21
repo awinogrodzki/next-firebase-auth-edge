@@ -23,8 +23,8 @@ export async function middleware(request: NextRequest) {
     cookieSerializeOptions: authConfig.cookieSerializeOptions,
     cookieSignatureKeys: authConfig.cookieSignatureKeys,
     serviceAccount: authConfig.serviceAccount,
-    experimental_enableTokenRefreshOnExpiredKidHeader:
-      authConfig.experimental_enableTokenRefreshOnExpiredKidHeader,
+    enableTokenRefreshOnExpiredKidHeader:
+      authConfig.enableTokenRefreshOnExpiredKidHeader,
     tenantId: authConfig.tenantId,
     dynamicCustomClaimsKeys: authConfig.dynamicCustomClaimsKeys,
     handleValidToken: async ({token, decodedToken, customToken}, headers) => {      

@@ -14,6 +14,7 @@ export interface SetAuthCookiesOptions<Metadata extends object> {
   authorizationHeaderName?: string;
   dynamicCustomClaimsKeys?: string[];
   getMetadata?: (tokens: TokenSet) => Promise<Metadata>;
+  enableTokenRefreshOnExpiredKidHeader?: boolean;
 }
 
 export type CookiesObject = Partial<{[K in string]: string}>;

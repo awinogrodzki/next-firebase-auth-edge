@@ -21,7 +21,7 @@ export interface GetTokensOptions extends GetCookiesTokensOptions {
   serviceAccount?: ServiceAccount;
   apiKey: string;
   debug?: boolean;
-  experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
+  enableTokenRefreshOnExpiredKidHeader?: boolean;
   tenantId?: string;
 }
 

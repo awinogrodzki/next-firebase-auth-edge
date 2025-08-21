@@ -86,7 +86,7 @@ describe('no matching kid integration test', () => {
       {idToken, refreshToken, customToken},
       {
         referer: REFERER,
-        experimental_enableTokenRefreshOnExpiredKidHeader: true,
+        enableTokenRefreshOnExpiredKidHeader: true,
         onTokenRefresh
       }
     );

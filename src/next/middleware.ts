@@ -149,19 +149,7 @@ export async function createAuthMiddlewareResponse<Metadata extends object>(
 ): Promise<NextResponse> {
   const url = getUrlWithoutTrailingSlash(request.nextUrl.pathname);
   if (url === getUrlWithoutTrailingSlash(options.loginPath)) {
-    return setAuthCookies(request.headers, {
-      cookieName: options.cookieName,
-      cookieSerializeOptions: options.cookieSerializeOptions,
-      cookieSignatureKeys: options.cookieSignatureKeys,
-      serviceAccount: options.serviceAccount,
-      apiKey: options.apiKey,
-      tenantId: options.tenantId,
-      enableMultipleCookies: options.enableMultipleCookies,
-      authorizationHeaderName: options.authorizationHeaderName,
-      enableCustomToken: options.enableCustomToken,
-      dynamicCustomClaimsKeys: options.dynamicCustomClaimsKeys,
-      getMetadata: options.getMetadata
-    });
+    return setAuthCookies(request.headers, options);
   }
 
   if (url === getUrlWithoutTrailingSlash(options.logoutPath)) {
@@ -200,7 +188,7 @@ export interface AuthMiddlewareOptions<Metadata extends object>
   handleInvalidToken?: HandleInvalidToken;
   handleValidToken?: HandleValidToken<Metadata>;
   handleError?: HandleError;
-  experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
+  enableTokenRefreshOnExpiredKidHeader?: boolean;
 }
 
 const defaultInvalidTokenHandler = async () => NextResponse.next();
@@ -225,8 +213,13 @@ function validateResponse(response: NextResponse) {
 
 export async function authMiddleware<Metadata extends object>(
   request: NextRequest,
-  options: AuthMiddlewareOptions<Metadata>
+  middlewareOptions: AuthMiddlewareOptions<Metadata>
 ): Promise<NextResponse> {
+  const options: AuthMiddlewareOptions<Metadata> = {
+    enableTokenRefreshOnExpiredKidHeader: true,
+    ...middlewareOptions
+  };
+
   if (options.debug) {
     enableDebugMode();
   }
@@ -370,7 +363,7 @@ export async function authMiddleware<Metadata extends object>(
 
         return handleError(e);
       },
-      options.experimental_enableTokenRefreshOnExpiredKidHeader ?? false
+      options.enableTokenRefreshOnExpiredKidHeader ?? false
     );
   } catch (error: unknown) {
     if (isInvalidTokenError(error)) {

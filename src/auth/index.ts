@@ -490,7 +490,7 @@ function getAuth(options: AuthOptions) {
           InvalidTokenReason.INVALID_CREDENTIALS
         );
       },
-      verifyOptions.experimental_enableTokenRefreshOnExpiredKidHeader ?? false
+      verifyOptions.enableTokenRefreshOnExpiredKidHeader ?? false
     );
   }
 

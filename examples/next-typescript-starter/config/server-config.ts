@@ -35,7 +35,7 @@ export const authConfig = {
   enableMultipleCookies: true,
   // Set to false if you're not planning to use `signInWithCustomToken` Firebase Client SDK method
   enableCustomToken: true,
-  experimental_enableTokenRefreshOnExpiredKidHeader: true,
+  enableTokenRefreshOnExpiredKidHeader: true,
   debug: false,
   tenantId: clientConfig.tenantId,
   getMetadata: async (tokens: TokenSet) => {

@@ -31,7 +31,7 @@ export interface VerifyOptions {
   currentDate?: Date;
   checkRevoked?: boolean;
   referer?: string;
-  experimental_enableTokenRefreshOnExpiredKidHeader?: boolean;
+  enableTokenRefreshOnExpiredKidHeader?: boolean;
 }
 
 export interface Tokens<Metadata extends object = object> {
