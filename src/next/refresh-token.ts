@@ -5,40 +5,54 @@ import {
   appendAuthCookies,
   verifyNextCookies
 } from './cookies/index.js';
+import {isInvalidTokenError} from '../auth/index.js';
 
 export async function refreshToken<Metadata extends object>(
   request: NextRequest,
   options: SetAuthCookiesOptions<Metadata>
 ) {
-  const result = await verifyNextCookies(
-    request.cookies,
-    request.headers,
-    options
-  );
+  try {
+    const result = await verifyNextCookies(
+      request.cookies,
+      request.headers,
+      options
+    );
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json'
-  };
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
 
-  if (!result) {
-    return new NextResponse(JSON.stringify({idToken: null}), {
-      status: 200,
-      headers
-    });
-  }
-
-  const response = new NextResponse(
-    JSON.stringify({
-      idToken: result.idToken,
-      customToken: result.customToken
-    }),
-    {
-      status: 200,
-      headers
+    if (!result) {
+      return new NextResponse(JSON.stringify({idToken: null}), {
+        status: 200,
+        headers
+      });
     }
-  );
 
-  await appendAuthCookies(request.headers, response, result, options);
+    const response = new NextResponse(
+      JSON.stringify({
+        idToken: result.idToken,
+        customToken: result.customToken
+      }),
+      {
+        status: 200,
+        headers
+      }
+    );
 
-  return response;
+    await appendAuthCookies(request.headers, response, result, options);
+
+    return response;
+  } catch (error: unknown) {
+    if (isInvalidTokenError(error)) {
+      return new NextResponse(
+        JSON.stringify({reason: error.reason, message: error.message}),
+        {
+          status: 401
+        }
+      );
+    }
+
+    throw error;
+  }
 }
