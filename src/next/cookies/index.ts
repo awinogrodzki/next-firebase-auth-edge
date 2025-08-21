@@ -183,7 +183,9 @@ export async function verifyNextCookies<Metadata extends object>(
   const referer = getReferer(headers) ?? '';
   const tokens = await getRequestCookiesTokens(cookies, options);
   const verifyTokenResult = await verifyAndRefreshExpiredIdToken(tokens, {
-    referer
+    referer,
+    enableTokenRefreshOnExpiredKidHeader:
+      options.enableTokenRefreshOnExpiredKidHeader
   });
 
   const metadata = await getMetadataInternal<Metadata>(

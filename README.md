@@ -59,7 +59,7 @@ The library now fully supports the Firebase Emulator, enabling you to run your d
 * Support for **Node.js 23** and **NPM 11**
 * Support for **Next.js 15**
 * Support for **React 19**
-* New `experimental_enableTokenRefreshOnExpiredKidHeader` option in `authMiddleware` and `getTokens`, which refreshes user tokens when Google’s public certificates expire (instead of throwing an error)
+* New `enableTokenRefreshOnExpiredKidHeader` option in `authMiddleware` and `getTokens`, which refreshes user tokens when Google’s public certificates expire (instead of throwing an error)
 
 
 ## Installation
