@@ -3034,10 +3034,10 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
-next-firebase-auth-edge@1.10.0-canary.7:
-  version "1.10.0-canary.7"
-  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-1.10.0-canary.7.tgz#46b57569318f173ebd1de32fd45c022925c4ae40"
-  integrity sha512-DNnzr5Njxu2s/OAMRKbaVwRbqpSoBKXwIrKpuOysCvXdB/81TngSYcZZJBPcMG1AiGQPKz1p3bHSSMySGaYIFA==
+next-firebase-auth-edge@1.11.0:
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/next-firebase-auth-edge/-/next-firebase-auth-edge-1.11.0.tgz#09baa26117793509978bb300fcfb5f052695bfa4"
+  integrity sha512-FdN+/KK1WwkBEXZRhMjHB3q6iysNLmMCoy5YOMcqGZI4j3P/iC3M+M9R13H2J+Dm6aOFU/F3IDBZGdse64awHw==
   dependencies:
     cookie "^0.7.0"
     encoding "^0.1.13"

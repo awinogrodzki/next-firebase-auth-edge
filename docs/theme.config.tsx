@@ -195,7 +195,7 @@ export default {
   docsRepositoryBase: config.githubUrl + '/blob/main/docs',
   useNextSeoProps() {
     return {
-      titleTemplate: '%s – Firebase Authentication for Next.js 14'
+      titleTemplate: '%s – Firebase Authentication for Next.js 15'
     };
   },
   // banner: {
