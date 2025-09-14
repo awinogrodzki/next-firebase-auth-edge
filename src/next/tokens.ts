@@ -11,10 +11,6 @@ import {mapJwtPayloadToDecodedIdToken} from '../auth/utils.js';
 import {debug, enableDebugMode} from '../debug/index.js';
 import {CookieParserFactory} from './cookies/parser/CookieParserFactory.js';
 import {CookiesObject, GetCookiesTokensOptions} from './cookies/types.js';
-import {
-  areCookiesVerifiedByMiddleware,
-  isCookiesObjectVerifiedByMiddleware
-} from './cookies/verification.js';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   cookieSerializeOptions?: CookieSerializeOptions;
@@ -62,17 +58,6 @@ export async function getTokens<Metadata extends object>(
   try {
     const tokens = await getRequestCookiesTokens<Metadata>(cookies, options);
     debug('getTokens: Tokens successfully extracted from cookies');
-
-    if (areCookiesVerifiedByMiddleware(cookies)) {
-      debug('getTokens: Cookies are marked as verified.');
-    } else {
-      console.warn(
-        '⚠️ [next-firebase-auth-edge]',
-        'Called `getTokens`, but the request cookies were not verified by Middleware.',
-        'Ensure that this route is included in the matcher config of your Next.js Middleware so that tokens remain up-to-date.'
-      );
-    }
-
     const payload = decodeJwt(tokens.idToken);
 
     return {
@@ -113,15 +98,6 @@ export async function getApiRequestTokens<Metadata extends object>(
 ): Promise<Tokens<Metadata> | null> {
   try {
     const tokens = await getCookiesTokens<Metadata>(request.cookies, options);
-
-    if (!isCookiesObjectVerifiedByMiddleware(request.cookies)) {
-      console.warn(
-        '⚠️ [next-firebase-auth-edge]',
-        'Called `getTokens`, but the request cookies were not verified by Middleware.',
-        'Ensure that this route is included in the matcher config of your Next.js Middleware so that tokens remain up-to-date.'
-      );
-    }
-
     const payload = decodeJwt(tokens.idToken);
 
     return {
@@ -149,15 +125,6 @@ export async function getTokensFromObject<Metadata extends object>(
 ): Promise<Tokens<Metadata> | null> {
   try {
     const tokens = await getCookiesTokens<Metadata>(cookies, options);
-
-    if (!isCookiesObjectVerifiedByMiddleware(cookies)) {
-      console.warn(
-        '⚠️ [next-firebase-auth-edge]',
-        'Called `getTokens`, but the request cookies were not verified by Middleware.',
-        'Ensure that this route is included in the matcher config of your Next.js Middleware so that tokens remain up-to-date.'
-      );
-    }
-
     const payload = decodeJwt(tokens.idToken);
 
     return {

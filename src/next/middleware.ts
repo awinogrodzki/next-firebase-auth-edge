@@ -17,11 +17,6 @@ import {
   SetAuthCookiesOptions
 } from './cookies/index.js';
 import {RequestCookiesProvider} from './cookies/parser/RequestCookiesProvider.js';
-import {
-  markCookiesAsVerified,
-  removeInternalVerifiedCookieIfExists,
-  wasResponseDecoratedWithModifiedRequestHeaders
-} from './cookies/verification.js';
 import {refreshToken} from './refresh-token.js';
 import {getRequestCookiesTokens, validateOptions} from './tokens.js';
 import {getReferer} from './utils.js';
@@ -203,14 +198,6 @@ const defaultValidTokenHandler = async <Metadata extends object>(
     }
   });
 
-function validateResponse(response: NextResponse) {
-  if (!wasResponseDecoratedWithModifiedRequestHeaders(response)) {
-    console.warn(
-      `– \x1b[33mwarn\x1b[0m next-firebase-auth-edge: NextResponse returned by handleValidToken was not decorated by modified request headers. This can cause token verification to happen multiple times in a single request. See: https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#middleware-token-verification-caching`
-    );
-  }
-}
-
 export async function authMiddleware<Metadata extends object>(
   request: NextRequest,
   middlewareOptions: AuthMiddlewareOptions<Metadata>
@@ -231,8 +218,6 @@ export async function authMiddleware<Metadata extends object>(
   const handleError = options.handleError ?? defaultInvalidTokenHandler;
   const handleInvalidToken =
     options.handleInvalidToken ?? defaultInvalidTokenHandler;
-
-  removeInternalVerifiedCookieIfExists(request.cookies);
 
   debug('Handle request', {
     path: getUrlWithoutTrailingSlash(request.nextUrl.pathname)
@@ -281,7 +266,6 @@ export async function authMiddleware<Metadata extends object>(
 
         debug('Credentials verified successfully');
 
-        markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
           {
             token: tokens.idToken,
@@ -293,10 +277,6 @@ export async function authMiddleware<Metadata extends object>(
         );
 
         debug('Successfully handled authenticated response');
-
-        if (!response.headers.has('location')) {
-          validateResponse(response);
-        }
 
         return response;
       },
@@ -336,16 +316,12 @@ export async function authMiddleware<Metadata extends object>(
         );
 
         await cookies.setAuthCookies(valueToSign, request.cookies);
-
-        markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
           {token: idToken, decodedToken: decodedIdToken, customToken, metadata},
           request.headers
         );
 
         debug('Successfully handled authenticated response');
-
-        validateResponse(response);
 
         await cookies.setAuthHeaders(valueToSign, response.headers);
 
@@ -409,14 +385,10 @@ export async function authMiddleware<Metadata extends object>(
           referer
         });
 
-        markCookiesAsVerified(request.cookies);
         const response = await handleValidToken(
           {token: idToken, decodedToken, metadata},
           request.headers
         );
-
-        validateResponse(response);
-
         await cookies.setAuthHeaders(valueToSign, response.headers);
 
         return response;
