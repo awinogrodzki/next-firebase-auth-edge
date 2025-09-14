@@ -1,3 +1,10 @@
+## [1.11.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.11.0...v1.11.1) (2025-09-14)
+
+
+### Bug Fixes
+
+* remove cookie verification warning ([910808e](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/910808ea03dcf0da986218ae56182bc1f265d17d))
+
 # [1.11.0](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.10.1...v1.11.0) (2025-08-21)
 
 
