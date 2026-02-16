@@ -1,3 +1,11 @@
+## [1.11.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.11.1...v1.11.2) (2026-02-16)
+
+
+### Bug Fixes
+
+* upgrade semantic release version to support provenance mode ([a37975b](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/a37975b403791671f10a96d8508fa3d72b7ef903))
+* use provenance with semantic release ([d2031e5](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d2031e5875606a8c73201174cd52af0546fe612e))
+
 ## [1.11.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.11.0...v1.11.1) (2025-09-14)
 
 
