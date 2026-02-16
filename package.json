@@ -59,7 +59,7 @@
       "types": "./lib/auth/claims.d.ts",
       "bun": "./browser/auth/claims.js",
       "deno": "./browser/auth/claims.js",
-      "browser": "./browser/auth/claimsjs",
+      "browser": "./browser/auth/claims.js",
       "worker": "./browser/auth/claims.js",
       "workerd": "./browser/auth/claims.js",
       "import": "./esm/auth/claims.js",
