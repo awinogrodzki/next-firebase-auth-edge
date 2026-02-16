@@ -1,3 +1,11 @@
+## [1.11.5](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.11.4...v1.11.5) (2026-02-16)
+
+
+### Bug Fixes
+
+* god please kill ai and bring back stackoverflow ([51df73d](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/51df73d649c4c9c3814ccd410742e05870ff3e3f))
+* update node version to 22 in github workflows ([ce45f99](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/ce45f99daa167e1871ba3794937ad9f10aafa850))
+
 ## [1.11.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.11.3...v1.11.4) (2026-02-16)
 
 
