@@ -1,3 +1,11 @@
+## [1.11.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.11.2...v1.11.3) (2026-02-16)
+
+
+### Bug Fixes
+
+* insignificant change to trigger and test release flow ([d90764d](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/d90764d956cf7c0d8a727afaefb27610cae76859))
+* trigger release to test semantic release integration ([e5dd2f0](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/e5dd2f0909920262d53b0ae27765fbe1f336b7ff))
+
 ## [1.11.2](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.11.1...v1.11.2) (2026-02-16)
 
 
