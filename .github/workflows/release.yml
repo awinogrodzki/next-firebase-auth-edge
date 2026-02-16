@@ -120,8 +120,10 @@ jobs:
             @semantic-release/changelog@5
             @semantic-release/exec@5
             @semantic-release/git@9
+            @semantic-release/npm@12
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
 
 
 
