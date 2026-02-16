@@ -1,3 +1,10 @@
+## [1.11.4](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.11.3...v1.11.4) (2026-02-16)
+
+
+### Bug Fixes
+
+* another attempt to fix semantic release ([1397c7b](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/1397c7b880a0bc158fcbd79fb034f63c9ac2c1dd))
+
 ## [1.11.3](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.11.2...v1.11.3) (2026-02-16)
 
 
