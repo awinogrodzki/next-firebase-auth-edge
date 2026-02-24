@@ -15,10 +15,12 @@ In long-running client sessions (e.g., when a user reopens a tab after an hour),
 
 To resolve this, you can expose an endpoint via `authMiddleware` to refresh client-side tokens when the server-side token has expired.
 
-To enable this endpoint, define the `refreshTokenPath` option in the middleware.
+To enable this endpoint, define the `refreshTokenPath` option in proxy/middleware.
 
-```tsx
-export async function middleware(request: NextRequest) {
+> **Next.js 14-15:** Use `middleware.ts` with `export async function middleware(...)` instead of `proxy.ts`. See the [compatibility note](/docs/usage/middleware#nextjs-14-15-compatibility).
+
+```tsx filename="proxy.ts"
+export async function proxy(request: NextRequest) {
   return authMiddleware(request, {
     loginPath: '/api/login',
     logoutPath: '/api/logout',
