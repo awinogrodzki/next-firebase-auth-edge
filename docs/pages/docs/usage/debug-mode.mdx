@@ -4,11 +4,13 @@ You can enable `debug mode` by setting `debug: true` in the options for `authMid
 
 When debug mode is active, the middleware will log additional details about the authentication process to the console.
 
-```tsx filename="middleware.ts"
+> **Next.js 14-15:** Use `middleware.ts` with `export async function middleware(...)` instead of `proxy.ts`. See the [compatibility note](/docs/usage/middleware#nextjs-14-15-compatibility).
+
+```tsx filename="proxy.ts"
 import { NextRequest, NextResponse } from "next/server";
 import { authMiddleware } from "next-firebase-auth-edge";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   return authMiddleware(request, {
     debug: true, // Enable debug mode
 
@@ -20,7 +22,7 @@ export async function middleware(request: NextRequest) {
     cookieSerializeOptions: {
       path: "/",
       httpOnly: true,
-      secure: false, 
+      secure: false,
       sameSite: "lax" as const,
       maxAge: 12 * 60 * 60 * 24,
     },
@@ -45,7 +47,8 @@ import { cookies } from "next/headers";
 ```
 
 ```tsx
-  // Since Next.js 15, `cookies` function returns a Promise, so we need to precede it with `await`.
+// Since Next.js 15, `cookies()` returns a Promise and must be preceded with `await`.
+// In Next.js 14, `cookies()` is synchronous — use `getTokens(cookies(), ...)` without `await` on `cookies()`.
 const tokens = await getTokens(await cookies(), {
   debug: true,
   apiKey: 'XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX',

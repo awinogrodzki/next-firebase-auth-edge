@@ -10,7 +10,7 @@ import {authConfig} from './config/server-config';
 const PRIVATE_PATHS = ['/', '/profile'];
 const PUBLIC_PATHS = ['/register', '/login', '/reset-password'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   return authMiddleware(request, {
     loginPath: '/api/login',
     logoutPath: '/api/logout',

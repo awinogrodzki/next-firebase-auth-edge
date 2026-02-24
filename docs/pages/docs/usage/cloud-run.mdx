@@ -11,11 +11,13 @@ Keep in mind that you still need to provide the Firebase `apiKey`.
 
 Example [authMiddleware](/docs/usage/middleware) usage:
 
-```tsx filename="middleware.ts"
+> **Next.js 14-15:** Use `middleware.ts` with `export async function middleware(...)` instead of `proxy.ts`. See the [compatibility note](/docs/usage/middleware#nextjs-14-15-compatibility).
+
+```tsx filename="proxy.ts"
 import { NextRequest, NextResponse } from "next/server";
 import { authMiddleware } from "next-firebase-auth-edge";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   return authMiddleware(request, {
     loginPath: "/api/login",
     logoutPath: "/api/logout",
