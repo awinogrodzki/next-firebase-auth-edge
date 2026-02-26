@@ -1,3 +1,15 @@
+# [1.12.0](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.11.5...v1.12.0) (2026-02-26)
+
+
+### Bug Fixes
+
+* **release:** update canary release after rebase ([f80caf1](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/f80caf15dde88da8164bcef3be643a60c4380065))
+
+
+### Features
+
+* **next:** support Next.js 16 ([7f69f89](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/7f69f893223fdd2297563d408601999890b079b6))
+
 # [1.12.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.11.5...v1.12.0-canary.1) (2026-02-26)
 
 
