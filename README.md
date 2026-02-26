@@ -58,7 +58,7 @@ The library now fully supports the Firebase Emulator, enabling you to run your d
 * Custom token is now optional. To enable custom token support use [enableCustomToken](https://next-firebase-auth-edge-docs.vercel.app/docs/usage/middleware#custom-token) option
 * Support ESM, Browser and Node.js imports for better tree-shaking features
 * Support for **Node.js 23** and **NPM 11**
-* Support for **Next.js 15**
+* Support for **Next.js 16**
 * Support for **React 19**
 
 ## Installation
