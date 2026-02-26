@@ -3,7 +3,7 @@ const path = require('path');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   turbopack: {
-    root: path.resolve(__dirname, '../..'),
+    root: path.resolve(__dirname),
   },
   // Needed for `signInWithRedirect` and custom `authDomain` configuration. See https://firebase.google.com/docs/auth/web/redirect-best-practices#proxy-requests
   // If you don't plan to use `signInWithRedirect` or custom `authDomain`, you can safely remove `rewrites` config.
