@@ -37,7 +37,8 @@ export async function loginAction(username: string, password: string) {
 
   const idToken = await credential.user.getIdToken();
 
-  // Since Next.js 15, `headers` and `cookies` functions return a Promise, hence we precede the calls with `await`.
+  // Since Next.js 15, `headers()` and `cookies()` return a Promise and must be preceded with `await`.
+  // In Next.js 14, these functions are synchronous — call them without `await`.
   await refreshCookiesWithIdToken(
     idToken,
     await headers(),

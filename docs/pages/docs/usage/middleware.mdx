@@ -1,6 +1,6 @@
 # Authentication Middleware
 
-The `authMiddleware` works with the [getTokens](/docs/usage/server-components) function to share valid user credentials between [Next.js Middleware](https://nextjs.org/docs/app/building-your-application/routing/middleware) and [Server Components](https://nextjs.org/docs/app/building-your-application/rendering/server-components).
+The `authMiddleware` works with the [getTokens](/docs/usage/server-components) function to share valid user credentials between [Next.js Proxy](https://nextjs.org/docs/app/getting-started/proxy) (or [Middleware](https://nextjs.org/docs/app/building-your-application/routing/middleware) in Next.js 14-15) and [Server Components](https://nextjs.org/docs/app/building-your-application/rendering/server-components).
 
 ## Key Features
 
@@ -10,11 +10,24 @@ The `authMiddleware` works with the [getTokens](/docs/usage/server-components) f
 4. Validates user cookies on every request.
 5. Provides flexibility by allowing you to define custom behavior using the `handleValidToken`, `handleInvalidToken`, and `handleError` callbacks.
 
+## Next.js 14-15 Compatibility
+
+Starting from Next.js 16, there are two key API changes:
+
+1. **`middleware.ts` has been renamed to `proxy.ts`** and the exported function should be named `proxy` instead of `middleware`. The proxy runs on the Node.js runtime instead of the Edge runtime.
+2. **Async `cookies()` and `headers()` are now mandatory.** Next.js 15 introduced async versions of `cookies()` and `headers()` with temporary synchronous backward compatibility. In Next.js 16, the synchronous fallback is removed — you must use `await cookies()` and `await headers()`.
+
+All code examples in the documentation use the **Next.js 15-16** convention with `await cookies()` and `await headers()`.
+
+If you are using **Next.js 14 or 15**, replace `proxy.ts` with `middleware.ts` and `export async function proxy(...)` with `export async function middleware(...)`. If you are using **Next.js 14**, you should also remove the `await` before `cookies()` and `headers()` calls, as these functions are synchronous in Next.js 14.
+
+The `authMiddleware` function and its options remain the same across all versions.
+
 ## Advanced usage
 
-Advanced usage of `authMiddleware` in `middleware.ts`, based on [starter example](/examples#starter):
+Advanced usage of `authMiddleware` in `proxy.ts`, based on [starter example](/examples#starter):
 
-```tsx filename="middleware.ts"
+```tsx filename="proxy.ts"
 import {NextResponse} from 'next/server';
 import type {NextRequest} from 'next/server';
 import {
@@ -25,7 +38,7 @@ import {
 
 const PUBLIC_PATHS = ['/register', '/login', '/reset-password'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   return authMiddleware(request, {
     loginPath: '/api/login',
     logoutPath: '/api/logout',
@@ -96,7 +109,7 @@ export const config = {
     '/api/login',
     '/api/logout',
     '/',
-    '/((?!_next|favicon.ico|api|.*\\.).*)'
+    '/((?!_next|favicon.ico|api|.*\\.)*)'
   ]
 };
 ```
@@ -107,8 +120,8 @@ Starting from v1.10.0, Authentication Middleware allows **you** to store custom 
 
 Example usage:
 
-```tsx filename="middleware.ts"
-export async function middleware(request: NextRequest) {
+```tsx filename="proxy.ts"
+export async function proxy(request: NextRequest) {
   return authMiddleware(request, {
     // Store additional data in the cookies
     getMetadata: async (tokens: TokenSet) => {
@@ -122,7 +135,7 @@ export async function middleware(request: NextRequest) {
 
 Access the data using [getTokens](/docs/usage/server-components):
 
-```tsx filename="middleware.ts"
+```tsx
 const {
   metadata: {roles}
 } = await getTokens(await cookies(), authConfig);
@@ -181,7 +194,7 @@ handleValidToken: async ({token, decodedToken, customToken}, headers) => {
 
 ## Usage with `next-intl` and other middlewares
 
-```tsx
+```tsx filename="proxy.ts"
 import type {NextRequest} from 'next/server';
 import createIntlMiddleware from 'next-intl/middleware';
 import {authMiddleware} from 'next-firebase-auth-edge';
@@ -191,7 +204,7 @@ const intlMiddleware = createIntlMiddleware({
   defaultLocale: 'en'
 });
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   return authMiddleware(request, {
     // ...
     handleValidToken: async (tokens) => {

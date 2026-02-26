@@ -4,11 +4,13 @@ By default, the Firebase Hosting environment strips all cookies except for `__se
 
 To use `next-firebase-auth-edge` in Firebase Hosting, you need to set a custom `cookieName` with the value `__session`, as shown in the examples below:
 
-```tsx filename="middleware.ts"
+> **Next.js 14-15:** Use `middleware.ts` with `export async function middleware(...)` instead of `proxy.ts`. See the [compatibility note](/docs/usage/middleware#nextjs-14-15-compatibility).
+
+```tsx filename="proxy.ts"
 import { NextRequest, NextResponse } from "next/server";
 import { authMiddleware } from "next-firebase-auth-edge";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   return authMiddleware(request, {
     cookieName: "__session", // This needs to be "__session" to work inside Firebase Hosting
 
