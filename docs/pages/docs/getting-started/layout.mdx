@@ -13,7 +13,7 @@ Learn more about the Next.js App Router in the [official docs](https://nextjs.or
 Here’s an example of how to implement the `RootLayout` React Server Component. It uses the `getTokens` function to create a user object from cookies and passes it to the `AuthProvider` client component.
 
 ```tsx filename="app/layout.tsx"
-import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
+import { filterStandardClaims } from "next-firebase-auth-edge/auth/claims";
 import { Tokens, getTokens } from "next-firebase-auth-edge";
 import { cookies } from "next/headers";
 import { User } from "./AuthContext";

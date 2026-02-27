@@ -1,6 +1,6 @@
-import {getFirebaseAuth} from 'next-firebase-auth-edge/lib/auth';
-import {refreshNextResponseCookies} from 'next-firebase-auth-edge/lib/next/cookies';
-import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
+import {getFirebaseAuth} from 'next-firebase-auth-edge/auth';
+import {refreshNextResponseCookies} from 'next-firebase-auth-edge/next/cookies';
+import {getTokens} from 'next-firebase-auth-edge/next/tokens';
 import {NextResponse} from 'next/server';
 import type {NextRequest} from 'next/server';
 import {authConfig} from '../../../config/server-config';

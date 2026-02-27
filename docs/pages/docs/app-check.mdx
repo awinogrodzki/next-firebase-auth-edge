@@ -21,10 +21,10 @@ await fetch("/api/login", {
 
 ## Advanced Usage
 
-If you need to explicitly create or verify an App Check token, you can use the `getAppCheck` function from `next-firebase-auth-edge/lib/app-check`. You can see an example of how to do this below:
+If you need to explicitly create or verify an App Check token, you can use the `getAppCheck` function from `next-firebase-auth-edge/app-check`. You can see an example of how to do this below:
 
 ```tsx
-import { getAppCheck } from "next-firebase-auth-edge/lib/app-check";
+import { getAppCheck } from "next-firebase-auth-edge/app-check";
 
 // Optional in authenticated Google Cloud Run environment. Otherwise required.
 const serviceAccount = {

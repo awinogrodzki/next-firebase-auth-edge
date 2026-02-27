@@ -11,7 +11,7 @@ The following is an example implementation of custom `AuthContext` using React's
 ```tsx filename="AuthContext.ts"
 import {createContext, useContext} from 'react';
 import {UserInfo} from 'firebase/auth';
-import {Claims} from 'next-firebase-auth-edge/lib/auth/claims';
+import {Claims} from 'next-firebase-auth-edge/auth/claims';
 
 export interface User extends UserInfo {
   emailVerified: boolean;

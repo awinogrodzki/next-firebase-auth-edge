@@ -1,6 +1,6 @@
 import {createContext, useContext} from 'react';
 import {UserInfo} from 'firebase/auth';
-import {Claims} from 'next-firebase-auth-edge/lib/auth/claims';
+import {Claims} from 'next-firebase-auth-edge/auth/claims';
 
 export interface Metadata {
   uid: string;

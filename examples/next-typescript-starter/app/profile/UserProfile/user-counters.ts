@@ -1,5 +1,5 @@
 import {signInWithCustomToken} from 'firebase/auth';
-import {getValidCustomToken} from 'next-firebase-auth-edge/lib/next/client';
+import {getValidCustomToken} from 'next-firebase-auth-edge/next/client';
 
 import {getFirebaseApp, getFirebaseAuth} from '../../auth/firebase';
 import {

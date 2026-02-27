@@ -1,5 +1,5 @@
 import {NextApiRequest, NextApiResponse} from 'next';
-import {getApiRequestTokens} from 'next-firebase-auth-edge/lib/next/tokens';
+import {getApiRequestTokens} from 'next-firebase-auth-edge/next/tokens';
 import {authConfig} from '../../config/server-config';
 
 export default async function handler(

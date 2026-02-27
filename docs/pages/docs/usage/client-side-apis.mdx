@@ -57,7 +57,7 @@ The function is optimized to be fast and safe for repeated calls. The `/api/refr
 Example usage:
 
 ```ts
-import {getValidIdToken} from 'next-firebase-auth-edge/lib/next/client';
+import {getValidIdToken} from 'next-firebase-auth-edge/next/client';
 
 export async function fetchSomethingFromExternalApi(serverIdToken: string) {
   const idToken = await getValidIdToken({
@@ -121,7 +121,7 @@ You can obtain a custom token by calling the [getTokens](/docs/usage/server-comp
 
 ```tsx
 import {signInWithCustomToken} from 'firebase/auth';
-import {getValidCustomToken} from 'next-firebase-auth-edge/lib/next/client';
+import {getValidCustomToken} from 'next-firebase-auth-edge/next/client';
 
 import {doc, getDoc, getFirestore, updateDoc, setDoc} from 'firebase/firestore';
 

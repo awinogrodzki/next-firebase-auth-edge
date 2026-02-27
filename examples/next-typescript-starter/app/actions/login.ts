@@ -1,7 +1,7 @@
 'use server';
 
 import {signInWithEmailAndPassword} from 'firebase/auth';
-import {refreshCookiesWithIdToken} from 'next-firebase-auth-edge/lib/next/cookies';
+import {refreshCookiesWithIdToken} from 'next-firebase-auth-edge/next/cookies';
 import {getFirebaseAuth} from '../auth/firebase';
 import {cookies, headers} from 'next/headers';
 import {authConfig} from '../../config/server-config';

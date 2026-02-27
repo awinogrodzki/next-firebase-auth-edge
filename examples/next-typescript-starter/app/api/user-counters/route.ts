@@ -2,7 +2,7 @@ import {NextResponse} from 'next/server';
 import type { NextRequest } from 'next/server';
 import {authConfig} from '../../../config/server-config';
 import {getFirestore} from 'firebase-admin/firestore';
-import {getTokens} from 'next-firebase-auth-edge/lib/next/tokens';
+import {getTokens} from 'next-firebase-auth-edge/next/tokens';
 import {getFirebaseAdminApp} from '../../firebase';
 
 export async function POST(request: NextRequest) {

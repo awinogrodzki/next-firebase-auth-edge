@@ -8,11 +8,11 @@ You can update your API key restrictions in the [Google Cloud Console](https://c
 
 To support API key domain restrictions, you need to inform Google APIs about the referer of your requests.
 
-If you are using any of the advanced methods like `getCustomIdAndRefreshTokens`, `verifyIdToken`, `handleTokenRefresh`, or `verifyAndRefreshExpiredIdToken` from the [advanced usage](/docs/usage/advanced-usage) section, make sure to pass the `referer` option. The `referer` should be the authorized domain, derived from the request headers. You can use the `getReferer` function (imported from `next-firebase-auth-edge/lib/next/utils`) to extract the referer from the headers of `NextRequest`.
+If you are using any of the advanced methods like `getCustomIdAndRefreshTokens`, `verifyIdToken`, `handleTokenRefresh`, or `verifyAndRefreshExpiredIdToken` from the [advanced usage](/docs/usage/advanced-usage) section, make sure to pass the `referer` option. The `referer` should be the authorized domain, derived from the request headers. You can use the `getReferer` function (imported from `next-firebase-auth-edge/next/utils`) to extract the referer from the headers of `NextRequest`.
 
 ```ts
-import {getFirebaseAuth} from 'next-firebase-auth-edge/lib/auth';
-import {getReferer} from 'next-firebase-auth-edge/lib/next/utils';
+import {getFirebaseAuth} from 'next-firebase-auth-edge/auth';
+import {getReferer} from 'next-firebase-auth-edge/next/utils';
 import type {NextRequest} from 'next/server';
 
 const {verifyIdToken} = getFirebaseAuth(/*{...}*/);
