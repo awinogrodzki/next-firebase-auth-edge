@@ -205,6 +205,18 @@ export class ComputeEngineCredential implements Credential {
       return Promise.resolve(this.projectId);
     }
 
+    // Honor an explicitly configured project id (GOOGLE_CLOUD_PROJECT /
+    // GCLOUD_PROJECT) before reaching for the metadata server, matching how
+    // firebase-admin and google-auth-library resolve the project. This lets
+    // the credential work on hosts without the GCP metadata server (behind a
+    // non-GCP load balancer, other clouds, some local/edge setups), where the
+    // metadata lookup otherwise throws "Failed to determine project ID".
+    const explicit = getExplicitProjectId();
+    if (explicit) {
+      this.projectId = explicit;
+      return this.projectId;
+    }
+
     const url = `http://${GOOGLE_METADATA_SERVICE_HOST}${GOOGLE_METADATA_SERVICE_PROJECT_ID_PATH}`;
     const request = this.buildRequest();
 
