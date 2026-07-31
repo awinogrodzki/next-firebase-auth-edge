@@ -1,3 +1,11 @@
+## [1.12.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.12.0...v1.12.1) (2026-07-31)
+
+
+### Bug Fixes
+
+* **auth:** honor GOOGLE_CLOUD_PROJECT before the metadata server in getProjectId ([e31ce28](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/e31ce28c12f861eeb63eb49d04ae5f5312045524))
+* **auth:** url-encode the refresh token in refreshExpiredIdToken ([134a004](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/134a004c0867ec291d00491218149796fd5c4424))
+
 # [1.12.0](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.11.5...v1.12.0) (2026-02-26)
 
 
