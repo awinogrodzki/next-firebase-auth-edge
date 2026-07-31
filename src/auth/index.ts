@@ -187,7 +187,7 @@ const refreshExpiredIdToken = async (
       'Content-Type': 'application/x-www-form-urlencoded',
       ...(options.referer ? {Referer: options.referer} : {})
     },
-    body: `grant_type=refresh_token&refresh_token=${refreshToken}`
+    body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(refreshToken)}`
   });
 
   if (!response.ok) {
