@@ -1,3 +1,10 @@
+# [1.13.0-canary.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.12.1...v1.13.0-canary.1) (2026-08-06)
+
+
+### Features
+
+* **auth:** support custom credentials for Workload Identity Federation ([bef4c1d](https://github.com/awinogrodzki/next-firebase-auth-edge/commit/bef4c1d08997ee21b2c56a9849012f1e39091e21)), closes [#338](https://github.com/awinogrodzki/next-firebase-auth-edge/issues/338)
+
 ## [1.12.1](https://github.com/awinogrodzki/next-firebase-auth-edge/compare/v1.12.0...v1.12.1) (2026-07-31)
 
 
