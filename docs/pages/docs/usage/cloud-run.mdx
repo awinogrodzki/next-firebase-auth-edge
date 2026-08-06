@@ -46,3 +46,5 @@ const tokens = await getTokens(context.req.cookies, {
     cookieSignatureKeys: ['Key-Should-Be-at-least-32-bytes-in-length'],
 });
 ```
+
+If you run your app outside Google Cloud and cannot use service account keys, see [Usage with Workload Identity Federation](/docs/usage/workload-identity-federation).

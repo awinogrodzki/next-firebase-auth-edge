@@ -12,6 +12,7 @@
   "domain-restriction": "Firebase API Key domain restriction",
   "advanced-usage": "Advanced usage",
   "cloud-run": "Usage in Google Cloud Run",
+  "workload-identity-federation": "Usage with Workload Identity Federation",
   "firebase-hosting": "Usage in Firebase Hosting",
   "debug-mode": "Debug mode"
 }

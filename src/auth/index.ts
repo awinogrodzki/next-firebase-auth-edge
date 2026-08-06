@@ -26,6 +26,11 @@ import {UserRecord} from './user-record.js';
 
 export * from './error.js';
 export * from './types.js';
+export type {
+  Credential,
+  FirebaseAccessToken,
+  ServiceAccount
+} from './credential.js';
 
 const getCustomTokenEndpoint = (apiKey: string) => {
   if (useEmulator() && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
@@ -320,7 +325,11 @@ function getAuth(options: AuthOptions) {
   const authRequestHandler = new AuthRequestHandler(credential, {
     tenantId
   });
-  const tokenGenerator = createFirebaseTokenGenerator(credential, tenantId);
+  const tokenGenerator = createFirebaseTokenGenerator(
+    credential,
+    tenantId,
+    options.serviceAccountId
+  );
 
   const handleTokenRefresh = async (
     refreshToken: string,
@@ -623,6 +632,7 @@ function isFirebaseAuthOptions(
 }
 
 export interface FirebaseAuthOptions {
+  credential?: Credential;
   serviceAccount?: ServiceAccount;
   apiKey: string;
   tenantId?: string;
@@ -650,9 +660,11 @@ export function getFirebaseAuth(
   const options = serviceAccount;
 
   return getAuth({
-    credential: options.serviceAccount
-      ? new ServiceAccountCredential(options.serviceAccount)
-      : getApplicationDefault(),
+    credential:
+      options.credential ??
+      (options.serviceAccount
+        ? new ServiceAccountCredential(options.serviceAccount)
+        : getApplicationDefault()),
     apiKey: options.apiKey,
     tenantId: options.tenantId,
     serviceAccountId: options.serviceAccountId,

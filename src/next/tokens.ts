@@ -3,7 +3,7 @@ import {decodeJwt} from 'jose';
 import {NextApiRequest} from 'next';
 import type {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import type {RequestCookies} from 'next/dist/server/web/spec-extension/cookies';
-import {ServiceAccount} from '../auth/credential.js';
+import {Credential, ServiceAccount} from '../auth/credential.js';
 import {ParsedCookies} from '../auth/custom-token/index.js';
 import {isInvalidTokenError} from '../auth/error.js';
 import {Tokens} from '../auth/index.js';
@@ -14,6 +14,7 @@ import {CookiesObject, GetCookiesTokensOptions} from './cookies/types.js';
 
 export interface GetTokensOptions extends GetCookiesTokensOptions {
   cookieSerializeOptions?: CookieSerializeOptions;
+  credential?: Credential;
   serviceAccount?: ServiceAccount;
   apiKey: string;
   debug?: boolean;
