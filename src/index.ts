@@ -13,3 +13,8 @@ export {
 
 export {getFirebaseAuth} from './auth/index.js';
 export type {Tokens} from './auth/index.js';
+export type {
+  Credential,
+  FirebaseAccessToken,
+  ServiceAccount
+} from './auth/credential.js';

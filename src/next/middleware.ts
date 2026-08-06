@@ -1,6 +1,6 @@
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
-import {ServiceAccount} from '../auth/credential.js';
+import {Credential, ServiceAccount} from '../auth/credential.js';
 import {
   AuthError,
   AuthErrorCode,
@@ -175,6 +175,7 @@ export type HandleError = (e: unknown) => Promise<NextResponse>;
 
 export interface AuthMiddlewareOptions<Metadata extends object>
   extends CreateAuthMiddlewareOptions<Metadata> {
+  credential?: Credential;
   serviceAccount?: ServiceAccount;
   apiKey: string;
   debug?: boolean;
@@ -242,6 +243,7 @@ export async function authMiddleware<Metadata extends object>(
 
   const {verifyIdToken, handleTokenRefresh, createAnonymousUser} =
     getFirebaseAuth({
+      credential: options.credential,
       serviceAccount: options.serviceAccount,
       apiKey: options.apiKey,
       tenantId: options.tenantId

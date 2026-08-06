@@ -1,0 +1,218 @@
+# Usage with Workload Identity Federation
+
+Some organizations enforce the [`iam.disableServiceAccountKeyCreation`](https://cloud.google.com/resource-manager/docs/organization-policy/restricting-service-accounts#disable_service_account_key_creation) organization policy, which makes it impossible to download service account keys. In such environments, the `serviceAccount` option cannot be used.
+
+Instead of a service account key, you can pass a custom `credential` to `authMiddleware`, `getFirebaseAuth`, `getTokens` and other functions. With a custom credential, custom tokens are signed remotely using the [IAM Service Account Credentials API](https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/signBlob), so no private key is ever exposed to your application.
+
+This allows you to authenticate with [Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation) from platforms that issue OIDC tokens, such as [Vercel](https://vercel.com/docs/oidc), AWS or Azure.
+
+## The Credential interface
+
+The `credential` option accepts any object that implements the `Credential` interface, exported by `next-firebase-auth-edge`:
+
+```tsx
+export interface Credential {
+  getProjectId(): Promise<string>;
+  getServiceAccountEmail(): Promise<string | null>;
+  getAccessToken(forceRefresh?: boolean): Promise<FirebaseAccessToken>;
+}
+
+export interface FirebaseAccessToken {
+  accessToken: string;
+  expirationTime: number;
+}
+```
+
+When `credential` is provided, it takes precedence over `serviceAccount` and the default Google Cloud Run credential discovery.
+
+## Google Cloud setup
+
+Before using Workload Identity Federation with `next-firebase-auth-edge`, make sure to:
+
+1. [Enable the IAM Service Account Credentials API](https://console.cloud.google.com/apis/api/iamcredentials.googleapis.com).
+2. [Create a workload identity pool and provider](https://cloud.google.com/iam/docs/workload-identity-federation-with-other-providers) for your OIDC token issuer.
+3. Create a dedicated service account and grant it the [Firebase Authentication Admin](https://firebase.google.com/docs/projects/iam/roles-predefined-product#auth) role.
+4. Grant the workload identity pool the `roles/iam.workloadIdentityUser` role on the service account, so external identities can impersonate it.
+5. Grant the service account the `roles/iam.serviceAccountTokenCreator` role on itself, so it can sign custom tokens with the `signBlob` API.
+
+For example, to set up a pool and provider for [Vercel's OIDC tokens](https://vercel.com/docs/oidc/gcp):
+
+```bash
+gcloud iam workload-identity-pools create vercel \
+  --location="global"
+
+gcloud iam workload-identity-pools providers create-oidc vercel \
+  --workload-identity-pool="vercel" \
+  --location="global" \
+  --issuer-uri="https://oidc.vercel.com/[TEAM_SLUG]" \
+  --allowed-audiences="https://vercel.com/[TEAM_SLUG]" \
+  --attribute-mapping="google.subject=assertion.sub"
+
+gcloud iam service-accounts add-iam-policy-binding [SERVICE_ACCOUNT_EMAIL] \
+  --role="roles/iam.workloadIdentityUser" \
+  --member="principalSet://iam.googleapis.com/projects/[PROJECT_NUMBER]/locations/global/workloadIdentityPools/vercel/*"
+
+gcloud iam service-accounts add-iam-policy-binding [SERVICE_ACCOUNT_EMAIL] \
+  --role="roles/iam.serviceAccountTokenCreator" \
+  --member="serviceAccount:[SERVICE_ACCOUNT_EMAIL]"
+```
+
+## Implementing a credential
+
+The example below implements a `Credential` that exchanges a [Vercel OIDC token](https://vercel.com/docs/oidc) for a federated access token using [Security Token Service](https://cloud.google.com/iam/docs/reference/sts/rest/v1/TopLevel/token), and then impersonates a service account using [generateAccessToken](https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateAccessToken). It uses only the Fetch API, so it works in both Node.js and Edge runtimes:
+
+```tsx filename="workload-identity-credential.ts"
+import type {
+  Credential,
+  FirebaseAccessToken
+} from 'next-firebase-auth-edge';
+import {getVercelOidcToken} from '@vercel/functions/oidc';
+
+const GCP_PROJECT_ID = process.env.GCP_PROJECT_ID!;
+const GCP_PROJECT_NUMBER = process.env.GCP_PROJECT_NUMBER!;
+const GCP_WORKLOAD_IDENTITY_POOL_ID = process.env.GCP_WORKLOAD_IDENTITY_POOL_ID!;
+const GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID =
+  process.env.GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID!;
+const GCP_SERVICE_ACCOUNT_EMAIL = process.env.GCP_SERVICE_ACCOUNT_EMAIL!;
+
+const TOKEN_EXPIRY_THRESHOLD_MILLIS = 5 * 60 * 1000;
+
+export class WorkloadIdentityCredential implements Credential {
+  private cachedToken?: FirebaseAccessToken;
+
+  public async getProjectId(): Promise<string> {
+    return GCP_PROJECT_ID;
+  }
+
+  public async getServiceAccountEmail(): Promise<string | null> {
+    return GCP_SERVICE_ACCOUNT_EMAIL;
+  }
+
+  public async getAccessToken(
+    forceRefresh?: boolean
+  ): Promise<FirebaseAccessToken> {
+    if (
+      !forceRefresh &&
+      this.cachedToken &&
+      this.cachedToken.expirationTime - Date.now() >
+        TOKEN_EXPIRY_THRESHOLD_MILLIS
+    ) {
+      return this.cachedToken;
+    }
+
+    const federatedToken = await this.exchangeOidcToken(
+      await getVercelOidcToken()
+    );
+
+    return (this.cachedToken =
+      await this.impersonateServiceAccount(federatedToken));
+  }
+
+  private async exchangeOidcToken(oidcToken: string): Promise<string> {
+    const response = await fetch('https://sts.googleapis.com/v1/token', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        audience: `//iam.googleapis.com/projects/${GCP_PROJECT_NUMBER}/locations/global/workloadIdentityPools/${GCP_WORKLOAD_IDENTITY_POOL_ID}/providers/${GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID}`,
+        grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
+        requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+        scope: 'https://www.googleapis.com/auth/cloud-platform',
+        subjectTokenType: 'urn:ietf:params:oauth:token-type:jwt',
+        subjectToken: oidcToken
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Unable to exchange OIDC token: ${await response.text()}`
+      );
+    }
+
+    const {access_token: accessToken} = await response.json();
+
+    return accessToken;
+  }
+
+  private async impersonateServiceAccount(
+    federatedToken: string
+  ): Promise<FirebaseAccessToken> {
+    const response = await fetch(
+      `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${federatedToken}`
+        },
+        body: JSON.stringify({
+          scope: ['https://www.googleapis.com/auth/cloud-platform']
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Unable to impersonate service account: ${await response.text()}`
+      );
+    }
+
+    const {accessToken, expireTime} = await response.json();
+
+    return {
+      accessToken,
+      expirationTime: new Date(expireTime).getTime()
+    };
+  }
+}
+```
+
+## Usage
+
+Pass an instance of your credential using the `credential` option. You can omit `serviceAccount` entirely.
+
+Example [authMiddleware](/docs/usage/middleware) usage:
+
+> **Next.js 14-15:** Use `middleware.ts` with `export async function middleware(...)` instead of `proxy.ts`. See the [compatibility note](/docs/usage/middleware#nextjs-14-15-compatibility).
+
+```tsx filename="proxy.ts"
+import { NextRequest, NextResponse } from "next/server";
+import { authMiddleware } from "next-firebase-auth-edge";
+import { WorkloadIdentityCredential } from "./workload-identity-credential";
+
+export async function proxy(request: NextRequest) {
+  return authMiddleware(request, {
+    loginPath: "/api/login",
+    logoutPath: "/api/logout",
+    apiKey: "XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX",
+    credential: new WorkloadIdentityCredential(),
+    cookieName: "AuthToken",
+    cookieSignatureKeys: ["Key-Should-Be-at-least-32-bytes-in-length"],
+    cookieSerializeOptions: {
+      path: "/",
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax" as const,
+      maxAge: 12 * 60 * 60 * 24,
+    },
+  });
+}
+```
+
+Example [getFirebaseAuth](/docs/usage/advanced-usage) usage:
+
+```tsx
+import { getFirebaseAuth } from "next-firebase-auth-edge";
+import { WorkloadIdentityCredential } from "./workload-identity-credential";
+
+const { createCustomToken, getUser } = getFirebaseAuth({
+  apiKey: "XXxxXxXXXxXxxxxx_XxxxXxxxxxXxxxXXXxxXxX",
+  credential: new WorkloadIdentityCredential(),
+});
+```
+
+Keep in mind that you still need to provide the Firebase `apiKey`.
+
+## Notes
+
+- The service account used to sign custom tokens is resolved from the `serviceAccountId` option, or, if not provided, from your credential's `getServiceAccountEmail` method. Make sure at least one of them returns the impersonated service account email. Otherwise, the library falls back to the [GCP metadata server](https://cloud.google.com/compute/docs/metadata/overview), which is not available outside Google Cloud.
+- If you only verify tokens (e.g. in middleware without custom claims or custom tokens), no credential is required. Setting the `GOOGLE_CLOUD_PROJECT` environment variable to your Firebase project ID is enough for token verification.

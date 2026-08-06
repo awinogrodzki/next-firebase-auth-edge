@@ -90,6 +90,12 @@ export class IAMSigner implements CryptoSigner {
       return this.serviceAccountId;
     }
 
+    const serviceAccountEmail = await this.credential.getServiceAccountEmail();
+
+    if (serviceAccountEmail) {
+      return (this.serviceAccountId = serviceAccountEmail);
+    }
+
     const token = await this.credential.getAccessToken();
     const url =
       'http://metadata/computeMetadata/v1/instance/service-accounts/default/email';

@@ -45,6 +45,7 @@ export async function refreshApiCookies<Metadata extends object>(
   const referer = headers['referer'] ?? '';
   const tokens = await getCookiesTokens(cookies, options);
   const {handleTokenRefresh} = getFirebaseAuth({
+    credential: options.credential,
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
     tenantId: options.tenantId

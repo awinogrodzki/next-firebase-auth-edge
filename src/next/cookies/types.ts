@@ -1,5 +1,5 @@
 import type {CookieSerializeOptions} from 'cookie';
-import {ServiceAccount} from '../../auth/credential.js';
+import {Credential, ServiceAccount} from '../../auth/credential.js';
 import {TokenSet} from '../../auth/types.js';
 
 export interface SetAuthCookiesOptions<Metadata extends object> {
@@ -8,6 +8,7 @@ export interface SetAuthCookiesOptions<Metadata extends object> {
   cookieSerializeOptions: CookieSerializeOptions;
   enableMultipleCookies?: boolean;
   enableCustomToken?: boolean;
+  credential?: Credential;
   serviceAccount?: ServiceAccount;
   apiKey: string;
   tenantId?: string;

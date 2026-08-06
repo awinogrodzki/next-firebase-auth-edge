@@ -39,6 +39,7 @@ export async function setAuthCookies<Metadata extends object>(
   options: SetAuthCookiesOptions<Metadata>
 ): Promise<NextResponse> {
   const {getCustomIdAndRefreshTokens} = getFirebaseAuth({
+    credential: options.credential,
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
     tenantId: options.tenantId
@@ -152,6 +153,7 @@ export async function verifyApiCookies<Metadata extends object>(
 ): Promise<VerifiedCookies<Metadata>> {
   const tokens = await getCookiesTokens(cookies, options);
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
+    credential: options.credential,
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
     tenantId: options.tenantId
@@ -175,6 +177,7 @@ export async function verifyNextCookies<Metadata extends object>(
   options: SetAuthCookiesOptions<Metadata>
 ): Promise<VerifiedCookies<Metadata>> {
   const {verifyAndRefreshExpiredIdToken} = getFirebaseAuth({
+    credential: options.credential,
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
     tenantId: options.tenantId,
@@ -202,6 +205,7 @@ export async function refreshNextCookies<Metadata extends object>(
   options: SetAuthCookiesOptions<Metadata>
 ): Promise<VerifiedCookies<Metadata>> {
   const {handleTokenRefresh} = getFirebaseAuth({
+    credential: options.credential,
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
     tenantId: options.tenantId
@@ -282,6 +286,7 @@ export async function refreshNextResponseCookiesWithToken<
   const referer = getReferer(request.headers) ?? '';
 
   const {getCustomIdAndRefreshTokens} = getFirebaseAuth({
+    credential: options.credential,
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
     tenantId: options.tenantId
@@ -321,6 +326,7 @@ export async function refreshCookiesWithIdToken<Metadata extends object>(
   const referer = getReferer(headers) ?? '';
 
   const {getCustomIdAndRefreshTokens} = getFirebaseAuth({
+    credential: options.credential,
     serviceAccount: options.serviceAccount,
     apiKey: options.apiKey,
     tenantId: options.tenantId
